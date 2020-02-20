@@ -1,0 +1,26 @@
+{
+    "name": "Breakfast Porridge",
+    "serve_between": "00:00, 10:00",
+    "class": "main",
+    "ingredients": {
+        "rolled_oats": {
+            "mass": 50,
+            "mass_units": "g",
+            "inc_perc": 20,
+            "dec_perc": 20
+        },
+        "water": {
+            "mass": 350,
+            "mass_units": "g",
+            "inc_perc": 30,
+            "dec_perc": 0            
+        },
+        "raisins": {
+            "mass": 10,
+            "mass_units": "g",
+            "inc_perc": 40,
+            "dec_perc": 100            
+        }
+    }
+
+}

@@ -1,0 +1,304 @@
+{
+  "name": "-",
+  "cost_per_mass": {
+    "cost_gbp": "-",
+    "mass": "-",
+    "mass_units": "-"
+  },
+  "flags": {
+    "nut_free": "-",
+    "gluten_free": "-",
+    "dairy_free": "-",
+    "vegetarian": "-",
+    "vegan": "-"
+  },
+  "macronutrient_totals": {
+    "total_carbohydrate": {
+      "mass": "-",
+      "mass_units": "-",
+      "mass_per": "-",
+      "mass_per_units": "-"
+    },
+    "total_fat": {
+      "mass": "-",
+      "mass_units": "-",
+      "mass_per": "-",
+      "mass_per_units": "-"
+    }
+  },
+  "macronutrients": {
+    "saturated_fat": {
+      "mass": "-",
+      "mass_units": "-",
+      "mass_per": "-",
+      "mass_per_units": "-"
+    },
+    "monounsaturated_fat": {
+      "mass": "-",
+      "mass_units": "-",
+      "mass_per": "-",
+      "mass_per_units": "-"
+    },
+    "polyunsaturated_fat": {
+      "mass": "-",
+      "mass_units": "-",
+      "mass_per": "-",
+      "mass_per_units": "-"
+    },
+    "trans_fats": {
+      "mass": "-",
+      "mass_units": "-",
+      "mass_per": "-",
+      "mass_per_units": "-"
+    },
+    "sugars": {
+      "mass": "-",
+      "mass_units": "-",
+      "mass_per": "-",
+      "mass_per_units": "-"
+    },
+    "fibre": {
+      "mass": "-",
+      "mass_units": "-",
+      "mass_per": "-",
+      "mass_per_units": "-"
+    },
+    "protein": {
+      "mass": "-",
+      "mass_units": "-",
+      "mass_per": "-",
+      "mass_per_units": "-"
+    },
+    "alcohol": {
+      "mass": "-",
+      "mass_units": "-",
+      "mass_per": "-",
+      "mass_per_units": "-"
+    }
+  },
+  "micronutrients": {
+    "sodium": {
+      "mass": "-",
+      "mass_units": "-",
+      "mass_per": "-",
+      "mass_per_units": "-"
+    },
+
+    "vitamin_a": {
+      "mass": "-",
+      "mass_units": "-",
+      "mass_per": "-",
+      "mass_per_units": "-"
+    },
+    "vitamin_d2": {
+      "mass": "-",
+      "mass_units": "-",
+      "mass_per": "-",
+      "mass_per_units": "-"
+    },
+    "vitamin_d3": {
+      "mass": "-",
+      "mass_units": "-",
+      "mass_per": "-",
+      "mass_per_units": "-"
+    },
+    "vitamin_e": {
+      "mass": "-",
+      "mass_units": "-",
+      "mass_per": "-",
+      "mass_per_units": "-"
+    },
+    "vitamin_k1": {
+      "mass": "-",
+      "mass_units": "-",
+      "mass_per": "-",
+      "mass_per_units": "-"
+    },
+    "vitamin_k2": {
+      "mass": "-",
+      "mass_units": "-",
+      "mass_per": "-",
+      "mass_per_units": "-"
+    },
+    "vitamin_c": {
+      "mass": "-",
+      "mass_units": "-",
+      "mass_per": "-",
+      "mass_per_units": "-"
+    },
+    "thiamin": {
+      "mass": "-",
+      "mass_units": "-",
+      "mass_per": "-",
+      "mass_per_units": "-"
+    },
+    "riboflavin": {
+      "mass": "-",
+      "mass_units": "-",
+      "mass_per": "-",
+      "mass_per_units": "-"
+    },
+    "niacin": {
+      "mass": "-",
+      "mass_units": "-",
+      "mass_per": "-",
+      "mass_per_units": "-"
+    },
+    "vitamin_b6": {
+      "mass": "-",
+      "mass_units": "-",
+      "mass_per": "-",
+      "mass_per_units": "-"
+    },
+    "folate": {
+      "mass": "-",
+      "mass_units": "-",
+      "mass_per": "-",
+      "mass_per_units": "-"
+    },
+    "vitamin_b12": {
+      "mass": "-",
+      "mass_units": "-",
+      "mass_per": "-",
+      "mass_per_units": "-"
+    },
+    "biotin": {
+      "mass": "-",
+      "mass_units": "-",
+      "mass_per": "-",
+      "mass_per_units": "-"
+    },
+    "pantothenic_acid": {
+      "mass": "-",
+      "mass_units": "-",
+      "mass_per": "-",
+      "mass_per_units": "-"
+    },
+    "potassium": {
+      "mass": "-",
+      "mass_units": "-",
+      "mass_per": "-",
+      "mass_per_units": "-"
+    },
+    "chloride": {
+      "mass": "-",
+      "mass_units": "-",
+      "mass_per": "-",
+      "mass_per_units": "-"
+    },
+    "calcium": {
+      "mass": "-",
+      "mass_units": "-",
+      "mass_per": "-",
+      "mass_per_units": "-"
+    },
+    "phosphorus": {
+      "mass": "-",
+      "mass_units": "-",
+      "mass_per": "-",
+      "mass_per_units": "-"
+    },
+    "magnesium": {
+      "mass": "-",
+      "mass_units": "-",
+      "mass_per": "-",
+      "mass_per_units": "-"
+    },
+    "iron": {
+      "mass": "-",
+      "mass_units": "-",
+      "mass_per": "-",
+      "mass_per_units": "-"
+    },
+    "zinc": {
+      "mass": "-",
+      "mass_units": "-",
+      "mass_per": "-",
+      "mass_per_units": "-"
+    },
+    "copper": {
+      "mass": "-",
+      "mass_units": "-",
+      "mass_per": "-",
+      "mass_per_units": "-"
+    },
+    "manganese": {
+      "mass": "-",
+      "mass_units": "-",
+      "mass_per": "-",
+      "mass_per_units": "-"
+    },
+    "selenium": {
+      "mass": "-",
+      "mass_units": "-",
+      "mass_per": "-",
+      "mass_per_units": "-"
+    },
+    "chromium": {
+      "mass": "-",
+      "mass_units": "-",
+      "mass_per": "-",
+      "mass_per_units": "-"
+    },
+    "molybdenum": {
+      "mass": "-",
+      "mass_units": "-",
+      "mass_per": "-",
+      "mass_per_units": "-"
+    },
+    "iodine": {
+      "mass": "-",
+      "mass_units": "-",
+      "mass_per": "-",
+      "mass_per_units": "-"
+    },
+    "choline": {
+      "mass": "-",
+      "mass_units": "-",
+      "mass_per": "-",
+      "mass_per_units": "-"
+    },
+    "lycopene": {
+      "mass": "-",
+      "mass_units": "-",
+      "mass_per": "-",
+      "mass_per_units": "-"
+    },
+    "lutein": {
+      "mass": "-",
+      "mass_units": "-",
+      "mass_per": "-",
+      "mass_per_units": "-"
+    },
+    "zeaxanthin": {
+      "mass": "-",
+      "mass_units": "-",
+      "mass_per": "-",
+      "mass_per_units": "-"
+    },
+    "omega_3": {
+      "mass": "-",
+      "mass_units": "-",
+      "mass_per": "-",
+      "mass_per_units": "-"
+    },
+    "omega_6": {
+      "mass": "-",
+      "mass_units": "-",
+      "mass_per": "-",
+      "mass_per_units": "-"
+    },
+    "mcts": {
+      "mass": "-",
+      "mass_units": "-",
+      "mass_per": "-",
+      "mass_per_units": "-"
+    },
+    "caffeine": {
+      "mass": "-",
+      "mass_units": "-",
+      "mass_per": "-",
+      "mass_per_units": "-"
+    }
+  }
+}
