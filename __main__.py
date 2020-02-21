@@ -1,5 +1,4 @@
-from pydiet.ui.screens.main_menu import MainMenu
+from pydiet.ui.ui_service import ui
 
 # Show the UI main menu.
-mm = MainMenu()
-mm.run()
+ui.go_to('main_menu')
