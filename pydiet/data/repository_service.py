@@ -1,11 +1,14 @@
 import json
+import uuid
+from pathlib import Path
 
-INGREDIENT_DATAFILE_TEMPLATE_PATH = '../database/ingredients/template.json'
+cwd = str(Path.cwd())
 
-def create_new_ingredient_datafile():
-    # Read the template contents;
-    with open(INGREDIENT_DATAFILE_TEMPLATE_PATH) as fh:
-        template_data = fh.read()
-        # Parse into dict;
-        template_dict = json.loads(template_data)
-        return template_dict
+INGREDIENT_DB_PATH = cwd+'/pydiet/database/ingredients/'
+
+def create_ingredient(ingredient):
+    '''Saves the ingredient to the database.
+    '''
+    filename = str(uuid.uuid4())+'.json'
+    with open(INGREDIENT_DB_PATH+filename, 'w') as fh:
+        json.dump(ingredient.data, fh, indent=2)
