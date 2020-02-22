@@ -1,4 +1,4 @@
-from pydiet.ui.views.view import View
+from pydiet.user_interface.views.view import View
 
 TEXT = '''Choose one of the following options:
 i -> edit/create/delete ingredients
@@ -11,7 +11,7 @@ g -> start optimisation run
 class MainMenu(View):
     def __init__(self):
         self.text = TEXT
-    def action(self, choice):
+    def response_action(self, choice):
         if choice == 'i':
             return 'ingredient_menu'
         elif choice == 'r':

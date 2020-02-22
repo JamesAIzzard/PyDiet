@@ -5,9 +5,9 @@ _cwd = str(Path.cwd())
 
 INGREDIENT_DATAFILE_TEMPLATE_PATH = _cwd+'/pydiet/database/ingredients/template.json'
 
-current_ingredient_datafile = None
+current_data: dict = {}
 
-def get_ingredient_data_template():
+def get_data_template() -> dict:
     '''Returns an ingredient data dictionary object.
     
     Returns:

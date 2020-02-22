@@ -1,4 +1,12 @@
-from pydiet.ui.ui_service import ui
+from pydiet.services import services
+from pydiet.user_interface.ui import UI
+import pydiet.data.repository_service as repo
+import pydiet.ingredients.ingredient_service as ingredient_service
+
+# Initialise services
+services.add('repo', repo)
+services.add('ingredient', ingredient_service)
+services.add('ui', UI())
 
 # Show the UI main menu.
-ui.run()
+services.ui.run()
