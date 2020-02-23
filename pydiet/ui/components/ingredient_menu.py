@@ -21,10 +21,10 @@ class IngredientMenuComponent(ConsoleAppComponent):
         injector.ingredient_service.current_ingredient = i
         self.app.set_window_text(i.summary)
         self.app.show_text_window()
-        self.app.navigate(['home', 'ingredients', 'create'])
+        self.app.navigate(['home', 'ingredients', 'new'])
 
     def on_edit(self):
-        raise NotImplementedError
+        self.app.navigate(['home', 'ingredients', 'edit'])
 
     def on_delete(self):
         raise NotImplementedError
@@ -33,7 +33,7 @@ class IngredientMenuComponent(ConsoleAppComponent):
         raise NotImplementedError
     
 ingredient_menu = IngredientMenuComponent()
-ingredient_menu.set_static_response('1', 'on_create')
-ingredient_menu.set_static_response('2', 'on_edit')
-ingredient_menu.set_static_response('3', 'on_delete')
-ingredient_menu.set_static_response('4', 'on_view')
+ingredient_menu.set_option_response('1', 'on_create')
+ingredient_menu.set_option_response('2', 'on_edit')
+ingredient_menu.set_option_response('3', 'on_delete')
+ingredient_menu.set_option_response('4', 'on_view')

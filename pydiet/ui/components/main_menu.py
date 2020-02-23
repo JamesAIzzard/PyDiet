@@ -27,7 +27,7 @@ class MainMenuComponent(ConsoleAppComponent):
 
 
 main_menu = MainMenuComponent()
-main_menu.set_static_response('1', 'on_manage_ingredients')
-main_menu.set_static_response('2', 'on_manage_recipes')
-main_menu.set_static_response('3', 'on_manage_goals')
-main_menu.set_static_response('4', 'on_run_optimiser')
+main_menu.set_option_response('1', 'on_manage_ingredients')
+main_menu.set_option_response('2', 'on_manage_recipes')
+main_menu.set_option_response('3', 'on_manage_goals')
+main_menu.set_option_response('4', 'on_run_optimiser')
