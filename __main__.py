@@ -1,14 +1,13 @@
-from pydiet.services import services
-from pydiet.user_interface.ui import UI
-import pydiet.data.repository_service as repo
+from pydiet.injector import injector
+import pydiet.data.repository_service as repo_service
 import pydiet.ingredients.ingredient_service as ingredient_service
 import pydiet.utility_service as utility_service
+from pydiet.ui.app import app
 
-# Initialise services
-services.add('repo', repo)
-services.add('ingredient', ingredient_service)
-services.add('ui', UI())
-services.add('utils', utility_service)
+# Load dependencies;
+injector.repo_service = repo_service
+injector.ingredient_service = ingredient_service
+injector.utility_service = utility_service
+# Run the UI;
+app.run()
 
-# Show the UI main menu.
-services.ui.run()

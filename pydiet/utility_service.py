@@ -1,4 +1,4 @@
-def convert_mass(mass: float, start_units: str, end_units: str) -> float:
+def convert_mass(mass, start_units, end_units):
     # Define conversions
     g_conversions = {
         "ug": 1e-6,  # 1 microgram = 0.000001 grams

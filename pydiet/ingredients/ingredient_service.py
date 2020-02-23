@@ -5,6 +5,15 @@ from pydiet.ingredients.ingredient import Ingredient
 _cwd = str(Path.cwd())
 
 INGREDIENT_DATAFILE_TEMPLATE_PATH = _cwd+'/pydiet/database/ingredients/template.json'
+MANDATORY_NUTRIENTS = [
+    'total_carbohydrate',
+    'total_fat',
+    'saturated_fat',
+    'sugars',
+    'fibre',
+    'protein',
+    'sodium'
+]
 
 current_data:dict = {}
 current_ingredient = {}
