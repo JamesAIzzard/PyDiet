@@ -1,9 +1,12 @@
+from typing import TYPE_CHECKING
 from pydiet.injector import injector
-
+if TYPE_CHECKING:
+    from pydiet.shared.utility_service import UtilityService
 
 class Ingredient():
     def __init__(self, data):
         self._data = data
+        self._utility_service:'UtilityService' = injector.utility_service
 
     @property
     def name(self):
@@ -18,7 +21,7 @@ class Ingredient():
         for key in self._data['cost_per_mass']:
             if not self._data['cost_per_mass'][key]:
                 return None
-        conversion_factor = injector.utility_service.convert_mass(
+        conversion_factor = self._utility_service.convert_mass(
             self._data['cost_per_mass']['mass'],
             self._data['cost_per_mass']['mass_units'], "kg"
         )

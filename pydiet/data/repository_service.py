@@ -1,14 +1,18 @@
 import json
 import uuid
-from pathlib import Path
+import pydiet.configs as configs
+from pydiet.configs import INGREDIENT_DB_PATH
 
-_cwd = str(Path.cwd())
+class RepoService():
+    def __init__(self):
+        pass
 
-INGREDIENT_DB_PATH = _cwd+'/pydiet/database/ingredients/'
+    @staticmethod
+    def create_ingredient(ingredient):
+        '''Saves the ingredient to the database.
+        '''
+        filename = str(uuid.uuid4())+'.json'
+        with open(configs.INGREDIENT_DB_PATH+filename, 'w') as fh:
+            json.dump(ingredient.data, fh, indent=2)
 
-def create_ingredient(ingredient):
-    '''Saves the ingredient to the database.
-    '''
-    filename = str(uuid.uuid4())+'.json'
-    with open(INGREDIENT_DB_PATH+filename, 'w') as fh:
-        json.dump(ingredient.data, fh, indent=2)
+repo_service = RepoService()
