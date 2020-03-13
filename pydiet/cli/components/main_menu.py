@@ -16,7 +16,6 @@ class MainMenuComponent(ConsoleAppComponent):
         return output
 
     def on_manage_ingredients(self):
-        self.app.info_message = 'Navigation success :)'
         self.app.navigate(['home', 'ingredients'])
 
     def on_manage_recipes(self):

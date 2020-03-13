@@ -1,4 +1,8 @@
+from typing import TYPE_CHECKING
 from pyconsoleapp.console_app_component import ConsoleAppComponent
+from pydiet.injector import injector
+if TYPE_CHECKING:
+    from pydiet.ingredients.ingredient_service import IngredientService
 
 _MENU_TEMPLATE = '''Choose an option:
 (1) - Create a new ingredient.
@@ -10,15 +14,17 @@ _MENU_TEMPLATE = '''Choose an option:
 
 class IngredientMenuComponent(ConsoleAppComponent):
 
+    def __init__(self):
+        self.ingredient_service:'IngredientService' = injector.ingredient_service
+
     def run(self):
-        self.app.guard_entrance(['.', 'new'], 'ingredient_create_check')
         output = _MENU_TEMPLATE
         output = self.run_parent('standard_page', output)
         return output
 
     def on_create(self):
-        # self.app.set_window_text('Some test text.')
-        # self.app.show_text_window()
+        self.ingredient_service.load_new_ingredient()
+        self.app.set_window_text(self.ingredient_service.current_ingredient)
         self.app.navigate(['.', 'new'])
 
     def on_edit(self):
@@ -32,8 +38,6 @@ class IngredientMenuComponent(ConsoleAppComponent):
     
     def dynamic_response(self, response):
         pass
-        # self.app.set_window_text(response)
-        # self.app.show_text_window()
     
 ingredient_menu = IngredientMenuComponent()
 ingredient_menu.set_option_response('1', 'on_create')
