@@ -70,7 +70,13 @@
       "mass_units": null,
       "mass_per": null,
       "mass_per_units": null
-    }
+    },
+    "alchohol": {
+      "mass": null,
+      "mass_units": null,
+      "mass_per": null,
+      "mass_per_units": null
+    }    
   },
   "micronutrients": {
     "sodium": {
@@ -284,7 +290,7 @@
       "mass_per": null,
       "mass_per_units": null
     },
-    "mcts": {
+    "MCTS": {
       "mass": null,
       "mass_units": null,
       "mass_per": null,

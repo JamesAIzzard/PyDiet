@@ -15,7 +15,8 @@ _MENU_TEMPLATE = '''Choose an option:
 class IngredientMenuComponent(ConsoleAppComponent):
 
     def __init__(self):
-        self.ingredient_service:'IngredientService' = injector.ingredient_service
+        super().__init__()
+        self._ingredient_service: 'IngredientService' = injector.inject('IngredientService')
 
     def run(self):
         output = _MENU_TEMPLATE
@@ -23,8 +24,9 @@ class IngredientMenuComponent(ConsoleAppComponent):
         return output
 
     def on_create(self):
-        self.ingredient_service.load_new_ingredient()
-        self.app.set_window_text(self.ingredient_service.current_ingredient)
+        self._ingredient_service.current_ingredient = \
+            self._ingredient_service.get_new_ingredient()
+        self.app.guard_exit(['.', 'new'], 'ingredient_save_check')
         self.app.navigate(['.', 'new'])
 
     def on_edit(self):
@@ -35,10 +37,11 @@ class IngredientMenuComponent(ConsoleAppComponent):
 
     def on_view(self):
         raise NotImplementedError
-    
+
     def dynamic_response(self, response):
         pass
-    
+
+
 ingredient_menu = IngredientMenuComponent()
 ingredient_menu.set_option_response('1', 'on_create')
 ingredient_menu.set_option_response('2', 'on_edit')

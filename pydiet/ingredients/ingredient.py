@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Union, Dict
+from typing import TYPE_CHECKING, Union, Optional, Dict
 from pydiet.injector import injector
 if TYPE_CHECKING:
     from pydiet.utility_service import UtilityService
@@ -7,7 +7,7 @@ if TYPE_CHECKING:
 class Ingredient():
     def __init__(self, data):
         self._data = data
-        self._utility_service: 'UtilityService' = injector.utility_service
+        self._utility_service: 'UtilityService' = injector.inject('UtilityService')
 
     @property
     def macronutrient_data(self)->Dict:
@@ -55,15 +55,19 @@ class Ingredient():
             return None
 
     @property
-    def cost_data(self)-> Union[Dict, None]:
+    def cost_data(self)-> Dict:
         return self._data['cost_per_mass']
+
+    @property
+    def flag_data(self)->Dict:
+        return self._data['flags']
 
     @property
     def total_carbohydrate_data(self)->Dict:
         return self._data['total_carbohydrate']
 
     @property
-    def total_carbohydrate_percentage(self)->Union[float, None]:
+    def total_carbohydrate_percentage(self)->Optional[float]:
         return self.get_nutrient_percentage('total_carbohydrate')
 
     @property
@@ -71,7 +75,7 @@ class Ingredient():
         return self._data['total_fat']
 
     @property
-    def total_fat_percentage(self)->Union[float, None]:
+    def total_fat_percentage(self)->Optional[float]:
         return self.get_nutrient_percentage('total_fat')
 
     def set_cost(self, cost: float, mass: float, mass_units: str) -> None:
@@ -88,21 +92,19 @@ class Ingredient():
                 return False
         return True # If there were no undefined fields.
 
-    def get_flag(self, flag_name:str)->Union[bool, None]:
+    def get_flag(self, flag_name:str)->Optional[bool]:
         return self._data['flags'][flag_name]
 
-    def get_nutrient_data(self, nutrient_name:str)->Union[Dict, None]:
+    def get_nutrient_data(self, nutrient_name:str)->Dict:
         nutrients_data = self.all_nutrients_data
-        if nutrient_name in nutrients_data.keys():
-            return nutrients_data[nutrient_name]
+        return nutrients_data[nutrient_name]
 
-    def get_nutrient_percentage(self, nutrient_name:str)->Union[float, None]:
-        if self.check_nutrient_is_defined(nutrient_name):
-            nutrient_data = self.get_nutrient_data(nutrient_name)
-            nutrient_mass_in_grams = injector.utility_service.convert_mass(
-                nutrient_data['mass'], nutrient_data['mass_units'], 'g'
-            )
-            sample_mass_in_grams = injector.utility_service.convert_mass(
-                nutrient_data['mass_per'], nutrient_data['mass_per_units'], 'g'
-            )
-            return (nutrient_mass_in_grams/sample_mass_in_grams)*100
+    def get_nutrient_percentage(self, nutrient_name:str)->float:
+        nutrient_data = self.get_nutrient_data(nutrient_name)
+        nutrient_mass_in_grams = self._utility_service.convert_mass(
+            nutrient_data['mass'], nutrient_data['mass_units'], 'g'
+        )
+        sample_mass_in_grams = self._utility_service.convert_mass(
+            nutrient_data['mass_per'], nutrient_data['mass_per_units'], 'g'
+        )
+        return (nutrient_mass_in_grams/sample_mass_in_grams)*100

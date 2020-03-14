@@ -14,5 +14,3 @@ class RepoService():
         filename = str(uuid.uuid4())+'.json'
         with open(configs.INGREDIENT_DB_PATH+filename, 'w') as fh:
             json.dump(ingredient.data, fh, indent=2)
-
-repo_service = RepoService()
