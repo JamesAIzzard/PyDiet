@@ -10,6 +10,7 @@ _TEMPLATE = '''Enter ingredient name:
 class IngredientNameEditor(ConsoleAppComponent):
 
     def __init__(self):
+        super().__init__()
         self._ingredient_service:'IngredientService' = \
             injector.inject('IngredientService')
 

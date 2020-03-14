@@ -24,6 +24,7 @@ class Ingredient():
     @property
     def all_nutrients_data(self)->Dict:
         all_nutrient_data = {}
+        all_nutrient_data.update(self.macronutrient_totals_data)
         all_nutrient_data.update(self.macronutrient_data)
         all_nutrient_data.update(self.micronutrient_data)
         return all_nutrient_data

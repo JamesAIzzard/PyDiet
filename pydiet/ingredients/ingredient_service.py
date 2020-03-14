@@ -86,7 +86,7 @@ class IngredientService():
             flag_summary = flag_summary+INGREDIENT_FLAG_SUMMARY_TEMPLATE.format(
                 flag_name=s_flag_name,
                 status=status
-            )
+            )+('\n')
         return flag_summary
 
     def summarise_nutrient(self, nutrient_name: str, ingredient: 'Ingredient') -> str:
@@ -95,7 +95,7 @@ class IngredientService():
 
         Args:
             nutrient_name (str): Name of nutrient to summarise.
-            ingredient ([type]): Ingredient which the nutrient belongs to.
+            ingredient (Ingredient): Ingredient which the nutrient belongs to.
 
         Returns:
             str: Text summary of the nutrient.
