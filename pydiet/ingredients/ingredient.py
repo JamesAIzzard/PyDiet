@@ -84,6 +84,9 @@ class Ingredient():
         self._data['cost_per_mass']['mass'] = mass
         self._data['cost_per_mass']['mass_units'] = mass_units
 
+    def set_flag(self, flag_name:str, value:bool)->None:
+        self.flag_data[flag_name] = value
+
     def check_nutrient_is_defined(self, nutrient_name: str) -> bool:
         nutrient_data = self.all_nutrients_data[nutrient_name]
         # Iterate through the fields and return false if one isn't

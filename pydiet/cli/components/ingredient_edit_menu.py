@@ -20,7 +20,15 @@ class IngredientEditMenu(ConsoleAppComponent):
         super().__init__()
         self._ingredient_service:'IngredientService' = injector.inject('IngredientService')
 
+    def _check_name(self)->bool:
+        if not self._ingredient_service.current_ingredient.name:
+            self.app.error_message = 'Ingredient name must be set first.'
+            return False
+        else:
+            return True
+
     def run(self):
+        self.app.guard_exit(GUARD_ROUTE, 'ingredient_save_check')
         self.app.set_window_text(self._ingredient_service.summarise_ingredient(
             self._ingredient_service.current_ingredient
         ))
@@ -30,9 +38,12 @@ class IngredientEditMenu(ConsoleAppComponent):
         return output
 
     def on_set_name(self):
-        self.app.guard_exit(GUARD_ROUTE, 'ingredient_save_check')
         self.app.navigate(['.', 'name'])
 
+    def on_set_flags(self):
+        if self._check_name():
+            self.app.navigate(['.', 'flags'])
 
 ingredient_edit_menu = IngredientEditMenu()
 ingredient_edit_menu.set_option_response('1', 'on_set_name')
+ingredient_edit_menu.set_option_response('2', 'on_set_flags')
