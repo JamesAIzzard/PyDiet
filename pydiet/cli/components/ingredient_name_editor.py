@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 from pyconsoleapp.console_app_component import ConsoleAppComponent
-from pydiet.injector import injector
+from pinjector.injector import injector
 if TYPE_CHECKING:
     from pydiet.ingredients.ingredient_service import IngredientService
 
@@ -16,7 +16,7 @@ class IngredientNameEditor(ConsoleAppComponent):
 
     def run(self):
         output = _TEMPLATE
-        output = self.run_parent('standard_page', output)
+        output = self.run_parent('StandardPage', output)
         return output
 
     def dynamic_response(self, response):

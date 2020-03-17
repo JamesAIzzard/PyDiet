@@ -4,9 +4,9 @@ class StandardPage(ConsoleAppComponent):
 
     def run(self):
         output = ''
-        output = output+self.insert_component('header')
+        output = output+self.insert_component('Header')
         output = output+self.child_output()
-        output = output+self.insert_component('double_hr')
+        output = output+self.insert_component('DoubleHR')
         return output
 
 standard_page = StandardPage()

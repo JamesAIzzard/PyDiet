@@ -1,5 +1,5 @@
 from typing import TYPE_CHECKING, Union, Optional, Dict
-from pydiet.injector import injector
+from pinjector.injector import injector
 if TYPE_CHECKING:
     from pydiet.utility_service import UtilityService
 

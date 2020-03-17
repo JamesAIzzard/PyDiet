@@ -1,5 +1,5 @@
 from typing import TYPE_CHECKING, Dict
-from pydiet.injector import injector
+from pinjector.injector import injector
 from pyconsoleapp.console_app_component import ConsoleAppComponent
 if TYPE_CHECKING:
     from pydiet.ingredients.ingredient_service import IngredientService
@@ -38,7 +38,7 @@ class IngredientFlagEditor(ConsoleAppComponent):
                 output = output + _FLAG_MENU_ITEM_TEMPLATE.\
                     format(option_number, self._flag_number_map[option_number])     
             output = _FLAG_MENU_TEMPLATE.format(output)
-            output = self.run_parent('standard_page', output)
+            output = self.run_parent('StandardPage', output)
             return output   
         else:
             output = _FLAG_EDITOR_TEMPLATE.format(
@@ -65,7 +65,3 @@ class IngredientFlagEditor(ConsoleAppComponent):
                     self._flag_number_map[self._current_flag_number], False
                 )
             self._current_flag_number = 0    
-
-
-
-ingredient_flag_editor = IngredientFlagEditor()

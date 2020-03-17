@@ -1,10 +1,10 @@
-from pyconsoleapp.components.yes_no_dialog import YesNoDialog
+from pyconsoleapp.components.YesNoDialog import YesNoDialog
 
 class IngredientCreateCheck(YesNoDialog):
 
     def __init__(self):
         super().__init__()
-        self.data['message'] = 'Do you really want to create a new ingredient?'
+        self.message = 'Do you really want to create a new ingredient?'
 
     def on_yes_create(self):
         self.app.navigate(['.', 'new'])

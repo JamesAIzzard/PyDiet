@@ -1,5 +1,5 @@
 from typing import TYPE_CHECKING
-from pydiet.injector import injector
+from pinjector.injector import injector
 from pyconsoleapp.console_app_component import ConsoleAppComponent
 if TYPE_CHECKING:
     from pydiet.ingredients.ingredient_service import IngredientService
@@ -13,11 +13,12 @@ _TEMPLATE = '''Choose an option:
 (4) - Set a micronutrient.
 '''
 
-GUARD_ROUTE = ['home', 'ingredients', 'new']
-
 class IngredientEditMenu(ConsoleAppComponent):
     def __init__(self):
         super().__init__()
+        self.set_option_response('1', self.on_set_name)
+        self.set_option_response('2', self.on_set_flags)
+        self.guard_route = ['home', 'ingredients', 'new']
         self._ingredient_service:'IngredientService' = injector.inject('IngredientService')
 
     def _check_name(self)->bool:
@@ -28,13 +29,13 @@ class IngredientEditMenu(ConsoleAppComponent):
             return True
 
     def run(self):
-        self.app.guard_exit(GUARD_ROUTE, 'ingredient_save_check')
+        self.app.guard_exit(self.guard_route, 'IngredientSaveCheck')
         self.app.set_window_text(self._ingredient_service.summarise_ingredient(
             self._ingredient_service.current_ingredient
         ))
         self.app.show_text_window()        
         output = _TEMPLATE
-        output = self.run_parent('standard_page', output)
+        output = self.run_parent('StandardPage', output)
         return output
 
     def on_set_name(self):
@@ -43,7 +44,3 @@ class IngredientEditMenu(ConsoleAppComponent):
     def on_set_flags(self):
         if self._check_name():
             self.app.navigate(['.', 'flags'])
-
-ingredient_edit_menu = IngredientEditMenu()
-ingredient_edit_menu.set_option_response('1', 'on_set_name')
-ingredient_edit_menu.set_option_response('2', 'on_set_flags')

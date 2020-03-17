@@ -1,7 +1,7 @@
 from typing import Dict, TYPE_CHECKING
 import json
 import pydiet.configs as configs
-from pydiet.injector import injector
+from pinjector.injector import injector
 from pydiet.ingredients.ingredient import Ingredient
 if TYPE_CHECKING:
     from pydiet.ingredients.ingredient import Ingredient
