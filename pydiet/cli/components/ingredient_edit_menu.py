@@ -43,4 +43,5 @@ class IngredientEditMenu(ConsoleAppComponent):
 
     def on_set_flags(self):
         if self._check_name():
+            self.app.reset_component('IngredientFlagEditor')
             self.app.navigate(['.', 'flags'])
