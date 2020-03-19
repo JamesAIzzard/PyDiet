@@ -6,7 +6,6 @@ if TYPE_CHECKING:
 
 _TEMPLATE = '''Choose an option:
 (s) - Save the ingredient.
-
 (1) - Set ingredient name.
 (2) - Set ingredient flags.
 (3) - Set a macronutrient.
@@ -29,11 +28,17 @@ class IngredientEditMenu(ConsoleAppComponent):
             return True
 
     def run(self):
+        # Check current ingredient is set;
+        if not self._ingredient_service.current_ingredient:
+            raise NameError('The current ingredient is not defined.')
+        # Set the guard to remind the user to save when they leave;
         self.app.guard_exit(self.guard_route, 'IngredientSaveCheck')
+        # Update the summary in the window;
         self.app.set_window_text(self._ingredient_service.summarise_ingredient(
             self._ingredient_service.current_ingredient
         ))
-        self.app.show_text_window()        
+        self.app.show_text_window()
+        # Draw the view;       
         output = _TEMPLATE
         output = self.run_parent('StandardPage', output)
         return output

@@ -8,7 +8,8 @@ injector.register(UtilityService)
 injector.register(RepoService)
 injector.register(IngredientService)
 
-# Load the CLI;
+# Load the  CLI;
 from pydiet.cli.main import app
+
 # Run the CLI;
 app.run()

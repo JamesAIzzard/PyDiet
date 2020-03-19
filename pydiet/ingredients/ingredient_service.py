@@ -1,4 +1,4 @@
-from typing import Dict, TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING
 import json
 import pydiet.configs as configs
 from pinjector.injector import injector
@@ -37,8 +37,8 @@ NUTRIENT_SUMMARY_TEMPLATE = \
 
 class IngredientService():
     def __init__(self):
-        self._utility_service: 'UtilityService' = injector.inject('UtilityService')
-        self.current_ingredient: 'Ingredient'
+        self._utility_service: UtilityService = injector.inject('UtilityService')
+        self.current_ingredient: Optional[Ingredient] = None
 
     @staticmethod
     def _get_data_template() -> dict:

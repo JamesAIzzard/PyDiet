@@ -64,6 +64,13 @@ class Ingredient():
         return self._data['flags']
 
     @property
+    def all_flags_undefined(self)->bool:
+        for flag_name in self.flag_data:
+            if not self.flag_data[flag_name] == None:
+                return False
+        return True
+
+    @property
     def total_carbohydrate_data(self)->Dict:
         return self._data['total_carbohydrate']
 
