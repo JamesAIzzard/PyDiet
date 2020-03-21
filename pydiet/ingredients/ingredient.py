@@ -1,5 +1,5 @@
 from typing import TYPE_CHECKING, Union, Optional, Dict
-from pinjector.injector import injector
+from pinjector import inject
 if TYPE_CHECKING:
     from pydiet.utility_service import UtilityService
 
@@ -7,7 +7,7 @@ if TYPE_CHECKING:
 class Ingredient():
     def __init__(self, data):
         self._data = data
-        self._utility_service: 'UtilityService' = injector.inject('UtilityService')
+        self._utility_service: 'UtilityService' = inject('utility_service')
 
     @property
     def macronutrient_data(self)->Dict:

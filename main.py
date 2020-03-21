@@ -1,12 +1,12 @@
-from pinjector.injector import injector
+from pinjector import register
 from pydiet.utility_service import UtilityService
 from pydiet.data.repository_service import RepoService
 from pydiet.ingredients.ingredient_service import IngredientService
 
 # Load the dependencies;
-injector.register(UtilityService)
-injector.register(RepoService)
-injector.register(IngredientService)
+register(UtilityService)
+register(RepoService)
+register(IngredientService)
 
 # Load the  CLI;
 from pydiet.cli.main import app

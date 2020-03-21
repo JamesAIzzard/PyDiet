@@ -1,12 +1,11 @@
 from typing import Optional, TYPE_CHECKING
 import json
 import pydiet.configs as configs
-from pinjector.injector import injector
+from pinjector import inject
 from pydiet.ingredients.ingredient import Ingredient
 if TYPE_CHECKING:
     from pydiet.ingredients.ingredient import Ingredient
     from pydiet.utility_service import UtilityService
-    from pydiet.data.repository_service import RepoService
 
 INGREDIENT_SUMMARY_TEMPLATE = '''Ingredient Summary
 --------------------------------
@@ -37,8 +36,7 @@ NUTRIENT_SUMMARY_TEMPLATE = \
 
 class IngredientService():
     def __init__(self):
-        self._utility_service: UtilityService = injector.inject('UtilityService')
-        self.current_ingredient: Optional[Ingredient] = None
+        self._utility_service: UtilityService = inject('utility_service')
 
     @staticmethod
     def _get_data_template() -> dict:
@@ -55,14 +53,14 @@ class IngredientService():
             return template_dict
 
     @staticmethod
-    def summarise_ingredient_name(ingredient: 'Ingredient') -> str:
+    def summarise_ingredient_name(ingredient: Ingredient) -> str:
         if ingredient.name:
             return ingredient.name
         else:
             return 'Undefined'
 
     @staticmethod
-    def summarise_ingredient_cost(ingredient: 'Ingredient') -> str:
+    def summarise_ingredient_cost(ingredient: Ingredient) -> str:
         if ingredient.cost_is_defined:
             cost_data = ingredient.cost_data
             return INGREDIENT_COST_SUMMARY_TEMPLATE.format(
@@ -73,13 +71,13 @@ class IngredientService():
         else:
             return 'Undefined'
 
-    def summarise_ingredient_flags(self, ingredient: 'Ingredient') -> str:
+    def summarise_ingredient_flags(self, ingredient: Ingredient) -> str:
         flag_summary = ''
         flag_data = ingredient.flag_data
         for flag_name in flag_data.keys():
             s_flag_name = self._utility_service.sentence_case(
                 flag_name)
-            if flag_data[flag_name]:
+            if not flag_data[flag_name] == None:
                 status = flag_data[flag_name]
             else:
                 status = 'Undefined'
@@ -89,7 +87,7 @@ class IngredientService():
             )+('\n')
         return flag_summary
 
-    def summarise_nutrient(self, nutrient_name: str, ingredient: 'Ingredient') -> str:
+    def summarise_nutrient(self, nutrient_name: str, ingredient: Ingredient) -> str:
         '''Generates a string summary of the nutrient. Inserts word 'undefined'
         if any of the nutrient's fields are undefined.
 
@@ -115,28 +113,28 @@ class IngredientService():
         else:
             return '{}: Undefined'.format(s_nutrient_name)
 
-    def summarise_macro_totals(self, ingredient: 'Ingredient') -> str:
+    def summarise_macro_totals(self, ingredient: Ingredient) -> str:
         macro_totals_summary = ''
         for macro_total_name in ingredient.macronutrient_totals_data.keys():
             macro_totals_summary = macro_totals_summary +\
                 self.summarise_nutrient(macro_total_name, ingredient)+'\n'
         return macro_totals_summary
 
-    def summarise_macros(self, ingredient: 'Ingredient') -> str:
+    def summarise_macros(self, ingredient: Ingredient) -> str:
         macros_summary = ''
         for macro_name in ingredient.macronutrient_data.keys():
             macros_summary = macros_summary +\
                 self.summarise_nutrient(macro_name, ingredient) + '\n'
         return macros_summary
 
-    def summarise_micros(self, ingredient: 'Ingredient') -> str:
+    def summarise_micros(self, ingredient: Ingredient) -> str:
         micros_summary = ''
         for micro_name in ingredient.micronutrient_data.keys():
             micros_summary = micros_summary +\
                 self.summarise_nutrient(micro_name, ingredient) + '\n'
         return micros_summary
 
-    def summarise_ingredient(self, ingredient: 'Ingredient') -> str:
+    def summarise_ingredient(self, ingredient: Ingredient) -> str:
         return INGREDIENT_SUMMARY_TEMPLATE.format(
             name=IngredientService.summarise_ingredient_name(ingredient),
             cost=IngredientService.summarise_ingredient_cost(ingredient),
@@ -147,6 +145,6 @@ class IngredientService():
         )
 
     @staticmethod
-    def get_new_ingredient() -> 'Ingredient':
+    def get_new_ingredient() -> Ingredient:
         data_template = IngredientService._get_data_template()
         return Ingredient(data_template)

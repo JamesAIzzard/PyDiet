@@ -2,11 +2,8 @@ from pyconsoleapp.console_app_component import ConsoleAppComponent
 
 class StandardPage(ConsoleAppComponent):
 
-    def run(self):
+    def print(self, page_content):
         output = ''
-        output = output+self.insert_component('Header')
-        output = output+self.child_output()
-        output = output+self.insert_component('DoubleHR')
+        output = output+self.app.get_component('Header').print()
+        output = output+'{}'.format(page_content)
         return output
-
-standard_page = StandardPage()

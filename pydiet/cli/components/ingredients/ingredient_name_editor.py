@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 from pyconsoleapp.console_app_component import ConsoleAppComponent
-from pinjector.injector import injector
+from pinjector import inject
 if TYPE_CHECKING:
     from pydiet.ingredients.ingredient_service import IngredientService
 
@@ -11,16 +11,16 @@ class IngredientNameEditor(ConsoleAppComponent):
 
     def __init__(self):
         super().__init__()
-        self._ingredient_service:'IngredientService' = \
-            injector.inject('IngredientService')
+        self._ingredient_service:'IngredientService' = inject('ingredient_service')
 
-    def run(self):
+    def print(self):
         output = _TEMPLATE
-        output = self.run_parent('StandardPage', output)
+        output = self.app.get_component('StandardPage').print(output)
         return output
 
     def dynamic_response(self, response):
-        self._ingredient_service.current_ingredient.name = response
+        scope = self.get_scope('ingredient_edit')
+        scope.ingredient.name = response
+        self.app.set_window_text(self._ingredient_service.\
+            summarise_ingredient(scope.ingredient))
         self.app.navigate_back()
-
-ingredient_name_editor = IngredientNameEditor()
