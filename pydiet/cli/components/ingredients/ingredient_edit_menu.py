@@ -7,9 +7,10 @@ if TYPE_CHECKING:
 _TEMPLATE = '''Choose an option:
 (s) - Save the ingredient.
 (1) - Set ingredient name.
-(2) - Set ingredient flags.
-(3) - Set a macronutrient.
-(4) - Set a micronutrient.
+(2) - Set ingredient cost.
+(3) - Set ingredient flags.
+(4) - Set a macronutrient.
+(5) - Set a micronutrient.
 '''
 
 
@@ -17,7 +18,8 @@ class IngredientEditMenu(ConsoleAppComponent):
     def __init__(self):
         super().__init__()
         self.set_option_response('1', self.on_set_name)
-        self.set_option_response('2', self.on_set_flags)
+        self.set_option_response('2', self.on_set_cost)
+        self.set_option_response('3', self.on_set_flags)
 
     def print(self):
         # Draw the view;
@@ -28,6 +30,10 @@ class IngredientEditMenu(ConsoleAppComponent):
     def on_set_name(self):
         self.app.show_text_window()
         self.app.navigate(['.', 'name'])
+
+    def on_set_cost(self):
+        self.app.show_text_window()
+        self.app.navigate(['.', 'cost_mass'])
 
     def on_set_flags(self):
         # Show the window;

@@ -5,7 +5,8 @@ if TYPE_CHECKING:
     from pydiet.ingredients.ingredient_service import IngredientService
 
 _TEMPLATE = '''Enter ingredient name:
-'''
+
+>>> '''
 
 class IngredientNameEditor(ConsoleAppComponent):
 
@@ -21,6 +22,7 @@ class IngredientNameEditor(ConsoleAppComponent):
     def dynamic_response(self, response):
         scope = self.get_scope('ingredient_edit')
         scope.ingredient.name = response
+        self.app.info_message = 'Ingredient name set successfully.'
         self.app.set_window_text(self._ingredient_service.\
             summarise_ingredient(scope.ingredient))
         self.app.navigate_back()

@@ -1,5 +1,5 @@
 from typing import TYPE_CHECKING
-from pyconsoleapp.console_app_component import ConsoleAppComponent
+from pyconsoleapp import ConsoleAppComponent
 from pinjector import inject
 if TYPE_CHECKING:
     from pydiet.ingredients.ingredient_service import IngredientService
