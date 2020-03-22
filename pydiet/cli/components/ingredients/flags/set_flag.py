@@ -17,7 +17,7 @@ class SetFlag(ConsoleAppComponent):
 
     def print(self):
         output = _TEMPLATE.format(ingredient_name=self.scope.ingredient.name, \
-            flag=self.scope.current_flag_name(self.scope))
+            flag=self.scope.current_flag_name(self.scope)).replace('_', ' ')
         output = self.app.get_component('StandardPage').print(output)
         return output
 

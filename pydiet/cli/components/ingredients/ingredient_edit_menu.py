@@ -33,6 +33,13 @@ class IngredientEditMenu(ConsoleAppComponent):
 
     def on_set_cost(self):
         self.app.show_text_window()
+        scope = self.get_scope('ingredient_edit')
+        # Fresh some scope vars to determine
+        # state of cost setting and store data;
+        scope.cost_mass = None
+        scope.cost_mass_units = None
+        scope.cost = None
+        # Go set the cost;
         self.app.navigate(['.', 'cost_mass'])
 
     def on_set_flags(self):

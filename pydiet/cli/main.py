@@ -16,3 +16,4 @@ app.add_route(['home', 'ingredients', 'new', 'flags', 'set_all?'], 'CycleIngredi
 app.add_route(['home', 'ingredients', 'new', 'flags', 'set'], 'SetFlag')
 app.add_route(['home', 'ingredients', 'new', 'flags', 'flags_are_set'], 'FlagsAreSet')
 app.add_route(['home', 'ingredients', 'new', 'cost_mass'], 'SetCostMass')
+app.add_route(['home', 'ingredients', 'new', 'cost'], 'SetCost')

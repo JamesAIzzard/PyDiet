@@ -7,28 +7,31 @@ if TYPE_CHECKING:
     from pydiet.ingredients.ingredient import Ingredient
     from pydiet.utility_service import UtilityService
 
-INGREDIENT_SUMMARY_TEMPLATE = '''Ingredient Summary
---------------------------------
-Name:
+INGREDIENT_SUMMARY_TEMPLATE = '''Name:
 {name}
 
+--------------------------------------
 Cost:
 {cost}
 
+--------------------------------------
 Flags:
 {flags}
 
+--------------------------------------
 Macronutrient Totals:
 {macro_totals}
 
+--------------------------------------
 Macronutrients:
 {macros}
 
+--------------------------------------
 Micronutrients:
 {micros}
 '''
 
-INGREDIENT_COST_SUMMARY_TEMPLATE = '£{cost}/{mass}{mass_units}'
+INGREDIENT_COST_SUMMARY_TEMPLATE = '£{cost:.2f} for {mass}{mass_units} ({g_cost}/g)'
 INGREDIENT_FLAG_SUMMARY_TEMPLATE = '{flag_name}: {status}'
 NUTRIENT_SUMMARY_TEMPLATE = \
     '{nutrient_name}: {mass}{mass_units}/{mass_per}{mass_per_units} ({perc}%)'
@@ -66,7 +69,8 @@ class IngredientService():
             return INGREDIENT_COST_SUMMARY_TEMPLATE.format(
                 cost=cost_data['cost'],
                 mass=cost_data['mass'],
-                mass_units=cost_data['mass_units']
+                mass_units=cost_data['mass_units'],
+                g_cost=ingredient.cost_per_g
             )
         else:
             return 'Undefined'
