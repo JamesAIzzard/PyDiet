@@ -15,13 +15,13 @@
     "vegan": null
   },
   "macronutrient_totals": {
-    "total_carbohydrate": {
+    "carbohydrate": {
       "mass": null,
       "mass_units": null,
       "mass_per": null,
       "mass_per_units": null
     },
-    "total_fat": {
+    "fat": {
       "mass": null,
       "mass_units": null,
       "mass_per": null,

@@ -110,6 +110,25 @@ class Ingredient():
         nutrients_data = self.all_nutrients_data
         return nutrients_data[nutrient_name]
 
+    def set_nutrient_data(self, nutrient_name:str, \
+        mass:float, mass_units:str, mass_per:float, \
+            mass_per_units:str)->None:
+        category = None
+        if nutrient_name in self._data['macronutrient_totals'].keys():
+            category = 'macronutrient_totals'
+        elif nutrient_name in self._data['macronutrients'].keys():
+            category = 'macronutrients'
+        elif nutrient_name in self._data['micronutrients'].keys():
+            category = 'micronutrients'
+        else:
+            raise KeyError('{} is not a known nutrient'.format(nutrient_name))
+        self._data[category][nutrient_name]['mass'] = mass
+        self._data[category][nutrient_name]['mass_units'] = mass_units
+        self._data[category][nutrient_name]['mass_per'] = mass_per
+        self._data[category][nutrient_name]['mass_per_units'] = mass_per_units
+
+
+
     def get_nutrient_percentage(self, nutrient_name:str)->float:
         nutrient_data = self.get_nutrient_data(nutrient_name)
         nutrient_mass_in_grams = self._utility_service.convert_mass(

@@ -3,23 +3,27 @@ from pinjector import inject
 from pyconsoleapp.console_app_component import ConsoleAppComponent
 if TYPE_CHECKING:
     from pydiet.ingredients.ingredient import Ingredient
+    from pydiet.ingredients.ingredient_service import IngredientService
 
 _TEMPLATE = '''Choose an option:
 (s) - Save the ingredient.
 (1) - Set ingredient name.
 (2) - Set ingredient cost.
 (3) - Set ingredient flags.
-(4) - Set a macronutrient.
-(5) - Set a micronutrient.
+(4) - Set macronutrient totals.
+(5) - Set a macronutrient.
+(6) - Set a micronutrient.
 '''
 
 
 class IngredientEditMenu(ConsoleAppComponent):
     def __init__(self):
         super().__init__()
+        self._ingredient_service:'IngredientService' = inject('ingredient_service')
         self.set_option_response('1', self.on_set_name)
         self.set_option_response('2', self.on_set_cost)
         self.set_option_response('3', self.on_set_flags)
+        self.set_option_response('4', self.on_set_macro_totals)
 
     def print(self):
         # Draw the view;
@@ -73,3 +77,26 @@ class IngredientEditMenu(ConsoleAppComponent):
             # Otherwise, just show the flag menu;
             else:
                 self.app.navigate(['.', 'flags'])
+
+    def on_set_macro_totals(self):
+        scope = self.get_scope('ingredient_edit')
+        # Show the window;
+        self.app.show_text_window()
+        # Create the nutrient proeprties;
+        scope.nutrient_number_map = {}
+        # Helper functions
+        def get_nutrient_name(number, scope):
+            return scope.nutrient_number_map[str(number)]
+        scope.get_nutrient_name = get_nutrient_name
+        # Build the nutrient number map;
+        ingredient:'Ingredient' = scope.ingredient
+        for i, nutrient_name in enumerate(ingredient.\
+            macronutrient_totals_data.keys(), start=1):
+            scope.nutrient_number_map[str(i)] = nutrient_name
+        # If the ingredient has no name, prompt the user for it first;
+        if not scope.ingredient.name:
+            self.app.error_message = 'Ingredient name must be set first.'
+        # The name is set;
+        else:
+            # Navigate to the macro totals menu;
+            self.app.navigate(['.', 'macro_totals'])

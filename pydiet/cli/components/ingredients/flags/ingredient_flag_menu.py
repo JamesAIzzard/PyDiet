@@ -1,4 +1,3 @@
-from typing import TYPE_CHECKING
 from pyconsoleapp.console_app_component import ConsoleAppComponent
 
 _FLAG_MENU = '''Choose a flag to edit:

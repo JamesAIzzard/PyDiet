@@ -11,7 +11,7 @@ _UNITS_TEMPLATE = '''
 
 How much does {mass}{units} of {ingredient_name}
 cost?
->>> '''
+'''
 
 class SetCost(ConsoleAppComponent):
 

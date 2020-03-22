@@ -6,4 +6,5 @@ class StandardPage(ConsoleAppComponent):
         output = ''
         output = output+self.app.get_component('Header').print()
         output = output+'{}'.format(page_content)
+        output = output+'\n>>> '
         return output

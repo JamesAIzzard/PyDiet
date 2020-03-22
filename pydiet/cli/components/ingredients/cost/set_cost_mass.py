@@ -11,10 +11,9 @@ _MASS_TEMPLATE = '''
     ^^^^ 
 
 Enter the weight and units of {ingredient_name}
-which you wish to value. 
+which you wish to value.
 (e.g 100g, or 1kg, etc.)
-
->>> '''
+'''
 
 
 class SetCostMass(ConsoleAppComponent):

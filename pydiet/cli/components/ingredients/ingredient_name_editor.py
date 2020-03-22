@@ -5,8 +5,7 @@ if TYPE_CHECKING:
     from pydiet.ingredients.ingredient_service import IngredientService
 
 _TEMPLATE = '''Enter ingredient name:
-
->>> '''
+'''
 
 class IngredientNameEditor(ConsoleAppComponent):
 
