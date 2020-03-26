@@ -1,9 +1,14 @@
 from typing import TYPE_CHECKING
+
 from pinjector import inject
-from pyconsoleapp.console_app_component import ConsoleAppComponent
+
+from pyconsoleapp import ConsoleAppComponent
+from pydiet.cli.ingredients import ingredient_edit_scope as scope
+
 if TYPE_CHECKING:
     from pydiet.ingredients.ingredient import Ingredient
     from pydiet.ingredients.ingredient_service import IngredientService
+    from pydiet.cli.ingredients import ingredient_edit_scope
 
 _TEMPLATE = '''Choose an option:
 (s) - Save the ingredient.
@@ -16,35 +21,31 @@ _TEMPLATE = '''Choose an option:
 '''
 
 
-class IngredientEditMenu(ConsoleAppComponent):
+class IngredientEditMenuComponent(ConsoleAppComponent):
     def __init__(self):
         super().__init__()
-        self._ingredient_service:'IngredientService' = inject('ingredient_service')
+        self._scope:'ingredient_edit_scope' = inject('pydiet.ingredient_edit_scope')
+        self._ingredient_service:'IngredientService' = inject('pydiet.ingredient_service')
         self.set_option_response('1', self.on_set_name)
         self.set_option_response('2', self.on_set_cost)
         self.set_option_response('3', self.on_set_flags)
         self.set_option_response('4', self.on_set_macro_totals)
 
+    def run(self):
+        self._scope.show_ingredient_summary()
+
     def print(self):
         # Draw the view;
         output = _TEMPLATE
-        output = self.app.get_component('StandardPage').print(output)
+        output = self.get_component('StandardPage').print(output)
         return output
 
     def on_set_name(self):
-        self.app.show_text_window()
-        self.app.navigate(['.', 'name'])
+        # Navigate;
+        self.goto('.name')
 
     def on_set_cost(self):
-        self.app.show_text_window()
-        scope = self.get_scope('ingredient_edit')
-        # Fresh some scope vars to determine
-        # state of cost setting and store data;
-        scope.cost_mass = None
-        scope.cost_mass_units = None
-        scope.cost = None
-        # Go set the cost;
-        self.app.navigate(['.', 'cost_mass'])
+        self.goto('.cost_mass')
 
     def on_set_flags(self):
         # Show the window;
