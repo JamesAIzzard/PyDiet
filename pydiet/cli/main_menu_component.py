@@ -3,11 +3,9 @@ from typing import TYPE_CHECKING
 from pyconsoleapp import ConsoleAppComponent
 from pinjector import inject
 
-from pydiet.cli.ingredients import ingredient_edit_scope as ingredient_scope
-
 if TYPE_CHECKING:
     from pydiet.ingredients.ingredient_service import IngredientService
-    from pydiet.cli.ingredients import ingredient_edit_scope
+    from pydiet.cli.ingredients import ingredient_edit_service
 
 _MENU_TEMPLATE = '''Choose an option:
 (1) - Manage ingredients.
@@ -17,12 +15,12 @@ _MENU_TEMPLATE = '''Choose an option:
 '''
 
 
-class MainMenu(ConsoleAppComponent):
+class MainMenuComponent(ConsoleAppComponent):
 
     def __init__(self):
         super().__init__()
-        self._ingredient_service:'IngredientService' = inject('pydiet.ingredient_service')
-        self._ingredient_edit_scope:'ingredient_edit_scope' = inject('pydiet.ingredient_edit_scope')
+        self._ingredient_service: 'IngredientService' = inject(
+            'pydiet.ingredient_service')
         self.set_option_response('1', self.on_manage_ingredients)
         self.set_option_response('2', self.on_manage_recipes)
         self.set_option_response('3', self.on_manage_goals)
@@ -34,9 +32,7 @@ class MainMenu(ConsoleAppComponent):
         return output
 
     def on_manage_ingredients(self):
-        # Put a fresh ingredient on the scope;
-        self._ingredient_edit_scope.ingredient = self._ingredient_service.get_new_ingredient()
-        # Go!
+        # Navigate;
         self.goto('.ingredients')
 
     def on_manage_recipes(self):

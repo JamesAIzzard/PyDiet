@@ -4,14 +4,14 @@ from pyconsoleapp import ConsoleApp
 from pydiet.utility_service import UtilityService
 from pydiet.data.repository_service import RepoService
 from pydiet.ingredients.ingredient_service import IngredientService
-from pydiet.cli.ingredients import ingredient_edit_scope
+from pydiet.cli.ingredients.ingredient_edit_service import IngredientEditService
 
 # Load the dependencies;
 pinjector.create_namespace('pydiet')
 pinjector.register('pydiet', UtilityService)
 pinjector.register('pydiet', RepoService)
 pinjector.register('pydiet', IngredientService)
-pinjector.register('pydiet', ingredient_edit_scope)
+pinjector.register('pydiet', IngredientEditService)
 
 # Configure & run the CLI
 app:'ConsoleApp' = ConsoleApp('PyDiet')

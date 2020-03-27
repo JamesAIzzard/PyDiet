@@ -1,10 +1,12 @@
 from typing import TYPE_CHECKING
+
 from pyconsoleapp import ConsoleAppComponent
 from pinjector import inject
+
 if TYPE_CHECKING:
     from pydiet.ingredients.ingredient_service import IngredientService
     from pydiet.utility_service import UtilityService
-    from pydiet.ingredients.ingredient import Ingredient
+    from pydiet.cli.ingredients.ingredient_edit_service import IngredientEditService
 
 _MASS_TEMPLATE = '''
     ____ of {ingredient_name} costs £__.____
@@ -16,29 +18,29 @@ which you wish to value.
 '''
 
 
-class SetCostMass(ConsoleAppComponent):
+class SetCostMassComponent(ConsoleAppComponent):
     def __init__(self):
         super().__init__()
-        self._ingredient_service: 'IngredientService' = inject(\
-            'ingredient_service')
         self._utility_service:'UtilityService' = inject(\
-            'utility_service')
-        self.scope = self.get_scope('ingredient_edit')
-        self.ingredient:'Ingredient' = self.scope.ingredient
+            'pydiet.utility_service')
+        self._scope:'IngredientEditService' = inject('pydiet.ingredient_edit_service')
 
     def print(self):
         output = _MASS_TEMPLATE.format(\
-            ingredient_name=self.ingredient.name)
-        output = self.app.get_component('StandardPage').print(output)
+            ingredient_name=self._scope.ingredient.name)
+        output = self.app.get_component('StandardPageComponent').print(output)
         return output
 
     def dynamic_response(self, response):
+        # Try and parse the response as mass and units;
+        mass_and_units = None
         try:
             mass_and_units = self._utility_service.parse_mass_and_units(response)
-            self.scope.cost_mass = mass_and_units[0]
-            self.scope.cost_mass_units = mass_and_units[1]
-            self.app.navigate_back()
-            self.app.navigate(['.', 'cost'])
         except ValueError:
             self.app.error_message = "Unable to parse {} as a mass & unit. Try again."\
                 .format(response)
+            return
+        # Stash these values and move on to collect the cost;
+        self._scope.temp_cost_mass = mass_and_units[0]
+        self._scope.temp_cost_mass_units = mass_and_units[1]
+        self.goto('..cost')

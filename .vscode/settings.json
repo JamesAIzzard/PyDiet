@@ -1,5 +1,5 @@
 {
-    "python.pythonPath": ".venv\\Scripts\\python.exe",
-    "python.linting.pylintEnabled": false,
+    "python.pythonPath": "/home/james/Documents/PyDiet/.venv/bin/python3",
+    "python.linting.pylintEnabled": true,
     "python.linting.enabled": true
 }
