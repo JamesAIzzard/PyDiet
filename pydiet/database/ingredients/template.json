@@ -21,6 +21,12 @@
       "mass_per": null,
       "mass_per_units": null
     },
+    "protein": {
+      "mass": null,
+      "mass_units": null,
+      "mass_per": null,
+      "mass_per_units": null
+    },    
     "fat": {
       "mass": null,
       "mass_units": null,
@@ -65,12 +71,6 @@
       "mass_per": null,
       "mass_per_units": null
     },
-    "protein": {
-      "mass": null,
-      "mass_units": null,
-      "mass_per": null,
-      "mass_per_units": null
-    },
     "alchohol": {
       "mass": null,
       "mass_units": null,
@@ -85,7 +85,6 @@
       "mass_per": null,
       "mass_per_units": null
     },
-
     "vitamin_a": {
       "mass": null,
       "mass_units": null,
