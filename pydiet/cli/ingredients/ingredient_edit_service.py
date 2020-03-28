@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Dict
+from typing import TYPE_CHECKING, Dict, Optional
 
 from pinjector import inject
 
@@ -12,30 +12,49 @@ class IngredientEditService():
     def __init__(self):
         self._ingredient_service: 'IngredientService' = \
             inject('pydiet.ingredient_service')
-        self.__flag_number_name_map:Dict[int, str]
-        self.__current_nutrient_number_name_map:Dict[int, str]        
+        self._flag_number_name_map: Optional[Dict[int, str]] = None
         self.ingredient: 'Ingredient'
         self.app: 'ConsoleApp' = inject('pydiet.app')
         self.temp_cost_mass: float
         self.temp_cost_mass_units: str
-        self.current_flag_number:int
-        self.cycling_flags:bool
-        self.current_nutrient_group:str
-        self.current_nutrient_number:int
+        self.current_flag_number: int
+        self.cycling_flags: bool = False
+        self.current_nutrient_group: str
+        self.current_nutrient_number: int = 0
+        self.temp_nutrient_mass_per: float
+        self.temp_nutrient_mass_per_units: str
 
     @property
-    def flag_number_name_map(self)->Dict[int, str]:
-        if not self.__flag_number_name_map:
-            self.__flag_number_name_map = \
+    def flag_number_name_map(self) -> Dict[int, str]:
+        # Create if not cached already;
+        # (Caching is OK because same for all ingredients);
+        if not self._flag_number_name_map:
+            self._flag_number_name_map = \
                 self._create_number_name_map(self.ingredient.flag_data)
-        return self.__flag_number_name_map
+        # Return from cache;
+        return self._flag_number_name_map
 
     @property
-    def current_nutrient_number_name_map(self)->Dict[int, str]:
+    def current_flag_name(self)->str:
+        return self.flag_name_from_number(self.current_flag_number)
+
+    @property
+    def current_nutrient_number_name_map(self) -> Dict[int, str]:
         # Determine this dynamically because the current nutrient
         # group could change;
-        return self._create_number_name_map(self.ingredient.\
-            _data[self.current_nutrient_group])
+        return self._create_number_name_map(self.ingredient.
+                                            _data[self.current_nutrient_group])
+
+    @property
+    def current_nutrient_name(self) -> str:
+        return self.current_nutrient_number_name_map[self.current_nutrient_number]
+
+    @property
+    def last_flag_selected(self) -> bool:
+        if self.current_flag_number < len(self.flag_number_name_map):
+            return False
+        else:
+            return True
 
     def _create_number_name_map(self, dict_to_map: Dict) -> Dict[int, str]:
         map: Dict[int, str] = {}
@@ -43,7 +62,7 @@ class IngredientEditService():
             map[i] = key
         return map
 
-    def flag_name_from_number(self, selection_number:int)->str:
+    def flag_name_from_number(self, selection_number: int) -> str:
         return self.flag_number_name_map[selection_number]
 
     def nutrient_name_from_number(self, selection_number: int) -> str:
@@ -54,5 +73,4 @@ class IngredientEditService():
             self._ingredient_service.summarise_ingredient(self.ingredient)
         )
         self.app.show_text_window()
-
 

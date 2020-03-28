@@ -1,6 +1,8 @@
 from typing import TYPE_CHECKING
+
 from pyconsoleapp import ConsoleAppComponent
 from pinjector import inject
+
 if TYPE_CHECKING:
     from pydiet.ingredients.ingredient_service import IngredientService
     from pydiet.cli.ingredients.ingredient_edit_service import IngredientEditService
@@ -17,8 +19,8 @@ class IngredientMenuComponent(ConsoleAppComponent):
 
     def __init__(self):
         super().__init__()
-        self._ingredient_service: IngredientService = inject(
-            'ingredient_service')
+        self._ingredient_service:'IngredientService' = inject(
+            'pydiet.ingredient_service')
         self._edit_service: 'IngredientEditService' = inject(
             'pydiet.ingredient_edit_service')
         self.set_option_response('1', self.on_create)
@@ -28,7 +30,7 @@ class IngredientMenuComponent(ConsoleAppComponent):
 
     def print(self):
         output = _MENU_TEMPLATE
-        output = self.app.get_component('StandardPage').print(output)
+        output = self.app.get_component('StandardPageComponent').print(output)
         return output
 
     def on_create(self):

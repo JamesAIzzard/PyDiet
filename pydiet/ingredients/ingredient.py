@@ -7,7 +7,7 @@ if TYPE_CHECKING:
 class Ingredient():
     def __init__(self, data):
         self._data = data
-        self._utility_service: 'UtilityService' = inject('utility_service')
+        self._utility_service: 'UtilityService' = inject('pydiet.utility_service')
 
     @property
     def macronutrient_data(self)->Dict:
