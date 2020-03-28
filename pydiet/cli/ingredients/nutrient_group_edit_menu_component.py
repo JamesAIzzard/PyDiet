@@ -7,13 +7,13 @@ from pyconsoleapp import ConsoleAppComponent
 if TYPE_CHECKING:
     from pydiet.cli.ingredients.ingredient_edit_service import IngredientEditService
 
-_MACRO_TOTAL_MENU = '''Choose a macronutrient total to edit:
+_MACRO_TOTAL_MENU = '''Choose a {} to edit:
 {}
 '''
 _MACRO_TOTAL_MENU_ITEM = '({number}) - {macro_total_name}\n'
 
 
-class MacroTotalsMenuComponent(ConsoleAppComponent):
+class NutrientGroupEditMenuComponent(ConsoleAppComponent):
 
     def __init__(self):
         super().__init__()
@@ -27,7 +27,8 @@ class MacroTotalsMenuComponent(ConsoleAppComponent):
                 number=number,
                 macro_total_name=self._scope.nutrient_name_from_number(number)
             )
-        output = _MACRO_TOTAL_MENU.format(totals_menu)
+        output = _MACRO_TOTAL_MENU.format(
+            self._scope.current_nutrient_group, totals_menu)
         output = self.get_component('StandardPageComponent').print(output)
         return output
 

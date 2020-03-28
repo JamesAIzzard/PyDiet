@@ -24,15 +24,28 @@ class IngredientEditMenuComponent(ConsoleAppComponent):
     def __init__(self):
         super().__init__()
         self._ingredient_service:'IngredientService' = inject('pydiet.ingredient_service')
+        self._scope:'IngredientEditService' = inject('pydiet.ingredient_edit_service')
         self._set_ingredient_name_message:str = 'Ingredient name must be set first.'
         self.set_option_response('1', self.on_set_name)
         self.set_option_response('2', self.on_set_cost)
         self.set_option_response('3', self.on_set_flags)
         self.set_option_response('4', self.on_set_macro_totals)
-        self.scope:'IngredientEditService' = inject('pydiet.ingredient_edit_service')
+        self.set_option_response('5', self.on_set_macros)
+        self.set_option_response('6', self.on_set_micros)
+
+    def _on_set_nutrient(self, group_name:str)->None:
+        # Set macro totals as the current nutrient category;
+        self._scope.current_nutrient_group = group_name
+        # If the ingredient has no name, prompt the user for it first;
+        if not self._scope.ingredient.name:
+            self.app.error_message = self._set_ingredient_name_message
+        # The name is set;
+        else:
+            # Navigate to the macro totals menu;
+            self.goto('.{}'.format(group_name))  
 
     def run(self):
-        self.scope.show_ingredient_summary()
+        self._scope.show_ingredient_summary()
 
     def print(self):
         output = _TEMPLATE
@@ -47,24 +60,22 @@ class IngredientEditMenuComponent(ConsoleAppComponent):
 
     def on_set_flags(self):   
         # If the ingredient has no name, prompt the user for it first;
-        if not self.scope.ingredient.name:
+        if not self._scope.ingredient.name:
             self.app.error_message = self._set_ingredient_name_message
         # The name is set;
         else:
             # If all flags undefined, ask to cycle;
-            if self.scope.ingredient.all_flags_undefined:
+            if self._scope.ingredient.all_flags_undefined:
                 self.goto('.flags.set_all?')
             # Otherwise, just show the flag menu;
             else:
-                self.goto('.flags')
+                self.goto('.flags')      
 
     def on_set_macro_totals(self):
-        # Set macro totals as the current nutrient category;
-        self.scope.current_nutrient_group = 'macro_totals'
-        # If the ingredient has no name, prompt the user for it first;
-        if not self.scope.ingredient.name:
-            self.app.error_message = self._set_ingredient_name_message
-        # The name is set;
-        else:
-            # Navigate to the macro totals menu;
-            self.goto('.macro_totals')
+        self._on_set_nutrient('macronutrient_totals')
+
+    def on_set_macros(self):
+        self._on_set_nutrient('macronutrients')
+
+    def on_set_micros(self):
+        self._on_set_nutrient('micronutrients')

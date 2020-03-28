@@ -99,7 +99,7 @@ class Ingredient():
         # Iterate through the fields and return false if one isn't
         # defined;
         for field in nutrient_data.keys():
-            if not nutrient_data[field]:
+            if nutrient_data[field] == None:
                 return False
         return True # If there were no undefined fields.
 

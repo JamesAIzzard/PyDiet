@@ -37,7 +37,7 @@ Micronutrients:
 INGREDIENT_COST_SUMMARY_TEMPLATE = '£{cost:.2f} for {mass}{mass_units} (£{g_cost:.3f}/g)'
 INGREDIENT_FLAG_SUMMARY_TEMPLATE = '{flag_name}: {status}'
 NUTRIENT_SUMMARY_TEMPLATE = \
-    '{nutrient_name}: {mass}{mass_units}/{mass_per}{mass_per_units} ({perc:.2f}%)'
+    '{nutrient_name}: {mass}{mass_units}/{mass_per}{mass_per_units} ({perc:.9f}%)'
 
 
 class IngredientService():
@@ -115,7 +115,7 @@ class IngredientService():
                 mass_units=nutrient_data['mass_units'],
                 mass_per=nutrient_data['mass_per'],
                 mass_per_units=nutrient_data['mass_per_units'],
-                perc=ingredient.get_nutrient_percentage(s_nutrient_name)
+                perc=ingredient.get_nutrient_percentage(nutrient_name)
             )
         else:
             return '{}: Undefined'.format(s_nutrient_name)
