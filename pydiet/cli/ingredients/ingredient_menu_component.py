@@ -30,7 +30,7 @@ class IngredientMenuComponent(ConsoleAppComponent):
 
     def print(self):
         output = _MENU_TEMPLATE
-        output = self.app.get_component('StandardPageComponent').print(output)
+        output = self.app.get_component('standard_page_component').print(output)
         return output
 
     def on_create(self):
@@ -38,9 +38,9 @@ class IngredientMenuComponent(ConsoleAppComponent):
         self._edit_service.ingredient = \
             self._ingredient_service.get_new_ingredient()
         # Guard the exit to prompt saving when returning from create;
-        self.get_component('IngredientSaveCheckComponent').guarded_route = \
+        self.get_component('ingredient_save_check_component').guarded_route = \
             'home.ingredients.new'
-        self.guard_exit('home.ingredients.new', 'IngredientSaveCheckComponent')
+        self.guard_exit('home.ingredients.new', 'ingredient_save_check_component')
         # Go;
         self.goto('.new')
 

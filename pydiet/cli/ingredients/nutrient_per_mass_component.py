@@ -28,7 +28,7 @@ class NutrientPerMassComponent(ConsoleAppComponent):
             ingredient_name = self._scope.ingredient.name,
             nutrient_name = self._scope.current_nutrient_name
         )
-        output = self.get_component('StandardPageComponent').print(output)
+        output = self.get_component('standard_page_component').print(output)
         return output
 
     def dynamic_response(self, response):

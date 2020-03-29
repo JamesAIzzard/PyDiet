@@ -29,7 +29,7 @@ class NutrientGroupEditMenuComponent(ConsoleAppComponent):
             )
         output = _MACRO_TOTAL_MENU.format(
             self._scope.current_nutrient_group, totals_menu)
-        output = self.get_component('StandardPageComponent').print(output)
+        output = self.get_component('standard_page_component').print(output)
         return output
 
     def dynamic_response(self, response):

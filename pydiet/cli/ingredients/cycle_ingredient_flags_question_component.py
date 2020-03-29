@@ -18,7 +18,7 @@ class CycleIngredientFlagsQuestionComponent(ConsoleAppComponent):
 
     def print(self):
         output = _TEMPLATE
-        output = self.get_component('StandardPageComponent').print(output)
+        output = self.get_component('standard_page_component').print(output)
         return output
 
     def on_yes_set_all(self):

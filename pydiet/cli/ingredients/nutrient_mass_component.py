@@ -30,7 +30,7 @@ class NutrientMassComponent(ConsoleAppComponent):
             mass_per = self._scope.temp_nutrient_mass_per,
             mass_per_units = self._scope.temp_nutrient_mass_per_units
         )
-        output = self.get_component('StandardPageComponent').print(output)
+        output = self.get_component('standard_page_component').print(output)
         return output
 
     def dynamic_response(self, response):

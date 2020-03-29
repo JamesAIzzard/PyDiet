@@ -15,7 +15,7 @@ class IngredientNameEditorComponent(ConsoleAppComponent):
 
     def print(self):
         output = _TEMPLATE
-        output = self.app.get_component('StandardPageComponent').print(output)
+        output = self.app.get_component('standard_page_component').print(output)
         return output
 
     def dynamic_response(self, response):

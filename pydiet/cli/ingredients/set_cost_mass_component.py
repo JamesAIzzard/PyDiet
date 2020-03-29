@@ -4,7 +4,6 @@ from pyconsoleapp import ConsoleAppComponent
 from pinjector import inject
 
 if TYPE_CHECKING:
-    from pydiet.ingredients.ingredient_service import IngredientService
     from pydiet.utility_service import UtilityService
     from pydiet.cli.ingredients.ingredient_edit_service import IngredientEditService
 
@@ -28,7 +27,7 @@ class SetCostMassComponent(ConsoleAppComponent):
     def print(self):
         output = _MASS_TEMPLATE.format(\
             ingredient_name=self._scope.ingredient.name)
-        output = self.app.get_component('StandardPageComponent').print(output)
+        output = self.app.get_component('standard_page_component').print(output)
         return output
 
     def dynamic_response(self, response):

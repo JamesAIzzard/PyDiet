@@ -24,7 +24,7 @@ class SetFlagComponent(ConsoleAppComponent):
             ingredient_name=self._scope.ingredient.name,
             flag=self._scope.flag_name_from_number(self._scope.current_flag_number)
         ).replace('_', ' ')
-        output = self.app.get_component('StandardPageComponent').print(output)
+        output = self.app.get_component('standard_page_component').print(output)
         return output
 
     def on_yes(self):

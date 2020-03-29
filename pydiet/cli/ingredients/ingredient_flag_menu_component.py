@@ -26,7 +26,7 @@ class IngredientFlagMenuComponent(ConsoleAppComponent):
                 flag = self._scope.flag_name_from_number(flag_number).replace('_', ' ')
             )
         output = _FLAG_MENU.format(flags_menu)
-        output = self.get_component('StandardPageComponent').print(output)
+        output = self.get_component('standard_page_component').print(output)
         return output
 
     def dynamic_response(self, response):

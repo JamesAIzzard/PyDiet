@@ -11,7 +11,7 @@ class FlagsAreSetComponent(ConsoleAppComponent):
 
     def print(self):
         output = _FLAGS_SET_CONFIRMATION
-        output = self.get_component('StandardPageComponent').print(output)
+        output = self.get_component('standard_page_component').print(output)
         return output
 
     def on_ok(self):

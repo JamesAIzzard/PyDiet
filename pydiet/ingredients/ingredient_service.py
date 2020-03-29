@@ -37,7 +37,7 @@ Micronutrients:
 INGREDIENT_COST_SUMMARY_TEMPLATE = '£{cost:.2f} for {mass}{mass_units} (£{g_cost:.3f}/g)'
 INGREDIENT_FLAG_SUMMARY_TEMPLATE = '{flag_name}: {status}'
 NUTRIENT_SUMMARY_TEMPLATE = \
-    '{nutrient_name}: {mass}{mass_units}/{mass_per}{mass_per_units} ({perc:.9f}%)'
+    '{nutrient_name}: {mass}{mass_units}/{mass_per}{mass_per_units} ({perc:.3f}%)'
 
 
 class IngredientService():

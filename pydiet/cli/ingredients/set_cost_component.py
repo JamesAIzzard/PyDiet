@@ -31,7 +31,7 @@ class SetCostComponent(ConsoleAppComponent):
             spacer=' '*len(self._scope.ingredient.name+\
                 str(self._scope.temp_cost_mass)+self._scope.temp_cost_mass_units)
         )
-        output = self.get_component('StandardPageComponent').print(output)
+        output = self.get_component('standard_page_component').print(output)
         return output
 
     def dynamic_response(self, response):
