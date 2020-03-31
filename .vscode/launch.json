@@ -8,8 +8,17 @@
             "name": "Python: Current File",
             "type": "python",
             "request": "launch",
+            "program": "${relativeFile}",
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "Python: Run App",
+            "type": "python",
+            "request": "launch",
             "program": "${workspaceFolder}/main.py",
-            "console": "integratedTerminal"
-        }
+            "console": "integratedTerminal",
+            "justMyCode": false
+        }        
     ]
 }

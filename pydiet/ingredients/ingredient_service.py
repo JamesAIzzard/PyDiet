@@ -45,20 +45,6 @@ class IngredientService():
         self._utility_service:'UtilityService' = inject('pydiet.utility_service')
 
     @staticmethod
-    def _get_data_template() -> dict:
-        '''Returns an ingredient data dictionary object.
-
-        Returns:
-            dict: A dictionary, the blank data template.
-        '''
-        # Read the template contents;
-        with open(configs.INGREDIENT_DATAFILE_TEMPLATE_PATH) as fh:
-            template_data = fh.read()
-            # Parse into dict;
-            template_dict = json.loads(template_data)
-            return template_dict
-
-    @staticmethod
     def summarise_ingredient_name(ingredient: Ingredient) -> str:
         if ingredient.name:
             return ingredient.name
