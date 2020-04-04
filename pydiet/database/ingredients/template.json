@@ -1,8 +1,8 @@
 {
   "cost_per_mass": {
     "cost": null,
-    "mass": null,
-    "mass_units": null
+    "ingredient_mass": null,
+    "ingredient_mass_units": null
   },
   "flags": {
     "alchohol_free": null,
@@ -15,606 +15,702 @@
   },
   "groups": {
     "carbohydrate": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
+    },
+    "cartenoids": {
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
+    },
+    "fat": {
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "fibre": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "monounsaturated_fat": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "omega_3": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "omega_6": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "polyunsaturated_fat": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "protein": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "saturated_fat": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "trans_fats": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
+    },
+    "vitamin_a": {
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "vitamin_b6": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
+    },
+    "vitamin_d": {
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
+    },
+    "vitamin_e": {
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
+    },
+    "vitamin_k": {
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     }
   },
   "molecules": {
+    "a_carotene": {
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
+    },
     "a_linolenic_acid": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "alanine": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
+    },
+    "alchohol": {
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "amylopectin": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "amylose": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "arachidic_acid": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "arachidonic_acid": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "arginine": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "asparagine": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "aspartic_acid": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
+    },
+    "b_carotene": {
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "behenic_acid": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "biotin": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "butyric_acid": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "calcium": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "capric_acid": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "caproic_acid": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "caprylic_acid": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "cerotic_acid": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "cervonic_acid": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "chloride": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
+    },
+    "cholecalciferol": {
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "choline": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "chromium": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "clupanodonic_acid": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
+    },
+    "cobalamin": {
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "copper": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
+    },
+    "cryptoxanthin": {
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "cysteine": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "eicosen": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
+    },
+    "ergocalciferol": {
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "erucic_acid": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "folate": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "fructose": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "galactose": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "glucose": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "glutamic_acid": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "glutamine": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "glycine": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "heptadecenoic": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "histidine": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "iodine": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "iron": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "isoleucine": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "lactose": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "lauric_acid": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "leucine": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "lignoceric_acid": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "linoleic_acid": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "lutein": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "lycopene": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "lysine": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "magnesium": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "maltose": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "manganese": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "margaric_acid": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "methionine": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "molybdenum": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "myristic_acid": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "myristol": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "nervonic_acid": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "niacin": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "oleic_acid": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "palmitic_acid": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "palmitoyl": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "pantothenic_acid": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "pentadecanoic_acid": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "pentadecenoic": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "phenylalanine": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "phosphorus": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "potassium": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "proline": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
+    },
+    "pyridoxal_5_phosphate": {
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
+    },
+    "pyridoxamine": {
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
+    },
+    "pyridoxine": {
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
+    },
+    "retinal": {
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
+    },
+    "retinoic_acid": {
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
+    },
+    "retinol": {
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "riboflavin": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "ribose": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "selenium": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "serine": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "sodium": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "stearic_acid": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "stearidonic_acid": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "sucrose": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "thiamin": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "threonine": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "timnodonic_acid": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "tryptophan": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "tyrosine": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "valine": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
-    },
-    "vitamin_a": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
-    },
-    "vitamin_b12": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "vitamin_c": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "vitamin_d2": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "vitamin_d3": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
-    },
-    "vitamin_e": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "vitamin_k1": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "vitamin_k2": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "zeaxanthin": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "zinc": {
-      "mass": null,
-      "mass_per": null,
-      "mass_per_units": null,
-      "mass_units": null
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     }
   },
   "name": null
