@@ -7,6 +7,13 @@ if TYPE_CHECKING:
     from pydiet.utility_service import UtilityService
     from pydiet import configs
 
+class ConstituentsExceedGroupError(ValueError):
+    def __init__(self, message=None):
+        super().__init__(message)
+
+class DefinedByConstituentsError(ValueError):
+    def __init__(self, message=None):
+        super().__init__(message)
 
 class Ingredient():
     def __init__(self, data):
@@ -157,6 +164,63 @@ class Ingredient():
         else:
             return self.get_group_data(nutrient_name)
 
+    def set_molecule_data(
+        self, 
+        molecule_name: str,
+        molecule_mass: float, 
+        molecule_mass_units: str,
+        ingredient_mass: float,
+        ingredient_mass_units: str
+    )->None:
+        # Resolve any alias;
+        molecule_name = self.resolve_alias(molecule_name)
+        # Save data in case invalidates;
+        old_data = self.get_molecule_data(molecule_name)
+        # Set the new data;
+        self._data['molecules'][molecule_name]['ingredient_mass'] = ingredient_mass
+        self._data['molecules'][molecule_name]['ingredient_mass_units'] = ingredient_mass_units
+        self._data['molecules'][molecule_name]['nutrient_mass'] = molecule_mass
+        self._data['molecules'][molecule_name]['nutrient_mass_units'] = molecule_mass_units        
+        # Check it validates;
+        try:
+            self.validate()
+        # If it doesn't, reset the old data and pass the error on;
+        except ConstituentsExceedGroupError as e:
+            self._data['molecules'][molecule_name] = old_data
+            raise e
+
+    def set_group_data(
+        self, 
+        group_name: str,
+        group_mass: float, 
+        group_mass_units: str,
+        ingredient_mass: float,
+        ingredient_mass_units: str
+    )->None:
+        # Resolve alias;
+        group_name = self.resolve_alias(group_name)
+        # Save the old data in case it invalidates;
+        old_data = self.get_group_data(group_name)
+        # If the group is full defined by its constituents,
+        # dissalow setting, set constituents instead.
+        if self._are_constituents_defined(group_name):
+            raise DefinedByConstituentsError('The nutrient {} is fully defined by its constituents and cannot be set directly.')
+        # Else it is not fully defined, so set.
+        else:
+            self._data['groups'][group_name]['ingredient_mass'] = ingredient_mass
+            self._data['groups'][group_name]['ingredient_mass_units'] = ingredient_mass_units
+            self._data['groups'][group_name]['nutrient_mass'] = group_mass
+            self._data['groups'][group_name]['nutrient_mass_units'] = group_mass_units
+        # Now check validity in case the constituent sum now
+        # exceeds the group value;
+        try:
+            self.validate()
+        # The incomplete set of constituents still exceeds the group total,
+        # so replace the data and pass on exception;
+        except ConstituentsExceedGroupError as e:
+            self._data['groups'][group_name] = old_data
+            raise e
+
     def set_nutrient_data(
         self, 
         nutrient_name: str,
@@ -166,31 +230,24 @@ class Ingredient():
         ingredient_mass_units: str
     ) -> None:
         nutrient_name = self.resolve_alias(nutrient_name)
-        # Stash the data in its current state, in case we
-        # need to revert if invalid;
-        old_data = self.get_nutrient_data(nutrient_name)
         # If the nutrient is a molecule;
         if nutrient_name in self._data['molecules'].keys():
             # Go ahead and set it;
-            self._data['molecules'][nutrient_name]['ingredient_mass'] = ingredient_mass
-            self._data['molecules'][nutrient_name]['ingredient_mass_units'] = ingredient_mass_units
-            self._data['molecules'][nutrient_name]['nutrient_mass'] = nutrient_mass
-            self._data['molecules'][nutrient_name]['nutrient_mass_units'] = nutrient_mass_units
+            self.set_molecule_data(
+                nutrient_name, nutrient_mass, nutrient_mass_units,
+                ingredient_mass, ingredient_mass_units
+            )
         # Otherwise, nutrient is a group;
         # TODO
-        # Check nothing was invalidated;
-        try:
-            self.validate()
-        except QuantityError as e:
-            self.set_nutrient_data(
-                nutrient_name,
-                nutrient_mass,
-                nutrient_mass_units,
-                ingredient_mass,
-                ingredient_mass_units
-            )
-            raise e
-            
+ 
+    
+    def _are_constituents_defined(self, group_name:str)->bool:
+        group_name = self.resolve_alias(group_name)
+        for constituent_name in self.all_groups_data.keys():
+            if not self.check_nutrient_is_defined(constituent_name):
+                return False
+        return True
+
     def get_nutrient_percentage(self, nutrient_name: str) -> float:
         nutrient_data = self.get_nutrient_data(nutrient_name)
         return self._calculate_percentage_from_nutrient_data(nutrient_data)
@@ -203,6 +260,3 @@ class Ingredient():
             data['mass_per'], data['mass_per_units'], 'g'
         )
         return (nutrient_mass_in_grams/sample_mass_in_grams)*100
-
-    def validate(self) -> None:
-        raise NotImplementedError
