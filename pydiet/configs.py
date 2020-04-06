@@ -60,7 +60,7 @@ NUTRIENT_GROUP_DEFINITIONS: Dict[str, List[str]] = {
     "omega_3": [],
     "omega_6": [],
     "polyunsaturated_fat": [],
-    "protein": [],
+    "protein": ["alanine", "arginine", "aspartic_acid", "asparagine", "cysteine", "glutamic_acid", "glutamine", "glycine", "histidine", "isoleucine", "leucine", "lysine", "methionine", "phenylalanine", "proline", "serine", "threonine", "tryptophan", "tyrosine", "valine"],
     "saturated_fat": [],
     "trans_fats": [],
     "vitamin_a": ["retinol", "retinal", "retinoic_acid", "b_carotene"],

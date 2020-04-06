@@ -1,19 +1,7 @@
 import pinjector
 from pyconsoleapp import ConsoleApp
 
-from pydiet.utility_service import UtilityService
-from pydiet.data import repository_service
-from pydiet.ingredients import ingredient_service
-from pydiet.cli.ingredients.ingredient_edit_service import IngredientEditService
-from pydiet import configs
-
-# Load the dependencies;
-pinjector.create_namespace('pydiet')
-pinjector.register('pydiet', UtilityService)
-pinjector.register('pydiet', repository_service)
-pinjector.register('pydiet', ingredient_service)
-pinjector.register('pydiet', IngredientEditService)
-pinjector.register('pydiet', configs)
+import dependencies
 
 # Configure & run the CLI
 app:'ConsoleApp' = ConsoleApp('PyDiet')
@@ -41,6 +29,3 @@ app.add_route('home.ingredients.new.micronutrients.sample_mass', 'NutrientPerMas
 app.add_route('home.ingredients.new.micronutrients.nutrient_mass', 'NutrientMassComponent')
 app.run()
 
-# Test space ------------------
-# ut:'UtilityService' = inject('utility_service')
-# print(ut.parse_mass_and_units('100.5g'))

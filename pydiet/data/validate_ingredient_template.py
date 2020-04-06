@@ -1,7 +1,8 @@
 # Add root module to path;
 import sys, os
 # sys.path.append('/home/james/Documents/PyDiet')
-sys.path.append('c:\\Users\\james.izzard\\Documents\\PyDiet')
+# sys.path.append('c:\\Users\\james.izzard\\Documents\\PyDiet')
+sys.path.append('c:\\Users\\James Izzard\\Documents\\PyDiet')
 
 from pydiet.data import repository_service as rs
 import pydiet.configs as configs
