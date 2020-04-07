@@ -13,105 +13,8 @@
     "vegan": null,
     "vegetarian": null
   },
-  "groups": {
-    "carbohydrate": {
-      "ingredient_mass": null,
-      "ingredient_mass_units": null,
-      "nutrient_mass": null,
-      "nutrient_mass_units": null
-    },
-    "cartenoids": {
-      "ingredient_mass": null,
-      "ingredient_mass_units": null,
-      "nutrient_mass": null,
-      "nutrient_mass_units": null
-    },
-    "fat": {
-      "ingredient_mass": null,
-      "ingredient_mass_units": null,
-      "nutrient_mass": null,
-      "nutrient_mass_units": null
-    },
-    "fibre": {
-      "ingredient_mass": null,
-      "ingredient_mass_units": null,
-      "nutrient_mass": null,
-      "nutrient_mass_units": null
-    },
-    "monounsaturated_fat": {
-      "ingredient_mass": null,
-      "ingredient_mass_units": null,
-      "nutrient_mass": null,
-      "nutrient_mass_units": null
-    },
-    "omega_3": {
-      "ingredient_mass": null,
-      "ingredient_mass_units": null,
-      "nutrient_mass": null,
-      "nutrient_mass_units": null
-    },
-    "omega_6": {
-      "ingredient_mass": null,
-      "ingredient_mass_units": null,
-      "nutrient_mass": null,
-      "nutrient_mass_units": null
-    },
-    "polyunsaturated_fat": {
-      "ingredient_mass": null,
-      "ingredient_mass_units": null,
-      "nutrient_mass": null,
-      "nutrient_mass_units": null
-    },
-    "protein": {
-      "ingredient_mass": null,
-      "ingredient_mass_units": null,
-      "nutrient_mass": null,
-      "nutrient_mass_units": null
-    },
-    "saturated_fat": {
-      "ingredient_mass": null,
-      "ingredient_mass_units": null,
-      "nutrient_mass": null,
-      "nutrient_mass_units": null
-    },
-    "trans_fats": {
-      "ingredient_mass": null,
-      "ingredient_mass_units": null,
-      "nutrient_mass": null,
-      "nutrient_mass_units": null
-    },
-    "vitamin_a": {
-      "ingredient_mass": null,
-      "ingredient_mass_units": null,
-      "nutrient_mass": null,
-      "nutrient_mass_units": null
-    },
-    "vitamin_b6": {
-      "ingredient_mass": null,
-      "ingredient_mass_units": null,
-      "nutrient_mass": null,
-      "nutrient_mass_units": null
-    },
-    "vitamin_d": {
-      "ingredient_mass": null,
-      "ingredient_mass_units": null,
-      "nutrient_mass": null,
-      "nutrient_mass_units": null
-    },
-    "vitamin_e": {
-      "ingredient_mass": null,
-      "ingredient_mass_units": null,
-      "nutrient_mass": null,
-      "nutrient_mass_units": null
-    },
-    "vitamin_k": {
-      "ingredient_mass": null,
-      "ingredient_mass_units": null,
-      "nutrient_mass": null,
-      "nutrient_mass_units": null
-    }
-  },
-  "molecules": {
+  "name": null,
+  "nutrients": {
     "a_carotene": {
       "ingredient_mass": null,
       "ingredient_mass_units": null,
@@ -226,6 +129,18 @@
       "nutrient_mass": null,
       "nutrient_mass_units": null
     },
+    "carbohydrate": {
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
+    },
+    "cartenoids": {
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
+    },
     "cerotic_acid": {
       "ingredient_mass": null,
       "ingredient_mass_units": null,
@@ -305,6 +220,18 @@
       "nutrient_mass_units": null
     },
     "erucic_acid": {
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
+    },
+    "fat": {
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
+    },
+    "fibre": {
       "ingredient_mass": null,
       "ingredient_mass_units": null,
       "nutrient_mass": null,
@@ -466,6 +393,12 @@
       "nutrient_mass": null,
       "nutrient_mass_units": null
     },
+    "monounsaturated_fat": {
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
+    },
     "myristic_acid": {
       "ingredient_mass": null,
       "ingredient_mass_units": null,
@@ -491,6 +424,18 @@
       "nutrient_mass_units": null
     },
     "oleic_acid": {
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
+    },
+    "omega_3": {
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
+    },
+    "omega_6": {
       "ingredient_mass": null,
       "ingredient_mass_units": null,
       "nutrient_mass": null,
@@ -538,6 +483,12 @@
       "nutrient_mass": null,
       "nutrient_mass_units": null
     },
+    "polyunsaturated_fat": {
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
+    },
     "potassium": {
       "ingredient_mass": null,
       "ingredient_mass_units": null,
@@ -545,6 +496,12 @@
       "nutrient_mass_units": null
     },
     "proline": {
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
+    },
+    "protein": {
       "ingredient_mass": null,
       "ingredient_mass_units": null,
       "nutrient_mass": null,
@@ -593,6 +550,12 @@
       "nutrient_mass_units": null
     },
     "ribose": {
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
+    },
+    "saturated_fat": {
       "ingredient_mass": null,
       "ingredient_mass_units": null,
       "nutrient_mass": null,
@@ -652,6 +615,12 @@
       "nutrient_mass": null,
       "nutrient_mass_units": null
     },
+    "trans_fats": {
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
+    },
     "tryptophan": {
       "ingredient_mass": null,
       "ingredient_mass_units": null,
@@ -670,7 +639,25 @@
       "nutrient_mass": null,
       "nutrient_mass_units": null
     },
+    "vitamin_a": {
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
+    },
+    "vitamin_b6": {
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
+    },
     "vitamin_c": {
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
+    },
+    "vitamin_d": {
       "ingredient_mass": null,
       "ingredient_mass_units": null,
       "nutrient_mass": null,
@@ -683,6 +670,18 @@
       "nutrient_mass_units": null
     },
     "vitamin_d3": {
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
+    },
+    "vitamin_e": {
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
+    },
+    "vitamin_k": {
       "ingredient_mass": null,
       "ingredient_mass_units": null,
       "nutrient_mass": null,
@@ -712,6 +711,5 @@
       "nutrient_mass": null,
       "nutrient_mass_units": null
     }
-  },
-  "name": null
+  }
 }

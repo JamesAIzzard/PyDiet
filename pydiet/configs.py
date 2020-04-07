@@ -5,7 +5,6 @@ from typing import Dict, List
 def cwd() -> str:
     return str(Path.cwd())
 
-
 INGREDIENT_DATAFILE_TEMPLATE_NAME = 'template'
 INGREDIENT_DB_PATH = cwd()+'/pydiet/database/ingredients/'
 MANDATORY_NUTRIENTS: List[str] = [
