@@ -10,8 +10,12 @@
 !.vscode/launch.json
 !.vscode/extensions.json
 .venv/*
-!.venv/Lib/site-packages/pyconsoleapp/
-!.venv/Lib/site-packages/pinjector/
+!.venv/Lib
+.venv/Lib/*
+!.venv/Lib/site-packages
+.venv/Lib/site-packages/*
+!.venv/Lib/site-packages/pinjector
+!.venv/Lib/site-packages/pyconsoleapp
 
 ### VisualStudioCode Patch ###
 # Ignore all local history of files
