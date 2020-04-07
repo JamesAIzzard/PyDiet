@@ -1,5 +1,5 @@
-from typing import TYPE_CHECKING
-import json
+from typing import TYPE_CHECKING, List
+from heapq import nlargest
 
 from pinjector import inject
 
@@ -7,7 +7,7 @@ from pydiet.ingredients.ingredient import Ingredient
 
 if TYPE_CHECKING:
     from pydiet.ingredients.ingredient import Ingredient, NutrientAmount
-    from pydiet.utility_service import UtilityService
+    from pydiet import utility_service
     from pydiet.data import repository_service
     from pydiet import configs
 
@@ -27,6 +27,16 @@ def get_new_ingredient() -> Ingredient:
     rs: 'repository_service' = inject('pydiet.repository_service')
     data_template = rs.read_ingredient_data_template()
     return Ingredient(data_template)
+
+def get_matching_nutrient_names(search_term:str, num_results:int) -> List[str]:
+    # Load the ingredient template datafile;
+    rs:'repository_service' = inject('pydiet.repository_service')
+    template = rs.read_ingredient_data_template()
+    # Score each of the nutrient names against the search term;
+    ut:'utility_service' = inject('pydiet.utility_service')
+    results = ut.score_similarity(list(template['nutrients'].keys()), search_term)
+    return nlargest(num_results, results)
+
 
 # INGREDIENT_SUMMARY_TEMPLATE = '''Name:
 # # {name}

@@ -1,7 +1,8 @@
 # Add root module to path;
-import sys, os
-# sys.path.append('/home/james/Documents/PyDiet')
-sys.path.append('c:\\Users\\james.izzard\\Documents\\PyDiet')
+import sys
+# sys.path.append('/home/james/Documents/PyDiet') # Ubuntu Desktop
+# sys.path.append('c:\\Users\\james.izzard\\Documents\\PyDiet') # Work Laptop
+sys.path.append('C:\\Users\\James.Izzard\\Documents\\PyDiet') # Work Desktop
 
 from unittest import TestCase
 from typing import TYPE_CHECKING
@@ -15,7 +16,6 @@ if TYPE_CHECKING:
 
 from pydiet.ingredients.ingredient import (
     ConstituentsExceedGroupError, 
-    Ingredient, 
     NutrientQtyExceedsIngredientQtyError
 )
 

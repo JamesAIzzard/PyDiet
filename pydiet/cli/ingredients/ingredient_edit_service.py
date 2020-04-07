@@ -1,17 +1,15 @@
-from typing import TYPE_CHECKING, Dict, Optional
+from typing import TYPE_CHECKING, Dict, Optional, List
 
 from pinjector import inject
 
 if TYPE_CHECKING:
     from pydiet.ingredients.ingredient import Ingredient
-    from pydiet.ingredients.ingredient_service import IngredientService
+    from pydiet.ingredients import ingredient_service
     from pyconsoleapp import ConsoleApp
 
 
 class IngredientEditService():
     def __init__(self):
-        self._ingredient_service: 'IngredientService' = \
-            inject('pydiet.ingredient_service')
         self._flag_number_name_map: Optional[Dict[int, str]] = None
         self.ingredient: 'Ingredient'
         self.app: 'ConsoleApp' = inject('pydiet.app')
@@ -19,10 +17,9 @@ class IngredientEditService():
         self.temp_cost_mass_units: str
         self.current_flag_number: int
         self.cycling_flags: bool = False
-        self.current_nutrient_group: str
-        self.current_nutrient_number: int = 0
-        self.temp_nutrient_mass_per: float
-        self.temp_nutrient_mass_per_units: str
+        self.temp_nutrient_ingredient_mass: float
+        self.temp_nutrient_ingredient_mass_units: str
+        self.nutrient_name_search_results: List[str]
 
     @property
     def flag_number_name_map(self) -> Dict[int, str]:
@@ -30,7 +27,7 @@ class IngredientEditService():
         # (Caching is OK because same for all ingredients);
         if not self._flag_number_name_map:
             self._flag_number_name_map = \
-                self._create_number_name_map(self.ingredient.flag_data)
+                self._create_number_name_map(self.ingredient.all_flag_data)
         # Return from cache;
         return self._flag_number_name_map
 
@@ -67,10 +64,4 @@ class IngredientEditService():
 
     def nutrient_name_from_number(self, selection_number: int) -> str:
         return self.current_nutrient_number_name_map[selection_number]
-
-    def show_ingredient_summary(self) -> None:
-        self.app.set_window_text(
-            self._ingredient_service.summarise_ingredient(self.ingredient)
-        )
-        self.app.show_text_window()
 
