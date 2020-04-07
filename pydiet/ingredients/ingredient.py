@@ -156,7 +156,7 @@ class NutrientAmount():
                     if sibling.defined:
                         sibling_perc_sum = sibling_perc_sum + sibling.percentage
                 if sibling_perc_sum > 100:
-                    raise NutrientQtyExceedsIngredientQtyError('The constituents of {} sum to {}% in {}'.format(
+                    raise ConstituentsExceedGroupError('The constituents of {} sum to {}% in {}'.format(
                         pna.name, sibling_perc_sum, self._parent_ingredient.name))
 
 class Ingredient():
