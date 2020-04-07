@@ -26,23 +26,31 @@ class NutrientAmount():
         self.name = name
         self._parent_ingredient: 'Ingredient' = parent_ingredient
         self._child_nutrient_amounts: Dict[str, 'NutrientAmount'] = {}
+        self._parent_nutrient_amounts: Dict[str, 'NutrientAmount'] = {}
         # Inject some useful services;
         cf: 'configs' = inject('pydiet.configs')
         # If I have child nutrients, then populate those;
         if self.name in cf.NUTRIENT_GROUP_DEFINITIONS.keys():
             # For each of my constituents;
-            for cn in cf.NUTRIENT_GROUP_DEFINITIONS[name]:
+            for cn_name in cf.NUTRIENT_GROUP_DEFINITIONS[name]:
                 # Has its object been instantiated on the parent already?
-                if cn in self._parent_ingredient._nutrient_amounts.keys():
+                if cn_name in self._parent_ingredient._nutrient_amounts.keys():
+                    cn = self._parent_ingredient.get_nutrient_amount(cn_name)
                     # Yes, add its reference to my list;
-                    self._child_nutrient_amounts[cn] = \
-                        self._parent_ingredient.get_nutrient_amount(cn)
+                    self._child_nutrient_amounts[cn_name] = cn
+                    # And add myself to its list of parent nutrient amounts;
+                    cn._parent_nutrient_amounts[self.name] = self
                 # It hasn't, create its object and add it to me and my parent;
                 else:
-                    self._parent_ingredient._nutrient_amounts[cn] = \
-                        NutrientAmount(cn, self._parent_ingredient)
-                    self._child_nutrient_amounts[cn] = \
-                        self._parent_ingredient.get_nutrient_amount(cn)
+                    # Instantiate;
+                    cn = NutrientAmount(cn_name, self._parent_ingredient)
+                    # Add to master list on parent;
+                    self._parent_ingredient._nutrient_amounts[cn_name] = cn
+                    # Add to my list of child nutrient amounts;
+                    self._child_nutrient_amounts[cn_name] = cn
+                    # Add myself to its list of parent nutrient amounts;
+                    cn._parent_nutrient_amounts[self.name] = self
+
 
     @property
     def defined(self) -> bool:
@@ -52,10 +60,6 @@ class NutrientAmount():
                 return False
         return True
 
-    @property
-    def parent_nutrient_names(self)->List[str]:
-        pass
-    
     @property
     def ingredient_mass(self) -> float:
         return self._parent_ingredient._data['nutrients'][self.name]['ingredient_mass']
@@ -142,20 +146,18 @@ class NutrientAmount():
             raise NutrientQtyExceedsIngredientQtyError
         # If I am a child nutrient, check that the sum of mine and
         # my siblings values do not exceed parent's percentage;
-        parent_nutrient_names = self.parent_nutrient_names
-        if len(parent_nutrient_names):
+        if len(self._parent_nutrient_amounts):
             # For each of the groups this nutrient is in;
-            for parent_nutrient_amount_name in parent_nutrient_amounts_names:
-
+            for pna in self._parent_nutrient_amounts.values():
                 # Check that the sum of the sibling percentages in this group
                 # do not exceed the parent's percentage;
                 sibling_perc_sum = 0 
-                for sibling in parent_nutrient_amounts._child_nutrient_amounts:
+                for sibling in pna._child_nutrient_amounts.values():
                     if sibling.defined:
                         sibling_perc_sum = sibling_perc_sum + sibling.percentage
                 if sibling_perc_sum > 100:
                     raise NutrientQtyExceedsIngredientQtyError('The constituents of {} sum to {}% in {}'.format(
-                        parent_nutrient_amount.name, sibling_perc_sum, self._parent_ingredient.name))
+                        pna.name, sibling_perc_sum, self._parent_ingredient.name))
 
 class Ingredient():
     def __init__(self, data):
