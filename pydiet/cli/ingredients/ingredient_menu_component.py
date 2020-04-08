@@ -4,7 +4,7 @@ from pyconsoleapp import ConsoleAppComponent
 from pinjector import inject
 
 if TYPE_CHECKING:
-    from pydiet.ingredients.ingredient_service import IngredientService
+    from pydiet.ingredients import ingredient_service
     from pydiet.cli.ingredients.ingredient_edit_service import IngredientEditService
 
 _MENU_TEMPLATE = '''Choose an option:
@@ -19,10 +19,6 @@ class IngredientMenuComponent(ConsoleAppComponent):
 
     def __init__(self):
         super().__init__()
-        self._ingredient_service:'IngredientService' = inject(
-            'pydiet.ingredient_service')
-        self._edit_service: 'IngredientEditService' = inject(
-            'pydiet.ingredient_edit_service')
         self.set_option_response('1', self.on_create)
         self.set_option_response('2', self.on_edit)
         self.set_option_response('3', self.on_delete)
@@ -34,10 +30,11 @@ class IngredientMenuComponent(ConsoleAppComponent):
         return output
 
     def on_create(self):
+        ies:'IngredientEditService' = inject('pydiet.cli.ingredient_edit_service')
+        igs:'ingredient_service' = inject('pydiet.ingredient_service')
         # Put a fresh ingredient on the scope;
-        self._edit_service.ingredient = \
-            self._ingredient_service.get_new_ingredient()
-        # Guard the exit to prompt saving when returning from create;
+        ies.ingredient = igs.get_new_ingredient()
+        # Configure the save reminder;
         self.get_component('ingredient_save_check_component').guarded_route = \
             'home.ingredients.new'
         self.guard_exit('home.ingredients.new', 'ingredient_save_check_component')

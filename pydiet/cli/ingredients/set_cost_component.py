@@ -4,7 +4,7 @@ from pyconsoleapp import ConsoleAppComponent
 from pinjector import inject
 
 if TYPE_CHECKING:
-    from pydiet.ingredients.ingredient_service import IngredientService
+    from pydiet.ingredients import ingredient_service
     from pydiet.ingredients.ingredient import Ingredient
     from pydiet.cli.ingredients.ingredient_edit_service import IngredientEditService
 
@@ -20,7 +20,7 @@ class SetCostComponent(ConsoleAppComponent):
 
     def __init__(self):
         super().__init__()
-        self._ingredient_service:'IngredientService' = inject('pydiet.ingredient_service')
+        self._ingredient_service:'ingredient_service' = inject('pydiet.ingredient_service')
         self._scope:'IngredientEditService' = inject('pydiet.ingredient_edit_service')
 
     def print(self):

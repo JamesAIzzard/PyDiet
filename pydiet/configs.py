@@ -7,10 +7,14 @@ def cwd() -> str:
 
 INGREDIENT_DATAFILE_TEMPLATE_NAME = 'template'
 INGREDIENT_DB_PATH = cwd()+'/pydiet/database/ingredients/'
-MANDATORY_NUTRIENTS: List[str] = [
+PRIMARY_NUTRIENTS: List[str] = [
     "carbohydrate",
     "fat",
+    "saturated_fat",
+    "monounsaturated_fat",
+    "polyunsaturated_fat",
     "protein",
+    "sodium"
 ]
 NUTRIENT_ALIASES: Dict[str, List[str]] = {
     "a_carotene": ["alpha_carotene"],

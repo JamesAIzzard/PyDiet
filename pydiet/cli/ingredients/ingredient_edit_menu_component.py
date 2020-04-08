@@ -6,76 +6,65 @@ from pyconsoleapp import ConsoleAppComponent
 
 if TYPE_CHECKING:
     from pydiet.ingredients.ingredient import Ingredient
-    from pydiet.ingredients.ingredient_service import IngredientService
+    from pydiet.ingredients import ingredient_service
     from pydiet.cli.ingredients.ingredient_edit_service import IngredientEditService
 
-_TEMPLATE = '''Choose an option:
-(s) - Save the ingredient.
-(1) - Set ingredient name.
-(2) - Set ingredient cost.
-(3) - Set ingredient flags.
-(4) - Set macronutrient totals.
-(5) - Set a macronutrient.
-(6) - Set a micronutrient.
+_TEMPLATE = '''Ingredient Editor:
+(s) -- Save Changes.
+
+(1) -- Edit Name: {name}
+
+(2) -- Edit Cost: {cost}
+
+(3) -- Edit Flags
+{flags}
+
+(4) -- Edit Nutrients:
+{nutrients}
 '''
 
 
 class IngredientEditMenuComponent(ConsoleAppComponent):
     def __init__(self):
         super().__init__()
-        self._ingredient_service:'IngredientService' = inject('pydiet.ingredient_service')
-        self._scope:'IngredientEditService' = inject('pydiet.ingredient_edit_service')
-        self._set_ingredient_name_message:str = 'Ingredient name must be set first.'
-        self.set_option_response('1', self.on_set_name)
-        self.set_option_response('2', self.on_set_cost)
-        self.set_option_response('3', self.on_set_flags)
-        self.set_option_response('4', self.on_set_macro_totals)
-        self.set_option_response('5', self.on_set_macros)
-        self.set_option_response('6', self.on_set_micros)
-
-    def _on_set_nutrient(self, group_name:str)->None:
-        # Set macro totals as the current nutrient category;
-        self._scope.current_nutrient_group = group_name
-        # If the ingredient has no name, prompt the user for it first;
-        if not self._scope.ingredient.name:
-            self.app.error_message = self._set_ingredient_name_message
-        # The name is set;
-        else:
-            # Navigate to the macro totals menu;
-            self.goto('.{}'.format(group_name))  
-
-    def run(self):
-        self._scope.show_ingredient_summary()
+        self._set_ingredient_name_message: str = 'Ingredient name must be set first.'
+        self.set_option_response('1', self.on_edit_name)
+        self.set_option_response('2', self.on_edit_cost)
+        self.set_option_response('3', self.on_edit_flags)
+        self.set_option_response('4', self.on_edit_nutrients)
 
     def print(self):
-        output = _TEMPLATE
+        igs: 'ingredient_service' = inject('pydiet.ingredient_service')
+        ies: 'IngredientEditService' = inject('pydiet.cli.ingredient_edit_service')
+        output = _TEMPLATE.format(
+            name=igs.summarise_name(ies.ingredient),
+            cost=igs.summarise_cost(ies.ingredient),
+            flags=igs.summarise_flags(ies.ingredient),
+            nutrients=igs.summarise_primary_nutrients(ies.ingredient)
+        )
         output = self.get_component('standard_page_component').print(output)
         return output
 
-    def on_set_name(self):
-        self.goto('.name')
-
-    def on_set_cost(self):
-        self.goto('.cost_mass')
-
-    def on_set_flags(self):   
-        # If the ingredient has no name, prompt the user for it first;
+    def _check_name_defined(self) -> bool:
         if not self._scope.ingredient.name:
             self.app.error_message = self._set_ingredient_name_message
-        # The name is set;
+            return False
         else:
-            # If all flags undefined, ask to cycle;
+            return True
+
+    def on_edit_name(self):
+        self.goto('.name')
+
+    def on_edit_cost(self):
+        self.goto('.cost_mass')
+
+    def on_edit_flags(self):
+        if self._check_name_defined():
             if self._scope.ingredient.all_flags_undefined:
                 self.goto('.flags.set_all?')
-            # Otherwise, just show the flag menu;
             else:
-                self.goto('.flags')      
+                self.goto('.flags')
 
-    def on_set_macro_totals(self):
-        self._on_set_nutrient('macronutrient_totals')
-
-    def on_set_macros(self):
-        self._on_set_nutrient('macronutrients')
-
-    def on_set_micros(self):
-        self._on_set_nutrient('micronutrients')
+    def on_edit_nutrients(self, group_name: str) -> None:
+        if self._check_name_defined():
+            self.goto('.nutrient_search')

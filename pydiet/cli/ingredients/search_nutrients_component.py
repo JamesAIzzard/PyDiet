@@ -16,6 +16,6 @@ class NutrientSearchComponent(ConsoleAppComponent):
 
     def dynamic_response(self, response):
         igs:'ingredient_service' = inject('pydiet.ingredient_service')
-        ies:'IngredientEditService' = inject('pydiet.ingredient_edit_service')
+        ies:'IngredientEditService' = inject('pydiet.cli.ingredient_edit_service')
         ies.nutrient_name_search_results = igs.get_matching_nutrient_names(response, 4)
-        self.goto('..nutrient_select')
+        self.goto('..nutrient_search_results')

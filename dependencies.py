@@ -8,8 +8,9 @@ from pydiet import configs
 
 # Load the dependencies;
 pinjector.create_namespace('pydiet')
+pinjector.create_namespace('pydiet.cli')
 pinjector.register('pydiet', utility_service)
 pinjector.register('pydiet', repository_service)
 pinjector.register('pydiet', ingredient_service)
-pinjector.register('pydiet', IngredientEditService)
 pinjector.register('pydiet', configs)
+pinjector.register('pydiet.cli', IngredientEditService)

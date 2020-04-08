@@ -19,8 +19,6 @@ class MainMenuComponent(ConsoleAppComponent):
 
     def __init__(self):
         super().__init__()
-        self._ingredient_service: 'ingredient_service' = inject(
-            'pydiet.ingredient_service')
         self.set_option_response('1', self.on_manage_ingredients)
         self.set_option_response('2', self.on_manage_recipes)
         self.set_option_response('3', self.on_manage_goals)

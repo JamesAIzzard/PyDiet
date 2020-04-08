@@ -5,7 +5,7 @@ import dependencies
 
 # Configure & run the CLI
 app:'ConsoleApp' = ConsoleApp('PyDiet')
-pinjector.register('pydiet', app, 'app')
+pinjector.register('pydiet.cli', app, 'app')
 app.register_component_package('pydiet.cli')
 app.register_component_package('pydiet.cli.ingredients')
 app.root_route('home', 'MainMenuComponent')
