@@ -31,7 +31,7 @@ def sentence_case(text: str) -> str:
         word.capitalize()
     return ' '.join(words_list)
 
-def parse_mass_and_units(self, mass_and_units: str) -> Tuple[float, str]:
+def parse_mass_and_units(mass_and_units: str) -> Tuple[float, str]:
     output = None
     # Strip any initial whitespace;
     mass_and_units = mass_and_units.replace(' ', '')
@@ -49,7 +49,7 @@ def parse_mass_and_units(self, mass_and_units: str) -> Tuple[float, str]:
         raise ValueError('Unable to parse {} into a mass and unit.'
                             .format(mass_and_units))
     # Check that the units are recognised;
-    if output[1] not in self.recognised_units:
+    if output[1] not in recognised_units():
         raise ValueError('{} is not a recognised mass unit.'\
             .format(output[1]))
     # Return tuple;

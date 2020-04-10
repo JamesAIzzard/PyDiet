@@ -12,7 +12,7 @@ _TEMPLATE = '\nSet all flags now? (y)/(n)\n\n'
 class CycleIngredientFlagsQuestionComponent(ConsoleAppComponent):
     def __init__(self):
         super().__init__()
-        self._scope:'IngredientEditService' = inject('pydiet.ingredient_edit_service')
+        self._ies:'IngredientEditService' = inject('pydiet.cli.ingredient_edit_service')
         self.set_option_response('y', self.on_yes_set_all)
         self.set_option_response('n', self.on_no_dont_set_all)
 
@@ -22,8 +22,8 @@ class CycleIngredientFlagsQuestionComponent(ConsoleAppComponent):
         return output
 
     def on_yes_set_all(self):
-        self._scope.current_flag_number = 1
-        self._scope.cycling_flags = True
+        self._ies.current_flag_number = 1
+        self._ies.cycling_flags = True
         self.goto('..set')
 
     def on_no_dont_set_all(self):

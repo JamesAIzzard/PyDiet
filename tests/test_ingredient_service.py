@@ -20,3 +20,13 @@ class TestGetMatchingNutrientNames(TestCase):
         search_term = "protein"
         results = ig.get_matching_nutrient_names(search_term, 4)
         self.assertEqual(results[0], 'protein')
+
+class TestSummarisePrimaryNutrients(TestCase):
+    def test_summarises_nutrients(self):
+        ig:'ingredient_service' = inject('pydiet.ingredient_service')
+        i = ig.get_new_ingredient()
+        i.set_nutrient_amount('protein', 1, 'kg', 65, 'g')
+        i.set_nutrient_amount('sodium', 1, 'kg', 2, 'ug')
+        i.set_nutrient_amount('fat', 1, 'kg', 0.2, 'g')
+        s = ig.summarise_primary_nutrients(i)
+        print(s)

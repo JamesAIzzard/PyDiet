@@ -8,10 +8,10 @@ if TYPE_CHECKING:
     from pydiet.cli.ingredients.ingredient_edit_service import IngredientEditService
 
 _MENU_TEMPLATE = '''Choose an option:
-(1) - Create a new ingredient.
-(2) - Edit an existing ingredient.
-(3) - Delete an existing ingredient.
-(4) - View an existing ingredient.
+(1) -- Create a new ingredient.
+(2) -- Edit an existing ingredient.
+(3) -- Delete an existing ingredient.
+(4) -- View an existing ingredient.
 '''
 
 

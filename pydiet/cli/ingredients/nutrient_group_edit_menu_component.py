@@ -18,7 +18,7 @@ class NutrientGroupEditMenuComponent(ConsoleAppComponent):
     def __init__(self):
         super().__init__()
         self._scope: 'IngredientEditService' = inject(
-            'pydiet.ingredient_edit_service')
+            'pydiet.cli.ingredient_edit_service')
 
     def print(self):
         totals_menu = ''

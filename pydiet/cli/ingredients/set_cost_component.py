@@ -20,16 +20,16 @@ class SetCostComponent(ConsoleAppComponent):
 
     def __init__(self):
         super().__init__()
-        self._ingredient_service:'ingredient_service' = inject('pydiet.ingredient_service')
-        self._scope:'IngredientEditService' = inject('pydiet.ingredient_edit_service')
+        self._igs:'ingredient_service' = inject('pydiet.ingredient_service')
+        self._ies:'IngredientEditService' = inject('pydiet.cli.ingredient_edit_service')
 
     def print(self):
         output = _UNITS_TEMPLATE.format(\
-            ingredient_name=self._scope.ingredient.name,
-            mass=self._scope.temp_cost_mass,
-            units=self._scope.temp_cost_mass_units,
-            spacer=' '*len(self._scope.ingredient.name+\
-                str(self._scope.temp_cost_mass)+self._scope.temp_cost_mass_units)
+            ingredient_name=self._ies.ingredient.name,
+            mass=self._ies.temp_cost_mass,
+            units=self._ies.temp_cost_mass_units,
+            spacer=' '*len(self._ies.ingredient.name+\
+                str(self._ies.temp_cost_mass)+self._ies.temp_cost_mass_units)
         )
         output = self.get_component('standard_page_component').print(output)
         return output
@@ -44,9 +44,8 @@ class SetCostComponent(ConsoleAppComponent):
                 .format(response)
             return
         # Set all the data and return to the menu;
-        self._scope.ingredient.set_cost(
+        self._ies.ingredient.set_cost(
             cost, 
-            self._scope.temp_cost_mass, 
-            self._scope.temp_cost_mass_units)
-        self.app.info_message = 'Cost set successfully.'
+            self._ies.temp_cost_mass, 
+            self._ies.temp_cost_mass_units)
         self.goto('..')

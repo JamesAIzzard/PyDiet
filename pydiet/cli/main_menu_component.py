@@ -8,10 +8,10 @@ if TYPE_CHECKING:
     from pydiet.cli.ingredients import ingredient_edit_service
 
 _MENU_TEMPLATE = '''Choose an option:
-(1) - Manage ingredients.
-(2) - Manage recipes.
-(3) - Manage user goals.
-(4) - Run optimiser.
+(1) -- Manage ingredients.
+(2) -- Manage recipes.
+(3) -- Manage user goals.
+(4) -- Run optimiser.
 '''
 
 

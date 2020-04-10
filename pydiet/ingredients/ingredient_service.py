@@ -14,8 +14,8 @@ if TYPE_CHECKING:
 INGREDIENT_COST_SUMMARY_TEMPLATE = '£{cost:.2f} for {mass}{mass_units} (£{g_cost:.3f}/g)'
 INGREDIENT_FLAG_SUMMARY_TEMPLATE = '{flag_name}: {status}'
 NUTRIENT_SUMMARY_TEMPLATE = \
-    '{nutrient_name}: {nutrient_mass}{nutrient_mass_units}/{ingredient_mass}{ingredient_mass_units} ({perc:.3f}%)'
-
+    '- {nutrient_name}: {nutrient_mass}{nutrient_mass_units}/{ingredient_mass}{ingredient_mass_units}'
+UNDEFINED_NUTRIENT_SUMMARY_TEMPLATE = '{nutrient_name}: Undefined'
 
 def resolve_alias(alias: str) -> str:
     configs: 'configs' = inject('pydiet.configs')
@@ -28,7 +28,7 @@ def resolve_alias(alias: str) -> str:
     return alias
 
 
-def get_new_ingredient() -> Ingredient:
+def get_new_ingredient() -> 'Ingredient':
     rs: 'repository_service' = inject('pydiet.repository_service')
     data_template = rs.read_ingredient_data_template()
     return Ingredient(data_template)
@@ -45,14 +45,14 @@ def get_matching_nutrient_names(search_term: str, num_results: int) -> List[str]
     return nlargest(num_results, results, key=results.get)
 
 
-def summarise_name(ingredient: Ingredient) -> str:
+def summarise_name(ingredient: 'Ingredient') -> str:
     if ingredient.name:
         return ingredient.name
     else:
         return 'Undefined'
 
 
-def summarise_cost(ingredient: Ingredient) -> str:
+def summarise_cost(ingredient: 'Ingredient') -> str:
     if ingredient.cost_is_defined:
         cost_data = ingredient.cost_data
         return INGREDIENT_COST_SUMMARY_TEMPLATE.format(
@@ -65,37 +65,29 @@ def summarise_cost(ingredient: Ingredient) -> str:
         return 'Undefined'
 
 
-def summarise_flags(ingredient: Ingredient) -> str:
-    us: 'utility_service' = inject('pydiet.utility_service')
-    flag_summary = ''
-    flag_data = ingredient.all_flag_data
-    for flag_name in flag_data.keys():
-        s_flag_name = us.sentence_case(
-            flag_name)
-        if not flag_data[flag_name] == None:
-            status = flag_data[flag_name]
-        else:
-            status = 'Undefined'
-        flag_summary = flag_summary+INGREDIENT_FLAG_SUMMARY_TEMPLATE.format(
-            flag_name=s_flag_name,
-            status=status
-        )+('\n')
-    return flag_summary
-
-def summarise_primary_nutrients(ingredient:'Ingredient')->str:
-    cf:'configs' = inject('pydiet.configs')
-    output = ''
-    for pn in cf.PRIMARY_NUTRIENTS:
-        na = ingredient.get_nutrient_amount(pn)
-        output = output + summarise_nutrient_amount(na) + '\n'
-    return output
+def summarise_flag(ingredient:'Ingredient', flag_name:str) -> str:
+    flag = ingredient.get_flag(flag_name)
+    if flag == None:
+        flag = 'Undefined'
+    return '{}: {}'.format(
+        flag_name.replace('_', ' '),
+        flag
+    )
 
 def summarise_nutrient_amount(nutrient_amount: 'NutrientAmount') -> str:
-    return NUTRIENT_SUMMARY_TEMPLATE.format(
-        nutrient_amount.name,
-        nutrient_amount.nutrient_mass,
-        nutrient_amount.nutrient_mass_units,
-        nutrient_amount.ingredient_mass,
-        nutrient_amount.ingredient_mass_units,
-        nutrient_amount.percentage
-    )
+    if nutrient_amount.defined:
+        perc = nutrient_amount.percentage
+        perc_insert = ' (trace)'
+        if perc > 0.01:
+            perc_insert = ' {:.3f}%'.format(perc)
+        return NUTRIENT_SUMMARY_TEMPLATE.format(
+            nutrient_name=nutrient_amount.name.replace('_', ' '),
+            nutrient_mass=nutrient_amount.nutrient_mass,
+            nutrient_mass_units=nutrient_amount.nutrient_mass_units,
+            ingredient_mass=nutrient_amount.ingredient_mass,
+            ingredient_mass_units=nutrient_amount.ingredient_mass_units,
+        ) + perc_insert
+    else:
+        return UNDEFINED_NUTRIENT_SUMMARY_TEMPLATE.format(
+            nutrient_name=nutrient_amount.name.replace('_', ' ')
+        )

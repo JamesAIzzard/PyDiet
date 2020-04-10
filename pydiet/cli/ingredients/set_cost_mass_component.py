@@ -22,7 +22,7 @@ class SetCostMassComponent(ConsoleAppComponent):
         super().__init__()
         self._utility_service:'UtilityService' = inject(\
             'pydiet.utility_service')
-        self._scope:'IngredientEditService' = inject('pydiet.ingredient_edit_service')
+        self._scope:'IngredientEditService' = inject('pydiet.cli.ingredient_edit_service')
 
     def print(self):
         output = _MASS_TEMPLATE.format(\
