@@ -13,7 +13,7 @@ _FLAG_MENU = '''Choose a flag to edit:
 '''
 _FLAG_MENU_ITEM = '({flag_number}) -- {flag_summary}\n'
 
-class IngredientFlagMenuComponent(ConsoleAppComponent):
+class EditFlagMenuComponent(ConsoleAppComponent):
 
     def __init__(self):
         super().__init__()
@@ -43,4 +43,4 @@ class IngredientFlagMenuComponent(ConsoleAppComponent):
         if response in self._ies.flag_number_name_map.keys():
             self._ies.current_flag_number = response
         # And nav to set flag;      
-        self.goto('.set')
+        self.goto('.edit_flag')

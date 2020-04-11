@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 INGREDIENT_COST_SUMMARY_TEMPLATE = '£{cost:.2f} for {mass}{mass_units} (£{g_cost:.3f}/g)'
 INGREDIENT_FLAG_SUMMARY_TEMPLATE = '{flag_name}: {status}'
 NUTRIENT_SUMMARY_TEMPLATE = \
-    '- {nutrient_name}: {nutrient_mass}{nutrient_mass_units}/{ingredient_mass}{ingredient_mass_units}'
+    '{nutrient_name}: {nutrient_mass}{nutrient_mass_units}/{ingredient_mass}{ingredient_mass_units}'
 UNDEFINED_NUTRIENT_SUMMARY_TEMPLATE = '{nutrient_name}: Undefined'
 
 def resolve_alias(alias: str) -> str:
@@ -79,7 +79,7 @@ def summarise_nutrient_amount(nutrient_amount: 'NutrientAmount') -> str:
         perc = nutrient_amount.percentage
         perc_insert = ' (trace)'
         if perc > 0.01:
-            perc_insert = ' {:.3f}%'.format(perc)
+            perc_insert = ' ({:.3f})%'.format(perc)
         return NUTRIENT_SUMMARY_TEMPLATE.format(
             nutrient_name=nutrient_amount.name.replace('_', ' '),
             nutrient_mass=nutrient_amount.nutrient_mass,

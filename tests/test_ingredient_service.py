@@ -28,5 +28,4 @@ class TestSummarisePrimaryNutrients(TestCase):
         i.set_nutrient_amount('protein', 1, 'kg', 65, 'g')
         i.set_nutrient_amount('sodium', 1, 'kg', 2, 'ug')
         i.set_nutrient_amount('fat', 1, 'kg', 0.2, 'g')
-        s = ig.summarise_primary_nutrients(i)
-        print(s)
+        pass

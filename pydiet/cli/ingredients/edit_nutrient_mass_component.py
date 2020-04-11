@@ -4,7 +4,7 @@ from pinjector import inject
 from pyconsoleapp import ConsoleAppComponent
 
 if TYPE_CHECKING:
-    from pydiet.utility_service import UtilityService
+    from pydiet import utility_service
     from pydiet.cli.ingredients.ingredient_edit_service import IngredientEditService
 
 _NUTRIENT_MASS = '''
@@ -17,18 +17,18 @@ present in {mass_per}{mass_per_units} of {ingredient_name}.
 (e.g 100g or 1kg, etc.)
  '''
 
-class NutrientMassComponent(ConsoleAppComponent):
+class EditNutrientMassComponent(ConsoleAppComponent):
     def __init__(self):
         super().__init__()
-        self._utility_service:'UtilityService' = inject('pydiet.utility_service')
-        self._scope:'IngredientEditService' = inject('pydiet.cli.ingredient_edit_service')
+        self._us:'utility_service' = inject('pydiet.utility_service')
+        self._ies:'IngredientEditService' = inject('pydiet.cli.ingredient_edit_service')
 
     def print(self):
         output = _NUTRIENT_MASS.format(
-            ingredient_name = self._scope.ingredient.name,
-            nutrient_name = self._scope.current_nutrient_name,
-            mass_per = self._scope.temp_nutrient_mass_per,
-            mass_per_units = self._scope.temp_nutrient_mass_per_units
+            ingredient_name = self._ies.ingredient.name,
+            nutrient_name = self._ies.current_nutrient_amount.name,
+            mass_per = self._ies.temp_nutrient_ingredient_mass,
+            mass_per_units = self._ies.temp_nutrient_ingredient_mass_units
         )
         output = self.get_component('standard_page_component').print(output)
         return output
@@ -36,21 +36,19 @@ class NutrientMassComponent(ConsoleAppComponent):
     def dynamic_response(self, response):
         # Try and parse the response as mass and units;
         try:
-            mass_and_units = self._utility_service.parse_mass_and_units(response)
+            mass_and_units = self._us.parse_mass_and_units(response)
         except ValueError:
             self.app.error_message = "Unable to parse {} as a mass & unit. Try again."\
                 .format(response)
             return
         # Save the nutrient data to the ingredient;
-        self._scope.ingredient.set_nutrient_data(
-            self._scope.current_nutrient_name,
+        self._ies.ingredient.set_nutrient_amount(
+            self._ies.current_nutrient_amount.name,
+            self._ies.temp_nutrient_ingredient_mass,
+            self._ies.temp_nutrient_ingredient_mass_units,
             mass_and_units[0], # mass value
-            mass_and_units[1], # units value
-            self._scope.temp_nutrient_mass_per,
-            self._scope.temp_nutrient_mass_per_units
+            mass_and_units[1] # units value
         )
-        # Update the display;
-        self._scope.show_ingredient_summary()
         # Navigate back to the nutrient menu;
         self.goto('..')
   

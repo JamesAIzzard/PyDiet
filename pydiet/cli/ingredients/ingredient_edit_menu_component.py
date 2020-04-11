@@ -71,18 +71,18 @@ class IngredientEditMenuComponent(ConsoleAppComponent):
             return True
 
     def on_edit_name(self):
-        self.goto('.name')
+        self.goto('.edit_name')
 
     def on_edit_cost(self):
         if self._check_name_defined():
-            self.goto('.cost_mass')
+            self.goto('.edit_cost_mass')
 
     def on_edit_flags(self):
         ies: 'IngredientEditService' = inject(
             'pydiet.cli.ingredient_edit_service')
         if self._check_name_defined():
             if ies.ingredient.all_flags_undefined:
-                self.goto('.flags.set_all?')
+                self.goto('.flags.ask_cycle_flags')
             else:
                 self.goto('.flags')
 

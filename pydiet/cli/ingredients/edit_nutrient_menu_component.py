@@ -40,4 +40,19 @@ class EditNutrientMenuComponent(ConsoleAppComponent):
         return output
 
     def on_edit_other(self):
-        self.goto('..nutrient_search')
+        self.goto('.nutrient_search')
+
+    def dynamic_response(self, response):
+        # Try and parse the response as an int;
+        try:
+            response = int(response)
+        except ValueError:
+            return None
+        # If the primary response is one of the numbered nutrients;
+        if response in self._ies.primary_nutrient_number_name_map.keys():
+            # Get the nutrient name;
+            nutrient_name = self._ies.primary_nutrient_number_name_map[int(response)]
+            # Load that nutrient as the current nutrient amount;
+            self._ies.current_nutrient_amount = \
+                self._ies.ingredient.get_nutrient_amount(nutrient_name)
+            self.goto('.edit_nutrient_ingredient_mass')

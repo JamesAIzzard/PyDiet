@@ -19,6 +19,8 @@ class IngredientMenuComponent(ConsoleAppComponent):
 
     def __init__(self):
         super().__init__()
+        self._ies:'IngredientEditService' = inject('pydiet.cli.ingredient_edit_service')
+        self._igs:'ingredient_service' = inject('pydiet.ingredient_service')
         self.set_option_response('1', self.on_create)
         self.set_option_response('2', self.on_edit)
         self.set_option_response('3', self.on_delete)
@@ -30,10 +32,8 @@ class IngredientMenuComponent(ConsoleAppComponent):
         return output
 
     def on_create(self):
-        ies:'IngredientEditService' = inject('pydiet.cli.ingredient_edit_service')
-        igs:'ingredient_service' = inject('pydiet.ingredient_service')
         # Put a fresh ingredient on the scope;
-        ies.ingredient = igs.get_new_ingredient()
+        self._ies.ingredient = self._igs.get_new_ingredient()
         # Configure the save reminder;
         self.get_component('ingredient_save_check_component').guarded_route = \
             'home.ingredients.new'

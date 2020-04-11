@@ -4,7 +4,7 @@ from pyconsoleapp import ConsoleAppComponent
 from pinjector import inject
 
 if TYPE_CHECKING:
-    from pydiet.utility_service import UtilityService
+    from pydiet import utility_service
     from pydiet.cli.ingredients.ingredient_edit_service import IngredientEditService
 
 _MASS_TEMPLATE = '''
@@ -17,16 +17,16 @@ which you wish to value.
 '''
 
 
-class SetCostMassComponent(ConsoleAppComponent):
+class EditCostMassComponent(ConsoleAppComponent):
     def __init__(self):
         super().__init__()
-        self._utility_service:'UtilityService' = inject(\
+        self._us:'utility_service' = inject(\
             'pydiet.utility_service')
-        self._scope:'IngredientEditService' = inject('pydiet.cli.ingredient_edit_service')
+        self._ies:'IngredientEditService' = inject('pydiet.cli.ingredient_edit_service')
 
     def print(self):
         output = _MASS_TEMPLATE.format(\
-            ingredient_name=self._scope.ingredient.name)
+            ingredient_name=self._ies.ingredient.name)
         output = self.app.get_component('standard_page_component').print(output)
         return output
 
@@ -34,12 +34,12 @@ class SetCostMassComponent(ConsoleAppComponent):
         # Try and parse the response as mass and units;
         mass_and_units = None
         try:
-            mass_and_units = self._utility_service.parse_mass_and_units(response)
+            mass_and_units = self._us.parse_mass_and_units(response)
         except ValueError:
             self.app.error_message = "Unable to parse {} as a mass & unit. Try again."\
                 .format(response)
             return
         # Stash these values and move on to collect the cost;
-        self._scope.temp_cost_mass = mass_and_units[0]
-        self._scope.temp_cost_mass_units = mass_and_units[1]
-        self.goto('..cost')
+        self._ies.temp_cost_mass = mass_and_units[0]
+        self._ies.temp_cost_mass_units = mass_and_units[1]
+        self.goto('..edit_cost')

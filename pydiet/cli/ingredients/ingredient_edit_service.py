@@ -3,8 +3,7 @@ from typing import TYPE_CHECKING, Dict, Optional, List
 from pinjector import inject
 
 if TYPE_CHECKING:
-    from pydiet.ingredients.ingredient import Ingredient
-    from pydiet.ingredients import ingredient_service
+    from pydiet.ingredients.ingredient import Ingredient, NutrientAmount
     from pyconsoleapp import ConsoleApp
     from pydiet import configs
 
@@ -22,6 +21,7 @@ class IngredientEditService():
         self.cycling_flags: bool = False
         self.temp_nutrient_ingredient_mass: float
         self.temp_nutrient_ingredient_mass_units: str
+        self.current_nutrient_amount:'NutrientAmount'
         self.nutrient_name_search_results: List[str]
 
     @property
@@ -43,6 +43,10 @@ class IngredientEditService():
                 self._create_number_name_map(self._cf.PRIMARY_NUTRIENTS)
         #  Return from cache;
         return self._primary_nutrient_number_name_map
+
+    @property
+    def nutrient_search_result_number_name_map(self) -> Dict[int, str]:
+        return self._create_number_name_map(self.nutrient_name_search_results)
 
     @property
     def current_flag_name(self)->str:

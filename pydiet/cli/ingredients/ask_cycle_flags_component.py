@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 
 _TEMPLATE = '\nSet all flags now? (y)/(n)\n\n'
 
-class CycleIngredientFlagsQuestionComponent(ConsoleAppComponent):
+class AskCycleFlagsComponent(ConsoleAppComponent):
     def __init__(self):
         super().__init__()
         self._ies:'IngredientEditService' = inject('pydiet.cli.ingredient_edit_service')
@@ -24,7 +24,7 @@ class CycleIngredientFlagsQuestionComponent(ConsoleAppComponent):
     def on_yes_set_all(self):
         self._ies.current_flag_number = 1
         self._ies.cycling_flags = True
-        self.goto('..set')
+        self.goto('..edit_flag')
 
     def on_no_dont_set_all(self):
         self.goto('...flags')

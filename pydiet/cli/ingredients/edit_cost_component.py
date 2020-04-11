@@ -16,7 +16,7 @@ How much does {mass}{units} of {ingredient_name}
 cost?
 '''
 
-class SetCostComponent(ConsoleAppComponent):
+class EditCostComponent(ConsoleAppComponent):
 
     def __init__(self):
         super().__init__()
@@ -31,7 +31,7 @@ class SetCostComponent(ConsoleAppComponent):
             spacer=' '*len(self._ies.ingredient.name+\
                 str(self._ies.temp_cost_mass)+self._ies.temp_cost_mass_units)
         )
-        output = self.get_component('standard_page_component').print(output)
+        output = self.get_component('standard_page_component').print(output) + ' £'
         return output
 
     def dynamic_response(self, response):

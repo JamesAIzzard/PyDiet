@@ -3,8 +3,8 @@ from typing import TYPE_CHECKING, Union, Optional, Dict, List
 from pinjector import inject
 
 if TYPE_CHECKING:
-    from pydiet.utility_service import UtilityService
     from pydiet import configs
+    from pydiet import utility_service
 
 
 class NutrientQtyExceedsIngredientQtyError(ValueError):
@@ -88,7 +88,7 @@ class NutrientAmount():
     def nutrient_mass_g(self) -> Optional[float]:
         if not self.nutrient_mass == None \
                 and not self.nutrient_mass_units == None:
-            ut: 'UtilityService' = inject('pydiet.utility_service')
+            ut: 'utility_service' = inject('pydiet.utility_service')
             return ut.convert_mass(
                 self.nutrient_mass,
                 self.nutrient_mass_units,
@@ -116,7 +116,7 @@ class NutrientAmount():
     @property
     def percentage(self) -> Optional[float]:
         if self.defined:
-            ut: 'UtilityService' = inject('pydiet.utility_service')
+            ut: 'utility_service' = inject('pydiet.utility_service')
             nutrient_mass_g = ut.convert_mass(
                 self.nutrient_mass,
                 self.nutrient_mass_units,
@@ -132,8 +132,7 @@ class NutrientAmount():
             return None
 
     def validate(self):
-        us: 'UtilityService' = inject('pydiet.utility_service')
-        cf: 'configs' = inject('pydiet.configs')
+        us: 'utility_service' = inject('pydiet.utility_service')
         # Basic check to ensure my nutrient qty does not excced
         # its respective ingredient quantity;
         nut_mass_g = us.convert_mass(
@@ -185,7 +184,7 @@ class Ingredient():
 
     @property
     def cost_per_g(self) -> Union[float, None]:
-        ut: 'UtilityService' = inject('pydiet.utility_service')
+        ut: 'utility_service' = inject('pydiet.utility_service')
         if self.cost_is_defined:
             conversion_factor = ut.convert_mass(
                 self._data['cost_per_mass']['ingredient_mass'],

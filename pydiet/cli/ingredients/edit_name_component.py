@@ -7,11 +7,11 @@ if TYPE_CHECKING:
 _TEMPLATE = '''Enter ingredient name:
 '''
 
-class IngredientNameEditorComponent(ConsoleAppComponent):
+class EditNameComponent(ConsoleAppComponent):
 
     def __init__(self):
         super().__init__()
-        self._scope:'IngredientEditService' = inject('pydiet.cli.ingredient_edit_service')
+        self._ies:'IngredientEditService' = inject('pydiet.cli.ingredient_edit_service')
 
     def print(self):
         output = _TEMPLATE
@@ -19,5 +19,5 @@ class IngredientNameEditorComponent(ConsoleAppComponent):
         return output
 
     def dynamic_response(self, response):
-        self._scope.ingredient.name = response
+        self._ies.ingredient.name = response
         self.goto('..')
