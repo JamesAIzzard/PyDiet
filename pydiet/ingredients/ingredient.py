@@ -8,13 +8,15 @@ if TYPE_CHECKING:
 
 
 class NutrientQtyExceedsIngredientQtyError(ValueError):
-    def __init__(self, message=None):
-        super().__init__(message)
+    def __init__(self, *args):
+        if args[0]:
+            super().__init__(args[0])
 
 
 class ConstituentsExceedGroupError(ValueError):
-    def __init__(self, message=None):
-        super().__init__(message)
+    def __init__(self, *args):
+        if args[0]:
+            super().__init__(args[0])
 
 
 class NutrientAmount():
@@ -24,6 +26,7 @@ class NutrientAmount():
         parent_ingredient: 'Ingredient'
     ):
         self.name = name
+        self._utility_service:'utility_service' = inject('pydiet.utility_service')
         self._parent_ingredient: 'Ingredient' = parent_ingredient
         self._child_nutrient_amounts: Dict[str, 'NutrientAmount'] = {}
         self._parent_nutrient_amounts: Dict[str, 'NutrientAmount'] = {}
@@ -66,9 +69,7 @@ class NutrientAmount():
 
     @ingredient_mass.setter
     def ingredient_mass(self, value: float):
-        self._parent_ingredient._data['nutrients'][self.name]['ingredient_mass'] = value
-        if self.defined:
-            self.validate()
+        self._safe_set('ingredient_mass', value)
 
     @property
     def ingredient_mass_units(self) -> str:
@@ -76,9 +77,7 @@ class NutrientAmount():
 
     @ingredient_mass_units.setter
     def ingredient_mass_units(self, value: str):
-        self._parent_ingredient._data['nutrients'][self.name]['ingredient_mass_units'] = value
-        if self.defined:
-            self.validate()
+        self._safe_set('ingredient_mass_units', value)
 
     @property
     def nutrient_mass(self) -> float:
@@ -99,9 +98,7 @@ class NutrientAmount():
 
     @nutrient_mass.setter
     def nutrient_mass(self, value: float):
-        self._parent_ingredient._data['nutrients'][self.name]['nutrient_mass'] = value
-        if self.defined:
-            self.validate()
+        self._safe_set('nutrient_mass', value)
 
     @property
     def nutrient_mass_units(self) -> str:
@@ -109,9 +106,7 @@ class NutrientAmount():
 
     @nutrient_mass_units.setter
     def nutrient_mass_units(self, value: str):
-        self._parent_ingredient._data['nutrients'][self.name]['nutrient_mass_units'] = value
-        if self.defined:
-            self.validate()
+        self._safe_set('nutrient_mass_units', value)
 
     @property
     def percentage(self) -> Optional[float]:
@@ -131,18 +126,34 @@ class NutrientAmount():
         else:
             return None
 
+    def _safe_set(self, field_name:str, value:Union[str, float])->None:
+        # Take a backup in case the new data invalidates me;
+        backup = self._parent_ingredient._data['nutrients'][self.name].copy()
+        # Set the new data;
+        self._parent_ingredient._data['nutrients'][self.name][field_name] = value
+        # If I am defined, check my validity;
+        if self.defined:
+            try:
+                self.validate()
+            # If I am now invalid, reset the old data and pass the exception on;
+            except (
+                NutrientQtyExceedsIngredientQtyError, 
+                ConstituentsExceedGroupError) as e:
+                self._parent_ingredient._data['nutrients'][self.name] = backup
+                raise e
+
     def validate(self):
-        us: 'utility_service' = inject('pydiet.utility_service')
         # Basic check to ensure my nutrient qty does not excced
         # its respective ingredient quantity;
-        nut_mass_g = us.convert_mass(
+        nut_mass_g = self._utility_service.convert_mass(
             self.nutrient_mass, self.nutrient_mass_units, 'g'
         )
-        ing_mass_g = us.convert_mass(
+        ing_mass_g = self._utility_service.convert_mass(
             self.ingredient_mass, self.ingredient_mass_units, 'g'
         )
         if nut_mass_g > ing_mass_g:
-            raise NutrientQtyExceedsIngredientQtyError
+            raise NutrientQtyExceedsIngredientQtyError('The quantity of {} cannot exceed the mass of the ingredient containing it'.format(self.name)
+            )
         # If I am a child nutrient, check that the sum of mine and
         # my siblings values do not exceed parent's percentage;
         if len(self._parent_nutrient_amounts):
@@ -150,13 +161,14 @@ class NutrientAmount():
             for pna in self._parent_nutrient_amounts.values():
                 # Check that the sum of the sibling percentages in this group
                 # do not exceed the parent's percentage;
+                parent_perc = pna.percentage
                 sibling_perc_sum = 0 
                 for sibling in pna._child_nutrient_amounts.values():
                     if sibling.defined:
                         sibling_perc_sum = sibling_perc_sum + sibling.percentage
-                if sibling_perc_sum > 100:
-                    raise ConstituentsExceedGroupError('The constituents of {} sum to {}% in {}'.format(
-                        pna.name, sibling_perc_sum, self._parent_ingredient.name))
+                if sibling_perc_sum > parent_perc:
+                    raise ConstituentsExceedGroupError('The constituents of {} sum to {}% more than the stated % for {} in {}'.format(
+                        pna.name, sibling_perc_sum-parent_perc, pna.name, self._parent_ingredient.name))
 
 class Ingredient():
     def __init__(self, data):
