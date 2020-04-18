@@ -160,12 +160,8 @@ class NutrientAmount():
             for pna in self._parent_nutrient_amounts.values():
                 # Check that the sum of the sibling percentages in this group
                 # do not exceed the parent's percentage;
-<<<<<<< HEAD
-                sibling_perc_sum = 0
-=======
                 parent_perc = pna.percentage
                 sibling_perc_sum = 0 
->>>>>>> 503b965f49ec6f9fb2d332ffe5e296d7bb0354fd
                 for sibling in pna._child_nutrient_amounts.values():
                     if sibling.defined:
                         sibling_perc_sum = sibling_perc_sum + sibling.percentage
