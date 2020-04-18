@@ -1,20 +1,37 @@
 from typing import Tuple, List, Dict
 from difflib import SequenceMatcher
 
-g_conversions = {
+_G_CONVERSIONS = {
     "ug": 1e-6,  # 1 microgram = 0.000001 grams
     "mg": 1e-3,  # 1 milligram = 0.001 grams
     "g": 1,  # 1 gram = 1 gram! :)
     "kg": 1e3,  # 1 kilogram = 1000 grams
 }
 
-def recognised_units()->List[str]:
-    return list(g_conversions.keys())
+_ML_CONVERSIONS = {
+    "ml": 1,
+    "cm3": 1,    
+    "l": 1e-3, # 1L = 0.001 ml
+    "m3": 1e-6,    
+    "quart": 0.001057,
+    "tsp": 0.2029,
+    "tbsp": 0.06763
+}
+
+def recognised_mass_units()->List[str]:
+    return list(_G_CONVERSIONS.keys())
+
+def recognised_vol_units()->List[str]:
+    return list(_ML_CONVERSIONS.keys())
 
 def convert_mass(mass: float, start_units: str, end_units: str) -> float:
     # Convert value to grams first
-    mass_in_g = g_conversions[start_units]*mass
-    return mass_in_g/g_conversions[end_units]
+    mass_in_g = _G_CONVERSIONS[start_units]*mass
+    return mass_in_g/_G_CONVERSIONS[end_units]
+
+def convert_volume(volume: float, start_units:str, end_units: str) -> float:
+    mass_in_ml = _ML_CONVERSIONS[start_units]*volume
+    return mass_in_ml/_ML_CONVERSIONS[end_units]
 
 def sentence_case(text: str) -> str:
     '''Capitalizes the first letter of each word in the
@@ -31,7 +48,7 @@ def sentence_case(text: str) -> str:
         word.capitalize()
     return ' '.join(words_list)
 
-def parse_mass_and_units(mass_and_units: str) -> Tuple[float, str]:
+def parse_number_and_units(mass_and_units: str) -> Tuple[float, str]:
     output = None
     # Strip any initial whitespace;
     mass_and_units = mass_and_units.replace(' ', '')
@@ -49,7 +66,7 @@ def parse_mass_and_units(mass_and_units: str) -> Tuple[float, str]:
         raise ValueError('Unable to parse {} into a mass and unit.'
                             .format(mass_and_units))
     # Check that the units are recognised;
-    if output[1] not in recognised_units():
+    if output[1] not in recognised_mass_units():
         raise ValueError('{} is not a recognised mass unit.'\
             .format(output[1]))
     # Return tuple;

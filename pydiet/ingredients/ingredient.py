@@ -51,7 +51,6 @@ class NutrientAmount():
                     # Add myself to its list of parent nutrient amounts;
                     cn._parent_nutrient_amounts[self.name] = self
 
-
     @property
     def defined(self) -> bool:
         data = self._parent_ingredient._data['nutrients'][self.name]
@@ -150,13 +149,14 @@ class NutrientAmount():
             for pna in self._parent_nutrient_amounts.values():
                 # Check that the sum of the sibling percentages in this group
                 # do not exceed the parent's percentage;
-                sibling_perc_sum = 0 
+                sibling_perc_sum = 0
                 for sibling in pna._child_nutrient_amounts.values():
                     if sibling.defined:
                         sibling_perc_sum = sibling_perc_sum + sibling.percentage
                 if sibling_perc_sum > 100:
                     raise ConstituentsExceedGroupError('The constituents of {} sum to {}% in {}'.format(
                         pna.name, sibling_perc_sum, self._parent_ingredient.name))
+
 
 class Ingredient():
     def __init__(self, data):
@@ -202,6 +202,17 @@ class Ingredient():
         self._data['cost_per_mass']['cost'] = cost
         self._data['cost_per_mass']['ingredient_mass'] = mass
         self._data['cost_per_mass']['ingredient_mass_units'] = mass_units
+
+    def set_density(
+        self, vol: float,
+        vol_units: str,
+        mass_per_vol: float,
+        mass_per_vol_units: str
+    ) -> None:
+        self._data['vol_density']['ingredient_mass']
+        self._data['vol_density']['ingredient_mass_units']
+        self._data['vol_density']['ingredient_vol']
+        self._data['vol_density']['ingredient_vol_units']
 
     @property
     def all_flag_data(self) -> Dict:

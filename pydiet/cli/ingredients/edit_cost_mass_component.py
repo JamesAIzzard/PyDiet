@@ -32,12 +32,16 @@ class EditCostMassComponent(ConsoleAppComponent):
 
     def dynamic_response(self, response):
         # Try and parse the response as mass and units;
-        mass_and_units = None
         try:
-            mass_and_units = self._us.parse_mass_and_units(response)
+            mass_and_units = self._us.parse_number_and_units(response)
+        # Catch parse failure;
         except ValueError:
             self.app.error_message = "Unable to parse {} as a mass & unit. Try again."\
                 .format(response)
+            return
+        # Catch unrecognised unit failure;
+        if not mass_and_units[1] in self._us.recognised_mass_units():
+            self.app.error_message = "{} is not a recognised mass unit.".format(mass_and_units[1])
             return
         # Stash these values and move on to collect the cost;
         self._ies.temp_cost_mass = mass_and_units[0]

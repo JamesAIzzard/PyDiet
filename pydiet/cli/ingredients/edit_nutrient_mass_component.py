@@ -36,7 +36,7 @@ class EditNutrientMassComponent(ConsoleAppComponent):
     def dynamic_response(self, response):
         # Try and parse the response as mass and units;
         try:
-            mass_and_units = self._us.parse_mass_and_units(response)
+            mass_and_units = self._us.parse_number_and_units(response)
         except ValueError:
             self.app.error_message = "Unable to parse {} as a mass & unit. Try again."\
                 .format(response)

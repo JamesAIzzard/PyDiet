@@ -17,6 +17,8 @@ class IngredientEditService():
         self.app: 'ConsoleApp' = inject('pydiet.cli.app')
         self.temp_cost_mass: float
         self.temp_cost_mass_units: str
+        self.temp_volume: float
+        self.temp_volume_units: str
         self.current_flag_number: int
         self.cycling_flags: bool = False
         self.temp_nutrient_ingredient_mass: float

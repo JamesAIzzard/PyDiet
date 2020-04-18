@@ -64,6 +64,8 @@ def summarise_cost(ingredient: 'Ingredient') -> str:
     else:
         return 'Undefined'
 
+def summarise_density(ingredient:'Ingredient')->str:
+    raise NotImplementedError
 
 def summarise_flag(ingredient:'Ingredient', flag_name:str) -> str:
     flag = ingredient.get_flag(flag_name)

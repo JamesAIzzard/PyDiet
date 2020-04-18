@@ -13,16 +13,18 @@ if TYPE_CHECKING:
 _TEMPLATE = '''Ingredient Editor:
 ------------------
 
-(s) -- Save Changes.
+(s) -- Save Changes
 
 (1) -- Edit Name: {name}
 
 (2) -- Edit Cost: {cost}
 
-(3) -- Edit Flags:
+(3) -- Configure Liquid Measurements: {density_status}
+
+(4) -- Edit Flags:
 {flags}
 
-(4) -- Edit Nutrients:
+(5) -- Edit Nutrients:
 {nutrients}
 '''
 
@@ -37,8 +39,9 @@ class IngredientEditMenuComponent(ConsoleAppComponent):
             'pydiet.cli.ingredient_edit_service')
         self.set_option_response('1', self.on_edit_name)
         self.set_option_response('2', self.on_edit_cost)
-        self.set_option_response('3', self.on_edit_flags)
-        self.set_option_response('4', self.on_edit_nutrients)
+        self.set_option_response('3', self.on_configure_liquid_measurements)
+        self.set_option_response('4', self.on_edit_flags)
+        self.set_option_response('5', self.on_edit_nutrients)
 
     def print(self):
         # Build the nutrient summary;
@@ -57,6 +60,7 @@ class IngredientEditMenuComponent(ConsoleAppComponent):
         output = _TEMPLATE.format(
             name=self._igs.summarise_name(self._ies.ingredient),
             cost=self._igs.summarise_cost(self._ies.ingredient),
+            density_status=self._igs.summarise_density(self._ies.ingredient),
             flags=f,
             nutrients=n
         )
@@ -76,6 +80,10 @@ class IngredientEditMenuComponent(ConsoleAppComponent):
     def on_edit_cost(self):
         if self._check_name_defined():
             self.goto('.edit_cost_mass')
+
+    def on_configure_liquid_measurements(self):
+        if self._check_name_defined():
+            self.goto('.edit_density_volume')
 
     def on_edit_flags(self):
         ies: 'IngredientEditService' = inject(
