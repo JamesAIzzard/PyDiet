@@ -40,10 +40,10 @@ class TestIngredientInit(TestCase):
 
     def test_constituents_exceed_group_error(self):
         self.i.set_nutrient_amount('protein', 250, 'g', 0.1, 'kg')
-        self.i.set_nutrient_amount('alanine', 250, 'g', 100, 'g')
-        self.i.set_nutrient_amount('leucine', 250, 'g', 100, 'g')
+        self.i.set_nutrient_amount('alanine', 250, 'g', 40, 'g')
+        self.i.set_nutrient_amount('leucine', 250, 'g', 40, 'g')
         with self.assertRaises(ConstituentsExceedGroupError):
-            self.i.set_nutrient_amount('glycine', 250, 'g', 100, 'g')
+            self.i.set_nutrient_amount('glycine', 250, 'g', 40, 'g')
 
     def test_nutrient_qty_exceeds_ingredient_qty_error(self):
         with self.assertRaises(NutrientQtyExceedsIngredientQtyError):

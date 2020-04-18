@@ -3,6 +3,11 @@ from typing import TYPE_CHECKING
 from pinjector import inject
 from pyconsoleapp import ConsoleAppComponent
 
+from pydiet.ingredients.ingredient import (
+    ConstituentsExceedGroupError,
+    NutrientQtyExceedsIngredientQtyError
+)
+
 if TYPE_CHECKING:
     from pydiet import utility_service
     from pydiet.cli.ingredients.ingredient_edit_service import IngredientEditService
@@ -41,14 +46,18 @@ class EditNutrientMassComponent(ConsoleAppComponent):
             self.app.error_message = "Unable to parse {} as a mass & unit. Try again."\
                 .format(response)
             return
-        # Save the nutrient data to the ingredient;
-        self._ies.ingredient.set_nutrient_amount(
-            self._ies.current_nutrient_amount.name,
-            self._ies.temp_nutrient_ingredient_mass,
-            self._ies.temp_nutrient_ingredient_mass_units,
-            mass_and_units[0], # mass value
-            mass_and_units[1] # units value
-        )
+        # Try the nutrient data to the ingredient;
+        try:
+            self._ies.ingredient.set_nutrient_amount(
+                self._ies.current_nutrient_amount.name,
+                self._ies.temp_nutrient_ingredient_mass,
+                self._ies.temp_nutrient_ingredient_mass_units,
+                mass_and_units[0], # mass value
+                mass_and_units[1] # units value
+            )
+        except (ConstituentsExceedGroupError, NutrientQtyExceedsIngredientQtyError) as err:
+            self.app.error_message = (str(err))
+            return
         # Navigate back to the nutrient menu;
         self.goto('..')
   
