@@ -19,5 +19,5 @@ class EditNameComponent(ConsoleAppComponent):
         return output
 
     def dynamic_response(self, response):
-        self._ies.ingredient.name = response
+        self._ies.ingredient.name = response.lower()
         self.goto('..')

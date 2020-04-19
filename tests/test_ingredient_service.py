@@ -21,11 +21,16 @@ class TestGetMatchingNutrientNames(TestCase):
         results = ig.get_matching_nutrient_names(search_term, 4)
         self.assertEqual(results[0], 'protein')
 
-class TestSummarisePrimaryNutrients(TestCase):
-    def test_summarises_nutrients(self):
-        ig:'ingredient_service' = inject('pydiet.ingredient_service')
-        i = ig.get_new_ingredient()
-        i.set_nutrient_amount('protein', 1, 'kg', 65, 'g')
-        i.set_nutrient_amount('sodium', 1, 'kg', 2, 'ug')
-        i.set_nutrient_amount('fat', 1, 'kg', 0.2, 'g')
+class TestSummariseDensity(TestCase):
+    def setUp(self):
+        self.igs:'ingredient_service' = inject('pydiet.ingredient_service')
+        self.i = self.igs.get_new_ingredient()
+    
+    def test_returns_undefined(self):
+        # Check the density is undefined to start with;
+        self.assertEqual(self.igs.summarise_density(self.i), 'Undefined')
+        # Set the density;
+        self.i.set_density(1, 'L', 1, 'kg')
+        # Check the summary now appears;
+        print(self.igs.summarise_density(self.i))
         pass

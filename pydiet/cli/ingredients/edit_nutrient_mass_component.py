@@ -13,12 +13,12 @@ if TYPE_CHECKING:
     from pydiet.cli.ingredients.ingredient_edit_service import IngredientEditService
 
 _NUTRIENT_MASS = '''
-    In {mass_per}{mass_per_units} of {ingredient_name} there is
+    In {qty}{units} of {ingredient_name} there is
 
     ______ of {nutrient_name}
     ^^^^^^
 Enter the weight and units of {nutrient_name}
-present in {mass_per}{mass_per_units} of {ingredient_name}.
+present in {qty}{units} of {ingredient_name}.
 (e.g 100g or 1kg, etc.)
  '''
 
@@ -29,11 +29,19 @@ class EditNutrientMassComponent(ConsoleAppComponent):
         self._ies:'IngredientEditService' = inject('pydiet.cli.ingredient_edit_service')
 
     def print(self):
+        # Configure qty and units depending on whether the ingredient
+        # cost is being defined per volume or per mass;
+        qty = self._ies.temp_nutrient_ingredient_mass
+        units = self._ies.temp_nutrient_ingredient_mass_units
+        if not self._ies.temp_volume == None and \
+            not self._ies.temp_volume_units == None:
+            qty = self._ies.temp_volume
+            units = self._ies.temp_volume_units        
         output = _NUTRIENT_MASS.format(
             ingredient_name = self._ies.ingredient.name,
             nutrient_name = self._ies.current_nutrient_amount.name,
-            mass_per = self._ies.temp_nutrient_ingredient_mass,
-            mass_per_units = self._ies.temp_nutrient_ingredient_mass_units
+            qty= qty,
+            units = units
         )
         output = self.get_component('standard_page_component').print(output)
         return output

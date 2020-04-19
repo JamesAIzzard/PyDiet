@@ -32,6 +32,8 @@ class EditDensityMassComponent(ConsoleAppComponent):
         return output
 
     def dynamic_response(self, response):
+        # Lowercase the response;
+        response = response.lower()
         # Try and parse the mass and units;
         try:
             mass_and_units = self._us.parse_number_and_units(response)
@@ -50,3 +52,5 @@ class EditDensityMassComponent(ConsoleAppComponent):
             mass_and_units[0], # mass per volume
             mass_and_units[1] # mass units per volume
         )
+        # Redirect;
+        self.goto('..')

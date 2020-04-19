@@ -65,7 +65,16 @@ def summarise_cost(ingredient: 'Ingredient') -> str:
         return 'Undefined'
 
 def summarise_density(ingredient:'Ingredient')->str:
-    raise NotImplementedError
+    if ingredient.density_is_defined:
+        return '{ingredient_mass}{ingredient_mass_units}/{ingredient_vol}{ingredient_vol_units} ({density_g_ml}g/ml)'.format(
+            ingredient_mass=ingredient._data['vol_density']['ingredient_mass'],
+            ingredient_mass_units=ingredient._data['vol_density']['ingredient_mass_units'],
+            ingredient_vol=ingredient._data['vol_density']['ingredient_vol'],
+            ingredient_vol_units=ingredient._data['vol_density']['ingredient_vol_units'],
+            density_g_ml=ingredient.density_g_per_ml
+        )
+    else:
+        return 'Undefined'
 
 def summarise_flag(ingredient:'Ingredient', flag_name:str) -> str:
     flag = ingredient.get_flag(flag_name)

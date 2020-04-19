@@ -23,7 +23,6 @@ _TEMPLATE = '''Ingredient Editor:
 
 (4) -- Edit Flags:
 {flags}
-
 (5) -- Edit Nutrients:
 {nutrients}
 '''

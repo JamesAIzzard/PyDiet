@@ -712,7 +712,7 @@
       "nutrient_mass_units": null
     }
   },
-  "vol_density:": {
+  "vol_density": {
     "ingredient_mass": null,
     "ingredient_mass_units": null,
     "ingredient_vol": null,

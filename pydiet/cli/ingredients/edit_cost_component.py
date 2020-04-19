@@ -9,10 +9,11 @@ if TYPE_CHECKING:
     from pydiet.cli.ingredients.ingredient_edit_service import IngredientEditService
 
 _UNITS_TEMPLATE = '''
-    {mass}{units} of {ingredient_name} costs £__.____
-                {spacer}^^^^^^^
+    {qty}{units} of {ingredient_name} costs 
+    £__.____
+     ^^^^^^^
 
-How much does {mass}{units} of {ingredient_name}
+How much does {qty}{units} of {ingredient_name}
 cost?
 '''
 
@@ -24,12 +25,19 @@ class EditCostComponent(ConsoleAppComponent):
         self._ies:'IngredientEditService' = inject('pydiet.cli.ingredient_edit_service')
 
     def print(self):
+        # Configure qty and units depending on whether the ingredient
+        # cost is being defined per volume or per mass;
+        qty = self._ies.temp_cost_mass
+        units = self._ies.temp_cost_mass_units
+        if not self._ies.temp_volume == None and \
+            not self._ies.temp_volume_units == None:
+            qty = self._ies.temp_volume
+            units = self._ies.temp_volume_units
+        # Build and return the component output;
         output = _UNITS_TEMPLATE.format(\
             ingredient_name=self._ies.ingredient.name,
-            mass=self._ies.temp_cost_mass,
-            units=self._ies.temp_cost_mass_units,
-            spacer=' '*len(self._ies.ingredient.name+\
-                str(self._ies.temp_cost_mass)+self._ies.temp_cost_mass_units)
+            qty=qty,
+            units=units
         )
         output = self.get_component('standard_page_component').print(output) + ' £'
         return output

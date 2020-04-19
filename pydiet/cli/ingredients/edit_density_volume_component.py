@@ -8,7 +8,7 @@ if TYPE_CHECKING:
     from pydiet import utility_service
 
 _TEMPLATE = '''
-    ______ of {ingredient name}
+    ______ of {ingredient_name}
     ^^^^^^
     weighs ______
 
@@ -31,6 +31,8 @@ class EditDensityVolumeComponent(ConsoleAppComponent):
         return output
 
     def dynamic_response(self, response):
+        # Lowercase the response, since all vols are lowercase;
+        response = response.lower()
         # Try and parse the volume and units from what was entered;
         try:
             vol_and_units = self._us.parse_number_and_units(response)
@@ -40,7 +42,7 @@ class EditDensityVolumeComponent(ConsoleAppComponent):
             return
         # Catch unrecognised unit;
         if not vol_and_units[1] in self._us.recognised_vol_units():
-            self.app.error_message = "{} is not a recognised volume unit.".format(vol_and_units[1])
+            self.app.error_message = "{} is not a recognised vol unit.".format(vol_and_units[1])
             return
         # Stash these values and move on to collect the weight.
         self._ies.temp_volume = vol_and_units[0]

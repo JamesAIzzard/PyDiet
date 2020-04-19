@@ -11,11 +11,11 @@ _G_CONVERSIONS = {
 _ML_CONVERSIONS = {
     "ml": 1,
     "cm3": 1,    
-    "l": 1e-3, # 1L = 0.001 ml
-    "m3": 1e-6,    
-    "quart": 0.001057,
-    "tsp": 0.2029,
-    "tbsp": 0.06763
+    "l": 1e3, # 1L = 1000 ml
+    "m3": 1e6,    
+    "quart": 946.4,
+    "tsp": 4.929,
+    "tbsp": 14.79
 }
 
 def recognised_mass_units()->List[str]:
@@ -25,13 +25,19 @@ def recognised_vol_units()->List[str]:
     return list(_ML_CONVERSIONS.keys())
 
 def convert_mass(mass: float, start_units: str, end_units: str) -> float:
+    # Lowercase all units;
+    start_units = start_units.lower()
+    end_units = end_units.lower()
     # Convert value to grams first
     mass_in_g = _G_CONVERSIONS[start_units]*mass
     return mass_in_g/_G_CONVERSIONS[end_units]
 
 def convert_volume(volume: float, start_units:str, end_units: str) -> float:
-    mass_in_ml = _ML_CONVERSIONS[start_units]*volume
-    return mass_in_ml/_ML_CONVERSIONS[end_units]
+    # Lowercase all units;
+    start_units = start_units.lower()
+    end_units = end_units.lower()    
+    vol_in_ml = _ML_CONVERSIONS[start_units]*volume
+    return vol_in_ml/_ML_CONVERSIONS[end_units]
 
 def sentence_case(text: str) -> str:
     '''Capitalizes the first letter of each word in the
@@ -65,10 +71,6 @@ def parse_number_and_units(mass_and_units: str) -> Tuple[float, str]:
     if not output:
         raise ValueError('Unable to parse {} into a mass and unit.'
                             .format(mass_and_units))
-    # Check that the units are recognised;
-    if output[1] not in recognised_mass_units():
-        raise ValueError('{} is not a recognised mass unit.'\
-            .format(output[1]))
     # Return tuple;
     return output
 

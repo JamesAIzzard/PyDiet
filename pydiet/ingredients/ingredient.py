@@ -166,12 +166,12 @@ class NutrientAmount():
                     if sibling.defined:
                         sibling_perc_sum = sibling_perc_sum + sibling.percentage
                 if sibling_perc_sum > parent_perc:
-                    raise ConstituentsExceedGroupError('The constituents of {} sum to {}% more than the stated % for {} in {}'.format(
-                        pna.name, sibling_perc_sum-parent_perc, pna.name, self._parent_ingredient.name))
+                    raise ConstituentsExceedGroupError('The combined {group} cannot exceed the total {group}'.format(group=pna.name))
 
 
 class Ingredient():
     def __init__(self, data):
+        self._ut:'utility_service' = inject('pydiet.utility_service')
         self._data = data
         self._nutrient_amounts: Dict[str, 'NutrientAmount'] = {}
         # Instantiate the nutrient amounts;
@@ -215,16 +215,58 @@ class Ingredient():
         self._data['cost_per_mass']['ingredient_mass'] = mass
         self._data['cost_per_mass']['ingredient_mass_units'] = mass_units
 
+    @property
+    def density_is_defined(self)->bool:
+        for key in self._data['vol_density'].keys():
+            if not self._data['vol_density'][key]:
+                return False
+        return True
+
+    @property
+    def density_g_per_ml(self)->Optional[float]:
+        if self.density_is_defined:
+            mass_g = self._ut.convert_mass(
+                self._data['vol_density']['ingredient_mass'],
+                self._data['vol_density']['ingredient_mass_units'],
+                'g'
+            )
+            vol_ml = self._ut.convert_volume(
+                self._data['vol_density']['ingredient_vol'],
+                self._data['vol_density']['ingredient_vol_units'],
+                'ml'
+            )
+            return mass_g/vol_ml
+        else:
+            return None
+
     def set_density(
-        self, vol: float,
-        vol_units: str,
-        mass_per_vol: float,
-        mass_per_vol_units: str
+        self, ingredient_vol: float,
+        ingredient_vol_units: str,
+        ingredient_mass: float,
+        ingredient_mass_units: str
     ) -> None:
-        self._data['vol_density']['ingredient_mass']
-        self._data['vol_density']['ingredient_mass_units']
-        self._data['vol_density']['ingredient_vol']
-        self._data['vol_density']['ingredient_vol_units']
+        # Lowercase the units;
+        ingredient_vol_units = ingredient_vol_units.lower()
+        ingredient_mass_units = ingredient_mass_units.lower()
+        # Check the units;
+        if not ingredient_vol_units in self._ut.recognised_vol_units():
+            raise ValueError('{} is not a recognised unit of volume.'.format(ingredient_vol_units))
+        if not ingredient_mass_units in self._ut.recognised_mass_units():
+            raise ValueError('{} is not a recognised unit of mass.'.format(ingredient_mass_units))
+        # Set the units;
+        self._data['vol_density']['ingredient_mass'] = ingredient_mass
+        self._data['vol_density']['ingredient_mass_units'] = ingredient_mass_units.lower()
+        self._data['vol_density']['ingredient_vol'] = ingredient_vol
+        self._data['vol_density']['ingredient_vol_units'] = ingredient_vol_units.lower()
+
+    def convert_vol_to_grams(self, volume:float, units:str)->float:
+        # Lowercase units;
+        units = units.lower()
+        # First convert the volume to ml;
+        vol_ml = self._ut.convert_volume(volume, units, 'ml')
+        # Calculate mass in g;
+        mass_g = self.density_g_per_ml*vol_ml
+        return mass_g
 
     @property
     def all_flag_data(self) -> Dict:
@@ -253,9 +295,9 @@ class Ingredient():
     ) -> None:
         na = self.get_nutrient_amount(nutrient_name)
         na.ingredient_mass = ingredient_mass
-        na.ingredient_mass_units = ingredient_mass_units
+        na.ingredient_mass_units = ingredient_mass_units.lower()
         na.nutrient_mass = nutrient_mass
-        na.nutrient_mass_units = nutrient_mass_units
+        na.nutrient_mass_units = nutrient_mass_units.lower()
 
     def get_nutrient_amount(self, nutrient_name) -> 'NutrientAmount':
         return self._nutrient_amounts[nutrient_name]
