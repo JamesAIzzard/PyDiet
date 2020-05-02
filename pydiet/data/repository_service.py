@@ -1,8 +1,8 @@
 from typing import Dict, TYPE_CHECKING
 import json
 import uuid
-import pydiet.configs as configs
-from pydiet.configs import INGREDIENT_DB_PATH
+import pydiet.shared.configs as configs
+from pydiet.shared.configs import INGREDIENT_DB_PATH
 if TYPE_CHECKING:
     from pydiet.ingredients.ingredient import Ingredient
 

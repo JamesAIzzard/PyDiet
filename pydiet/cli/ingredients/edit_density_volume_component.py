@@ -5,7 +5,7 @@ from pinjector import inject
 
 if TYPE_CHECKING:
     from pydiet.cli.ingredients.ingredient_edit_service import IngredientEditService
-    from pydiet import utility_service
+    from pydiet.shared import utility_service
 
 _TEMPLATE = '''
     ______ of {ingredient_name}

@@ -1,5 +1,12 @@
-from typing import Tuple, List, Dict
+from typing import Tuple, List, Dict, TYPE_CHECKING
 from difflib import SequenceMatcher
+
+from pinjector import inject
+
+from pydiet.shared.exceptions import UnknownUnitError
+
+if TYPE_CHECKING:
+    from pydiet.data import repository_service
 
 _G_CONVERSIONS = {
     "ug": 1e-6,  # 1 microgram = 0.000001 grams
@@ -24,6 +31,11 @@ def recognised_mass_units()->List[str]:
 def recognised_vol_units()->List[str]:
     return list(_ML_CONVERSIONS.keys())
 
+def validate_unit(unit:str)->None:
+    if not unit in _G_CONVERSIONS.keys() and \
+        not unit in _ML_CONVERSIONS.keys():
+        raise UnknownUnitError()
+
 def convert_mass(mass: float, start_units: str, end_units: str) -> float:
     # Lowercase all units;
     start_units = start_units.lower()
@@ -38,6 +50,11 @@ def convert_volume(volume: float, start_units:str, end_units: str) -> float:
     end_units = end_units.lower()    
     vol_in_ml = _ML_CONVERSIONS[start_units]*volume
     return vol_in_ml/_ML_CONVERSIONS[end_units]
+
+def get_all_nutrient_names()->List[str]:
+    rp:'repository_service' = inject('pydiet.repository_service')
+    data_template = rp.read_ingredient_data_template()
+    return list(data_template['nutrients'].keys())
 
 def sentence_case(text: str) -> str:
     '''Capitalizes the first letter of each word in the

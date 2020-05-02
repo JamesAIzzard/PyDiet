@@ -7,9 +7,9 @@ from pydiet.ingredients.ingredient import Ingredient
 
 if TYPE_CHECKING:
     from pydiet.ingredients.ingredient import Ingredient, NutrientAmount
-    from pydiet import utility_service
+    from pydiet.shared import utility_service
     from pydiet.data import repository_service
-    from pydiet import configs
+    from pydiet.shared import configs
 
 INGREDIENT_COST_SUMMARY_TEMPLATE = '£{cost:.2f} for {mass}{mass_units} (£{g_cost:.3f}/g)'
 INGREDIENT_FLAG_SUMMARY_TEMPLATE = '{flag_name}: {status}'
@@ -88,8 +88,10 @@ def summarise_flag(ingredient:'Ingredient', flag_name:str) -> str:
 def summarise_nutrient_amount(nutrient_amount: 'NutrientAmount') -> str:
     if nutrient_amount.defined:
         perc = nutrient_amount.percentage
-        perc_insert = ' (trace)'
-        if perc > 0.01:
+        perc_insert = ' (none)'
+        if perc > 0 and perc < 0.01:
+            perc_insert = ' (trace)'
+        elif perc > 0.01:
             perc_insert = ' ({:.3f})%'.format(perc)
         return NUTRIENT_SUMMARY_TEMPLATE.format(
             nutrient_name=nutrient_amount.name.replace('_', ' '),

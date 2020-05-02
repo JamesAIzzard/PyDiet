@@ -1,4 +1,4 @@
-from pydiet.configs import PRIMARY_NUTRIENTS
+from pydiet.shared.configs import PRIMARY_NUTRIENTS
 from typing import TYPE_CHECKING
 
 from pinjector import inject
@@ -6,7 +6,7 @@ from pinjector import inject
 from pyconsoleapp import ConsoleAppComponent
 
 if TYPE_CHECKING:
-    from pydiet import configs
+    from pydiet.shared import configs
     from pydiet.ingredients import ingredient_service
     from pydiet.cli.ingredients.ingredient_edit_service import IngredientEditService
 
@@ -45,9 +45,16 @@ class IngredientEditMenuComponent(ConsoleAppComponent):
     def print(self):
         # Build the nutrient summary;
         n = '' # string for nutrient display
-        for pn in self._cf.PRIMARY_NUTRIENTS:
-            na = self._ies.ingredient.get_nutrient_amount(pn)
-            n = n + '- {}\n'.format(self._igs.summarise_nutrient_amount(na))
+        # Start with the primary nutrients;
+        primary_nutrients = self._ies.ingredient.primary_nutrients
+        for pnn in primary_nutrients.keys():
+            n = n + '- {}\n'.format(self._igs.\
+                summarise_nutrient_amount(primary_nutrients[pnn]))
+        # Now do any defined secondary nutrients;
+        defined_secondary_nutrients = self._ies.ingredient.defined_secondary_nutrients
+        for dsnn in defined_secondary_nutrients:
+            n = n + '- {}\n'.format(self._igs.\
+                summarise_nutrient_amount(defined_secondary_nutrients[dsnn]))
         # Build the flag summary;
         f = ''
         for flag_name in self._ies.ingredient.all_flag_data.keys():

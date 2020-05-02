@@ -1,10 +1,10 @@
 import pinjector
 
-from pydiet import utility_service
+from pydiet.shared import utility_service
 from pydiet.data import repository_service
 from pydiet.ingredients import ingredient_service
 from pydiet.cli.ingredients.ingredient_edit_service import IngredientEditService
-from pydiet import configs
+from pydiet.shared import configs
 
 # Load the dependencies;
 pinjector.create_namespace('pydiet')

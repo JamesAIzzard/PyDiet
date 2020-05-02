@@ -4,7 +4,7 @@ from pinjector import inject
 from pyconsoleapp import ConsoleAppComponent
 
 if TYPE_CHECKING:
-    from pydiet import utility_service
+    from pydiet.shared import utility_service
     from pydiet.cli.ingredients.ingredient_edit_service import IngredientEditService
 
 _NUTRIENT_PER_MASS = '''

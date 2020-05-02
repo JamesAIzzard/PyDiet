@@ -10,8 +10,11 @@ if TYPE_CHECKING:
 _TEMPLATE = '''Nutrient Editor:
 ----------------
 
-Primary Nutrients:
+Primary Nutrients (Required):
 {primary_nutrients}
+
+Other Nutrients (Optional):
+{secondary_nutrients}
 
 (n) -- Edit Other Nutrients
 '''
@@ -25,16 +28,30 @@ class EditNutrientMenuComponent(ConsoleAppComponent):
         self.set_option_response('n', self.on_edit_other)
 
     def print(self):
+        # First build the primary nutrient string;
         pn = '' # primary nutrient string
-        nmap = self._ies.primary_nutrient_number_name_map
-        for option_number in nmap:
-            na = self._ies.ingredient.get_nutrient_amount(nmap[option_number])
+        pnmap = self._ies.primary_nutrient_number_name_map
+        for option_number in pnmap:
+            na = self._ies.ingredient.get_nutrient_amount(pnmap[option_number])
             pn = pn + '({}) -- {}\n'.format(
                 option_number,
                 self._igs.summarise_nutrient_amount(na)
             )
+        # Now build the secondary nutrient string;
+        sn = '' # secondary nutrient string;
+        snmap = self._ies.defined_secondary_nutrient_number_name_map
+        if len(snmap.keys()):
+            for option_number in snmap:
+                na = self._ies.ingredient.get_nutrient_amount(snmap[option_number])
+                sn = sn + '({}) -- {}\n'.format(
+                    option_number,
+                    self._igs.summarise_nutrient_amount(na)
+                )
+        else:
+            sn = 'None defined.'            
         output = _TEMPLATE.format(
-            primary_nutrients=pn
+            primary_nutrients=pn,
+            secondary_nutrients=sn
         )
         output = self.get_component('standard_page_component').print(output)
         return output
@@ -48,8 +65,10 @@ class EditNutrientMenuComponent(ConsoleAppComponent):
             response = int(response)
         except ValueError:
             return None
-        # If the primary response is one of the numbered nutrients;
-        if response in self._ies.primary_nutrient_number_name_map.keys():
+        # If the response is one of the numbered nutrients;
+        number_map = self._ies.primary_nutrient_number_name_map
+        number_map.update(self._ies.defined_secondary_nutrient_number_name_map)
+        if response in number_map.keys():
             # Get the nutrient name;
             nutrient_name = self._ies.primary_nutrient_number_name_map[int(response)]
             # Load that nutrient as the current nutrient amount;
