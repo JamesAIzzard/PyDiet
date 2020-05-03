@@ -34,6 +34,17 @@ def get_new_ingredient() -> 'Ingredient':
     return Ingredient(data_template)
 
 
+def get_matching_ingredient_names(search_term:str, num_results: int) -> List[str]:
+    # Load in dependencies;
+    rp:'repository_service' = inject('pydiet.repository_service')
+    ut: 'utility_service' = inject('pydiet.utility_service')
+    # Load a list of the ingredient names;
+    index = rp.read_ingredient_index()
+    # Score each of the names against the search term;
+    results = ut.score_similarity(list(index.values()), search_term)
+    # Return the n largest scores;
+    return nlargest(num_results, results, key=results.get)
+
 def get_matching_nutrient_names(search_term: str, num_results: int) -> List[str]:
     # Load the ingredient template datafile;
     rs: 'repository_service' = inject('pydiet.repository_service')

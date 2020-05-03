@@ -1,7 +1,7 @@
 {
   "cost_per_mass": {
-    "cost": 12.5,
-    "ingredient_mass": 1.0,
+    "cost": 9.94,
+    "ingredient_mass": 2.5,
     "ingredient_mass_units": "kg"
   },
   "flags": {
@@ -13,7 +13,7 @@
     "vegan": true,
     "vegetarian": true
   },
-  "name": "Orange",
+  "name": "Gluten-Free Rolled Oats",
   "nutrients": {
     "a_carotene": {
       "ingredient_mass": null,
@@ -130,10 +130,10 @@
       "nutrient_mass_units": null
     },
     "carbohydrate": {
-      "ingredient_mass": null,
-      "ingredient_mass_units": null,
-      "nutrient_mass": null,
-      "nutrient_mass_units": null
+      "ingredient_mass": 100.0,
+      "ingredient_mass_units": "g",
+      "nutrient_mass": 61.0,
+      "nutrient_mass_units": "g"
     },
     "cartenoids": {
       "ingredient_mass": null,
@@ -226,16 +226,16 @@
       "nutrient_mass_units": null
     },
     "fat": {
-      "ingredient_mass": null,
-      "ingredient_mass_units": null,
-      "nutrient_mass": null,
-      "nutrient_mass_units": null
+      "ingredient_mass": 100.0,
+      "ingredient_mass_units": "g",
+      "nutrient_mass": 6.2,
+      "nutrient_mass_units": "g"
     },
     "fibre": {
-      "ingredient_mass": null,
-      "ingredient_mass_units": null,
-      "nutrient_mass": null,
-      "nutrient_mass_units": null
+      "ingredient_mass": 100.0,
+      "ingredient_mass_units": "g",
+      "nutrient_mass": 9.7,
+      "nutrient_mass_units": "g"
     },
     "folate": {
       "ingredient_mass": null,
@@ -556,10 +556,10 @@
       "nutrient_mass_units": null
     },
     "saturated_fat": {
-      "ingredient_mass": null,
-      "ingredient_mass_units": null,
-      "nutrient_mass": null,
-      "nutrient_mass_units": null
+      "ingredient_mass": 100.0,
+      "ingredient_mass_units": "g",
+      "nutrient_mass": 1.0,
+      "nutrient_mass_units": "g"
     },
     "selenium": {
       "ingredient_mass": null,

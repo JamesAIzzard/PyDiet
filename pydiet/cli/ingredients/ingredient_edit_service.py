@@ -26,6 +26,7 @@ class IngredientEditService():
         self.temp_nutrient_ingredient_mass_units: str
         self.current_nutrient_amount: 'NutrientAmount'
         self.nutrient_name_search_results: List[str]
+        self.ingredient_search_results: List[str]
 
     @property
     def flag_number_name_map(self) -> Dict[int, str]:
@@ -51,6 +52,10 @@ class IngredientEditService():
     @property
     def nutrient_search_result_number_name_map(self) -> Dict[int, str]:
         return self._create_number_name_map(self.nutrient_name_search_results)
+
+    @property
+    def ingredient_search_result_number_name_map(self) -> Dict[int, str]:
+        return self._create_number_name_map(self.ingredient_search_results)
 
     @property
     def current_flag_name(self) -> str:

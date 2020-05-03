@@ -27,6 +27,8 @@ app.add_route('home.ingredients.new.nutrients.edit_nutrient_mass', 'EditNutrient
 app.add_route('home.ingredients.new.nutrients.nutrient_search', 'NutrientSearchComponent')
 app.add_route('home.ingredients.new.nutrients.nutrient_search_results', 'NutrientSearchResultsComponent')
 app.add_route('home.ingredients.edit', 'IngredientEditMenuComponent')
+app.add_route('home.ingredients.search', 'IngredientSearchComponent')
+app.add_route('home.ingredients.search_results', 'IngredientSearchResultsComponent')
 app.add_route('home.ingredients.edit.edit_name', 'EditNameComponent')
 app.add_route('home.ingredients.edit.flags', 'EditFlagMenuComponent')
 app.add_route('home.ingredients.edit.flags.ask_cycle_flags', 'AskCycleFlagsComponent')

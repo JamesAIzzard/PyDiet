@@ -46,7 +46,7 @@ class IngredientMenuComponent(ConsoleAppComponent):
         self.goto('.new')
 
     def on_edit(self):
-        raise NotImplementedError
+        self.goto('home.ingredients.search')
 
     def on_delete(self):
         raise NotImplementedError

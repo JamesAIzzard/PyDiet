@@ -46,6 +46,9 @@ class IngredientEditMenuComponent(ConsoleAppComponent):
         self.set_option_response('s', self.on_save)
 
     def print(self):
+        # Raise exception if ingredient has not been loaded;
+        if not self._ies.ingredient:
+            raise ValueError('Ingredient must be loaded into ingredient edit service.')
         # Build the nutrient summary;
         n = '' # string for nutrient display
         # Start with the primary nutrients;
@@ -84,6 +87,9 @@ class IngredientEditMenuComponent(ConsoleAppComponent):
             return True
 
     def on_save(self)->None:
+        # Catch no ingredient;
+        if not self._ies.ingredient:
+            raise ValueError('No ingredient in ingredient edit service.')
         # If creating ingredient for first time;
         if not self._ies.datafile_name:
             # Create the datafile and stash the name;

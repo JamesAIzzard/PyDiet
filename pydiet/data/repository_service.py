@@ -1,3 +1,4 @@
+from pydiet import data
 from typing import Dict, TYPE_CHECKING
 import json
 import uuid
@@ -7,9 +8,9 @@ from pinjector import inject
 import pydiet.shared.configs as configs
 from pydiet.shared.configs import INGREDIENT_DB_PATH
 from pydiet.ingredients.exceptions import DuplicateIngredientNameError
+from pydiet.ingredients.ingredient import Ingredient
 
 if TYPE_CHECKING:
-    from pydiet.ingredients.ingredient import Ingredient
     from pydiet.ingredients import ingredient_service
 
 
@@ -18,7 +19,7 @@ def read_ingredient_data_template() -> Dict:
         configs.INGREDIENT_DATAFILE_TEMPLATE_NAME)
 
 
-def _read_ingredient_data(ingredient_data_filename: str) -> Dict:
+def _read_ingredient_data(ingredient_datafile_name: str) -> Dict:
     '''Returns an ingredient datafile as a dict.
 
     Args:
@@ -30,7 +31,7 @@ def _read_ingredient_data(ingredient_data_filename: str) -> Dict:
     '''
     # Read the datafile contents;
     with open(configs.INGREDIENT_DB_PATH+'{}.json'.format(
-            ingredient_data_filename), 'r') as fh:
+            ingredient_datafile_name), 'r') as fh:
         raw_data = fh.read()
         # Parse into dict;
         data = json.loads(raw_data)
@@ -45,6 +46,9 @@ def read_ingredient_index() -> Dict[str, str]:
         data = json.loads(raw_data)
         return data
 
+def read_ingredient(datafile_name:str) -> 'Ingredient':
+    i_data = _read_ingredient_data(datafile_name)
+    return Ingredient(i_data)
 
 def create_ingredient(ingredient: 'Ingredient') -> str:
     igs: 'ingredient_service' = inject('pydiet.ingredient_service')
@@ -65,6 +69,13 @@ def create_ingredient(ingredient: 'Ingredient') -> str:
     # Return the filename
     return filename
 
+def resolve_ingredient_datafile_name(ingredient_name:str)->str:
+    # Load the ingredient index;
+    index = read_ingredient_index()
+    for datafile_name in index.keys():
+        if index[datafile_name] == ingredient_name:
+            return datafile_name
+    raise KeyError('Ingredient name was not found.')
 
 def _update_ingredient_index(index: Dict[str, str]) -> None:
     with open(configs.INGREDIENT_DB_PATH+'{}.json'.
