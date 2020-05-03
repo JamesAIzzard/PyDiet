@@ -8,6 +8,7 @@ from pyconsoleapp import ConsoleAppComponent
 if TYPE_CHECKING:
     from pydiet.shared import configs
     from pydiet.ingredients import ingredient_service
+    from pydiet.data import repository_service
     from pydiet.cli.ingredients.ingredient_edit_service import IngredientEditService
 
 _TEMPLATE = '''Ingredient Editor:
@@ -36,11 +37,13 @@ class IngredientEditMenuComponent(ConsoleAppComponent):
         self._igs: 'ingredient_service' = inject('pydiet.ingredient_service')
         self._ies: 'IngredientEditService' = inject(
             'pydiet.cli.ingredient_edit_service')
+        self._rp:'repository_service' = inject('pydiet.repository_service')
         self.set_option_response('1', self.on_edit_name)
         self.set_option_response('2', self.on_edit_cost)
         self.set_option_response('3', self.on_configure_liquid_measurements)
         self.set_option_response('4', self.on_edit_flags)
         self.set_option_response('5', self.on_edit_nutrients)
+        self.set_option_response('s', self.on_save)
 
     def print(self):
         # Build the nutrient summary;
@@ -79,6 +82,26 @@ class IngredientEditMenuComponent(ConsoleAppComponent):
             return False
         else:
             return True
+
+    def on_save(self)->None:
+        # If creating ingredient for first time;
+        if not self._ies.datafile_name:
+            # Create the datafile and stash the name;
+            self._ies.datafile_name = \
+                self._rp.create_ingredient(self._ies.ingredient)
+            # Redirect to edit, now datafile exists;
+            self.clear_exit('home.ingredients.new')
+            self.goto('home.ingredients.edit')
+        # If updating an existing datafile;
+        else:
+            # Update the ingredient;
+            self._rp.update_ingredient(
+                self._ies.ingredient, 
+                self._ies.datafile_name
+            )
+        # Confirm save and return;
+        self.app.info_message = "Ingredient saved."
+        return
 
     def on_edit_name(self):
         self.goto('.edit_name')

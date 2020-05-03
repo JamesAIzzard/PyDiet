@@ -26,6 +26,10 @@ class IngredientMenuComponent(ConsoleAppComponent):
         self.set_option_response('3', self.on_delete)
         self.set_option_response('4', self.on_view)
 
+    def run(self):
+        self._ies.ingredient = None
+        self._ies.datafile_name = None
+
     def print(self):
         output = _MENU_TEMPLATE
         output = self.app.get_component('standard_page_component').print(output)

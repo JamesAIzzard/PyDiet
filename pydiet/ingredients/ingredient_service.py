@@ -44,6 +44,13 @@ def get_matching_nutrient_names(search_term: str, num_results: int) -> List[str]
         list(template['nutrients'].keys()), search_term)
     return nlargest(num_results, results, key=results.get)
 
+def name_already_used(name:str)->bool:
+    rp:'repository_service' = inject('pydiet.repository_service')
+    index = rp.read_ingredient_index()
+    if name in index.values():
+        return True
+    else:
+        return False
 
 def summarise_name(ingredient: 'Ingredient') -> str:
     if ingredient.name:

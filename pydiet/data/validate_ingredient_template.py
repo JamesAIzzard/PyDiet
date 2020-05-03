@@ -36,6 +36,6 @@ for group_name in configs.NUTRIENT_GROUP_DEFINITIONS.keys():
         raise ValueError('The nutrient {} is listed in the group definitions, but not on the template.'.format(group_name))
 
 # Rewrite the template to sort alphabetically;
-rs.update_ingredient_data(
+rs._update_ingredient_data(
     template, configs.INGREDIENT_DATAFILE_TEMPLATE_NAME
 )

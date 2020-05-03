@@ -6,6 +6,7 @@ def cwd() -> str:
     return str(Path.cwd())
 
 INGREDIENT_DATAFILE_TEMPLATE_NAME = 'template'
+INGREDIENT_INDEX_NAME = 'index'
 INGREDIENT_DB_PATH = cwd()+'/pydiet/database/ingredients/'
 PRIMARY_NUTRIENTS: List[str] = [
     "carbohydrate",
