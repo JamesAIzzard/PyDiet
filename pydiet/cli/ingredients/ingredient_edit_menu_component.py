@@ -1,5 +1,5 @@
 from pydiet.shared.configs import PRIMARY_NUTRIENTS
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from pinjector import inject
 
@@ -10,6 +10,7 @@ if TYPE_CHECKING:
     from pydiet.ingredients import ingredient_service
     from pydiet.data import repository_service
     from pydiet.cli.ingredients.ingredient_edit_service import IngredientEditService
+    from pydiet.cli.ingredients.ingredient_save_check_component import IngredientSaveCheckComponent
 
 _TEMPLATE = '''Ingredient Editor:
 ------------------
@@ -37,7 +38,7 @@ class IngredientEditMenuComponent(ConsoleAppComponent):
         self._igs: 'ingredient_service' = inject('pydiet.ingredient_service')
         self._ies: 'IngredientEditService' = inject(
             'pydiet.cli.ingredient_edit_service')
-        self._rp:'repository_service' = inject('pydiet.repository_service')
+        self._rp: 'repository_service' = inject('pydiet.repository_service')
         self.set_option_response('1', self.on_edit_name)
         self.set_option_response('2', self.on_edit_cost)
         self.set_option_response('3', self.on_configure_liquid_measurements)
@@ -48,19 +49,20 @@ class IngredientEditMenuComponent(ConsoleAppComponent):
     def print(self):
         # Raise exception if ingredient has not been loaded;
         if not self._ies.ingredient:
-            raise ValueError('Ingredient must be loaded into ingredient edit service.')
+            raise ValueError(
+                'Ingredient must be loaded into ingredient edit service.')
         # Build the nutrient summary;
-        n = '' # string for nutrient display
+        n = ''  # string for nutrient display
         # Start with the primary nutrients;
         primary_nutrients = self._ies.ingredient.primary_nutrients
         for pnn in primary_nutrients.keys():
-            n = n + '- {}\n'.format(self._igs.\
-                summarise_nutrient_amount(primary_nutrients[pnn]))
+            n = n + '- {}\n'.format(self._igs.
+                                    summarise_nutrient_amount(primary_nutrients[pnn]))
         # Now do any defined secondary nutrients;
         defined_secondary_nutrients = self._ies.ingredient.defined_secondary_nutrients
         for dsnn in defined_secondary_nutrients:
-            n = n + '- {}\n'.format(self._igs.\
-                summarise_nutrient_amount(defined_secondary_nutrients[dsnn]))
+            n = n + '- {}\n'.format(self._igs.
+                                    summarise_nutrient_amount(defined_secondary_nutrients[dsnn]))
         # Build the flag summary;
         f = ''
         for flag_name in self._ies.ingredient.all_flag_data.keys():
@@ -86,7 +88,7 @@ class IngredientEditMenuComponent(ConsoleAppComponent):
         else:
             return True
 
-    def on_save(self)->None:
+    def on_save(self) -> None:
         # Catch no ingredient;
         if not self._ies.ingredient:
             raise ValueError('No ingredient in ingredient edit service.')
@@ -97,15 +99,17 @@ class IngredientEditMenuComponent(ConsoleAppComponent):
                 self._rp.create_ingredient(self._ies.ingredient)
             # Redirect to edit and reconfigure guards, now datafile exists;
             self.clear_exit('home.ingredients.new')
-            save_check_comp = self.get_component('ingredient_save_check_component')
+            save_check_comp = cast('IngredientSaveCheckComponent', self.get_component(
+                'ingredient_save_check_component'))
             save_check_comp.guarded_route = 'home.ingredients.edit'
-            self.guard_exit('home.ingredients.edit', 'ingredient_save_check_component')
+            self.guard_exit('home.ingredients.edit',
+                            'ingredient_save_check_component')
             self.goto('home.ingredients.edit')
         # If updating an existing datafile;
         else:
             # Update the ingredient;
             self._rp.update_ingredient(
-                self._ies.ingredient, 
+                self._ies.ingredient,
                 self._ies.datafile_name
             )
         # Confirm save and return;

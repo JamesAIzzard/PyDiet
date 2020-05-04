@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from pinjector import inject
 
@@ -6,6 +6,7 @@ from pyconsoleapp import ConsoleAppComponent
 
 if TYPE_CHECKING:
     from pydiet.cli.ingredients.ingredient_edit_service import IngredientEditService
+    from pydiet.cli.ingredients.ingredient_save_check_component import IngredientSaveCheckComponent
     from pydiet.ingredients import ingredient_service
     from pydiet.data import repository_service
 
@@ -52,7 +53,7 @@ class EditFlagMenuComponent(ConsoleAppComponent):
                 self._rp.create_ingredient(self._ies.ingredient)
             # Redirect to edit, now datafile exists;
             self.clear_exit('home.ingredients.new')
-            save_check_comp = self.get_component('ingredient_save_check_component')
+            save_check_comp = cast('IngredientSaveCheckComponent', self.get_component('ingredient_save_check_component'))
             save_check_comp.guarded_route = 'home.ingredients.edit'
             self.guard_exit('home.ingredients.edit', 'ingredient_save_check_component')
             self.goto('home.ingredients.edit.flags')

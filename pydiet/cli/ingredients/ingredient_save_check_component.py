@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from pinjector import inject
 
@@ -40,7 +40,7 @@ class IngredientSaveCheckComponent(YesNoDialogComponent):
             self.app.error_message = 'There was an error saving the ingredient.'
             return None
         self.app.info_message = 'Ingredient saved.'
-        self.app.clear_exit(self.guarded_route)      
+        self.app.clear_exit(self.guarded_route)     
 
     def on_no_dont_save(self):
         self.app.info_message = 'Ingredient not saved.'
