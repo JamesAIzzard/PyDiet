@@ -1,19 +1,19 @@
 {
   "cost_per_mass": {
-    "cost": 12.5,
-    "ingredient_mass": 1.0,
-    "ingredient_mass_units": "kg"
+    "cost": 2.5,
+    "ingredient_mass": 1000.0,
+    "ingredient_mass_units": "g"
   },
   "flags": {
     "alchohol_free": true,
     "caffiene_free": true,
-    "dairy_free": true,
+    "dairy_free": false,
     "gluten_free": true,
     "nut_free": true,
     "vegan": true,
     "vegetarian": true
   },
-  "name": "Orange",
+  "name": "Skimmed Milk",
   "nutrients": {
     "a_carotene": {
       "ingredient_mass": null,
@@ -130,10 +130,10 @@
       "nutrient_mass_units": null
     },
     "carbohydrate": {
-      "ingredient_mass": 100.0,
-      "ingredient_mass_units": "g",
-      "nutrient_mass": 25.0,
-      "nutrient_mass_units": "g"
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "cartenoids": {
       "ingredient_mass": null,
@@ -713,9 +713,9 @@
     }
   },
   "vol_density": {
-    "ingredient_mass": null,
-    "ingredient_mass_units": null,
-    "ingredient_vol": null,
-    "ingredient_vol_units": null
+    "ingredient_mass": 1.0,
+    "ingredient_mass_units": "kg",
+    "ingredient_vol": 1.0,
+    "ingredient_vol_units": "l"
   }
 }

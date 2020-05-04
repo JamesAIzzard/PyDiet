@@ -21,13 +21,24 @@ class IngredientSaveCheckComponent(YesNoDialogComponent):
         self.guarded_route:str
 
     def on_yes_save(self):
+        if not self._ies.ingredient:
+            raise ValueError('Ingredient service does not have an active ingredient')
         try:
-            self._rp.create_ingredient(self._ies.ingredient)
+            # If we have not saved yet;
+            if not self._ies.datafile_name:
+                # Create new ingredient and populate the datafile name;
+                self._ies.datafile_name = self._rp.create_ingredient(self._ies.ingredient)
+            # We are saving an edit;
+            else:
+                # Update the ingredient;
+                self._rp.update_ingredient(self._ies.ingredient, self._ies.datafile_name)
         except DuplicateIngredientNameError:
             self.app.error_message = 'There is already an ingredient called {}. Choose another name or edit this ingredient.'\
                 .format(self._ies.ingredient.name)
+            return None
         except:
             self.app.error_message = 'There was an error saving the ingredient.'
+            return None
         self.app.info_message = 'Ingredient saved.'
         self.app.clear_exit(self.guarded_route)      
 

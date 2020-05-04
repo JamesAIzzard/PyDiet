@@ -11,7 +11,7 @@ from pinjector import inject
 import dependencies
 
 if TYPE_CHECKING:
-    from pydiet import utility_service
+    from pydiet.shared import utility_service
 
 class TestParseNumberAndUnits(TestCase):
     def setUp(self):

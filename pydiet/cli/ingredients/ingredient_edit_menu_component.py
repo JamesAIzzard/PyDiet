@@ -95,8 +95,11 @@ class IngredientEditMenuComponent(ConsoleAppComponent):
             # Create the datafile and stash the name;
             self._ies.datafile_name = \
                 self._rp.create_ingredient(self._ies.ingredient)
-            # Redirect to edit, now datafile exists;
+            # Redirect to edit and reconfigure guards, now datafile exists;
             self.clear_exit('home.ingredients.new')
+            save_check_comp = self.get_component('ingredient_save_check_component')
+            save_check_comp.guarded_route = 'home.ingredients.edit'
+            self.guard_exit('home.ingredients.edit', 'ingredient_save_check_component')
             self.goto('home.ingredients.edit')
         # If updating an existing datafile;
         else:

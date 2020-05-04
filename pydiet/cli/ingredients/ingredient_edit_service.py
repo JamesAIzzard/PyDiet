@@ -13,7 +13,7 @@ class IngredientEditService():
         self._cf: 'configs' = inject('pydiet.configs')
         self._flag_number_name_map: Optional[Dict[int, str]] = None
         self._primary_nutrient_number_name_map: Optional[Dict[int, str]] = None
-        self.ingredient: Optional['Ingredient']
+        self.ingredient: Optional['Ingredient'] = None
         self.datafile_name:Optional[str] = None
         self.app: 'ConsoleApp' = inject('pydiet.cli.app')
         self.temp_cost_mass: float

@@ -47,6 +47,10 @@ class IngredientSearchResultsComponent(ConsoleAppComponent):
                 self._ies.ingredient_search_result_number_name_map[response])
             # Load the ingredient into the ies;
             self._ies.ingredient = self._rp.read_ingredient(self._ies.datafile_name)
+            # Configure the save reminder;
+            self.get_component('ingredient_save_check_component').guarded_route = \
+                'home.ingredients.edit'
+            self.guard_exit('home.ingredients.edit', 'ingredient_save_check_component')
             # Redirect to edit;
             self.goto('home.ingredients.edit')
 

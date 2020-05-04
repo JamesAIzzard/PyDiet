@@ -394,10 +394,10 @@
       "nutrient_mass_units": null
     },
     "monounsaturated_fat": {
-      "ingredient_mass": null,
-      "ingredient_mass_units": null,
-      "nutrient_mass": null,
-      "nutrient_mass_units": null
+      "ingredient_mass": 100.0,
+      "ingredient_mass_units": "g",
+      "nutrient_mass": 0.0,
+      "nutrient_mass_units": "g"
     },
     "myristic_acid": {
       "ingredient_mass": null,
