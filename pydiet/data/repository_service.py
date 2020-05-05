@@ -13,13 +13,29 @@ from pydiet.ingredients.ingredient import Ingredient
 if TYPE_CHECKING:
     from pydiet.ingredients import ingredient_service
 
+def create_ingredient_data(ingredient_data:Dict)->str:
+    # Check the ingredient name does not exist already;
+    index = read_ingredient_index()
+    if ingredient_data['name'] in index.values():
+        raise DuplicateIngredientNameError('There is already an ingredient called {}'.format(ingredient_data['name']))
+    # Create filename;
+    filename = str(uuid.uuid4())
+    filename_w_ext = filename+'.json'    
+    # Update index with filename;
+    index[filename] = ingredient_data['name']
+    update_ingredient_index(index)
+    # Write the ingredient datafile;
+    with open(configs.INGREDIENT_DB_PATH+filename_w_ext, 'w') as fh:
+        json.dump(ingredient_data, fh, indent=2, sort_keys=True)    
+    # Return the datafile name;
+    return filename
 
-def read_ingredient_data_template() -> Dict:
-    return _read_ingredient_data(
+def read_ingredient_template_data() -> Dict:
+    return read_ingredient_data(
         configs.INGREDIENT_DATAFILE_TEMPLATE_NAME)
 
 
-def _read_ingredient_data(ingredient_datafile_name: str) -> Dict:
+def read_ingredient_data(ingredient_datafile_name: str) -> Dict:
     '''Returns an ingredient datafile as a dict.
 
     Args:
@@ -38,7 +54,6 @@ def _read_ingredient_data(ingredient_datafile_name: str) -> Dict:
         # Return it;
         return data
 
-
 def read_ingredient_index() -> Dict[str, str]:
     with open(configs.INGREDIENT_DB_PATH+'{}.json'.
               format(configs.INGREDIENT_INDEX_NAME)) as fh:
@@ -46,54 +61,24 @@ def read_ingredient_index() -> Dict[str, str]:
         data = json.loads(raw_data)
         return data
 
-def read_ingredient(datafile_name:str) -> 'Ingredient':
-    i_data = _read_ingredient_data(datafile_name)
-    return Ingredient(i_data)
-
-def create_ingredient(ingredient: 'Ingredient') -> str:
-    igs: 'ingredient_service' = inject('pydiet.ingredient_service')
-    # Check that an ingredient with this name does not exist already;
+def update_ingredient_data(ingredient_data:Dict, datafile_name:str) -> None:
+    # Check the ingredient name is not also used somwhere else;
     index = read_ingredient_index()
-    if igs.name_already_used(ingredient.name):
-        raise DuplicateIngredientNameError()
-    # Create a filename for this ingredient;
-    filename = str(uuid.uuid4())
-    filename_w_ext = filename+'.json'
-    # Add filename to index;
-    index[filename] = ingredient.name
-    # Write the new ingredient;
-    with open(configs.INGREDIENT_DB_PATH+filename_w_ext, 'w') as fh:
-        json.dump(ingredient._data, fh, indent=2, sort_keys=True)
-    # Write the updated datafile;
-    _update_ingredient_index(index)
-    # Return the filename
-    return filename
+    ## Pop the current name, because if it hasn't changed, we don't want to
+    ## detect it;
+    index.pop(datafile_name)
+    ## Now current has been removed, check everwhere else for name;
+    if ingredient_data['name'] in index.values():
+        raise DuplicateIngredientNameError('Another ingredient already uses the name {}'.format(ingredient_data['name']))
+    # Write the ingredient data;
+    with open(configs.INGREDIENT_DB_PATH+datafile_name+'.json', 'w') as fh:
+        json.dump(ingredient_data, fh, indent=2, sort_keys=True)    
+    # Update the index;
+    index[datafile_name] = ingredient_data['name']
+    update_ingredient_index(index)
 
-def resolve_ingredient_datafile_name(ingredient_name:str)->str:
-    # Load the ingredient index;
-    index = read_ingredient_index()
-    for datafile_name in index.keys():
-        if index[datafile_name] == ingredient_name:
-            return datafile_name
-    raise KeyError('Ingredient name was not found.')
-
-def _update_ingredient_index(index: Dict[str, str]) -> None:
+def update_ingredient_index(index: Dict[str, str]) -> None:
     with open(configs.INGREDIENT_DB_PATH+'{}.json'.
               format(configs.INGREDIENT_INDEX_NAME), 'r+') as fh:
         json.dump(index, fh, indent=2, sort_keys=True)
 
-
-def update_ingredient(ingredient: 'Ingredient', datafile_name: str) -> None:
-    # Read the index;
-    index = read_ingredient_index()
-    # Remove the current line;
-    index.pop(datafile_name)
-    # Check there are no instances of the name anywhere else;
-    if ingredient.name in index.values():
-        raise DuplicateIngredientNameError()
-    # Write the ingredient data to the datafile;
-    with open(configs.INGREDIENT_DB_PATH+datafile_name+'.json', 'w') as fh:
-        json.dump(ingredient._data, fh, indent=2, sort_keys=True)
-    # Update the ingredient name in the index, in case changed;
-    index[datafile_name] = ingredient.name
-    _update_ingredient_index(index)

@@ -89,32 +89,7 @@ class IngredientEditMenuComponent(ConsoleAppComponent):
             return True
 
     def on_save(self) -> None:
-        # Catch no ingredient;
-        if not self._ies.ingredient:
-            raise ValueError('No ingredient in ingredient edit service.')
-        # If creating ingredient for first time;
-        if not self._ies.datafile_name:
-            # Create the datafile and stash the name;
-            self._ies.datafile_name = \
-                self._rp.create_ingredient(self._ies.ingredient)
-            # Redirect to edit and reconfigure guards, now datafile exists;
-            self.clear_exit('home.ingredients.new')
-            save_check_comp = cast('IngredientSaveCheckComponent', self.get_component(
-                'ingredient_save_check_component'))
-            save_check_comp.guarded_route = 'home.ingredients.edit'
-            self.guard_exit('home.ingredients.edit',
-                            'ingredient_save_check_component')
-            self.goto('home.ingredients.edit')
-        # If updating an existing datafile;
-        else:
-            # Update the ingredient;
-            self._rp.update_ingredient(
-                self._ies.ingredient,
-                self._ies.datafile_name
-            )
-        # Confirm save and return;
-        self.app.info_message = "Ingredient saved."
-        return
+        self._ies.save_changes(redirect_to='home.ingredients.edit')
 
     def on_edit_name(self):
         self.goto('.edit_name')

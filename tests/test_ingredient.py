@@ -22,7 +22,7 @@ from pydiet.ingredients.ingredient import (
 class TestSettingNutrients(TestCase):
     def setUp(self):
         ig:'ingredient_service' = inject('pydiet.ingredient_service')
-        self.i = ig.get_new_ingredient()
+        self.i = ig.load_new_ingredient()
 
     def test_molecule_can_be_set(self):
         self.i.set_nutrient_amount('sodium', 250, 'g', 2, 'g')
@@ -52,7 +52,7 @@ class TestSettingNutrients(TestCase):
 class TestConvertVolToGrams(TestCase):
     def setUp(self):
         ig:'ingredient_service' = inject('pydiet.ingredient_service')
-        self.i = ig.get_new_ingredient()
+        self.i = ig.load_new_ingredient()
 
     def test_converts_vol_correctly(self):
         self.i.set_density(1000, 'ml', 2, 'kg')

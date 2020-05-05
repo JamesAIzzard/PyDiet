@@ -38,7 +38,7 @@ class IngredientMenuComponent(ConsoleAppComponent):
 
     def on_create(self):
         # Put a fresh ingredient on the scope;
-        self._ies.ingredient = self._igs.get_new_ingredient()
+        self._ies.ingredient = self._igs.load_new_ingredient()
         # Configure the save reminder;
         cast(
             'IngredientSaveCheckComponent', 

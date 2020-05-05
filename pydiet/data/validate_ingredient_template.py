@@ -5,10 +5,10 @@ sys.path.append('c:\\Users\\james.izzard\\Documents\\PyDiet')
 # sys.path.append('c:\\Users\\James Izzard\\Documents\\PyDiet')
 
 from pydiet.data import repository_service as rs
-import pydiet.configs as configs
+import pydiet.shared.configs as configs
 
 # Bring the template in;
-template = rs.read_ingredient_data_template()
+template = rs.read_ingredient_template_data()
 
 # Check that all the nutrient alias keys match against
 # names in the template;

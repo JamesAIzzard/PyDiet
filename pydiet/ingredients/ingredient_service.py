@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Optional
 from heapq import nlargest
 
 from pinjector import inject
@@ -9,7 +9,7 @@ if TYPE_CHECKING:
     from pydiet.ingredients.ingredient import Ingredient, NutrientAmount
     from pydiet.shared import utility_service
     from pydiet.data import repository_service
-    from pydiet.shared import configs
+    from pydiet.cli.ingredients.ingredient_edit_service import IngredientEditService
 
 INGREDIENT_COST_SUMMARY_TEMPLATE = '£{cost:.2f} for {mass}{mass_units} (£{g_cost:.3f}/g)'
 INGREDIENT_FLAG_SUMMARY_TEMPLATE = '{flag_name}: {status}'
@@ -17,7 +17,39 @@ NUTRIENT_SUMMARY_TEMPLATE = \
     '{nutrient_name}: {nutrient_mass}{nutrient_mass_units}/{ingredient_mass}{ingredient_mass_units}'
 UNDEFINED_NUTRIENT_SUMMARY_TEMPLATE = '{nutrient_name}: Undefined'
 
-def resolve_alias(alias: str) -> str:
+def load_new_ingredient() -> 'Ingredient':
+    rs: 'repository_service' = inject('pydiet.repository_service')
+    data_template = rs.read_ingredient_template_data()
+    return Ingredient(data_template)
+
+def load_ingredient(datafile_name:str) -> 'Ingredient':
+    rs: 'repository_service' = inject('pydiet.repository_service')
+    i_data = rs.read_ingredient_data(datafile_name)
+    return Ingredient(i_data)
+
+def save_new_ingredient(ingredient: 'Ingredient') -> str:
+    rs:'repository_service' = inject('pydiet.repository_service')
+    return rs.create_ingredient_data(ingredient._data)
+
+def update_existing_ingredient(ingredient:'Ingredient', datafile_name:str)->None:
+    rs:'repository_service' = inject('pydiet.repository_service')
+    rs.update_ingredient_data(ingredient._data, datafile_name)
+
+def resolve_ingredient_datafile_name(ingredient_name:str)->Optional[str]:
+    # Grab reference to repository service;
+    rp:'repository_service' = inject('pydiet.repository_service')
+    # Load the index;
+    index = rp.read_ingredient_index()
+    # Iterate through the index, searching for filename;
+    for datafile_name in index.keys():
+        if index[datafile_name] == ingredient_name:
+            # Return corresponding datafile name;
+            return datafile_name
+    # Return None if name was not found;
+    return None
+
+
+def resolve_nutrient_alias(alias: str) -> str:
     configs: 'configs' = inject('pydiet.configs')
     # Hunt through the alias list and return rootname
     # if match is found;
@@ -26,13 +58,6 @@ def resolve_alias(alias: str) -> str:
             return rootname
     # Not found, just return;
     return alias
-
-
-def get_new_ingredient() -> 'Ingredient':
-    rs: 'repository_service' = inject('pydiet.repository_service')
-    data_template = rs.read_ingredient_data_template()
-    return Ingredient(data_template)
-
 
 def get_matching_ingredient_names(search_term:str, num_results: int) -> List[str]:
     # Load in dependencies;
@@ -48,16 +73,22 @@ def get_matching_ingredient_names(search_term:str, num_results: int) -> List[str
 def get_matching_nutrient_names(search_term: str, num_results: int) -> List[str]:
     # Load the ingredient template datafile;
     rs: 'repository_service' = inject('pydiet.repository_service')
-    template = rs.read_ingredient_data_template()
+    template = rs.read_ingredient_template_data()
     # Score each of the nutrient names against the search term;
     ut: 'utility_service' = inject('pydiet.utility_service')
     results = ut.score_similarity(
         list(template['nutrients'].keys()), search_term)
     return nlargest(num_results, results, key=results.get)
 
-def name_already_used(name:str)->bool:
+def ingredient_name_used(name:str, ignore_datafile:Optional[str]=None)->bool:
+    # Grab some references we need;
     rp:'repository_service' = inject('pydiet.repository_service')
+    # Load the index data;
     index = rp.read_ingredient_index()
+    # If we are ignoring a datafile, drop it;
+    if ignore_datafile:
+        index.pop(ignore_datafile)
+    # If we are editing an ingredient, pop its name from the datafile
     if name in index.values():
         return True
     else:

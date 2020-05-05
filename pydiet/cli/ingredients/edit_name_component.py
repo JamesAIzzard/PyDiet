@@ -24,7 +24,7 @@ class EditNameComponent(ConsoleAppComponent):
         # If the name has been changed;
         if not response == self._ies.datafile_name:
             # Check the another ingredient doesn't have this name;
-            if self._igs.name_already_used(response):
+            if self._igs.ingredient_name_used(response, self._ies.datafile_name):
                 self.app.error_message = 'There is already an ingredient called {}'.\
                     format(self._ies.ingredient.name)
                 return

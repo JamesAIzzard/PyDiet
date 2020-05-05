@@ -1,7 +1,7 @@
 {
   "cost_per_mass": {
-    "cost": 12.5,
-    "ingredient_mass": 1.0,
+    "cost": 41.0,
+    "ingredient_mass": 2.5,
     "ingredient_mass_units": "kg"
   },
   "flags": {
@@ -13,7 +13,7 @@
     "vegan": true,
     "vegetarian": true
   },
-  "name": "Orange",
+  "name": "Huel V2.1",
   "nutrients": {
     "a_carotene": {
       "ingredient_mass": null,
@@ -70,10 +70,10 @@
       "nutrient_mass_units": null
     },
     "asparagine": {
-      "ingredient_mass": null,
-      "ingredient_mass_units": null,
-      "nutrient_mass": null,
-      "nutrient_mass_units": null
+      "ingredient_mass": 1.0,
+      "ingredient_mass_units": "kg",
+      "nutrient_mass": 100.0,
+      "nutrient_mass_units": "ug"
     },
     "aspartic_acid": {
       "ingredient_mass": null,
@@ -130,9 +130,9 @@
       "nutrient_mass_units": null
     },
     "carbohydrate": {
-      "ingredient_mass": 100.0,
-      "ingredient_mass_units": "g",
-      "nutrient_mass": 25.0,
+      "ingredient_mass": 1.0,
+      "ingredient_mass_units": "kg",
+      "nutrient_mass": 250.0,
       "nutrient_mass_units": "g"
     },
     "cartenoids": {
@@ -574,10 +574,10 @@
       "nutrient_mass_units": null
     },
     "sodium": {
-      "ingredient_mass": 250.0,
-      "ingredient_mass_units": "g",
-      "nutrient_mass": 5.0,
-      "nutrient_mass_units": "mg"
+      "ingredient_mass": null,
+      "ingredient_mass_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "stearic_acid": {
       "ingredient_mass": null,

@@ -24,7 +24,7 @@ class TestGetMatchingNutrientNames(TestCase):
 class TestSummariseDensity(TestCase):
     def setUp(self):
         self.igs:'ingredient_service' = inject('pydiet.ingredient_service')
-        self.i = self.igs.get_new_ingredient()
+        self.i = self.igs.load_new_ingredient()
     
     def test_returns_undefined(self):
         # Check the density is undefined to start with;

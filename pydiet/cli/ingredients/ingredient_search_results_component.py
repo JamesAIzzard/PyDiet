@@ -1,10 +1,11 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from pyconsoleapp import ConsoleAppComponent
 from pinjector import inject
 
 if TYPE_CHECKING:
     from pydiet.cli.ingredients.ingredient_edit_service import IngredientEditService
+    from pydiet.cli.ingredients.ingredient_save_check_component import IngredientSaveCheckComponent
     from pydiet.ingredients import ingredient_service
     from pydiet.data import repository_service
 
@@ -42,15 +43,25 @@ class IngredientSearchResultsComponent(ConsoleAppComponent):
             return None
         # If the option matches one on-screen;
         if response in self._ies.ingredient_search_result_number_name_map.keys():
+            # Convert the response into an ingredient name;
+            ingredient_name = self._ies.ingredient_search_result_number_name_map[response]            
             # Resolve the datafile name for the ingredient;
-            self._ies.datafile_name = self._rp.resolve_ingredient_datafile_name(
-                self._ies.ingredient_search_result_number_name_map[response])
-            # Load the ingredient into the ies;
-            self._ies.ingredient = self._rp.read_ingredient(self._ies.datafile_name)
-            # Configure the save reminder;
-            self.get_component('ingredient_save_check_component').guarded_route = \
-                'home.ingredients.edit'
-            self.guard_exit('home.ingredients.edit', 'ingredient_save_check_component')
-            # Redirect to edit;
-            self.goto('home.ingredients.edit')
+            datafile_name = self._igs.resolve_ingredient_datafile_name(ingredient_name)
+            # If the corresponding datafile was found;
+            if datafile_name:
+                # Populate the datafile name on the ies;
+                self._ies.datafile_name = datafile_name
+                # Load the ingredient into the ies;
+                self._ies.ingredient = self._igs.load_ingredient(datafile_name)
+                # Configure the save reminder;
+                cast(
+                    'IngredientSaveCheckComponent',
+                    self.get_component('ingredient_save_check_component')
+                ).guarded_route = 'home.ingredients.edit'
+                self.guard_exit('home.ingredients.edit', 'ingredient_save_check_component')
+                # Redirect to edit;
+                self.goto('home.ingredients.edit')
+            # If the datafile wasn't found, something is broken;
+            else:
+                raise ValueError('No datafile was found for {}'.format(ingredient_name))
 

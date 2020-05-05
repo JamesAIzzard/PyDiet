@@ -53,7 +53,7 @@ def convert_volume(volume: float, start_units:str, end_units: str) -> float:
 
 def get_all_nutrient_names()->List[str]:
     rp:'repository_service' = inject('pydiet.repository_service')
-    data_template = rp.read_ingredient_data_template()
+    data_template = rp.read_ingredient_template_data()
     return list(data_template['nutrients'].keys())
 
 def sentence_case(text: str) -> str:
