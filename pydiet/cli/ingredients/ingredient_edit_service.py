@@ -13,12 +13,12 @@ if TYPE_CHECKING:
 
 class IngredientEditService():
     def __init__(self):
-        self._igs:'ingredient_service' = inject('pydiet.ingredient_service')
+        self._igs: 'ingredient_service' = inject('pydiet.ingredient_service')
         self._cf: 'configs' = inject('pydiet.configs')
         self._flag_number_name_map: Optional[Dict[int, str]] = None
         self._primary_nutrient_number_name_map: Optional[Dict[int, str]] = None
         self.ingredient: Optional['Ingredient'] = None
-        self.datafile_name:Optional[str] = None
+        self.datafile_name: Optional[str] = None
         self.app: 'ConsoleApp' = inject('pydiet.cli.app')
         self.temp_cost_mass: float
         self.temp_cost_mass_units: str
@@ -74,7 +74,8 @@ class IngredientEditService():
 
     @property
     def defined_secondary_nutrient_number_name_map(self) -> Dict[int, str]:
-        defined_secondary_nutr_names = list(self.ingredient.defined_secondary_nutrients.keys())
+        defined_secondary_nutr_names = list(
+            self.ingredient.defined_secondary_nutrients.keys())
         start_num = len(self._cf.PRIMARY_NUTRIENTS)+1
         return self._create_number_name_map(defined_secondary_nutr_names, start_num=start_num)
 
@@ -87,9 +88,9 @@ class IngredientEditService():
     def flag_name_from_number(self, selection_number: int) -> str:
         return self.flag_number_name_map[selection_number]
 
-    def save_changes(self, redirect_to:Optional[str]=None)->None:
+    def save_changes(self, redirect_to: Optional[str] = None) -> None:
         # Grab a reference to the CLI app;
-        app:'ConsoleApp' = inject('pydiet.cli.app')
+        app: 'ConsoleApp' = inject('pydiet.cli.app')
         # Catch no ingredient;
         if not self.ingredient:
             raise AttributeError()
@@ -102,19 +103,20 @@ class IngredientEditService():
             if redirect_to:
                 app.clear_exit('home.ingredients.new')
                 save_check_comp = cast(
-                    'IngredientSaveCheckComponent', 
+                    'IngredientSaveCheckComponent',
                     app.get_component('ingredient_save_check_component')
                 )
                 save_check_comp.guarded_route = 'home.ingredients.edit'
-                app.guard_exit('home.ingredients.edit', 'ingredient_save_check_component')
+                app.guard_exit('home.ingredients.edit',
+                               'ingredient_save_check_component')
                 app.goto(redirect_to)
         # If updating an existing datafile;
         else:
             # Update the ingredient;
             self._igs.update_existing_ingredient(
-                self.ingredient, 
+                self.ingredient,
                 self.datafile_name
             )
         # Confirm save and return;
         self.app.info_message = "Ingredient saved."
-        return None        
+        return None

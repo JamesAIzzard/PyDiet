@@ -14,7 +14,7 @@ import dependencies
 if TYPE_CHECKING:
     from pydiet.ingredients import ingredient_service
 
-from pydiet.ingredients.ingredient import (
+from pydiet.ingredients.exceptions import (
     ConstituentsExceedGroupError, 
     NutrientQtyExceedsIngredientQtyError
 )

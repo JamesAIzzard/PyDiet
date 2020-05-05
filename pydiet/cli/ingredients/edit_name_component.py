@@ -8,16 +8,19 @@ if TYPE_CHECKING:
 _TEMPLATE = '''Enter ingredient name:
 '''
 
+
 class EditNameComponent(ConsoleAppComponent):
 
     def __init__(self):
         super().__init__()
-        self._ies:'IngredientEditService' = inject('pydiet.cli.ingredient_edit_service')
-        self._igs:'ingredient_service' = inject('pydiet.ingredient_service')
+        self._ies: 'IngredientEditService' = inject(
+            'pydiet.cli.ingredient_edit_service')
+        self._igs: 'ingredient_service' = inject('pydiet.ingredient_service')
 
     def print(self):
         output = _TEMPLATE
-        output = self.app.get_component('standard_page_component').print(output)
+        output = self.app.get_component(
+            'standard_page_component').print(output)
         return output
 
     def dynamic_response(self, response):

@@ -1,3 +1,5 @@
+import json
+
 # Add root module to path;
 import sys, os
 # sys.path.append('/home/james/Documents/PyDiet')
@@ -36,6 +38,6 @@ for group_name in configs.NUTRIENT_GROUP_DEFINITIONS.keys():
         raise ValueError('The nutrient {} is listed in the group definitions, but not on the template.'.format(group_name))
 
 # Rewrite the template to sort alphabetically;
-rs._update_ingredient_data(
-    template, configs.INGREDIENT_DATAFILE_TEMPLATE_NAME
-)
+with open(configs.INGREDIENT_DB_PATH+'{}.json'.
+            format(configs.INGREDIENT_DATAFILE_TEMPLATE_NAME), 'r+') as fh:
+    json.dump(template, fh, indent=2, sort_keys=True)
