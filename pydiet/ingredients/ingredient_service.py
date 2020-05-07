@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 INGREDIENT_COST_SUMMARY_TEMPLATE = '£{cost:.2f} for {mass}{mass_units} (£{g_cost:.3f}/g)'
 INGREDIENT_FLAG_SUMMARY_TEMPLATE = '{flag_name}: {status}'
 NUTRIENT_SUMMARY_TEMPLATE = \
-    '{nutrient_name}: {nutrient_mass}{nutrient_mass_units}/{ingredient_mass}{ingredient_mass_units}'
+    '{nutrient_name}: {nutrient_mass}{nutrient_mass_units}/{ingredient_qty}{ingredient_qty_units}'
 UNDEFINED_NUTRIENT_SUMMARY_TEMPLATE = '{nutrient_name}: Undefined'
 
 def load_new_ingredient() -> 'Ingredient':
@@ -106,8 +106,8 @@ def summarise_cost(ingredient: 'Ingredient') -> str:
         cost_data = ingredient.cost_data
         return INGREDIENT_COST_SUMMARY_TEMPLATE.format(
             cost=cost_data['cost'],
-            mass=cost_data['ingredient_mass'],
-            mass_units=cost_data['ingredient_mass_units'],
+            mass=cost_data['ingredient_qty'],
+            mass_units=cost_data['ingredient_qty_units'],
             g_cost=ingredient.cost_per_g
         )
     else:
@@ -146,8 +146,8 @@ def summarise_nutrient_amount(nutrient_amount: 'NutrientAmount') -> str:
             nutrient_name=nutrient_amount.name.replace('_', ' '),
             nutrient_mass=nutrient_amount.nutrient_mass,
             nutrient_mass_units=nutrient_amount.nutrient_mass_units,
-            ingredient_mass=nutrient_amount.ingredient_mass,
-            ingredient_mass_units=nutrient_amount.ingredient_mass_units,
+            ingredient_qty=nutrient_amount.ingredient_qty,
+            ingredient_qty_units=nutrient_amount.ingredient_qty_units,
         ) + perc_insert
     else:
         return UNDEFINED_NUTRIENT_SUMMARY_TEMPLATE.format(

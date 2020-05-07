@@ -20,14 +20,10 @@ class IngredientEditService():
         self.ingredient: Optional['Ingredient'] = None
         self.datafile_name: Optional[str] = None
         self.app: 'ConsoleApp' = inject('pydiet.cli.app')
-        self.temp_cost_mass: float
-        self.temp_cost_mass_units: str
-        self.temp_volume: Optional[float]
-        self.temp_volume_units: Optional[str]
+        self.temp_qty: Optional[float]
+        self.temp_qty_units: Optional[str]
         self.current_flag_number: int
         self.cycling_flags: bool = False
-        self.temp_nutrient_ingredient_mass: float
-        self.temp_nutrient_ingredient_mass_units: str
         self.current_nutrient_amount: 'NutrientAmount'
         self.nutrient_name_search_results: List[str]
         self.ingredient_search_results: List[str]

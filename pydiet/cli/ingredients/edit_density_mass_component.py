@@ -5,7 +5,7 @@ from pinjector import inject
 
 if TYPE_CHECKING:
     from pydiet.cli.ingredients.ingredient_edit_service import IngredientEditService
-    from pydiet import utility_service
+    from pydiet.shared import utility_service
 
 _TEMPLATE = '''
     {vol}{vol_units} of {ingredient_name}
@@ -24,8 +24,8 @@ class EditDensityMassComponent(ConsoleAppComponent):
 
     def print(self):
         output = _TEMPLATE.format(
-            vol=self._ies.temp_volume,
-            vol_units=self._ies.temp_volume_units,
+            vol=self._ies.temp_qty,
+            vol_units=self._ies.temp_qty_units,
             ingredient_name=self._ies.ingredient.name
         )
         output = self.get_component('standard_page_component').print(output)
@@ -46,11 +46,14 @@ class EditDensityMassComponent(ConsoleAppComponent):
             self.app.error_message = "{} is not a recognised mass unit.".format(mass_and_units[1])
             return
         # Go ahead and define the ingredient density;
-        self._ies.ingredient.set_density(
-            self._ies.temp_volume,
-            self._ies.temp_volume_units,
-            mass_and_units[0], # mass per volume
-            mass_and_units[1] # mass units per volume
-        )
+        if self._ies.temp_qty and self._ies.temp_qty_units:
+            self._ies.ingredient.set_density(
+                self._ies.temp_qty,
+                self._ies.temp_qty_units,
+                mass_and_units[0], # mass per volume
+                mass_and_units[1] # mass units per volume
+            )
+        else:
+            raise AttributeError
         # Redirect;
         self.goto('..')

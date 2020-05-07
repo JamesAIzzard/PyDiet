@@ -96,7 +96,7 @@ class IngredientEditMenuComponent(ConsoleAppComponent):
 
     def on_edit_cost(self):
         if self._check_name_defined():
-            self.goto('.edit_cost_mass')
+            self.goto('.edit_cost_qty')
 
     def on_configure_liquid_measurements(self):
         if self._check_name_defined():

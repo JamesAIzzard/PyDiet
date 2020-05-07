@@ -1,8 +1,9 @@
-from typing import TYPE_CHECKING, Union, Optional, Dict, List
+from typing import TYPE_CHECKING, Optional, Dict
 
 from pinjector import inject
 
 from pydiet.ingredients.nutrient_amount import NutrientAmount
+from pydiet.ingredients.exceptions import IngredientDensityUndefinedError
 
 if TYPE_CHECKING:
     from pydiet.shared import configs
@@ -35,16 +36,20 @@ class Ingredient():
         return True
 
     @property
-    def cost_per_g(self) -> Union[float, None]:
-        ut: 'utility_service' = inject('pydiet.utility_service')
-        if self.cost_is_defined:
-            conversion_factor = ut.convert_mass(
-                self._data['cost_per_mass']['ingredient_mass'],
-                self._data['cost_per_mass']['ingredient_mass_units'], "g"
+    def cost_per_g(self) -> float:
+        # If ingredient qty is a mass;
+        if self.cost_data['ingredient_qty_units'] in self._ut.recognised_mass_units():
+            return self._data['cost_per_mass']['cost']/self._ut.convert_mass(
+                self._data['cost_per_mass']['ingredient_qty'],
+                self._data['cost_per_mass']['ingredient_qty_units'], "g"            
             )
-            return self._data['cost_per_mass']['cost']/conversion_factor
+        # Ingredient qty is a volume;
         else:
-            return None
+            return self._data['cost_per_mass']['cost']/self._ut.convert_vol_to_grams(
+                self._data['cost_per_mass']['ingredient_qty'],
+                self._data['cost_per_mass']['ingredient_qty_units'],
+                self.density_g_per_ml           
+            )
 
     @property
     def cost_data(self) -> Dict:
@@ -52,8 +57,8 @@ class Ingredient():
 
     def set_cost(self, cost: float, mass: float, mass_units: str) -> None:
         self._data['cost_per_mass']['cost'] = cost
-        self._data['cost_per_mass']['ingredient_mass'] = mass
-        self._data['cost_per_mass']['ingredient_mass_units'] = mass_units
+        self._data['cost_per_mass']['ingredient_qty'] = mass
+        self._data['cost_per_mass']['ingredient_qty_units'] = mass_units
 
     @property
     def density_is_defined(self)->bool:
@@ -63,21 +68,24 @@ class Ingredient():
         return True
 
     @property
-    def density_g_per_ml(self)->Optional[float]:
-        if self.density_is_defined:
-            mass_g = self._ut.convert_mass(
-                self._data['vol_density']['ingredient_mass'],
-                self._data['vol_density']['ingredient_mass_units'],
-                'g'
-            )
-            vol_ml = self._ut.convert_volume(
-                self._data['vol_density']['ingredient_vol'],
-                self._data['vol_density']['ingredient_vol_units'],
-                'ml'
-            )
-            return mass_g/vol_ml
-        else:
-            return None
+    def density_g_per_ml(self)->float:
+        # Catch density not being defined;
+        if not self.density_is_defined:
+            raise IngredientDensityUndefinedError
+        # Convert mass component to grams;
+        mass_g = self._ut.convert_mass(
+            self._data['vol_density']['ingredient_mass'],
+            self._data['vol_density']['ingredient_mass_units'],
+            'g'
+        )
+        # Convert vol component to ml;
+        vol_ml = self._ut.convert_volume(
+            self._data['vol_density']['ingredient_vol'],
+            self._data['vol_density']['ingredient_vol_units'],
+            'ml'
+        )
+        # Return g/ml;
+        return mass_g/vol_ml
 
     def set_density(
         self, ingredient_vol: float,
@@ -98,15 +106,6 @@ class Ingredient():
         self._data['vol_density']['ingredient_mass_units'] = ingredient_mass_units.lower()
         self._data['vol_density']['ingredient_vol'] = ingredient_vol
         self._data['vol_density']['ingredient_vol_units'] = ingredient_vol_units.lower()
-
-    def convert_vol_to_grams(self, volume:float, units:str)->float:
-        # Lowercase units;
-        units = units.lower()
-        # First convert the volume to ml;
-        vol_ml = self._ut.convert_volume(volume, units, 'ml')
-        # Calculate mass in g;
-        mass_g = self.density_g_per_ml*vol_ml
-        return mass_g
 
     @property
     def all_flag_data(self) -> Dict:
@@ -153,14 +152,14 @@ class Ingredient():
     def set_nutrient_amount(
         self,
         nutrient_name: str,
-        ingredient_mass: float,
-        ingredient_mass_units: str,
+        ingredient_qty: float,
+        ingredient_qty_units: str,
         nutrient_mass: float,
         nutrient_mass_units: str,
     ) -> None:
         na = self.get_nutrient_amount(nutrient_name)
-        na.ingredient_mass = ingredient_mass
-        na.ingredient_mass_units = ingredient_mass_units.lower()
+        na.ingredient_qty = ingredient_qty
+        na.ingredient_qty_units = ingredient_qty_units.lower()
         na.nutrient_mass = nutrient_mass
         na.nutrient_mass_units = nutrient_mass_units.lower()
 

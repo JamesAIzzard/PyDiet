@@ -44,8 +44,8 @@ class EditDensityVolumeComponent(ConsoleAppComponent):
         if not vol_and_units[1] in self._us.recognised_vol_units():
             self.app.error_message = "{} is not a recognised vol unit.".format(vol_and_units[1])
             return
-        # Stash these values and move on to collect the weight.
-        self._ies.temp_volume = vol_and_units[0]
-        self._ies.temp_volume_units = vol_and_units[1]
+        # Stash these values and move on to collect the weight;
+        self._ies.temp_qty = vol_and_units[0]
+        self._ies.temp_qty_units = vol_and_units[1]
         # Head on to collect the mass;
         self.goto('..edit_density_mass')

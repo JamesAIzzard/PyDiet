@@ -31,6 +31,10 @@ def recognised_mass_units()->List[str]:
 def recognised_vol_units()->List[str]:
     return list(_ML_CONVERSIONS.keys())
 
+def recognised_qty_units()->List[str]:
+    return recognised_mass_units() + \
+        recognised_vol_units()
+
 def validate_unit(unit:str)->None:
     if not unit in _G_CONVERSIONS.keys() and \
         not unit in _ML_CONVERSIONS.keys():
@@ -50,6 +54,20 @@ def convert_volume(volume: float, start_units:str, end_units: str) -> float:
     end_units = end_units.lower()    
     vol_in_ml = _ML_CONVERSIONS[start_units]*volume
     return vol_in_ml/_ML_CONVERSIONS[end_units]
+
+def convert_vol_to_grams(
+    volume:float, 
+    vol_units:str, 
+    density_g_per_ml:float
+)->float:
+    # Lowercase units;
+    vol_units = vol_units.lower()
+    # First convert the volume to ml;
+    vol_ml = convert_volume(volume, vol_units, 'ml')
+    # Calculate mass in g;
+    mass_g = density_g_per_ml*vol_ml
+    # Return result;
+    return mass_g
 
 def get_all_nutrient_names()->List[str]:
     rp:'repository_service' = inject('pydiet.repository_service')

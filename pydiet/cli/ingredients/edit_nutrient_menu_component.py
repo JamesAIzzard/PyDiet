@@ -87,4 +87,4 @@ class EditNutrientMenuComponent(ConsoleAppComponent):
             # Load that nutrient as the current nutrient amount;
             self._ies.current_nutrient_amount = \
                 self._ies.ingredient.get_nutrient_amount(nutrient_name)
-            self.goto('.edit_nutrient_ingredient_mass')
+            self.goto('.edit_nutrient_ingredient_qty')

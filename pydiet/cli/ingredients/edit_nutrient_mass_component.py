@@ -29,20 +29,12 @@ class EditNutrientMassComponent(ConsoleAppComponent):
         self._us:'utility_service' = inject('pydiet.utility_service')
         self._ies:'IngredientEditService' = inject('pydiet.cli.ingredient_edit_service')
 
-    def print(self):
-        # Configure qty and units depending on whether the ingredient
-        # cost is being defined per volume or per mass;
-        qty = self._ies.temp_nutrient_ingredient_mass
-        units = self._ies.temp_nutrient_ingredient_mass_units
-        if not self._ies.temp_volume == None and \
-            not self._ies.temp_volume_units == None:
-            qty = self._ies.temp_volume
-            units = self._ies.temp_volume_units        
+    def print(self):     
         output = _NUTRIENT_MASS.format(
             ingredient_name = self._ies.ingredient.name,
             nutrient_name = self._ies.current_nutrient_amount.name,
-            qty= qty,
-            units = units
+            qty= self._ies.temp_qty,
+            units = self._ies.temp_qty_units
         )
         output = self.get_component('standard_page_component').print(output)
         return output
@@ -58,14 +50,17 @@ class EditNutrientMassComponent(ConsoleAppComponent):
         # Split the mass and units out;
         mass = mass_and_units[0]
         unit = mass_and_units[1]
-        # Try the nutrient data to the ingredient;
+        # Catch unset qty and units on ies;
+        if not self._ies.temp_qty or not self._ies.temp_qty_units:
+            raise AttributeError
+        # Try write the nutrient data to the ingredient;
         try:
             self._ies.ingredient.set_nutrient_amount(
                 self._ies.current_nutrient_amount.name,
-                self._ies.temp_nutrient_ingredient_mass,
-                self._ies.temp_nutrient_ingredient_mass_units,
-                mass, # mass value
-                unit # units value
+                self._ies.temp_qty,
+                self._ies.temp_qty_units,
+                mass,
+                unit
             )
         except (ConstituentsExceedGroupError, NutrientQtyExceedsIngredientQtyError) as err:
             self.app.error_message = (str(err))

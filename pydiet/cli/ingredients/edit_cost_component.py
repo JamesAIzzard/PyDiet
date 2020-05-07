@@ -25,21 +25,14 @@ class EditCostComponent(ConsoleAppComponent):
         self._ies:'IngredientEditService' = inject('pydiet.cli.ingredient_edit_service')
 
     def print(self):
-        # Configure qty and units depending on whether the ingredient
-        # cost is being defined per volume or per mass;
-        qty = self._ies.temp_cost_mass
-        units = self._ies.temp_cost_mass_units
-        if not self._ies.temp_volume == None and \
-            not self._ies.temp_volume_units == None:
-            qty = self._ies.temp_volume
-            units = self._ies.temp_volume_units
-        # Build and return the component output;
+        # Build the output;
         output = _UNITS_TEMPLATE.format(\
             ingredient_name=self._ies.ingredient.name,
-            qty=qty,
-            units=units
+            qty=self._ies.temp_qty,
+            units=self._ies.temp_qty_units
         )
         output = self.get_component('standard_page_component').print(output) + ' £'
+        # Return it;
         return output
 
     def dynamic_response(self, response):
@@ -51,9 +44,13 @@ class EditCostComponent(ConsoleAppComponent):
             self.app.error_message = "Unable to parse {} as a cost. Try again."\
                 .format(response)
             return
-        # Set all the data and return to the menu;
+        # Catch qty data missing;
+        if not self._ies.temp_qty or not self._ies.temp_qty_units:
+            raise AttributeError
+        # Set all the data;
         self._ies.ingredient.set_cost(
             cost, 
-            self._ies.temp_cost_mass, 
-            self._ies.temp_cost_mass_units)
+            self._ies.temp_qty, 
+            self._ies.temp_qty_units)
+        # Return to the menu;
         self.goto('..')
