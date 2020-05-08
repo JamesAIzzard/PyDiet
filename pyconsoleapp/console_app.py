@@ -19,9 +19,11 @@ if TYPE_CHECKING:
 pinjector.create_namespace('pyconsoleapp')
 pinjector.register('pyconsoleapp', utility_service)
 
+
 class ConsoleApp():
     def __init__(self, name):
-        self._utility_service: utility_service = inject('pyconsoleapp.utility_service')
+        self._utility_service: utility_service = inject(
+            'pyconsoleapp.utility_service')
         self._response: Optional[str] = None
         self._root_route: str = ''
         self._route: str = ''
@@ -32,8 +34,8 @@ class ConsoleApp():
         self._component_packages: List[str] = []
         self._quit: bool = False
         self._text_window: Optional[tk.Tk]
-        self._textbox: Optional[ScrolledText]  
-        self.name: str = name     
+        self._textbox: Optional[ScrolledText]
+        self.name: str = name
         self.active_components: List['ConsoleAppComponent'] = []
         self.error_message: Optional[str] = None
         self.info_message: Optional[str] = None
@@ -75,11 +77,11 @@ class ConsoleApp():
             raise KeyError('The route {} was not recognised.'.format(route))
 
     @property
-    def text_window_title(self)->str:
+    def text_window_title(self) -> str:
         return self._text_window.title
 
     @text_window_title.setter
-    def text_window_title(self, title:str)->None:
+    def text_window_title(self, title: str) -> None:
         self._text_window.title(title)
 
     def _configure_text_window(self) -> None:
@@ -131,11 +133,11 @@ class ConsoleApp():
         '''Converts a relative route with point notation
         preceeding it, to an absolute route from the
         root route.
-        
+
         Arguments:
             route {str} -- Route, possibly containing relative
                 point notation.
-        
+
         Returns:
             str -- Absolute route.
         '''
@@ -154,7 +156,7 @@ class ConsoleApp():
         elif back_counter == 0:
             # Also if we are appending, put a dot in front of the new part;
             if route:
-                route = '.' + route            
+                route = '.' + route
             # Return the new route appended to the current one.
             return self.route + route
         # We need to take a number of steps back from the
@@ -178,7 +180,7 @@ class ConsoleApp():
     def register_component_package(self, package_path: str) -> None:
         self._component_packages.append(package_path)
 
-    def make_component_active(self, component_name:str)->None:
+    def make_component_active(self, component_name: str) -> None:
         self._active_components.append(self.get_component(component_name))
 
     def get_component(self, component_name: str) -> 'ConsoleAppComponent':
@@ -191,7 +193,7 @@ class ConsoleApp():
         # PascalCase;
         pascal_name = self._utility_service.snake_to_pascal(component_name)
         # Not found, so create place to put constructor when found;
-        constructor = None   
+        constructor = None
         # Then look in the default components;
         builtins_package = configs.builtin_component_package + '.{}'
         if importlib.util.find_spec(builtins_package.format(component_name)):
@@ -206,8 +208,8 @@ class ConsoleApp():
                 constructor = getattr(component_module, pascal_name)
         # Raise an exception if the constructor was not found;
         if not constructor:
-            raise ModuleNotFoundError('The component class {} was not found.'.\
-                format(component_name))
+            raise ModuleNotFoundError('The component class {} was not found.'.
+                                      format(component_name))
         # Instantiate the class and add it to the components dict;
         component: 'ConsoleAppComponent' = constructor()
         self._components[component_name] = component
@@ -277,11 +279,17 @@ class ConsoleApp():
                 self._check_guards(self.route)
                 # If no guards collected a response;
                 if not self._response:
+                    # Grab the matching component;
                     component = self._get_component_for_route(self.route)
+                    # Call run;
+                    component.run()
+                    # Grab component again, in case run changed the route;
+                    component = self._get_component_for_route(self.route)
+                    # Print the view and collect response;
                     self.clear_console()
                     self._response = input(component.print())
 
-    def goto(self, route:str)->None:
+    def goto(self, route: str) -> None:
         # Convert the route to be absolute;
         route = self.interpret_relative_route(route)
         # Set the route;

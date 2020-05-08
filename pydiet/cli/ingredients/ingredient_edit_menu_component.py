@@ -47,8 +47,8 @@ class IngredientEditMenuComponent(ConsoleAppComponent):
         self.set_option_response('s', self.on_save)
 
     def run(self):
-        # If there isn't an ingredient to show;
-        if not self._ies.ingredient:
+        # If we shouldn't be here;
+        if not self._ies.ingredient or self.app.route == 'home.ingredients.delete':
             # Go back another level;
             self.goto('home.ingredients')
 

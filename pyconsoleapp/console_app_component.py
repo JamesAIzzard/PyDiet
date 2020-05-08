@@ -25,12 +25,11 @@ class ConsoleAppComponent(ABC):
         '''
         # If the print method was called;
         if name == 'print':
-            # Call the on_run method;
-            self.run()
-            # Add this component to the active components list
             # (Don't bring service onto scope, because some child is likely to
             # want to write to self._utility_service, overwriting it);
-            utility_service:'utility_service' = inject('pyconsoleapp.utility_service')
+            utility_service: 'utility_service' = inject(
+                'pyconsoleapp.utility_service')
+            # Add this component to the active components list
             self.app.make_component_active(utility_service
                                            .pascal_to_snake(self.name))
         # Return whatever was requested;

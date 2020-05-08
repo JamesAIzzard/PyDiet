@@ -44,6 +44,7 @@ app.add_route('home.ingredients.edit.nutrients.edit_nutrient_ingredient_qty', 'E
 app.add_route('home.ingredients.edit.nutrients.edit_nutrient_mass', 'EditNutrientMassComponent')
 app.add_route('home.ingredients.edit.nutrients.nutrient_search', 'NutrientSearchComponent')
 app.add_route('home.ingredients.edit.nutrients.nutrient_search_results', 'NutrientSearchResultsComponent')
+app.add_route('home.ingredients.delete', 'IngredientEditMenuComponent')
 app.add_route('home.ingredients.delete.search', 'IngredientSearchComponent')
 app.add_route('home.ingredients.delete.search_results', 'IngredientSearchResultsComponent')
 app.add_route('home.ingredients.delete.confirm', 'ConfirmIngredientDeleteComponent')
