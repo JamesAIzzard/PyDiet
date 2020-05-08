@@ -1,19 +1,19 @@
 {
   "cost_per_mass": {
-    "cost": null,
-    "ingredient_qty": null,
-    "ingredient_qty_units": null
+    "cost": 2.5,
+    "ingredient_qty": 1.0,
+    "ingredient_qty_units": "kg"
   },
   "flags": {
-    "alchohol_free": null,
-    "caffiene_free": null,
-    "dairy_free": null,
-    "gluten_free": null,
-    "nut_free": null,
-    "vegan": null,
-    "vegetarian": null
+    "alchohol_free": true,
+    "caffiene_free": true,
+    "dairy_free": true,
+    "gluten_free": true,
+    "nut_free": true,
+    "vegan": true,
+    "vegetarian": true
   },
-  "name": "Beetroot",
+  "name": "Rolled Oats",
   "nutrients": {
     "a_carotene": {
       "ingredient_qty": null,
@@ -130,10 +130,10 @@
       "nutrient_mass_units": null
     },
     "carbohydrate": {
-      "ingredient_qty": null,
-      "ingredient_qty_units": null,
-      "nutrient_mass": null,
-      "nutrient_mass_units": null
+      "ingredient_qty": 250.0,
+      "ingredient_qty_units": "g",
+      "nutrient_mass": 180.0,
+      "nutrient_mass_units": "g"
     },
     "cartenoids": {
       "ingredient_qty": null,
@@ -713,11 +713,9 @@
     }
   },
   "vol_density": {
-    "ingredient_mass": 1.0,
-    "ingredient_mass_units": "kg",
-    "ingredient_qty": null,
-    "ingredient_qty_units": null,
-    "ingredient_vol": 1.0,
-    "ingredient_vol_units": "l"
+    "ingredient_mass": null,
+    "ingredient_mass_units": null,
+    "ingredient_vol": null,
+    "ingredient_vol_units": null
   }
 }

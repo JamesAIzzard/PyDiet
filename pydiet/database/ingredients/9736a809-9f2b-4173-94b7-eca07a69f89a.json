@@ -1,8 +1,8 @@
 {
   "cost_per_mass": {
-    "cost": 0.5,
+    "cost": 2.5,
     "ingredient_qty": 1.0,
-    "ingredient_qty_units": "ml"
+    "ingredient_qty_units": "L"
   },
   "flags": {
     "alchohol_free": true,
@@ -28,10 +28,10 @@
       "nutrient_mass_units": null
     },
     "alanine": {
-      "ingredient_qty": 1.0,
-      "ingredient_qty_units": "ml",
-      "nutrient_mass": 5.0,
-      "nutrient_mass_units": "ug"
+      "ingredient_qty": null,
+      "ingredient_qty_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "alchohol": {
       "ingredient_qty": null,
@@ -130,10 +130,10 @@
       "nutrient_mass_units": null
     },
     "carbohydrate": {
-      "ingredient_qty": 1.0,
-      "ingredient_qty_units": "l",
-      "nutrient_mass": 200.0,
-      "nutrient_mass_units": "g"
+      "ingredient_qty": null,
+      "ingredient_qty_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "cartenoids": {
       "ingredient_qty": null,
@@ -713,9 +713,9 @@
     }
   },
   "vol_density": {
-    "ingredient_mass": 0.9,
-    "ingredient_mass_units": "kg",
+    "ingredient_mass": 900.0,
+    "ingredient_mass_units": "g",
     "ingredient_vol": 1.0,
-    "ingredient_vol_units": "l"
+    "ingredient_vol_units": "L"
   }
 }

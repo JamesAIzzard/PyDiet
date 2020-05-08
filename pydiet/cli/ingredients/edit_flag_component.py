@@ -21,7 +21,7 @@ class EditFlagComponent(ConsoleAppComponent):
 
     def print(self):
         output = _TEMPLATE.format(
-            ingredient_name=self._ies.ingredient.name,
+            ingredient_name=self._ies.ingredient.name.lower(),
             flag=self._ies.flag_name_from_number(self._ies.current_flag_number)
         ).replace('_', ' ')
         output = self.app.get_component('standard_page_component').print(output)

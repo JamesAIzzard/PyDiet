@@ -1,3 +1,4 @@
+from pydiet.shared.utility_service import recognised_mass_units
 from typing import TYPE_CHECKING
 
 from pinjector import inject
@@ -21,20 +22,27 @@ _NUTRIENT_MASS = '''
 Enter the weight and units of {nutrient_name}
 present in {qty}{units} of {ingredient_name}.
 (e.g 100g or 1kg, etc.)
- '''
+
+Valid units:
+{valid_units}
+
+'''
+
 
 class EditNutrientMassComponent(ConsoleAppComponent):
     def __init__(self):
         super().__init__()
-        self._us:'utility_service' = inject('pydiet.utility_service')
-        self._ies:'IngredientEditService' = inject('pydiet.cli.ingredient_edit_service')
+        self._us: 'utility_service' = inject('pydiet.utility_service')
+        self._ies: 'IngredientEditService' = inject(
+            'pydiet.cli.ingredient_edit_service')
 
-    def print(self):     
+    def print(self):
         output = _NUTRIENT_MASS.format(
-            ingredient_name = self._ies.ingredient.name,
-            nutrient_name = self._ies.current_nutrient_amount.name,
-            qty= self._ies.temp_qty,
-            units = self._ies.temp_qty_units
+            ingredient_name=self._ies.ingredient.name.lower(),
+            nutrient_name=self._ies.current_nutrient_amount.name,
+            qty=self._ies.temp_qty,
+            units=self._ies.temp_qty_units,
+            valid_units=self._us.recognised_mass_units()
         )
         output = self.get_component('standard_page_component').print(output)
         return output
@@ -42,14 +50,19 @@ class EditNutrientMassComponent(ConsoleAppComponent):
     def dynamic_response(self, response):
         # Try and parse the response as mass and units;
         try:
-            mass_and_units = self._us.parse_number_and_units(response)
+            mass, units = self._us.parse_number_and_text(response)
+        # Catch parse failure;
         except ValueError:
-            self.app.error_message = "Unable to parse {} as a mass & unit. Try again."\
+            self.app.error_message = "Unable to parse {} as a qty & unit. Try again."\
                 .format(response)
             return
-        # Split the mass and units out;
-        mass = mass_and_units[0]
-        unit = mass_and_units[1]
+        # Parse unit to correct case;
+        try:
+            units = self._us.parse_mass_unit(units)
+        # Catch unknown units;
+        except UnknownUnitError:
+            self.app.error_message = "{} is not a recognised mass unit.".format(units)
+            return  
         # Catch unset qty and units on ies;
         if not self._ies.temp_qty or not self._ies.temp_qty_units:
             raise AttributeError
@@ -60,14 +73,14 @@ class EditNutrientMassComponent(ConsoleAppComponent):
                 self._ies.temp_qty,
                 self._ies.temp_qty_units,
                 mass,
-                unit
+                units
             )
         except (ConstituentsExceedGroupError, NutrientQtyExceedsIngredientQtyError) as err:
             self.app.error_message = (str(err))
             return
         except UnknownUnitError as err:
-            self.app.error_message = "{} is not a recognised unit.".format(unit)
+            self.app.error_message = "{} is not a recognised unit.".format(
+                units)
             return
         # Navigate back to the nutrient menu;
         self.goto('..')
-  

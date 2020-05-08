@@ -1,9 +1,3 @@
-# Add root module to path;
-import sys
-# sys.path.append('/home/james/Documents/PyDiet') # Ubuntu Desktop
-# sys.path.append('c:\\Users\\james.izzard\\Documents\\PyDiet') # Work Laptop
-sys.path.append('C:\\Users\\James.Izzard\\Documents\\PyDiet') # Work Desktop
-
 from unittest import TestCase
 from typing import TYPE_CHECKING
 
@@ -48,13 +42,3 @@ class TestSettingNutrients(TestCase):
     def test_nutrient_qty_exceeds_ingredient_qty_error(self):
         with self.assertRaises(NutrientQtyExceedsIngredientQtyError):
             self.i.set_nutrient_amount('fat', 10, 'g', 20, 'g')
-
-class TestConvertVolToGrams(TestCase):
-    def setUp(self):
-        ig:'ingredient_service' = inject('pydiet.ingredient_service')
-        self.i = ig.load_new_ingredient()
-
-    def test_converts_vol_correctly(self):
-        self.i.set_density(1000, 'ml', 2, 'kg')
-        mass_g = self.i.convert_vol_to_grams(1, 'L')
-        self.assertEqual(mass_g, 2000)

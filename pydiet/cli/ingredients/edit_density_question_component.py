@@ -25,7 +25,7 @@ class EditDensityQuestionComponent(ConsoleAppComponent):
 
     def print(self):
         output = _TEMPLATE.format(
-            ingredient_name=self._ies.ingredient.name
+            ingredient_name=self._ies.ingredient.name.lower()
         )
         output = self.get_component('standard_page_component')\
             .print(output)

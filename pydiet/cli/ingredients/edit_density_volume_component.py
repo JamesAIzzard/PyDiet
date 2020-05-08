@@ -3,6 +3,8 @@ from typing import TYPE_CHECKING
 from pyconsoleapp import ConsoleAppComponent
 from pinjector import inject
 
+from pydiet.shared.exceptions import UnknownUnitError
+
 if TYPE_CHECKING:
     from pydiet.cli.ingredients.ingredient_edit_service import IngredientEditService
     from pydiet.shared import utility_service
@@ -15,6 +17,10 @@ _TEMPLATE = '''
 Enter the volume of the ingredient
 you wish to define the weight for.
 (e.g 1L, 1tsp, 1tbsp, 1cm3 or 1m3)
+
+Valid units:
+{valid_units}
+
 '''
 
 class EditDensityVolumeComponent(ConsoleAppComponent):
@@ -25,27 +31,30 @@ class EditDensityVolumeComponent(ConsoleAppComponent):
 
     def print(self):
         output = _TEMPLATE.format(
-            ingredient_name=self._ies.ingredient.name
+            ingredient_name=self._ies.ingredient.name.lower(),
+            valid_units=self._us.recognised_vol_units()
         )
         output = self.app.get_component('standard_page_component').print(output)
         return output
 
     def dynamic_response(self, response):
-        # Lowercase the response, since all vols are lowercase;
-        response = response.lower()
-        # Try and parse the volume and units from what was entered;
+        # Try and parse the response as mass and units;
         try:
-            vol_and_units = self._us.parse_number_and_units(response)
-        # Catch general parse failure;
+            vol, units = self._us.parse_number_and_text(response)
+        # Catch parse failure;
         except ValueError:
-            self.app.error_message = "Unable to parse {} as a volume and unit. Try again.".format(response)
+            self.app.error_message = "Unable to parse {} as a volume & unit. Try again."\
+                .format(response)
             return
-        # Catch unrecognised unit;
-        if not vol_and_units[1] in self._us.recognised_vol_units():
-            self.app.error_message = "{} is not a recognised vol unit.".format(vol_and_units[1])
-            return
+        # Parse unit to correct case;
+        try:
+            units = self._us.parse_vol_unit(units)
+        # Catch unknown units;
+        except UnknownUnitError:
+            self.app.error_message = "{} is not a recognised unit of volume.".format(units)
+            return  
         # Stash these values and move on to collect the weight;
-        self._ies.temp_qty = vol_and_units[0]
-        self._ies.temp_qty_units = vol_and_units[1]
+        self._ies.temp_qty = vol
+        self._ies.temp_qty_units = units
         # Head on to collect the mass;
         self.goto('..edit_density_mass')

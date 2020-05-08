@@ -43,7 +43,7 @@ class EditFlagMenuComponent(ConsoleAppComponent):
         return output
 
     def on_save_changes(self):
-        self._ies.save_changes(redirect_to='home.ingredients.edit_flags')
+        self._ies.save_changes(redirect_to='home.ingredients.edit.flags')
 
     def dynamic_response(self, response):
         # Try and parse the response as an integer;

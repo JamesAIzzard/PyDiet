@@ -3,6 +3,8 @@ from typing import TYPE_CHECKING
 from pyconsoleapp import ConsoleAppComponent
 from pinjector import inject
 
+from pydiet.shared.exceptions import UnknownUnitError
+
 if TYPE_CHECKING:
     from pydiet.cli.ingredients.ingredient_edit_service import IngredientEditService
     from pydiet.shared import utility_service
@@ -14,6 +16,10 @@ _TEMPLATE = '''
            ^^^^^^
 Enter the mass of {vol}{vol_units} of {ingredient_name}.
 (e.g 100g, or 1kg, etc.)
+
+Valid units:
+{valid_units}
+
 '''
 
 class EditDensityMassComponent(ConsoleAppComponent):
@@ -26,32 +32,33 @@ class EditDensityMassComponent(ConsoleAppComponent):
         output = _TEMPLATE.format(
             vol=self._ies.temp_qty,
             vol_units=self._ies.temp_qty_units,
-            ingredient_name=self._ies.ingredient.name
+            ingredient_name=self._ies.ingredient.name.lower(),
+            valid_units=self._us.recognised_mass_units()
         )
         output = self.get_component('standard_page_component').print(output)
         return output
 
     def dynamic_response(self, response):
-        # Lowercase the response;
-        response = response.lower()
-        # Try and parse the mass and units;
         try:
-            mass_and_units = self._us.parse_number_and_units(response)
+            # Try and parse the number and text;
+            mass, units = self._us.parse_number_and_text(response)
         # Catch the parse failure;
         except ValueError:
             self.app.error_message = "Unable to parse {} as a mass and unit. Try again.".format(response)
             return
-        # Catch the unrecongnised unit;
-        if not mass_and_units[1] in self._us.recognised_mass_units():
-            self.app.error_message = "{} is not a recognised mass unit.".format(mass_and_units[1])
-            return
+        try:
+            # Try and parse the unit into the correct case;
+            units = self._us.parse_mass_unit(units)
+        except UnknownUnitError:
+            self.app.error_message = "{} is not a recognised mass unit.".format(units)
+            return            
         # Go ahead and define the ingredient density;
         if self._ies.temp_qty and self._ies.temp_qty_units:
             self._ies.ingredient.set_density(
                 self._ies.temp_qty,
                 self._ies.temp_qty_units,
-                mass_and_units[0], # mass per volume
-                mass_and_units[1] # mass units per volume
+                mass,
+                units
             )
         else:
             raise AttributeError

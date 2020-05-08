@@ -1,3 +1,4 @@
+from pydiet.shared.exceptions import UnknownUnitError
 from typing import TYPE_CHECKING
 
 from pyconsoleapp import ConsoleAppComponent
@@ -15,6 +16,10 @@ _TEMPLATE = '''
 Enter the weight or volume, and units of {ingredient_name}
 which you know the cost of.
 (e.g 100g, or 1kg, 1L, etc.)
+
+Valid units:
+{valid_units}
+
 '''
 
 
@@ -32,34 +37,34 @@ class EditCostQtyComponent(ConsoleAppComponent):
         self._ies.temp_qty_units = None
 
     def print(self):
-        output = _TEMPLATE.format(\
-            ingredient_name=self._ies.ingredient.name)
+        output = _TEMPLATE.format(
+            ingredient_name=self._ies.ingredient.name.lower(),
+            valid_units=self._us.recognised_qty_units()
+        )
         output = self.app.get_component('standard_page_component')\
             .print(output)
         return output
 
     def dynamic_response(self, response):
-        # Lowercase the response;
-        response = response.lower()
         # Try and parse the response as mass and units;
         try:
-            qty_and_units = self._us.parse_number_and_units(response)
+            qty, units = self._us.parse_number_and_text(response)
         # Catch parse failure;
         except ValueError:
             self.app.error_message = "Unable to parse {} as a qty & unit. Try again."\
                 .format(response)
             return
-        # Grab the units term;
-        qty = qty_and_units[0]
-        units = qty_and_units[1]
+        # Parse unit to correct case;
+        try:
+            units = self._us.parse_qty_unit(units)
+        # Catch unknown units;
+        except UnknownUnitError:
+            self.app.error_message = "{} is not a recognised unit.".format(units)
+            return            
         # Catch volume usage without density definition;
         if units in self._us.recognised_vol_units() and \
             not self._ies.ingredient.density_is_defined:
             self.goto('..edit_density_question')
-            return
-        # Catch unrecognised unit failure;
-        if not units in self._us.recognised_qty_units():
-            self.app.error_message = "{} is not a recognised unit.".format(units)
             return
         # Stash these values and move on to collect the cost;
         self._ies.temp_qty = qty

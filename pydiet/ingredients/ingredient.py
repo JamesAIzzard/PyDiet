@@ -39,16 +39,17 @@ class Ingredient():
     def cost_per_g(self) -> float:
         # If ingredient qty is a mass;
         if self.cost_data['ingredient_qty_units'] in self._ut.recognised_mass_units():
-            return self._data['cost_per_mass']['cost']/self._ut.convert_mass(
+            return self._data['cost_per_mass']['cost']/self._ut.convert_mass_units(
                 self._data['cost_per_mass']['ingredient_qty'],
                 self._data['cost_per_mass']['ingredient_qty_units'], "g"            
             )
         # Ingredient qty is a volume;
         else:
-            return self._data['cost_per_mass']['cost']/self._ut.convert_vol_to_grams(
+            return self._data['cost_per_mass']['cost']/self._ut.convert_volume_to_mass(
                 self._data['cost_per_mass']['ingredient_qty'],
                 self._data['cost_per_mass']['ingredient_qty_units'],
-                self.density_g_per_ml           
+                'g',
+                self.density_g_per_ml         
             )
 
     @property
@@ -56,6 +57,9 @@ class Ingredient():
         return self._data['cost_per_mass']
 
     def set_cost(self, cost: float, mass: float, mass_units: str) -> None:
+        # Parse the qty units;
+        mass_units = self._ut.parse_qty_unit(mass_units)
+        # Set the data;
         self._data['cost_per_mass']['cost'] = cost
         self._data['cost_per_mass']['ingredient_qty'] = mass
         self._data['cost_per_mass']['ingredient_qty_units'] = mass_units
@@ -73,13 +77,13 @@ class Ingredient():
         if not self.density_is_defined:
             raise IngredientDensityUndefinedError
         # Convert mass component to grams;
-        mass_g = self._ut.convert_mass(
+        mass_g = self._ut.convert_mass_units(
             self._data['vol_density']['ingredient_mass'],
             self._data['vol_density']['ingredient_mass_units'],
             'g'
         )
         # Convert vol component to ml;
-        vol_ml = self._ut.convert_volume(
+        vol_ml = self._ut.convert_volume_units(
             self._data['vol_density']['ingredient_vol'],
             self._data['vol_density']['ingredient_vol_units'],
             'ml'
@@ -93,19 +97,14 @@ class Ingredient():
         ingredient_mass: float,
         ingredient_mass_units: str
     ) -> None:
-        # Lowercase the units;
-        ingredient_vol_units = ingredient_vol_units.lower()
-        ingredient_mass_units = ingredient_mass_units.lower()
-        # Check the units;
-        if not ingredient_vol_units in self._ut.recognised_vol_units():
-            raise ValueError('{} is not a recognised unit of volume.'.format(ingredient_vol_units))
-        if not ingredient_mass_units in self._ut.recognised_mass_units():
-            raise ValueError('{} is not a recognised unit of mass.'.format(ingredient_mass_units))
+        # Interpret the units;
+        ingredient_mass_units = self._ut.parse_qty_unit(ingredient_mass_units)
+        ingredient_vol_units = self._ut.parse_qty_unit(ingredient_vol_units)
         # Set the units;
         self._data['vol_density']['ingredient_mass'] = ingredient_mass
-        self._data['vol_density']['ingredient_mass_units'] = ingredient_mass_units.lower()
+        self._data['vol_density']['ingredient_mass_units'] = ingredient_mass_units
         self._data['vol_density']['ingredient_vol'] = ingredient_vol
-        self._data['vol_density']['ingredient_vol_units'] = ingredient_vol_units.lower()
+        self._data['vol_density']['ingredient_vol_units'] = ingredient_vol_units
 
     @property
     def all_flag_data(self) -> Dict:
