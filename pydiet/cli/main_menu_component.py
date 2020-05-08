@@ -34,10 +34,10 @@ class MainMenuComponent(ConsoleAppComponent):
         self.goto('.ingredients')
 
     def on_manage_recipes(self):
-        raise NotImplementedError
+        pass
 
     def on_manage_goals(self):
-        raise NotImplementedError
+        pass
 
     def on_run_optimiser(self):
-        raise NotImplementedError
+        pass

@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Optional, Dict
+from typing import TYPE_CHECKING, Optional, Dict, List
 
 from pinjector import inject
 
@@ -117,6 +117,12 @@ class Ingredient():
                 return False
         return True
 
+    def flag_is_defined(self, flag_name)->bool:
+        if self.all_flag_data[flag_name] == None:
+            return False
+        else:
+            return True
+
     def set_flag(self, flag_name: str, value: bool) -> None:
         self.all_flag_data[flag_name] = value
 
@@ -173,3 +179,33 @@ class Ingredient():
         # does not exceed 100%, but be careful not to count molecules
         # and groups twice as some molecules may be part of different
         # groups - careful approach needed here.
+
+    @property
+    def defined(self)->bool:
+        if len(self.missing_mandatory_attrs):
+            return False
+        else:
+            return True
+
+    @property
+    def missing_mandatory_attrs(self)->List[str]:
+        # Init list of missing attrs to return;
+        missing_attrs = []
+        # Check name;
+        if not self.name:
+            missing_attrs.append('name')
+        # Check cost;
+        if not self.cost_is_defined:
+            missing_attrs.append('cost')
+        # Check flags;
+        flag_data = self.all_flag_data
+        for flag_name in flag_data.keys():
+            if not self.flag_is_defined(flag_name):
+                missing_attrs.append(flag_name.replace('_', ' ') +' flag')
+        # Check nutrients;
+        for nutrient in self.primary_nutrients.values():
+            if not nutrient.defined:
+                missing_attrs.append(nutrient.name)
+        # Return list of missing attrs;
+        return missing_attrs
+

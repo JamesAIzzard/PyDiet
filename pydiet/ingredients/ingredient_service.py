@@ -96,6 +96,12 @@ def ingredient_name_used(name:str, ignore_datafile:Optional[str]=None)->bool:
     else:
         return False
 
+def summarise_status(ingredient:'Ingredient')->str:
+    if ingredient.defined:
+        return 'Complete'
+    else:
+        return 'Incomplete, requires {}'.format(ingredient.missing_mandatory_attrs[0])
+
 def summarise_name(ingredient: 'Ingredient') -> str:
     if ingredient.name:
         return ingredient.name

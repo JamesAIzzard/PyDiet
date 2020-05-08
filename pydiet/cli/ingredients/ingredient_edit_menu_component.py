@@ -15,6 +15,8 @@ if TYPE_CHECKING:
 _TEMPLATE = '''Ingredient Editor:
 ------------------
 
+Status: {status}
+
 (s) -- Save Changes
 
 (1) -- Edit Name: {name}
@@ -77,6 +79,7 @@ class IngredientEditMenuComponent(ConsoleAppComponent):
             ))
         # Assemble the template
         output = _TEMPLATE.format(
+            status=self._igs.summarise_status(self._ies.ingredient),
             name=self._igs.summarise_name(self._ies.ingredient),
             cost=self._igs.summarise_cost(self._ies.ingredient),
             density_status=self._igs.summarise_density(self._ies.ingredient),
