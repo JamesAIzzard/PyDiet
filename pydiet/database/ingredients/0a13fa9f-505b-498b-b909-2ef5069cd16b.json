@@ -1,17 +1,17 @@
 {
   "cost_per_mass": {
-    "cost": 2.5,
-    "ingredient_qty": 1.0,
-    "ingredient_qty_units": "L"
+    "cost": null,
+    "ingredient_qty": null,
+    "ingredient_qty_units": null
   },
   "flags": {
-    "alchohol_free": true,
-    "caffiene_free": true,
-    "dairy_free": true,
-    "gluten_free": true,
-    "nut_free": true,
-    "vegan": true,
-    "vegetarian": true
+    "alchohol_free": null,
+    "caffiene_free": null,
+    "dairy_free": null,
+    "gluten_free": null,
+    "nut_free": null,
+    "vegan": null,
+    "vegetarian": null
   },
   "name": "Orange Juice",
   "nutrients": {
@@ -713,9 +713,9 @@
     }
   },
   "vol_density": {
-    "ingredient_mass": 900.0,
-    "ingredient_mass_units": "g",
-    "ingredient_vol": 1.0,
-    "ingredient_vol_units": "L"
+    "ingredient_mass": null,
+    "ingredient_mass_units": null,
+    "ingredient_vol": null,
+    "ingredient_vol_units": null
   }
 }

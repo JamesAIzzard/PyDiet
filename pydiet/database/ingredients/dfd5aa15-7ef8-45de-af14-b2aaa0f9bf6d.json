@@ -1,17 +1,17 @@
 {
   "cost_per_mass": {
-    "cost": 2.5,
-    "ingredient_qty": 1.0,
-    "ingredient_qty_units": "kg"
+    "cost": null,
+    "ingredient_qty": null,
+    "ingredient_qty_units": null
   },
   "flags": {
-    "alchohol_free": true,
-    "caffiene_free": true,
-    "dairy_free": true,
-    "gluten_free": true,
-    "nut_free": true,
-    "vegan": true,
-    "vegetarian": true
+    "alchohol_free": null,
+    "caffiene_free": null,
+    "dairy_free": null,
+    "gluten_free": null,
+    "nut_free": null,
+    "vegan": null,
+    "vegetarian": null
   },
   "name": "Rolled Oats",
   "nutrients": {
@@ -130,10 +130,10 @@
       "nutrient_mass_units": null
     },
     "carbohydrate": {
-      "ingredient_qty": 250.0,
-      "ingredient_qty_units": "g",
-      "nutrient_mass": 180.0,
-      "nutrient_mass_units": "g"
+      "ingredient_qty": null,
+      "ingredient_qty_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "cartenoids": {
       "ingredient_qty": null,

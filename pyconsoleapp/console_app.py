@@ -16,12 +16,12 @@ from pyconsoleapp import configs
 if TYPE_CHECKING:
     from pyconsoleapp.console_app_component import ConsoleAppComponent
 
-pinjector.create_namespace('cli')
-pinjector.register('cli', utility_service)
+pinjector.create_namespace('pyconsoleapp')
+pinjector.register('pyconsoleapp', utility_service)
 
 class ConsoleApp():
     def __init__(self, name):
-        self._utility_service: utility_service = inject('cli.utility_service')
+        self._utility_service: utility_service = inject('pyconsoleapp.utility_service')
         self._response: Optional[str] = None
         self._root_route: str = ''
         self._route: str = ''
@@ -40,7 +40,7 @@ class ConsoleApp():
         # Configure the text window;
         self._configure_text_window()
         # Upload self to DI;
-        pinjector.register('cli', self, 'app')
+        pinjector.register('pyconsoleapp', self, 'app')
 
     @property
     def _active_option_responses(self) -> Dict[str, Callable]:

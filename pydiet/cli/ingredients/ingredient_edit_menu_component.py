@@ -46,11 +46,16 @@ class IngredientEditMenuComponent(ConsoleAppComponent):
         self.set_option_response('5', self.on_edit_nutrients)
         self.set_option_response('s', self.on_save)
 
+    def run(self):
+        # If there isn't an ingredient to show;
+        if not self._ies.ingredient:
+            # Go back another level;
+            self.goto('home.ingredients')
+
     def print(self):
         # Raise exception if ingredient has not been loaded;
         if not self._ies.ingredient:
-            raise ValueError(
-                'Ingredient must be loaded into ingredient edit service.')
+            raise AttributeError
         # Build the nutrient summary;
         n = ''  # string for nutrient display
         # Start with the primary nutrients;

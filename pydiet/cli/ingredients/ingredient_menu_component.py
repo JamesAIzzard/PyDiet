@@ -49,10 +49,10 @@ class IngredientMenuComponent(ConsoleAppComponent):
         self.goto('.new')
 
     def on_edit(self):
-        self.goto('home.ingredients.search')
+        self.goto('home.ingredients.edit.search')
 
     def on_delete(self):
-        raise NotImplementedError
+        self.goto('home.ingredients.delete.search')
 
     def on_view(self):
         raise NotImplementedError

@@ -51,16 +51,24 @@ class IngredientSearchResultsComponent(ConsoleAppComponent):
             if datafile_name:
                 # Populate the datafile name on the ies;
                 self._ies.datafile_name = datafile_name
-                # Load the ingredient into the ies;
-                self._ies.ingredient = self._igs.load_ingredient(datafile_name)
-                # Configure the save reminder;
-                cast(
-                    'IngredientSaveCheckComponent',
-                    self.get_component('ingredient_save_check_component')
-                ).guarded_route = 'home.ingredients.edit'
-                self.guard_exit('home.ingredients.edit', 'ingredient_save_check_component')
-                # Redirect to edit;
-                self.goto('home.ingredients.edit')
+                # If we are on the edit branch;
+                if 'home.ingredients.edit' in self.app.route:
+                    # Load the ingredient into the ies;
+                    self._ies.ingredient = self._igs.load_ingredient(datafile_name)
+                    # Configure the save reminder;
+                    cast(
+                        'IngredientSaveCheckComponent',
+                        self.get_component('ingredient_save_check_component')
+                    ).guarded_route = 'home.ingredients.edit'
+                    self.guard_exit('home.ingredients.edit', 'ingredient_save_check_component')
+                    # Redirect to edit;
+                    self.goto('home.ingredients.edit')
+                # If we are on the delete branch;
+                elif 'home.ingredients.delete' in self.app.route:
+                    # Load the ingredient into the ies;
+                    self._ies.ingredient = self._igs.load_ingredient(datafile_name)     
+                    # Move on to confirm deletion;               
+                    self.goto('..confirm')
             # If the datafile wasn't found, something is broken;
             else:
                 raise ValueError('No datafile was found for {}'.format(ingredient_name))
