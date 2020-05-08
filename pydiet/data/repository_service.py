@@ -5,7 +5,7 @@ import os
 
 from pinjector import inject
 
-from pydiet.ingredients.exceptions import DuplicateIngredientNameError
+from pydiet.ingredients.exceptions import DuplicateIngredientNameError, IngredientNameUndefinedError
 
 if TYPE_CHECKING:
     from pydiet.shared import configs
@@ -14,6 +14,9 @@ if TYPE_CHECKING:
 def create_ingredient_data(ingredient_data: Dict) -> str:
     # Import dependencies;
     cf: 'configs' = inject('pydiet.configs')
+    # Check the ingredient name is populated;
+    if not ingredient_data['name']:
+        raise IngredientNameUndefinedError    
     # Check the ingredient name does not exist already;
     index = read_ingredient_index()
     if ingredient_data['name'] in index.values():
@@ -76,12 +79,16 @@ def read_ingredient_index() -> Dict[str, str]:
 def update_ingredient_data(ingredient_data: Dict, datafile_name: str) -> None:
     # Import dependencies;
     cf: 'configs' = inject('pydiet.configs')
-    # Check the ingredient name is not also used somwhere else;
+    # Load the index to do some checks;
     index = read_ingredient_index()
-    # Pop the current name, because if it hasn't changed, we don't want to
-    # detect it;
+    # Check the ingredient name is populated;
+    if not ingredient_data['name']:
+        raise IngredientNameUndefinedError
+    # Check the ingredient name is not used by another datafile;
+    ## Pop the current name, because if it hasn't changed, we don't want to
+    ## detect it;
     index.pop(datafile_name)
-    # Now current has been removed, check everwhere else for name;
+    ## Now current has been removed, check everwhere else for name;
     if ingredient_data['name'] in index.values():
         raise DuplicateIngredientNameError(
             'Another ingredient already uses the name {}'.format(ingredient_data['name']))

@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, cast
 
 from pinjector import inject
 
@@ -21,8 +21,26 @@ class IngredientSaveCheckComponent(YesNoDialogComponent):
         self.guarded_route:str
 
     def on_yes_save(self):
-        self._ies.save_changes()
-        self.app.clear_exit(self.guarded_route)     
+        # If the ingredient has a name;
+        if self._ies.ingredient.name:
+            # Go ahead and save;
+            self._ies.save_changes()
+            # Then remove the guard;
+            self.app.clear_exit(self.guarded_route)
+        # If it isn't named;
+        else:
+            # Inform the user;
+            self.app.info_message = 'Ingredient must be named before it can be saved.'
+            # Clear the exit to the new page;
+            self.app.clear_exit(self.guarded_route)
+            # Configure the exit guard for the edit page;
+            self.app.guard_exit('home.ingredients.edit', 'ingredient_save_check_component')
+            cast(
+                'IngredientSaveCheckComponent',
+                self.get_component('ingredient_save_check_component')
+            ).guarded_route = 'home.ingredients.edit'
+            # Redirect to edit page;
+            self.goto('home.ingredients.edit')   
 
     def on_no_dont_save(self):
         self.app.info_message = 'Ingredient not saved.'

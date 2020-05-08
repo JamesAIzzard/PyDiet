@@ -94,7 +94,14 @@ class IngredientEditMenuComponent(ConsoleAppComponent):
             return True
 
     def on_save(self) -> None:
-        self._ies.save_changes(redirect_to='home.ingredients.edit')
+        # If the ingredient is named;
+        if self._check_name_defined():
+            # Save it;
+            self._ies.save_changes(redirect_to='home.ingredients.edit')
+        # If it is unamed;
+        else:
+            # Tell the user it needs to be named;
+            self.app.error_message = 'Cannot save an un-named ingredient.'
 
     def on_edit_name(self):
         self.goto('.edit_name')

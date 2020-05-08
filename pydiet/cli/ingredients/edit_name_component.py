@@ -29,7 +29,7 @@ class EditNameComponent(ConsoleAppComponent):
             # Check the another ingredient doesn't have this name;
             if self._igs.ingredient_name_used(response, self._ies.datafile_name):
                 self.app.error_message = 'There is already an ingredient called {}'.\
-                    format(self._ies.ingredient.name)
+                    format(response)
                 return
             # Update the name
             self._ies.ingredient.name = response

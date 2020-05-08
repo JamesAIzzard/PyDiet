@@ -32,7 +32,9 @@ def save_new_ingredient(ingredient: 'Ingredient') -> str:
     return rs.create_ingredient_data(ingredient._data)
 
 def update_existing_ingredient(ingredient:'Ingredient', datafile_name:str)->None:
+    # Bring in dependencies;
     rs:'repository_service' = inject('pydiet.repository_service')
+    # Update the ingredient;
     rs.update_ingredient_data(ingredient._data, datafile_name)
 
 def resolve_ingredient_datafile_name(ingredient_name:str)->Optional[str]:
