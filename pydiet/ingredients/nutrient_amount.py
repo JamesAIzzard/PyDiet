@@ -6,7 +6,8 @@ from pinjector import inject
 from pydiet.ingredients.exceptions import (
     NutrientQtyExceedsIngredientQtyError,
     ConstituentsExceedGroupError,
-    NutrientAmountUndefinedError
+    NutrientAmountUndefinedError,
+    FlagNutrientConflictError
 )
 
 if TYPE_CHECKING:
@@ -111,7 +112,24 @@ class NutrientAmount():
 
     @nutrient_mass.setter
     def nutrient_mass(self, value: float):
+        # Try and set the value first;
         self._safe_set('nutrient_mass', value)
+        # Check through all the flag associations;
+        for flag_name in self._cf.NUTRIENT_FLAG_RELS.keys():
+            for assoc_nutr in self._cf.NUTRIENT_FLAG_RELS[flag_name]:
+                # If I am associated with a flag;
+                if self.name == assoc_nutr:
+                    # If I am >0 and flag says free;
+                    if value > 0 and self._parent_ingredient.get_flag(flag_name):
+                        # Invert the flag;
+                        self._parent_ingredient.set_flag(flag_name, False)
+                        # And raise exception;
+                        raise FlagNutrientConflictError
+                    # If I am > 0 and flag is undefined;
+                    elif value > 0 and not self._parent_ingredient.flag_is_defined:
+                        # Define the flag;
+                        self._parent_ingredient.set_flag(flag_name, False)
+                        
 
     @property
     def nutrient_mass_units(self) -> str:

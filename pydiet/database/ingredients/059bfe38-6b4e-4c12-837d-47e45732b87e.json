@@ -1,11 +1,11 @@
 {
   "cost_per_mass": {
-    "cost": 4.0,
-    "ingredient_qty": 1.0,
-    "ingredient_qty_units": "kg"
+    "cost": null,
+    "ingredient_qty": null,
+    "ingredient_qty_units": null
   },
   "flags": {
-    "alchohol_free": null,
+    "alcohol_free": null,
     "caffiene_free": null,
     "dairy_free": null,
     "gluten_free": null,
@@ -13,7 +13,7 @@
     "vegan": null,
     "vegetarian": null
   },
-  "name": "Beetroot",
+  "name": "Red Wine",
   "nutrients": {
     "a_carotene": {
       "ingredient_qty": null,
@@ -33,7 +33,7 @@
       "nutrient_mass": null,
       "nutrient_mass_units": null
     },
-    "alchohol": {
+    "alcohol": {
       "ingredient_qty": null,
       "ingredient_qty_units": null,
       "nutrient_mass": null,

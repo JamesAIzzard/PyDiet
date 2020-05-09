@@ -29,27 +29,33 @@ class ViewAllIngredientsComponent(ConsoleAppComponent):
         # Form the ingredients list;
         # Load the index of names;
         index = self._rp.read_ingredient_index()
-        # Build up the ordered dictionary of selection keys and their
-        # corresponding ingredients;
-        ingredient_names = sorted(list(index.values()))
-        for n, ingredient_name in enumerate(ingredient_names, start=1):
-            self._numbered_ingredients[n] = ingredient_name
-        # Use this dictionary to create the output string;
+        # Init the menu string;
         ingredients_menu = ''
-        for number in self._numbered_ingredients.keys():
-            ## Grab the datafile (we need to load to get the status)
-            current_ingredient_datafile_name = self._igs.resolve_ingredient_datafile_name(
-                self._numbered_ingredients[number]
-            )
-            ## Load the ingredient;
-            current_ingredient = self._igs.load_ingredient(current_ingredient_datafile_name)
-            ## Add this to the menu;
-            ingredients_menu = ingredients_menu + \
-                '({number}) -- {ingredient_name}: {ingredient_status}\n'.format(
-                    number=str(number),
-                    ingredient_name=self._numbered_ingredients[number],
-                    ingredient_status=self._igs.summarise_status(current_ingredient)
+        # If there are no ingredients yet;
+        if not len(index):
+            # Add message to inform user;
+            ingredients_menu = 'No ingredients found.'
+        else:
+            # Build up the ordered dictionary of selection keys and their
+            # corresponding ingredients;
+            ingredient_names = sorted(list(index.values()))
+            for n, ingredient_name in enumerate(ingredient_names, start=1):
+                self._numbered_ingredients[n] = ingredient_name
+            # Use this dictionary to create the output string;
+            for number in self._numbered_ingredients.keys():
+                ## Grab the datafile (we need to load to get the status)
+                current_ingredient_datafile_name = self._igs.resolve_ingredient_datafile_name(
+                    self._numbered_ingredients[number]
                 )
+                ## Load the ingredient;
+                current_ingredient = self._igs.load_ingredient(current_ingredient_datafile_name)
+                ## Add this to the menu;
+                ingredients_menu = ingredients_menu + \
+                    '({number}) -- {ingredient_name}: {ingredient_status}\n'.format(
+                        number=str(number),
+                        ingredient_name=self._numbered_ingredients[number],
+                        ingredient_status=self._igs.summarise_status(current_ingredient)
+                    )
         # Place the list into the template;
         output = _TEMPLATE.format(
             ingredients_menu=ingredients_menu

@@ -124,7 +124,19 @@ class Ingredient():
             return True
 
     def set_flag(self, flag_name: str, value: bool) -> None:
+        # Set the flag;
         self.all_flag_data[flag_name] = value
+        # Update any associated nutrients:
+        if value and flag_name in self._cf.NUTRIENT_FLAG_RELS.keys():
+            for assoc_nutr_name in self._cf.NUTRIENT_FLAG_RELS[flag_name]:
+                self.set_nutrient_amount(
+                    assoc_nutr_name,
+                    100,
+                    'g',
+                    0,
+                    'g'
+                )
+
 
     def get_flag(self, flag_name: str) -> Optional[bool]:
         return self._data['flags'][flag_name]
@@ -164,9 +176,9 @@ class Ingredient():
     ) -> None:
         na = self.get_nutrient_amount(nutrient_name)
         na.ingredient_qty = ingredient_qty
-        na.ingredient_qty_units = ingredient_qty_units.lower()
+        na.ingredient_qty_units = ingredient_qty_units
         na.nutrient_mass = nutrient_mass
-        na.nutrient_mass_units = nutrient_mass_units.lower()
+        na.nutrient_mass_units = nutrient_mass_units
 
     def get_nutrient_amount(self, nutrient_name) -> 'NutrientAmount':
         return self._nutrient_amounts[nutrient_name]

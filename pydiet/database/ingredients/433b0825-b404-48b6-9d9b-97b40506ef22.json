@@ -1,11 +1,11 @@
 {
   "cost_per_mass": {
-    "cost": 2.5,
-    "ingredient_qty": 1.0,
-    "ingredient_qty_units": "L"
+    "cost": null,
+    "ingredient_qty": null,
+    "ingredient_qty_units": null
   },
   "flags": {
-    "alchohol_free": true,
+    "alcohol_free": true,
     "caffiene_free": true,
     "dairy_free": true,
     "gluten_free": true,
@@ -33,11 +33,11 @@
       "nutrient_mass": null,
       "nutrient_mass_units": null
     },
-    "alchohol": {
-      "ingredient_qty": null,
-      "ingredient_qty_units": null,
-      "nutrient_mass": null,
-      "nutrient_mass_units": null
+    "alcohol": {
+      "ingredient_qty": 100,
+      "ingredient_qty_units": "g",
+      "nutrient_mass": 0,
+      "nutrient_mass_units": "g"
     },
     "amylopectin": {
       "ingredient_qty": null,
@@ -130,10 +130,10 @@
       "nutrient_mass_units": null
     },
     "carbohydrate": {
-      "ingredient_qty": 1.0,
-      "ingredient_qty_units": "l",
-      "nutrient_mass": 20.0,
-      "nutrient_mass_units": "g"
+      "ingredient_qty": null,
+      "ingredient_qty_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "cartenoids": {
       "ingredient_qty": null,

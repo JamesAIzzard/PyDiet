@@ -5,7 +5,7 @@
     "ingredient_qty_units": null
   },
   "flags": {
-    "alchohol_free": null,
+    "alcohol_free": null,
     "caffiene_free": null,
     "dairy_free": null,
     "gluten_free": null,
@@ -33,7 +33,7 @@
       "nutrient_mass": null,
       "nutrient_mass_units": null
     },
-    "alchohol": {
+    "alcohol": {
       "ingredient_qty": null,
       "ingredient_qty_units": null,
       "nutrient_mass": null,

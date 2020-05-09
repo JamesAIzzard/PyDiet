@@ -5,7 +5,7 @@ from pinjector import inject
 from pyconsoleapp import ConsoleAppComponent
 
 from pydiet.ingredients.exceptions import (
-    ConstituentsExceedGroupError,
+    ConstituentsExceedGroupError, FlagNutrientConflictError,
     NutrientQtyExceedsIngredientQtyError
 )
 from pydiet.shared.exceptions import UnknownUnitError
@@ -61,8 +61,9 @@ class EditNutrientMassComponent(ConsoleAppComponent):
             units = self._us.parse_mass_unit(units)
         # Catch unknown units;
         except UnknownUnitError:
-            self.app.error_message = "{} is not a recognised mass unit.".format(units)
-            return  
+            self.app.error_message = "{} is not a recognised mass unit.".format(
+                units)
+            return
         # Catch unset qty and units on ies;
         if not self._ies.temp_qty or not self._ies.temp_qty_units:
             raise AttributeError
@@ -82,5 +83,8 @@ class EditNutrientMassComponent(ConsoleAppComponent):
             self.app.error_message = "{} is not a recognised unit.".format(
                 units)
             return
+        except FlagNutrientConflictError:
+            self.app.info_message = 'Flag status updated to correspond with {} quantity'.format(
+                self._ies.current_nutrient_amount.name)
         # Navigate back to the nutrient menu;
         self.goto('..')

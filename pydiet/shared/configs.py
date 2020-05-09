@@ -73,3 +73,6 @@ NUTRIENT_GROUP_DEFINITIONS: Dict[str, List[str]] = {
     "vitamin_e": [],
     "vitamin_k": ["vitamin_k1", "vitamin_k2"],
 }
+NUTRIENT_FLAG_RELS: Dict[str, List[str]] = {
+    "alcohol_free": ["alcohol"]
+}
