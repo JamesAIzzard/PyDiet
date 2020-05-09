@@ -52,7 +52,8 @@ class IngredientSearchResultsComponent(ConsoleAppComponent):
                 # Populate the datafile name on the ies;
                 self._ies.datafile_name = datafile_name
                 # If we are on the edit branch;
-                if 'home.ingredients.edit' in self.app.route:
+                if 'home.ingredients.edit' in self.app.route or\
+                    'home.ingredients.view' in self.app.route:
                     # Load the ingredient into the ies;
                     self._ies.ingredient = self._igs.load_ingredient(datafile_name)
                     # Configure the save reminder;

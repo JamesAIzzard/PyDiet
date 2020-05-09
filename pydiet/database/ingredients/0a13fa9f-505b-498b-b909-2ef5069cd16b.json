@@ -130,10 +130,10 @@
       "nutrient_mass_units": null
     },
     "carbohydrate": {
-      "ingredient_qty": null,
-      "ingredient_qty_units": null,
-      "nutrient_mass": null,
-      "nutrient_mass_units": null
+      "ingredient_qty": 1.0,
+      "ingredient_qty_units": "l",
+      "nutrient_mass": 20.0,
+      "nutrient_mass_units": "g"
     },
     "cartenoids": {
       "ingredient_qty": null,

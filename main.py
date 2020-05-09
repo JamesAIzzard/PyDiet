@@ -48,6 +48,10 @@ app.add_route('home.ingredients.delete', 'IngredientEditMenuComponent')
 app.add_route('home.ingredients.delete.search', 'IngredientSearchComponent')
 app.add_route('home.ingredients.delete.search_results', 'IngredientSearchResultsComponent')
 app.add_route('home.ingredients.delete.confirm', 'ConfirmIngredientDeleteComponent')
+app.add_route('home.ingredients.view', 'SearchIngredientsQuestionComponent')
+app.add_route('home.ingredients.view.search', 'IngredientSearchComponent')
+app.add_route('home.ingredients.view.search_results', 'IngredientSearchResultsComponent')
+app.add_route('home.ingredients.view.view_all', 'ViewAllIngredientsComponent')
 
 # Run the cli;
 app.run()

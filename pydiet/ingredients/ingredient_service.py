@@ -4,6 +4,9 @@ from heapq import nlargest
 from pinjector import inject
 
 from pydiet.ingredients.ingredient import Ingredient
+from pydiet.ingredients.exceptions import (
+    IngredientNotFoundError
+)
 
 if TYPE_CHECKING:
     from pydiet.ingredients.ingredient import Ingredient, NutrientAmount
@@ -37,7 +40,7 @@ def update_existing_ingredient(ingredient:'Ingredient', datafile_name:str)->None
     # Update the ingredient;
     rs.update_ingredient_data(ingredient._data, datafile_name)
 
-def resolve_ingredient_datafile_name(ingredient_name:str)->Optional[str]:
+def resolve_ingredient_datafile_name(ingredient_name:str)->str:
     # Grab reference to repository service;
     rp:'repository_service' = inject('pydiet.repository_service')
     # Load the index;
@@ -47,9 +50,8 @@ def resolve_ingredient_datafile_name(ingredient_name:str)->Optional[str]:
         if index[datafile_name] == ingredient_name:
             # Return corresponding datafile name;
             return datafile_name
-    # Return None if name was not found;
-    return None
-
+    # Raise exception if none was found;
+    raise IngredientNotFoundError
 
 def resolve_nutrient_alias(alias: str) -> str:
     configs: 'configs' = inject('pydiet.configs')

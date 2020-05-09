@@ -12,7 +12,7 @@ _MENU_TEMPLATE = '''Choose an option:
 (1) -- Create a new ingredient.
 (2) -- Edit an existing ingredient.
 (3) -- Delete an existing ingredient.
-(4) -- View an existing ingredient.
+(4) -- View ingredients.
 '''
 
 
@@ -55,4 +55,4 @@ class IngredientMenuComponent(ConsoleAppComponent):
         self.goto('home.ingredients.delete.search')
 
     def on_view(self):
-        raise NotImplementedError
+        self.goto('home.ingredients.view')

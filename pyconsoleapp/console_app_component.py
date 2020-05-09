@@ -46,7 +46,7 @@ class ConsoleAppComponent(ABC):
     def set_option_response(self, signature: str, func: Callable) -> None:
         self.option_responses[signature] = func
 
-    def dynamic_response(self, response: str) -> None:
+    def dynamic_response(self, raw_response: str) -> None:
         pass
 
     def run(self) -> None:
