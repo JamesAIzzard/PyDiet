@@ -35,7 +35,7 @@ class EditDensityMassComponent(ConsoleAppComponent):
             ingredient_name=self._ies.ingredient.name.lower(),
             valid_units=self._us.recognised_mass_units()
         )
-        output = self.get_component('standard_page_component').print(output)
+        output = self.app.fetch_component('standard_page_component').print(output)
         return output
 
     def dynamic_response(self, response):
@@ -63,4 +63,4 @@ class EditDensityMassComponent(ConsoleAppComponent):
         else:
             raise AttributeError
         # Redirect;
-        self.goto('..')
+        self.app.goto('..')

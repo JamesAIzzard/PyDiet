@@ -85,8 +85,6 @@ class IngredientEditService():
         return self.flag_number_name_map[selection_number]
 
     def save_changes(self, redirect_to: Optional[str] = None) -> None:
-        # Grab a reference to the CLI app;
-        app: 'ConsoleApp' = inject('pydiet.cli.app')
         # Catch no ingredient;
         if not self.ingredient:
             raise AttributeError()
@@ -97,15 +95,9 @@ class IngredientEditService():
                 self._igs.save_new_ingredient(self.ingredient)
             # Redirect to edit, now datafile exists;
             if redirect_to:
-                app.clear_exit('home.ingredients.new')
-                save_check_comp = cast(
-                    'IngredientSaveCheckComponent',
-                    app.get_component('ingredient_save_check_component')
-                )
-                save_check_comp.guarded_route = 'home.ingredients.edit'
-                app.guard_exit('home.ingredients.edit',
-                               'ingredient_save_check_component')
-                app.goto(redirect_to)
+                self.app.clear_exit('home.ingredients.new')
+                self.app.guard_exit('home.ingredients.edit', 'IngredientSaveCheckComponent')
+                self.app.goto(redirect_to)
         # If updating an existing datafile;
         else:
             # Update the ingredient;
@@ -113,6 +105,5 @@ class IngredientEditService():
                 self.ingredient,
                 self.datafile_name
             )
-        # Confirm save and return;
+        # Confirm save;
         self.app.info_message = "Ingredient saved."
-        return None

@@ -36,7 +36,7 @@ class IngredientSearchResultsComponent(ConsoleAppComponent):
                 results_display = results_display + \
                     '({}) -- {}\n'.format(num, nmap[num])
         output = _TEMPLATE.format(results_display=results_display)
-        return self.get_component('standard_page_component').print(output)
+        return self.app.fetch_component('standard_page_component').print(output)
 
     def dynamic_response(self, response):
         # Try and parse the response as an integer;
@@ -62,21 +62,17 @@ class IngredientSearchResultsComponent(ConsoleAppComponent):
                     self._ies.ingredient = self._igs.load_ingredient(
                         datafile_name)
                     # Configure the save reminder;
-                    cast(
-                        'IngredientSaveCheckComponent',
-                        self.get_component('ingredient_save_check_component')
-                    ).guarded_route = 'home.ingredients.edit'
-                    self.guard_exit('home.ingredients.edit',
-                                    'ingredient_save_check_component')
+                    self.app.guard_exit('home.ingredients.edit',
+                                    'IngredientSaveCheckComponent')
                     # Redirect to edit;
-                    self.goto('home.ingredients.edit')
+                    self.app.goto('home.ingredients.edit')
                 # If we are on the delete branch;
                 elif 'home.ingredients.delete' in self.app.route:
                     # Load the ingredient into the ies;
                     self._ies.ingredient = self._igs.load_ingredient(
                         datafile_name)
                     # Move on to confirm deletion;
-                    self.goto('..confirm')
+                    self.app.goto('..confirm')
             # If the datafile wasn't found, something is broken;
             else:
                 raise ValueError(

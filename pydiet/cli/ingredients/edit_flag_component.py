@@ -24,7 +24,7 @@ class EditFlagComponent(ConsoleAppComponent):
             ingredient_name=self._ies.ingredient.name.lower(),
             flag=self._ies.flag_name_from_number(self._ies.current_flag_number)
         ).replace('_', ' ')
-        output = self.app.get_component('standard_page_component').print(output)
+        output = self.app.fetch_component('standard_page_component').print(output)
         return output
 
     def on_yes(self):
@@ -51,10 +51,10 @@ class EditFlagComponent(ConsoleAppComponent):
                 self._ies.cycling_flags = False
                 self._ies.current_flag_number = 0
                 self.app.info_message = 'All flags were set.'
-                self.goto('...')
+                self.app.goto('...')
         # Not cycling flags;
         else:
             # Just reset state and go back;
             self._ies.current_flag_number = 0
-            self.goto('..')
+            self.app.goto('..')
 

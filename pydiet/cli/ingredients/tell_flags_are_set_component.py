@@ -11,8 +11,8 @@ class TellFlagsAreSetComponent(ConsoleAppComponent):
 
     def print(self):
         output = _FLAGS_SET_CONFIRMATION
-        output = self.get_component('standard_page_component').print(output)
+        output = self.app.fetch_component('standard_page_component').print(output)
         return output
 
     def on_ok(self):
-        self.goto('...')
+        self.app.goto('...')

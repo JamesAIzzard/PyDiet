@@ -19,7 +19,7 @@ class EditNameComponent(ConsoleAppComponent):
 
     def print(self):
         output = _TEMPLATE
-        output = self.app.get_component(
+        output = self.app.fetch_component(
             'standard_page_component').print(output)
         return output
 
@@ -34,4 +34,4 @@ class EditNameComponent(ConsoleAppComponent):
             # Update the name
             self._ies.ingredient.name = response
         # Go back one level;
-        self.goto('..')
+        self.app.goto('..')

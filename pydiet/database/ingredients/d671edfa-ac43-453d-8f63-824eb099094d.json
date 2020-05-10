@@ -5,15 +5,15 @@
     "ingredient_qty_units": null
   },
   "flags": {
-    "alcohol_free": true,
-    "caffiene_free": true,
-    "dairy_free": true,
-    "gluten_free": true,
-    "nut_free": true,
-    "vegan": true,
-    "vegetarian": true
+    "alcohol_free": null,
+    "caffiene_free": null,
+    "dairy_free": null,
+    "gluten_free": null,
+    "nut_free": null,
+    "vegan": null,
+    "vegetarian": null
   },
-  "name": "Tomato Juice",
+  "name": "Rolled Oats",
   "nutrients": {
     "a_carotene": {
       "ingredient_qty": null,
@@ -28,16 +28,16 @@
       "nutrient_mass_units": null
     },
     "alanine": {
-      "ingredient_qty": 1.0,
-      "ingredient_qty_units": "L",
-      "nutrient_mass": 34.0,
-      "nutrient_mass_units": "mg"
+      "ingredient_qty": null,
+      "ingredient_qty_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "alcohol": {
-      "ingredient_qty": 100,
-      "ingredient_qty_units": "g",
-      "nutrient_mass": 0,
-      "nutrient_mass_units": "g"
+      "ingredient_qty": null,
+      "ingredient_qty_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "amylopectin": {
       "ingredient_qty": null,
@@ -130,10 +130,10 @@
       "nutrient_mass_units": null
     },
     "carbohydrate": {
-      "ingredient_qty": 1.0,
-      "ingredient_qty_units": "L",
-      "nutrient_mass": 25.0,
-      "nutrient_mass_units": "g"
+      "ingredient_qty": null,
+      "ingredient_qty_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "cartenoids": {
       "ingredient_qty": null,
@@ -713,9 +713,9 @@
     }
   },
   "vol_density": {
-    "ingredient_mass": 0.9,
-    "ingredient_mass_units": "kg",
-    "ingredient_vol": 1.0,
-    "ingredient_vol_units": "L"
+    "ingredient_mass": null,
+    "ingredient_mass_units": null,
+    "ingredient_vol": null,
+    "ingredient_vol_units": null
   }
 }

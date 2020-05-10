@@ -34,7 +34,7 @@ class EditDensityVolumeComponent(ConsoleAppComponent):
             ingredient_name=self._ies.ingredient.name.lower(),
             valid_units=self._us.recognised_vol_units()
         )
-        output = self.app.get_component('standard_page_component').print(output)
+        output = self.app.fetch_component('standard_page_component').print(output)
         return output
 
     def dynamic_response(self, response):
@@ -57,4 +57,4 @@ class EditDensityVolumeComponent(ConsoleAppComponent):
         self._ies.temp_qty = vol
         self._ies.temp_qty_units = units
         # Head on to collect the mass;
-        self.goto('..edit_density_mass')
+        self.app.goto('..edit_density_mass')

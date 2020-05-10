@@ -1,7 +1,8 @@
 from typing import TYPE_CHECKING, cast
 
-from pinjector import inject
 
+from pinjector import inject
+from pyconsoleapp.console_app_guard_component import ConsoleAppGuardComponent
 from pyconsoleapp.builtin_components.yes_no_dialog_component import YesNoDialogComponent
 from pydiet.ingredients.exceptions import DuplicateIngredientNameError
 
@@ -9,39 +10,32 @@ if TYPE_CHECKING:
     from pydiet.data import repository_service
     from pydiet.cli.ingredients.ingredient_edit_service import IngredientEditService
 
-class IngredientSaveCheckComponent(YesNoDialogComponent):
+class IngredientSaveCheckComponent(YesNoDialogComponent, ConsoleAppGuardComponent):
 
     def __init__(self):
         super().__init__()
         self._rp:'repository_service' = inject('pydiet.repository_service')
         self._ies:'IngredientEditService' = inject('pydiet.cli.ingredient_edit_service')
-        self.set_option_response('y', self.on_yes_save)
-        self.set_option_response('n', self.on_no_dont_save)
-        self.message:str = 'Save changes to this ingredient?'
-        self.guarded_route:str
+        self.message = 'Save changes to this ingredient?'
 
-    def on_yes_save(self):
+    def on_yes(self):
         # If the ingredient has a name;
         if self._ies.ingredient.name:
             # Go ahead and save;
             self._ies.save_changes()
             # Then remove the guard;
-            self.app.clear_exit(self.guarded_route)
+            self.clear_self()
         # If it isn't named;
         else:
             # Inform the user;
             self.app.info_message = 'Ingredient must be named before it can be saved.'
             # Clear the exit to the new page;
-            self.app.clear_exit(self.guarded_route)
+            self.clear_self()
             # Configure the exit guard for the edit page;
-            self.app.guard_exit('home.ingredients.edit', 'ingredient_save_check_component')
-            cast(
-                'IngredientSaveCheckComponent',
-                self.get_component('ingredient_save_check_component')
-            ).guarded_route = 'home.ingredients.edit'
+            self.app.guard_exit('home.ingredients.edit', 'IngredientSaveCheckComponent')
             # Redirect to edit page;
-            self.goto('home.ingredients.edit')   
+            self.app.goto('home.ingredients.edit')   
 
-    def on_no_dont_save(self):
+    def on_no(self):
         self.app.info_message = 'Ingredient not saved.'
-        self.app.clear_exit(self.guarded_route)     
+        self.clear_self()

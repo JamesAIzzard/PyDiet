@@ -1,30 +1,21 @@
 from typing import TYPE_CHECKING
 
 from pinjector import inject
-
-from pyconsoleapp import ConsoleAppComponent
+from pyconsoleapp.builtin_components.yes_no_dialog_component import YesNoDialogComponent
 
 if TYPE_CHECKING:
     from pydiet.cli.ingredients.ingredient_edit_service import IngredientEditService
 
-_TEMPLATE = '\nSet all flags now? (y)/(n)\n\n'
-
-class AskCycleFlagsComponent(ConsoleAppComponent):
+class AskCycleFlagsComponent(YesNoDialogComponent):
     def __init__(self):
         super().__init__()
         self._ies:'IngredientEditService' = inject('pydiet.cli.ingredient_edit_service')
-        self.set_option_response('y', self.on_yes_set_all)
-        self.set_option_response('n', self.on_no_dont_set_all)
+        self.message = 'Set all flags now?'
 
-    def print(self):
-        output = _TEMPLATE
-        output = self.get_component('standard_page_component').print(output)
-        return output
-
-    def on_yes_set_all(self):
+    def on_yes(self):
         self._ies.current_flag_number = 1
         self._ies.cycling_flags = True
-        self.goto('..edit_flag')
+        self.app.goto('..edit_flag')
 
-    def on_no_dont_set_all(self):
-        self.goto('...flags')
+    def on_no(self):
+        self.app.goto('...flags')

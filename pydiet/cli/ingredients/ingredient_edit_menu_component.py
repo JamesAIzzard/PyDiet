@@ -35,7 +35,6 @@ Status: {status}
 class IngredientEditMenuComponent(ConsoleAppComponent):
     def __init__(self):
         super().__init__()
-        self._set_ingredient_name_message: str = 'Ingredient name must be set first.'
         self._cf: 'configs' = inject('pydiet.configs')
         self._igs: 'ingredient_service' = inject('pydiet.ingredient_service')
         self._ies: 'IngredientEditService' = inject(
@@ -52,7 +51,7 @@ class IngredientEditMenuComponent(ConsoleAppComponent):
         # If we shouldn't be here;
         if not self._ies.ingredient or self.app.route == 'home.ingredients.delete':
             # Go back another level;
-            self.goto('home.ingredients')
+            self.app.goto('home.ingredients')
 
     def print(self):
         # Raise exception if ingredient has not been loaded;
@@ -86,12 +85,12 @@ class IngredientEditMenuComponent(ConsoleAppComponent):
             flags=f,
             nutrients=n
         )
-        output = self.get_component('standard_page_component').print(output)
+        output = self.app.fetch_component('standard_page_component').print(output)
         return output
 
     def _check_name_defined(self) -> bool:
         if not self._ies.ingredient.name:
-            self.app.error_message = self._set_ingredient_name_message
+            self.app.error_message = 'Ingredient name must be set first.'
             return False
         else:
             return True
@@ -107,25 +106,25 @@ class IngredientEditMenuComponent(ConsoleAppComponent):
             self.app.error_message = 'Cannot save an un-named ingredient.'
 
     def on_edit_name(self):
-        self.goto('.edit_name')
+        self.app.goto('.edit_name')
 
     def on_edit_cost(self):
         if self._check_name_defined():
-            self.goto('.edit_cost_qty')
+            self.app.goto('.edit_cost_qty')
 
     def on_configure_liquid_measurements(self):
         if self._check_name_defined():
-            self.goto('.edit_density_volume')
+            self.app.goto('.edit_density_volume')
 
     def on_edit_flags(self):
         ies: 'IngredientEditService' = inject(
             'pydiet.cli.ingredient_edit_service')
         if self._check_name_defined():
             if ies.ingredient.all_flags_undefined:
-                self.goto('.flags.ask_cycle_flags')
+                self.app.goto('.flags.ask_cycle_flags')
             else:
-                self.goto('.flags')
+                self.app.goto('.flags')
 
     def on_edit_nutrients(self) -> None:
         if self._check_name_defined():
-            self.goto('.nutrients')
+            self.app.goto('.nutrients')

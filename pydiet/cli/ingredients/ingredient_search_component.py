@@ -22,9 +22,9 @@ class IngredientSearchComponent(ConsoleAppComponent):
             'pydiet.cli.ingredient_edit_service')
 
     def print(self):
-        return self.get_component('standard_page_component').print(_TEMPLATE)
+        return self.app.fetch_component('standard_page_component').print(_TEMPLATE)
 
     def dynamic_response(self, response):
         self._ies.ingredient_search_results = self._igs.get_matching_ingredient_names(
             response, 5)
-        self.goto('..search_results')
+        self.app.goto('..search_results')

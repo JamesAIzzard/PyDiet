@@ -6,7 +6,6 @@ from pyconsoleapp import ConsoleAppComponent
 
 if TYPE_CHECKING:
     from pydiet.cli.ingredients.ingredient_edit_service import IngredientEditService
-    from pydiet.cli.ingredients.ingredient_save_check_component import IngredientSaveCheckComponent
     from pydiet.ingredients import ingredient_service
     from pydiet.data import repository_service
 
@@ -39,7 +38,7 @@ class EditFlagMenuComponent(ConsoleAppComponent):
                 flag_summary=flag_summary
             )
         output = _FLAG_MENU.format(flags_menu)
-        output = self.get_component('standard_page_component').print(output)
+        output = self.app.fetch_component('standard_page_component').print(output)
         return output
 
     def on_save_changes(self):
@@ -55,4 +54,4 @@ class EditFlagMenuComponent(ConsoleAppComponent):
         if response in self._ies.flag_number_name_map.keys():
             self._ies.current_flag_number = response
         # And nav to set flag;      
-        self.goto('.edit_flag')
+        self.app.goto('.edit_flag')

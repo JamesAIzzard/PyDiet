@@ -35,7 +35,7 @@ class NutrientSearchResultsComponent(ConsoleAppComponent):
         output = _TEMPLATE.format(
             results_display=results_display
         )
-        return self.get_component('standard_page_component').print(output)
+        return self.app.fetch_component('standard_page_component').print(output)
 
     def dynamic_response(self, response):
         # Try and parse the response as a integer;
@@ -50,4 +50,4 @@ class NutrientSearchResultsComponent(ConsoleAppComponent):
                 self._ies.nutrient_search_result_number_name_map[response]
             self._ies.current_nutrient_amount = \
                 self._ies.ingredient.get_nutrient_amount(nutrient_name)
-            self.goto('..edit_nutrient_ingredient_qty')
+            self.app.goto('..edit_nutrient_ingredient_qty')

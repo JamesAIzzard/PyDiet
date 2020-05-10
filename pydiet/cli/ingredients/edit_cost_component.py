@@ -31,7 +31,7 @@ class EditCostComponent(ConsoleAppComponent):
             qty=self._ies.temp_qty,
             units=self._ies.temp_qty_units
         )
-        output = self.get_component('standard_page_component').print(output) + ' £'
+        output = self.app.fetch_component('standard_page_component').print(output) + ' £'
         # Return it;
         return output
 
@@ -53,4 +53,4 @@ class EditCostComponent(ConsoleAppComponent):
             self._ies.temp_qty, 
             self._ies.temp_qty_units)
         # Return to the menu;
-        self.goto('..')
+        self.app.goto('..')

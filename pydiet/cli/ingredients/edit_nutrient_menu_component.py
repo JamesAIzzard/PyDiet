@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING
 
 from pinjector import inject
 from pyconsoleapp import ConsoleAppComponent
@@ -62,14 +62,14 @@ class EditNutrientMenuComponent(ConsoleAppComponent):
             primary_nutrients=pn,
             secondary_nutrients=sn
         )
-        output = self.get_component('standard_page_component').print(output)
+        output = self.app.fetch_component('standard_page_component').print(output)
         return output
 
     def on_save_changes(self) -> None:
         self._ies.save_changes(redirect_to='home.ingredients.edit.nutrients')
 
     def on_edit_other(self):
-        self.goto('.nutrient_search')
+        self.app.goto('.nutrient_search')
 
     def dynamic_response(self, response):
         # Try and parse the response as an int;
@@ -87,4 +87,4 @@ class EditNutrientMenuComponent(ConsoleAppComponent):
             # Load that nutrient as the current nutrient amount;
             self._ies.current_nutrient_amount = \
                 self._ies.ingredient.get_nutrient_amount(nutrient_name)
-            self.goto('.edit_nutrient_ingredient_qty')
+            self.app.goto('.edit_nutrient_ingredient_qty')

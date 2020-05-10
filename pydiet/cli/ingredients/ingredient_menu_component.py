@@ -33,26 +33,22 @@ class IngredientMenuComponent(ConsoleAppComponent):
 
     def print(self):
         output = _MENU_TEMPLATE
-        output = self.app.get_component('standard_page_component').print(output)
+        output = self.app.fetch_component('standard_page_component').print(output)
         return output
 
     def on_create(self):
         # Put a fresh ingredient on the scope;
         self._ies.ingredient = self._igs.load_new_ingredient()
         # Configure the save reminder;
-        cast(
-            'IngredientSaveCheckComponent', 
-            self.get_component('ingredient_save_check_component')
-        ).guarded_route = 'home.ingredients.new'
-        self.guard_exit('home.ingredients.new', 'ingredient_save_check_component')
+        self.app.guard_exit('home.ingredients.new', 'IngredientSaveCheckComponent')
         # Go;
-        self.goto('.new')
+        self.app.goto('.new')
 
     def on_edit(self):
-        self.goto('home.ingredients.edit.search')
+        self.app.goto('home.ingredients.edit.search')
 
     def on_delete(self):
-        self.goto('home.ingredients.delete.search')
+        self.app.goto('home.ingredients.delete.search')
 
     def on_view(self):
-        self.goto('home.ingredients.view')
+        self.app.goto('home.ingredients.view')

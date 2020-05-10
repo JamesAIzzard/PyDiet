@@ -26,12 +26,12 @@ class MainMenuComponent(ConsoleAppComponent):
 
     def print(self):
         output = _MENU_TEMPLATE
-        output = self.get_component('standard_page_component').print(output)
+        output = self.app.fetch_component('standard_page_component').print(output)
         return output
 
     def on_manage_ingredients(self):
         # Navigate;
-        self.goto('.ingredients')
+        self.app.goto('.ingredients')
 
     def on_manage_recipes(self):
         pass

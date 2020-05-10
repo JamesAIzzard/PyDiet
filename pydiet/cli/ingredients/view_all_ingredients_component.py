@@ -1,4 +1,3 @@
-from pydiet import ingredients
 from typing import TYPE_CHECKING, OrderedDict
 
 from pyconsoleapp import ConsoleAppComponent
@@ -61,7 +60,7 @@ class ViewAllIngredientsComponent(ConsoleAppComponent):
             ingredients_menu=ingredients_menu
         )
         # Build the template;
-        output = self.get_component('standard_page_component').print(output)
+        output = self.app.fetch_component('standard_page_component').print(output)
         #
         return output
 
@@ -82,4 +81,4 @@ class ViewAllIngredientsComponent(ConsoleAppComponent):
         self._ies.ingredient = self._igs.load_ingredient(
             self._ies.datafile_name)
         # Redirect to the edit page for that ingredient;
-        self.goto('home.ingredients.edit')
+        self.app.goto('home.ingredients.edit')

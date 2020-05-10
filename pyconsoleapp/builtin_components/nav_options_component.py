@@ -12,7 +12,7 @@ class NavOptionsComponent(ConsoleAppComponent):
         return output
 
     def on_back(self)->None:
-        self.goto('..')
+        self.app.goto('..')
 
     def on_quit(self)->None:
         self.app.quit()

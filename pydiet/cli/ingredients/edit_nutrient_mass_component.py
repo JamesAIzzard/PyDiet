@@ -44,7 +44,7 @@ class EditNutrientMassComponent(ConsoleAppComponent):
             units=self._ies.temp_qty_units,
             valid_units=self._us.recognised_mass_units()
         )
-        output = self.get_component('standard_page_component').print(output)
+        output = self.app.fetch_component('standard_page_component').print(output)
         return output
 
     def dynamic_response(self, response):
@@ -87,4 +87,4 @@ class EditNutrientMassComponent(ConsoleAppComponent):
             self.app.info_message = 'Flag status updated to correspond with {} quantity'.format(
                 self._ies.current_nutrient_amount.name)
         # Navigate back to the nutrient menu;
-        self.goto('..')
+        self.app.goto('..')

@@ -41,7 +41,7 @@ class EditCostQtyComponent(ConsoleAppComponent):
             ingredient_name=self._ies.ingredient.name.lower(),
             valid_units=self._us.recognised_qty_units()
         )
-        output = self.app.get_component('standard_page_component')\
+        output = self.app.fetch_component('standard_page_component')\
             .print(output)
         return output
 
@@ -69,4 +69,4 @@ class EditCostQtyComponent(ConsoleAppComponent):
         # Stash these values and move on to collect the cost;
         self._ies.temp_qty = qty
         self._ies.temp_qty_units = units
-        self.goto('..edit_cost')
+        self.app.goto('..edit_cost')

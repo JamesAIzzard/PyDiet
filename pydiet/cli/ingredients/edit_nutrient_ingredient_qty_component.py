@@ -35,7 +35,7 @@ class EditNutrientIngredientQtyComponent(ConsoleAppComponent):
             nutrient_name=self._ies.current_nutrient_amount.name,
             valid_units=self._us.recognised_qty_units()
         )
-        output = self.get_component('standard_page_component').print(output)
+        output = self.app.fetch_component('standard_page_component').print(output)
         return output
 
     def dynamic_response(self, response):
@@ -57,10 +57,10 @@ class EditNutrientIngredientQtyComponent(ConsoleAppComponent):
         # Catch volume usage without density definition;
         if units in self._us.recognised_vol_units() and \
             not self._ies.ingredient.density_is_defined:
-            self.goto('...edit_density_question')
+            self.app.goto('...edit_density_question')
             return      
         # Set the values on the scope;  
         self._ies.temp_qty = qty
         self._ies.temp_qty_units = units
         # Navigate to nutrient mass;
-        self.goto('..edit_nutrient_mass')    
+        self.app.goto('..edit_nutrient_mass')    
