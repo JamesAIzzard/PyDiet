@@ -56,6 +56,7 @@ app.add_route('home.ingredients.view', 'SearchIngredientsQuestionComponent')
 app.add_route('home.ingredients.view.search', 'IngredientSearchComponent')
 app.add_route('home.ingredients.view.search_results', 'IngredientSearchResultsComponent')
 app.add_route('home.ingredients.view.view_all', 'ViewAllIngredientsComponent')
+app.add_route('home.recipes', 'RecipeMenuComponent')
 
 # Run the cli;
 app.run()

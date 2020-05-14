@@ -4,7 +4,7 @@ from pyconsoleapp import ConsoleAppComponent
 from pinjector import inject
 
 if TYPE_CHECKING:
-    #   from pydiet.recipes import recipe_service
+    from pydiet.recipes import recipe_service
     from pydiet.cli.recipes.recipe_edit_service import RecipeEditService
 #   from pydiet.cli.recipes.recipe_save_check_component import RecipeSaveCheckComponent
 
@@ -22,15 +22,15 @@ class RecipeMenuComponent(ConsoleAppComponent):
         super().__init__()
         self._res: 'RecipeEditService' = inject(
             'pydiet.cli.recipe_edit_service')
-        # self._rcs:'recipe_service' = inject('pydiet.recipe_service')
+        self._rcs: 'recipe_service' = inject('pydiet.recipe_service')
         self.set_option_response('1', self.on_create)
         self.set_option_response('2', self.on_edit)
         self.set_option_response('3', self.on_delete)
         self.set_option_response('4', self.on_view)
 
     def run(self):
-        self._ies.ingredient = None
-        self._ies.datafile_name = None
+        self._res.recipe = None
+        self._res.datafile_name = None
 
     def print(self):
         output = _MENU_TEMPLATE
@@ -39,10 +39,10 @@ class RecipeMenuComponent(ConsoleAppComponent):
         return output
 
     def on_create(self):
-        # Put a fresh ingredient on the scope;
-        self._ies.ingredient = self._igs.load_new_ingredient()
+        # Put a fresh recipe on the scope;
+        self._res.recipe = self._rcs.load_new_recipe()
         # Configure the save reminder;
-        self.app.guard_exit('home.recipes.new', 'recipe_save_check_component')
+        self.app.guard_exit('home.recipes.new', 'RecipeSaveCheckComponent')
         # Go;
         self.app.goto('.new')
 

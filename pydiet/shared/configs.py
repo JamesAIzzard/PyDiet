@@ -10,7 +10,7 @@ RECIPE_DATAFILE_TEMPLATE_NAME = 'template'
 INGREDIENT_INDEX_NAME = 'index'
 RECIPE_INDEX_NAME = 'index'
 INGREDIENT_DB_PATH = cwd()+'/pydiet/database/ingredients/'
-RECIPE_DB_PATH = cwd()+'/pydiet/database/ingredients/'
+RECIPE_DB_PATH = cwd()+'/pydiet/database/recipes/'
 PRIMARY_NUTRIENTS: List[str] = [
     "carbohydrate",
     "fat",

@@ -1,9 +1,14 @@
 from typing import Tuple, List, Dict, TYPE_CHECKING
 from difflib import SequenceMatcher
+from datetime import datetime
 
 from pinjector import inject
 
-from pydiet.shared.exceptions import UnknownUnitError
+from pydiet.shared.exceptions import (
+    TimeIntervalValueError, 
+    UnknownUnitError,
+    TimeIntervalParseError, 
+)
 
 if TYPE_CHECKING:
     from pydiet.data import repository_service
@@ -133,6 +138,24 @@ def parse_number_and_text(qty_and_text: str) -> Tuple[float, str]:
     # Return tuple;
     return output
 
+def parse_time_interval(time_interval:str) -> str:
+    # Split the string into two parts about the hyphen;
+    start_and_end_time = time_interval.split('-')
+    # Check there are two parts;
+    if not len(start_and_end_time) == 2:
+        raise TimeIntervalParseError
+    # Try format the time into double digit 24hr format;
+    try:
+        for n,t in enumerate(start_and_end_time):
+            d = datetime.strptime(t, "%H:%M")
+            start_and_end_time[n] = d.strftime("%H:%M")
+    except ValueError:
+        raise TimeIntervalValueError
+    # Check the intervals are not the same;
+    if start_and_end_time[0] == start_and_end_time[1]:
+        raise TimeIntervalValueError
+    # Return the interval;
+    return '-'.join(start_and_end_time)
 
 def score_similarity(words: List[str], search_term: str) -> Dict[str, float]:
     scores = {}

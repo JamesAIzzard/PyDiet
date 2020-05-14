@@ -160,6 +160,9 @@ class ConsoleApp():
         self._active_components.append(component_instance)
 
     def make_component(self, component_class_name: str) -> 'ConsoleAppComponent':
+        '''Creates and returns a new instance of the component by finding its 
+        constructor in the registered component packages.
+        '''
         # Convert the class name into its corresponding filename;
         component_filename = self._ut.pascal_to_snake(component_class_name)
         # Create place to put constructor when found;
@@ -189,6 +192,9 @@ class ConsoleApp():
         return component
 
     def fetch_component(self, component_instance_name: str) -> 'ConsoleAppComponent':
+        '''Looks for the component in the loaded component cache first,
+        and, if not found there, calls make_component to get a new instance.
+        '''
         # First look inside initialised components;
         if component_instance_name in self._components.keys():
             return self._components[component_instance_name]

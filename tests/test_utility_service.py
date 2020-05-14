@@ -1,3 +1,4 @@
+from pydiet.shared.exceptions import TimeIntervalParseError, TimeIntervalValueError
 from unittest import TestCase
 from typing import TYPE_CHECKING
 
@@ -10,7 +11,7 @@ if TYPE_CHECKING:
     from pydiet.ingredients import ingredient_service
 
 
-class TestParseNumberAndUnits(TestCase):
+class TestParseNumberAndText(TestCase):
     def setUp(self):
         self.ut: 'utility_service' = inject('pydiet.utility_service')
 
@@ -18,6 +19,37 @@ class TestParseNumberAndUnits(TestCase):
         output = self.ut.parse_number_and_text('4kg')
         self.assertEqual(output, (4, 'kg'))
 
+class TestParseTimeInterval(TestCase):
+    def setUp(self):
+        self.ut: 'utility_service' = inject('pydiet.utility_service')
+
+    def test_parses_correctly(self):
+        output = self.ut.parse_time_interval("06:00-10:00")
+        self.assertEqual(output, "06:00-10:00")
+    
+    def test_corrects_single_digits(self):
+        output = self.ut.parse_time_interval("6:00-10:00")
+        self.assertEqual(output, "06:00-10:00")
+        output = self.ut.parse_time_interval("11:00-9:5")
+        self.assertEqual(output, "11:00-09:05")    
+
+    def test_catches_impossible_times(self):
+        with self.assertRaises(TimeIntervalValueError):
+            self.ut.parse_time_interval("60:00-10:00")
+        with self.assertRaises(TimeIntervalValueError):
+            self.ut.parse_time_interval("9:00-25:00")
+
+    def test_catches_one_ended_intervals(self):
+        with self.assertRaises(TimeIntervalParseError):
+            self.ut.parse_time_interval("11:00")
+
+    def test_catches_nonsense_string_input(self):
+        with self.assertRaises(TimeIntervalParseError):
+            self.ut.parse_time_interval("alsdkjdagf")
+
+    def test_catches_identical_time_endpoints(self):
+        with self.assertRaises(TimeIntervalValueError):
+            self.ut.parse_time_interval("9:00-9:00")
 
 class TestScoreSimilarity(TestCase):
     def setUp(self):

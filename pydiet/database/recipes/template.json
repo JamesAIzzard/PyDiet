@@ -1,7 +1,7 @@
 {
   "name": "Breakfast Porridge",
-  "serve_between": ["00:00, 10:00"],
-  "categories": "main",
+  "serve_intervals": ["00:00-10:00"],
+  "categories": ["main", "side"],
   "ingredients": {
     "rolled_oats": {
       "mass": 50,

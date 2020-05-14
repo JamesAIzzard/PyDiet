@@ -1,17 +1,11 @@
-from typing import TYPE_CHECKING
-
 from pyconsoleapp import ConsoleAppComponent
-from pinjector import inject
-
-if TYPE_CHECKING:
-    from pydiet.ingredients import ingredient_service
-    from pydiet.cli.ingredients import ingredient_edit_service
 
 _MENU_TEMPLATE = '''Choose an option:
 (1) -- Manage ingredients.
 (2) -- Manage recipes.
-(3) -- Manage user goals.
-(4) -- Run optimiser.
+(3) -- Manage objectives.
+(4) -- Generate meal plans.
+(5) -- View meal plans.
 '''
 
 
@@ -34,7 +28,7 @@ class MainMenuComponent(ConsoleAppComponent):
         self.app.goto('.ingredients')
 
     def on_manage_recipes(self):
-        pass
+        self.app.goto('.recipes')
 
     def on_manage_goals(self):
         pass
