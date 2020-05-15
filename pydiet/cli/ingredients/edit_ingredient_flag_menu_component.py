@@ -16,7 +16,7 @@ Choose a flag to edit:
 '''
 _FLAG_MENU_ITEM = '({flag_number}) -- {flag_summary}\n'
 
-class EditFlagMenuComponent(ConsoleAppComponent):
+class EditIngredientFlagMenuComponent(ConsoleAppComponent):
 
     def __init__(self):
         super().__init__()

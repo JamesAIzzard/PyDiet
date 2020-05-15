@@ -17,7 +17,7 @@ How much does {qty}{units} of {ingredient_name}
 cost?
 '''
 
-class EditCostComponent(ConsoleAppComponent):
+class EditIngredientCostComponent(ConsoleAppComponent):
 
     def __init__(self):
         super().__init__()

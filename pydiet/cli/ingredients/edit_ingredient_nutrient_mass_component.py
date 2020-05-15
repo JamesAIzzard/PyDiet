@@ -29,7 +29,7 @@ Valid units:
 '''
 
 
-class EditNutrientMassComponent(ConsoleAppComponent):
+class EditIngredientNutrientMassComponent(ConsoleAppComponent):
     def __init__(self):
         super().__init__()
         self._us: 'utility_service' = inject('pydiet.utility_service')

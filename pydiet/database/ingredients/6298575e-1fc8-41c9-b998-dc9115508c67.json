@@ -1,8 +1,8 @@
 {
   "cost_per_mass": {
-    "cost": null,
-    "ingredient_qty": null,
-    "ingredient_qty_units": null
+    "cost": 1.0,
+    "ingredient_qty": 150.0,
+    "ingredient_qty_units": "g"
   },
   "flags": {
     "alcohol_free": true,
@@ -13,7 +13,7 @@
     "vegan": true,
     "vegetarian": true
   },
-  "name": "Tomato Juice",
+  "name": "Avocado",
   "nutrients": {
     "a_carotene": {
       "ingredient_qty": null,
@@ -28,15 +28,15 @@
       "nutrient_mass_units": null
     },
     "alanine": {
-      "ingredient_qty": 1.0,
-      "ingredient_qty_units": "L",
-      "nutrient_mass": 34.0,
-      "nutrient_mass_units": "mg"
+      "ingredient_qty": null,
+      "ingredient_qty_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "alcohol": {
-      "ingredient_qty": 100,
+      "ingredient_qty": 100.0,
       "ingredient_qty_units": "g",
-      "nutrient_mass": 0,
+      "nutrient_mass": 0.0,
       "nutrient_mass_units": "g"
     },
     "amylopectin": {
@@ -130,9 +130,9 @@
       "nutrient_mass_units": null
     },
     "carbohydrate": {
-      "ingredient_qty": 1.0,
-      "ingredient_qty_units": "L",
-      "nutrient_mass": 25.0,
+      "ingredient_qty": 100.0,
+      "ingredient_qty_units": "g",
+      "nutrient_mass": 9.0,
       "nutrient_mass_units": "g"
     },
     "cartenoids": {
@@ -226,10 +226,10 @@
       "nutrient_mass_units": null
     },
     "fat": {
-      "ingredient_qty": null,
-      "ingredient_qty_units": null,
-      "nutrient_mass": null,
-      "nutrient_mass_units": null
+      "ingredient_qty": 100.0,
+      "ingredient_qty_units": "g",
+      "nutrient_mass": 15.0,
+      "nutrient_mass_units": "g"
     },
     "fibre": {
       "ingredient_qty": null,
@@ -394,10 +394,10 @@
       "nutrient_mass_units": null
     },
     "monounsaturated_fat": {
-      "ingredient_qty": null,
-      "ingredient_qty_units": null,
-      "nutrient_mass": null,
-      "nutrient_mass_units": null
+      "ingredient_qty": 100.0,
+      "ingredient_qty_units": "g",
+      "nutrient_mass": 10.0,
+      "nutrient_mass_units": "g"
     },
     "myristic_acid": {
       "ingredient_qty": null,
@@ -484,10 +484,10 @@
       "nutrient_mass_units": null
     },
     "polyunsaturated_fat": {
-      "ingredient_qty": null,
-      "ingredient_qty_units": null,
-      "nutrient_mass": null,
-      "nutrient_mass_units": null
+      "ingredient_qty": 100.0,
+      "ingredient_qty_units": "g",
+      "nutrient_mass": 1.8,
+      "nutrient_mass_units": "g"
     },
     "potassium": {
       "ingredient_qty": null,
@@ -502,10 +502,10 @@
       "nutrient_mass_units": null
     },
     "protein": {
-      "ingredient_qty": null,
-      "ingredient_qty_units": null,
-      "nutrient_mass": null,
-      "nutrient_mass_units": null
+      "ingredient_qty": 100.0,
+      "ingredient_qty_units": "g",
+      "nutrient_mass": 2.0,
+      "nutrient_mass_units": "g"
     },
     "pyridoxal_5_phosphate": {
       "ingredient_qty": null,
@@ -556,10 +556,10 @@
       "nutrient_mass_units": null
     },
     "saturated_fat": {
-      "ingredient_qty": null,
-      "ingredient_qty_units": null,
-      "nutrient_mass": null,
-      "nutrient_mass_units": null
+      "ingredient_qty": 100.0,
+      "ingredient_qty_units": "g",
+      "nutrient_mass": 2.1,
+      "nutrient_mass_units": "g"
     },
     "selenium": {
       "ingredient_qty": null,
@@ -574,10 +574,10 @@
       "nutrient_mass_units": null
     },
     "sodium": {
-      "ingredient_qty": null,
-      "ingredient_qty_units": null,
-      "nutrient_mass": null,
-      "nutrient_mass_units": null
+      "ingredient_qty": 100.0,
+      "ingredient_qty_units": "g",
+      "nutrient_mass": 7.0,
+      "nutrient_mass_units": "mg"
     },
     "stearic_acid": {
       "ingredient_qty": null,
@@ -713,9 +713,9 @@
     }
   },
   "vol_density": {
-    "ingredient_mass": 0.9,
-    "ingredient_mass_units": "kg",
-    "ingredient_vol": 1.0,
-    "ingredient_vol_units": "L"
+    "ingredient_mass": null,
+    "ingredient_mass_units": null,
+    "ingredient_vol": null,
+    "ingredient_vol_units": null
   }
 }

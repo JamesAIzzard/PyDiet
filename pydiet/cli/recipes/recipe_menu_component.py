@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING
 
 from pyconsoleapp import ConsoleAppComponent
 from pinjector import inject

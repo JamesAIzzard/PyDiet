@@ -1,6 +1,8 @@
 from typing import TYPE_CHECKING
+
 from pyconsoleapp.console_app_component import ConsoleAppComponent
 from pinjector import inject
+
 if TYPE_CHECKING:
     from pydiet.cli.ingredients.ingredient_edit_service import IngredientEditService
     from pydiet.ingredients import ingredient_service
@@ -9,7 +11,7 @@ _TEMPLATE = '''Enter ingredient name:
 '''
 
 
-class EditNameComponent(ConsoleAppComponent):
+class EditIngredientNameComponent(ConsoleAppComponent):
 
     def __init__(self):
         super().__init__()

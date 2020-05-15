@@ -22,7 +22,7 @@ Valid units:
 
 '''
 
-class EditDensityMassComponent(ConsoleAppComponent):
+class EditIngredientDensityMassComponent(ConsoleAppComponent):
     def __init__(self):
         super().__init__()
         self._ies:'IngredientEditService' = inject('pydiet.cli.ingredient_edit_service')

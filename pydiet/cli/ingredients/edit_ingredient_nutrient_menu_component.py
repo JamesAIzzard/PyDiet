@@ -24,7 +24,7 @@ Other Nutrients (Optional):
 '''
 
 
-class EditNutrientMenuComponent(ConsoleAppComponent):
+class EditIngredientNutrientMenuComponent(ConsoleAppComponent):
 
     def __init__(self):
         super().__init__()

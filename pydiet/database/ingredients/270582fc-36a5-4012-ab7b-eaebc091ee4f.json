@@ -1,19 +1,19 @@
 {
   "cost_per_mass": {
-    "cost": null,
-    "ingredient_qty": null,
-    "ingredient_qty_units": null
+    "cost": 3.25,
+    "ingredient_qty": 100.0,
+    "ingredient_qty_units": "g"
   },
   "flags": {
-    "alcohol_free": null,
-    "caffiene_free": null,
-    "dairy_free": null,
-    "gluten_free": null,
-    "nut_free": null,
-    "vegan": null,
-    "vegetarian": null
+    "alcohol_free": true,
+    "caffiene_free": true,
+    "dairy_free": true,
+    "gluten_free": true,
+    "nut_free": false,
+    "vegan": true,
+    "vegetarian": true
   },
-  "name": "Rolled Oats",
+  "name": "Pine Nuts ",
   "nutrients": {
     "a_carotene": {
       "ingredient_qty": null,
@@ -34,10 +34,10 @@
       "nutrient_mass_units": null
     },
     "alcohol": {
-      "ingredient_qty": null,
-      "ingredient_qty_units": null,
-      "nutrient_mass": null,
-      "nutrient_mass_units": null
+      "ingredient_qty": 100.0,
+      "ingredient_qty_units": "g",
+      "nutrient_mass": 0.0,
+      "nutrient_mass_units": "g"
     },
     "amylopectin": {
       "ingredient_qty": null,
@@ -130,10 +130,10 @@
       "nutrient_mass_units": null
     },
     "carbohydrate": {
-      "ingredient_qty": null,
-      "ingredient_qty_units": null,
-      "nutrient_mass": null,
-      "nutrient_mass_units": null
+      "ingredient_qty": 100.0,
+      "ingredient_qty_units": "g",
+      "nutrient_mass": 13.0,
+      "nutrient_mass_units": "g"
     },
     "cartenoids": {
       "ingredient_qty": null,
@@ -226,10 +226,10 @@
       "nutrient_mass_units": null
     },
     "fat": {
-      "ingredient_qty": null,
-      "ingredient_qty_units": null,
-      "nutrient_mass": null,
-      "nutrient_mass_units": null
+      "ingredient_qty": 100.0,
+      "ingredient_qty_units": "g",
+      "nutrient_mass": 68.0,
+      "nutrient_mass_units": "g"
     },
     "fibre": {
       "ingredient_qty": null,
@@ -394,10 +394,10 @@
       "nutrient_mass_units": null
     },
     "monounsaturated_fat": {
-      "ingredient_qty": null,
-      "ingredient_qty_units": null,
-      "nutrient_mass": null,
-      "nutrient_mass_units": null
+      "ingredient_qty": 100.0,
+      "ingredient_qty_units": "g",
+      "nutrient_mass": 19.0,
+      "nutrient_mass_units": "g"
     },
     "myristic_acid": {
       "ingredient_qty": null,
@@ -484,10 +484,10 @@
       "nutrient_mass_units": null
     },
     "polyunsaturated_fat": {
-      "ingredient_qty": null,
-      "ingredient_qty_units": null,
-      "nutrient_mass": null,
-      "nutrient_mass_units": null
+      "ingredient_qty": 100.0,
+      "ingredient_qty_units": "g",
+      "nutrient_mass": 34.0,
+      "nutrient_mass_units": "g"
     },
     "potassium": {
       "ingredient_qty": null,
@@ -502,10 +502,10 @@
       "nutrient_mass_units": null
     },
     "protein": {
-      "ingredient_qty": null,
-      "ingredient_qty_units": null,
-      "nutrient_mass": null,
-      "nutrient_mass_units": null
+      "ingredient_qty": 100.0,
+      "ingredient_qty_units": "g",
+      "nutrient_mass": 14.0,
+      "nutrient_mass_units": "g"
     },
     "pyridoxal_5_phosphate": {
       "ingredient_qty": null,
@@ -556,10 +556,10 @@
       "nutrient_mass_units": null
     },
     "saturated_fat": {
-      "ingredient_qty": null,
-      "ingredient_qty_units": null,
-      "nutrient_mass": null,
-      "nutrient_mass_units": null
+      "ingredient_qty": 100.0,
+      "ingredient_qty_units": "g",
+      "nutrient_mass": 4.9,
+      "nutrient_mass_units": "g"
     },
     "selenium": {
       "ingredient_qty": null,
@@ -574,10 +574,10 @@
       "nutrient_mass_units": null
     },
     "sodium": {
-      "ingredient_qty": null,
-      "ingredient_qty_units": null,
-      "nutrient_mass": null,
-      "nutrient_mass_units": null
+      "ingredient_qty": 100.0,
+      "ingredient_qty_units": "g",
+      "nutrient_mass": 2.0,
+      "nutrient_mass_units": "mg"
     },
     "stearic_acid": {
       "ingredient_qty": null,

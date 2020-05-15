@@ -4,7 +4,7 @@ _FLAGS_SET_CONFIRMATION = '''\nAll flags are set!
         (o)k.\n
 '''
 
-class TellFlagsAreSetComponent(ConsoleAppComponent):
+class TellIngredientFlagsAreSetComponent(ConsoleAppComponent):
     def __init__(self):
         super().__init__()
         self.set_option_response('o', self.on_ok)

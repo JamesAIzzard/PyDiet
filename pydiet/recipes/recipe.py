@@ -15,8 +15,8 @@ class Recipe():
         self._rcs: 'recipe_service' = inject('pydiet.recipe_service')
         self._ut: 'utility_service' = inject('pydiet.utility_service')
         self._data: Dict = data_template
-        self.ingredient_amounts: Dict[str, 'IngredientAmount']
-        self.categories: List[str]
+        self._ingredient_amounts: Dict[str, 'IngredientAmount'] = {}
+        self.categories: List[str] = []
 
     @property
     def name(self) -> str:
@@ -31,7 +31,7 @@ class Recipe():
 
     @property
     def serve_intervals(self) -> List[str]:
-        return self._data['serve_between']
+        return self._data['serve_intervals']
 
     def add_serve_interval(self, serve_interval:str) -> None:
         # Check the serve interval is valid;
@@ -51,4 +51,8 @@ class Recipe():
     def clear_serve_intervals(self):
         # Clear all;
         self._data['serve_between'] = []
+
+    @property
+    def ingredient_amounts(self)->Dict[str, 'IngredientAmount']:
+        return self._ingredient_amounts
 

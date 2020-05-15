@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 _TEMPLATE = '\nIs {ingredient_name} {flag}?  (y)/(n)\n\n'
 
 
-class EditFlagComponent(ConsoleAppComponent):
+class EditIngredientFlagComponent(ConsoleAppComponent):
     def __init__(self):
         super().__init__()
         self._ies:'IngredientEditService' = inject('pydiet.cli.ingredient_edit_service')

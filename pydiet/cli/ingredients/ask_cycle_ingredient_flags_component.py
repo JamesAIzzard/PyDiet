@@ -6,7 +6,7 @@ from pyconsoleapp.builtin_components.yes_no_dialog_component import YesNoDialogC
 if TYPE_CHECKING:
     from pydiet.cli.ingredients.ingredient_edit_service import IngredientEditService
 
-class AskCycleFlagsComponent(YesNoDialogComponent):
+class AskCycleIngredientFlagsComponent(YesNoDialogComponent):
     def __init__(self):
         super().__init__()
         self._ies:'IngredientEditService' = inject('pydiet.cli.ingredient_edit_service')

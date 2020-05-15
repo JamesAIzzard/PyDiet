@@ -14,7 +14,7 @@ Select a nutrient:
 {results_display}
 '''
 
-class NutrientSearchResultsComponent(ConsoleAppComponent):
+class IngredientNutrientSearchResultsComponent(ConsoleAppComponent):
 
     def __init__(self):
         super().__init__()

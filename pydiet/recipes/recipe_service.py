@@ -64,4 +64,40 @@ def recipe_name_used(name:str, ignore_datafile:Optional[str]=None)->bool:
         return True
     else:
         return False
-    
+
+def summarise_name(recipe:'Recipe') -> str:
+    if recipe.name:
+        return recipe.name
+    else:
+        return 'Undefined'
+
+def summarise_serve_intervals(recipe:'Recipe') -> str:
+    if len(recipe.serve_intervals):
+        output = ''
+        for se in recipe.serve_intervals:
+            output = output+se+'\n'
+        return output
+    else:
+        return 'No serve intervals added yet.\n'
+
+def summarise_categories(recipe:'Recipe') -> str:
+    if len(recipe.categories):
+        output = ''
+        for cat in recipe.categories:
+            output = output+cat+'\n'
+        return output
+    else:
+        return 'No categories added yet.\n'
+
+def summarise_ingredients(recipe:'Recipe') -> str:
+    if len(recipe.ingredient_amounts):
+        output = ''
+        for ie in recipe.ingredient_amounts.values():
+            output = output + '{name}: +{perc_inc}%/-{perc_dec}%\n'.format(
+                name=ie.ingredient.name,
+                perc_inc=ie.perc_increase,
+                perc_dec=ie.perc_decrease
+            )
+        return output
+    else:
+        return 'No ingredients added yet.\n'    

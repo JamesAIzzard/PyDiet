@@ -1,8 +1,8 @@
 {
   "cost_per_mass": {
-    "cost": 2.5,
-    "ingredient_qty": 1.0,
-    "ingredient_qty_units": "kg"
+    "cost": 2.0,
+    "ingredient_qty": 100.0,
+    "ingredient_qty_units": "g"
   },
   "flags": {
     "alcohol_free": true,
@@ -10,10 +10,10 @@
     "dairy_free": true,
     "gluten_free": true,
     "nut_free": true,
-    "vegan": true,
+    "vegan": false,
     "vegetarian": true
   },
-  "name": "Beetroot",
+  "name": "Goat Cheese",
   "nutrients": {
     "a_carotene": {
       "ingredient_qty": null,
@@ -34,9 +34,9 @@
       "nutrient_mass_units": null
     },
     "alcohol": {
-      "ingredient_qty": 100,
+      "ingredient_qty": 100.0,
       "ingredient_qty_units": "g",
-      "nutrient_mass": 0,
+      "nutrient_mass": 0.0,
       "nutrient_mass_units": "g"
     },
     "amylopectin": {
@@ -132,7 +132,7 @@
     "carbohydrate": {
       "ingredient_qty": 100.0,
       "ingredient_qty_units": "g",
-      "nutrient_mass": 10.0,
+      "nutrient_mass": 0.1,
       "nutrient_mass_units": "g"
     },
     "cartenoids": {
@@ -228,7 +228,7 @@
     "fat": {
       "ingredient_qty": 100.0,
       "ingredient_qty_units": "g",
-      "nutrient_mass": 0.2,
+      "nutrient_mass": 30.0,
       "nutrient_mass_units": "g"
     },
     "fibre": {
@@ -396,7 +396,7 @@
     "monounsaturated_fat": {
       "ingredient_qty": 100.0,
       "ingredient_qty_units": "g",
-      "nutrient_mass": 0.0,
+      "nutrient_mass": 7.0,
       "nutrient_mass_units": "g"
     },
     "myristic_acid": {
@@ -486,14 +486,14 @@
     "polyunsaturated_fat": {
       "ingredient_qty": 100.0,
       "ingredient_qty_units": "g",
-      "nutrient_mass": 0.1,
+      "nutrient_mass": 0.7,
       "nutrient_mass_units": "g"
     },
     "potassium": {
-      "ingredient_qty": 100.0,
-      "ingredient_qty_units": "g",
-      "nutrient_mass": 325.0,
-      "nutrient_mass_units": "mg"
+      "ingredient_qty": null,
+      "ingredient_qty_units": null,
+      "nutrient_mass": null,
+      "nutrient_mass_units": null
     },
     "proline": {
       "ingredient_qty": null,
@@ -504,7 +504,7 @@
     "protein": {
       "ingredient_qty": 100.0,
       "ingredient_qty_units": "g",
-      "nutrient_mass": 1.6,
+      "nutrient_mass": 22.0,
       "nutrient_mass_units": "g"
     },
     "pyridoxal_5_phosphate": {
@@ -558,7 +558,7 @@
     "saturated_fat": {
       "ingredient_qty": 100.0,
       "ingredient_qty_units": "g",
-      "nutrient_mass": 0.0,
+      "nutrient_mass": 21.0,
       "nutrient_mass_units": "g"
     },
     "selenium": {
@@ -576,7 +576,7 @@
     "sodium": {
       "ingredient_qty": 100.0,
       "ingredient_qty_units": "g",
-      "nutrient_mass": 78.0,
+      "nutrient_mass": 515.0,
       "nutrient_mass_units": "mg"
     },
     "stearic_acid": {

@@ -6,7 +6,7 @@ from pinjector import inject
 if TYPE_CHECKING:
     from pydiet.cli.ingredients.ingredient_edit_service import IngredientEditService
 
-class EditDensityQuestionComponent(YesNoDialogComponent):
+class EditIngredientDensityQuestionComponent(YesNoDialogComponent):
     def __init__(self):
         super().__init__()
         self._ies: 'IngredientEditService' = inject(

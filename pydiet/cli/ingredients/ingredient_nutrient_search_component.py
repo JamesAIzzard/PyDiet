@@ -12,7 +12,7 @@ _TEMPLATE = '''Nutrient Search:
 
 Enter nutrient name and press enter: '''
 
-class NutrientSearchComponent(ConsoleAppComponent):
+class IngredientNutrientSearchComponent(ConsoleAppComponent):
 
     def __init__(self):
         super().__init__()
