@@ -56,11 +56,12 @@ app.add_route('home.ingredients.view', 'SearchIngredientsQuestionComponent')
 app.add_route('home.ingredients.view.search', 'IngredientSearchComponent')
 app.add_route('home.ingredients.view.search_results', 'IngredientSearchResultsComponent')
 app.add_route('home.ingredients.view.view_all', 'ViewAllIngredientsComponent')
+#
 app.add_route('home.recipes', 'RecipeMenuComponent')
-app.add_route('home.recipes.new', 'RecipeEditMenuComponent')
-app.add_route('home.recipes.new.edit_name', 'EditRecipeNameComponent')
 app.add_route('home.recipes.edit', 'RecipeEditMenuComponent')
 app.add_route('home.recipes.edit.edit_name', 'EditRecipeNameComponent')
+app.add_route('home.recipes.search', 'RecipeSearchComponent')
+app.add_route('home.recipes.search_results', 'RecipeSearchResultsComponent')
 
 # Run the cli;
 app.run()

@@ -3,8 +3,8 @@ from typing import TYPE_CHECKING
 from pyconsoleapp import ConsoleAppComponent
 from pinjector import inject
 
-from pydiet.cli.recipes.exceptions import (
-    UnnamedRecipeError
+from pydiet.recipes.exceptions import (
+    RecipeNameUndefinedError
 )
 
 if TYPE_CHECKING:
@@ -37,6 +37,12 @@ class RecipeEditMenuComponent(ConsoleAppComponent):
         self.set_option_response('s', self.on_save)
         self.set_option_response('1', self.on_edit_name)
 
+    def run(self):
+        # If there is no recipe loaded;
+        if not self._res.recipe:
+            # Go back to the main recipe state;
+            self.goto('home.recipes')
+
     def print(self):
         # Raise an exception if recipe has not been loaded;
         if not self._res.recipe:
@@ -56,9 +62,9 @@ class RecipeEditMenuComponent(ConsoleAppComponent):
     def on_save(self) -> None:
         # Try and save the recipe;
         try:
-            self._res.save_changes(redirect_to='home.recipes.edit')
+            self._res.save_changes()
         # Inform the user if it is unnamed;
-        except UnnamedRecipeError:
+        except RecipeNameUndefinedError:
             self.app.error_message = 'Cannot save an un-named recipe.'
 
     def on_edit_name(self)->None:

@@ -42,15 +42,18 @@ class RecipeMenuComponent(ConsoleAppComponent):
         # Put a fresh recipe on the scope;
         self._res.recipe = self._rcs.load_new_recipe()
         # Configure the save reminder;
-        self.app.guard_exit('home.recipes.new', 'RecipeSaveCheckComponent')
+        self.app.guard_exit('home.recipes.edit', 'RecipeSaveCheckComponent')
+        # Go into edit mode;
+        self._res.mode = 'edit'
         # Go;
-        self.app.goto('.new')
+        self.app.goto('home.recipes.edit')
 
     def on_edit(self):
-        self.app.goto('home.recipes.edit.search')
+        self._res.mode = 'edit'
+        self.app.goto('home.recipes.search')
 
     def on_delete(self):
-        self.app.goto('home.recipes.delete.search')
+        self.app.goto('home.recipes.search')
 
     def on_view(self):
         self.app.goto('home.recipes.view')

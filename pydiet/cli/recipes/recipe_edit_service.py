@@ -1,38 +1,36 @@
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, List, Dict
 
 from pinjector import inject
-
-from pydiet.cli.recipes.exceptions import UnnamedRecipeError
 
 if TYPE_CHECKING:
     from pyconsoleapp.console_app import ConsoleApp
     from pydiet.recipes.recipe import Recipe
     from pydiet.recipes import recipe_service
+    from pydiet.cli.shared import utility_service as cli_utility_service
 
 class RecipeEditService():
 
     def __init__(self):
         self._rcs:'recipe_service' = inject('pydiet.recipe_service')
+        self._cli_utils:'cli_utility_service' = inject('pydiet.cli.utility_service')
         self._app:'ConsoleApp' = inject('pydiet.cli.app')
-        self.recipe: Optional['Recipe']
-        self.datafile_name: Optional[str]
+        self.recipe: Optional['Recipe'] = None
+        self.datafile_name: Optional[str] = None
+        self.mode:str = 'edit'
+        self.recipe_name_search_results:List[str] = []
 
-    def save_changes(self, redirect_to=None) -> None:
+    @property
+    def recipe_search_result_number_name_map(self) -> Dict[int, str]:
+        return self._cli_utils.create_number_name_map(self.recipe_name_search_results)
+
+    def save_changes(self) -> None:
         # Check there is a recipe loaded;
         if not self.recipe:
             raise AttributeError
-        # Check the recipe is named;
-        if not self.recipe.name:
-            raise UnnamedRecipeError
         # If creating the recipe for the first time;
         if not self.datafile_name:
             # Create the new datafile and stash the name;
             self.datafile_name = self._rcs.save_new_recipe(self.recipe)
-            # Redirect to edit, now the datafile exists;
-            if redirect_to:
-                self._app.clear_exit('home.recipes.new')
-                self._app.guard_exit('home.ingredients.edit', 'RecipeSaveCheckComponent')
-                self._app.goto(redirect_to)
             # Confirm the save;
             self._app.info_message = "Recipe saved."
         # If updating an existing datafile;

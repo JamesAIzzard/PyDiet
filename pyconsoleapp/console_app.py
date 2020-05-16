@@ -25,6 +25,7 @@ class ConsoleApp():
         self._response: Optional[str] = None
         self._root_route: str = ''
         self._route: str = ''
+        self._route_history: List[str] = []
         self._route_component_maps: Dict[str, str] = {}
         self._route_exit_guard_map: Dict[str, 'ConsoleAppGuardComponent'] = {}
         self._route_entrance_guard_map: Dict[str,
@@ -286,10 +287,18 @@ class ConsoleApp():
                     self._response = input(component.print())
 
     def goto(self, route: str) -> None:
-        # Convert the route to be absolute;
+        # Convert the new route to be absolute;
         route = self.interpret_relative_route(route)
-        # Set the route;
+        # Save the current route to the history;
+        self._route_history.append(self.route)
+        ## Make sure the history doesn't get too long;
+        while len(self._route_history) > self._cf.route_history_length:
+            self._route_history.pop(0)
+        # Set the new route;
         self.route = route
+
+    def back(self) -> None:
+        self.route = self._route_history.pop()
 
     def clear_console(self):
         os.system('cls' if os.name == 'nt' else 'clear')

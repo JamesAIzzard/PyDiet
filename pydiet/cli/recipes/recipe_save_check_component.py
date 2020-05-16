@@ -5,6 +5,10 @@ from pinjector import inject
 from pyconsoleapp.console_app_guard_component import ConsoleAppGuardComponent
 from pyconsoleapp.builtin_components.yes_no_dialog_component import YesNoDialogComponent
 
+from pydiet.recipes.exceptions import (
+    RecipeNameUndefinedError
+)
+
 if TYPE_CHECKING:
     from pydiet.data import repository_service
     from pydiet.cli.recipes.recipe_edit_service import RecipeEditService
@@ -18,23 +22,21 @@ class RecipeSaveCheckComponent(YesNoDialogComponent, ConsoleAppGuardComponent):
         self.message = 'Save changes to this recipe?'
 
     def on_yes(self):
-        # If the recipe has a name;
-        if self._ies.recipe.name:
-            # Go ahead and save;
-            self._ies.save_changes()
-            # Then remove the guard;
+        # Try and save;
+        try:
+            # Perform the save;
+            self._res.save_changes()
+            # Clear the exit guard;
             self.clear_self()
-        # If it isn't named;
-        else:
-            # Inform the user;
+        # If the recipe was unnamed;
+        except RecipeNameUndefinedError:
+            # Tell the user;
             self.app.info_message = 'Recipe must be named before it can be saved.'
-            # Clear the exit to the new page;
-            self.clear_self()
-            # Configure the exit guard for the edit page;
-            self.app.guard_exit('home.recipes.edit', 'RecipeSaveCheckComponent')
-            # Redirect to edit page;
-            self.app.goto('home.recipes.edit')   
+            # Reverse;
+            self.app.back()
 
     def on_no(self):
+        # Confirm;
         self.app.info_message = 'Recipe not saved.'
+        # Clear the exit guard;
         self.clear_self()
