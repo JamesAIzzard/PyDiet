@@ -62,14 +62,15 @@ class EditIngredientNutrientMenuComponent(ConsoleAppComponent):
             primary_nutrients=pn,
             secondary_nutrients=sn
         )
-        output = self.app.fetch_component('standard_page_component').print(output)
+        output = self.app.fetch_component(
+            'standard_page_component').print(output)
         return output
 
     def on_save_changes(self) -> None:
-        self._ies.save_changes(redirect_to='home.ingredients.edit.nutrients')
+        self._ies.save_changes()
 
     def on_edit_other(self):
-        self.app.goto('.nutrient_search')
+        self.app.goto('home.ingredients.edit.nutrients.search')
 
     def dynamic_response(self, response):
         # Try and parse the response as an int;
@@ -87,4 +88,5 @@ class EditIngredientNutrientMenuComponent(ConsoleAppComponent):
             # Load that nutrient as the current nutrient amount;
             self._ies.current_nutrient_amount = \
                 self._ies.ingredient.get_nutrient_amount(nutrient_name)
-            self.app.goto('.edit_nutrient_ingredient_qty')
+            self.app.goto(
+                'home.ingredients.edit.nutrients.nutrient_ingredient_qty')

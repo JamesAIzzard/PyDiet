@@ -36,4 +36,4 @@ class EditIngredientNameComponent(ConsoleAppComponent):
             # Update the name
             self._ies.ingredient.name = response
         # Go back one level;
-        self.app.goto('..')
+        self.app.goto('home.ingredients.edit')

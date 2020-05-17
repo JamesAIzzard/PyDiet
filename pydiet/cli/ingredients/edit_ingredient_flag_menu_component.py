@@ -42,7 +42,7 @@ class EditIngredientFlagMenuComponent(ConsoleAppComponent):
         return output
 
     def on_save_changes(self):
-        self._ies.save_changes(redirect_to='home.ingredients.edit.flags')
+        self._ies.save_changes()
 
     def dynamic_response(self, response):
         # Try and parse the response as an integer;
@@ -54,4 +54,4 @@ class EditIngredientFlagMenuComponent(ConsoleAppComponent):
         if response in self._ies.flag_number_name_map.keys():
             self._ies.current_flag_number = response
         # And nav to set flag;      
-        self.app.goto('.edit_flag')
+        self.app.goto('home.ingredients.edit.flags.set_flag')

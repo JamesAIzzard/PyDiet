@@ -57,4 +57,4 @@ class EditIngredientDensityVolumeComponent(ConsoleAppComponent):
         self._ies.temp_qty = vol
         self._ies.temp_qty_units = units
         # Head on to collect the mass;
-        self.app.goto('..edit_density_mass')
+        self.app.goto('home.ingredients.edit.density_mass')

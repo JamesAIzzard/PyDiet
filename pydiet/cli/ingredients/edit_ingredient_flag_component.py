@@ -51,10 +51,10 @@ class EditIngredientFlagComponent(ConsoleAppComponent):
                 self._ies.cycling_flags = False
                 self._ies.current_flag_number = 0
                 self.app.info_message = 'All flags were set.'
-                self.app.goto('...')
+                self.app.goto('home.ingredients.edit.flags')
         # Not cycling flags;
         else:
             # Just reset state and go back;
             self._ies.current_flag_number = 0
-            self.app.goto('..')
+            self.app.goto('home.ingredients.edit.flags')
 

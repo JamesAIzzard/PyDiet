@@ -64,9 +64,9 @@ class EditIngredientCostQtyComponent(ConsoleAppComponent):
         # Catch volume usage without density definition;
         if units in self._us.recognised_vol_units() and \
             not self._ies.ingredient.density_is_defined:
-            self.goto('..edit_density_question')
+            self.app.goto('home.ingredients.edit.set_density_question')
             return
         # Stash these values and move on to collect the cost;
         self._ies.temp_qty = qty
         self._ies.temp_qty_units = units
-        self.app.goto('..edit_cost')
+        self.app.goto('home.ingredients.edit.cost')

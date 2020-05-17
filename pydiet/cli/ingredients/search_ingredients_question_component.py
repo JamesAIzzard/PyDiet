@@ -6,7 +6,7 @@ class SearchIngredientsQuestionComponent(YesNoDialogComponent):
         self.message = 'Search for a particular ingredient?'
 
     def on_yes(self):
-        self.app.goto('.search')
+        self.app.goto('home.ingredients.search')
 
     def on_no(self):
-        self.app.goto('.view_all')
+        self.app.goto('home.ingredients.view_all')

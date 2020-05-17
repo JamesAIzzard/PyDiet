@@ -55,9 +55,8 @@ class IngredientSearchResultsComponent(ConsoleAppComponent):
             if datafile_name:
                 # Populate the datafile name on the ies;
                 self._ies.datafile_name = datafile_name
-                # If we are on the edit branch;
-                if 'home.ingredients.edit' in self.app.route or\
-                        'home.ingredients.view' in self.app.route:
+                # If we are editing;
+                if self._ies.mode == 'edit':
                     # Load the ingredient into the ies;
                     self._ies.ingredient = self._igs.load_ingredient(
                         datafile_name)
@@ -66,13 +65,13 @@ class IngredientSearchResultsComponent(ConsoleAppComponent):
                                     'IngredientSaveCheckComponent')
                     # Redirect to edit;
                     self.app.goto('home.ingredients.edit')
-                # If we are on the delete branch;
-                elif 'home.ingredients.delete' in self.app.route:
+                # If we are deleting;
+                elif self._ies.mode == 'delete':
                     # Load the ingredient into the ies;
                     self._ies.ingredient = self._igs.load_ingredient(
                         datafile_name)
                     # Move on to confirm deletion;
-                    self.app.goto('..confirm')
+                    self.app.goto('home.ingredients.delete.confirm')
             # If the datafile wasn't found, something is broken;
             else:
                 raise ValueError(

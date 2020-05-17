@@ -40,15 +40,26 @@ class IngredientMenuComponent(ConsoleAppComponent):
         # Put a fresh ingredient on the scope;
         self._ies.ingredient = self._igs.load_new_ingredient()
         # Configure the save reminder;
-        self.app.guard_exit('home.ingredients.new', 'IngredientSaveCheckComponent')
+        self.app.guard_exit('home.ingredients.edit', 'IngredientSaveCheckComponent')
+        # Go into edit mode;
+        self._ies.mode = 'edit'
         # Go;
-        self.app.goto('.new')
+        self.app.goto('home.ingredients.edit')
 
     def on_edit(self):
-        self.app.goto('home.ingredients.edit.search')
+        # Go into edit mode;
+        self._ies.mode = 'edit'
+        # Go to the ingredient search page;
+        self.app.goto('home.ingredients.search')
 
     def on_delete(self):
-        self.app.goto('home.ingredients.delete.search')
+        # Go into delete mode;
+        self._ies.mode = 'delete'
+        # Go to search;
+        self.app.goto('home.ingredients.search')
 
     def on_view(self):
-        self.app.goto('home.ingredients.view')
+        # Ultimately view will lead to editing an ingredient;
+        self._ies.mode = 'edit'
+        # Go to view menu;
+        self.app.goto('home.ingredients.ask_search')

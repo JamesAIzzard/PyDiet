@@ -1,19 +1,19 @@
 {
   "cost_per_mass": {
-    "cost": 0.65,
+    "cost": 0.5,
     "ingredient_qty": 1.0,
-    "ingredient_qty_units": "kg"
+    "ingredient_qty_units": "L"
   },
   "flags": {
     "alcohol_free": true,
     "caffiene_free": true,
-    "dairy_free": true,
+    "dairy_free": false,
     "gluten_free": true,
     "nut_free": true,
-    "vegan": true,
+    "vegan": false,
     "vegetarian": true
   },
-  "name": "White Sugar",
+  "name": "Milk (whole)",
   "nutrients": {
     "a_carotene": {
       "ingredient_qty": null,
@@ -35,7 +35,7 @@
     },
     "alcohol": {
       "ingredient_qty": 100.0,
-      "ingredient_qty_units": "g",
+      "ingredient_qty_units": "ml",
       "nutrient_mass": 0.0,
       "nutrient_mass_units": "g"
     },
@@ -131,8 +131,8 @@
     },
     "carbohydrate": {
       "ingredient_qty": 100.0,
-      "ingredient_qty_units": "g",
-      "nutrient_mass": 100.0,
+      "ingredient_qty_units": "ml",
+      "nutrient_mass": 4.0,
       "nutrient_mass_units": "g"
     },
     "cartenoids": {
@@ -227,8 +227,8 @@
     },
     "fat": {
       "ingredient_qty": 100.0,
-      "ingredient_qty_units": "g",
-      "nutrient_mass": 0.0,
+      "ingredient_qty_units": "ml",
+      "nutrient_mass": 3.0,
       "nutrient_mass_units": "g"
     },
     "fibre": {
@@ -395,7 +395,7 @@
     },
     "monounsaturated_fat": {
       "ingredient_qty": 100.0,
-      "ingredient_qty_units": "g",
+      "ingredient_qty_units": "ml",
       "nutrient_mass": 0.0,
       "nutrient_mass_units": "g"
     },
@@ -485,7 +485,7 @@
     },
     "polyunsaturated_fat": {
       "ingredient_qty": 100.0,
-      "ingredient_qty_units": "g",
+      "ingredient_qty_units": "ml",
       "nutrient_mass": 0.0,
       "nutrient_mass_units": "g"
     },
@@ -503,8 +503,8 @@
     },
     "protein": {
       "ingredient_qty": 100.0,
-      "ingredient_qty_units": "g",
-      "nutrient_mass": 0.0,
+      "ingredient_qty_units": "ml",
+      "nutrient_mass": 3.0,
       "nutrient_mass_units": "g"
     },
     "pyridoxal_5_phosphate": {
@@ -557,8 +557,8 @@
     },
     "saturated_fat": {
       "ingredient_qty": 100.0,
-      "ingredient_qty_units": "g",
-      "nutrient_mass": 0.0,
+      "ingredient_qty_units": "ml",
+      "nutrient_mass": 2.0,
       "nutrient_mass_units": "g"
     },
     "selenium": {
@@ -575,9 +575,9 @@
     },
     "sodium": {
       "ingredient_qty": 100.0,
-      "ingredient_qty_units": "g",
-      "nutrient_mass": 0.0,
-      "nutrient_mass_units": "g"
+      "ingredient_qty_units": "ml",
+      "nutrient_mass": 40.0,
+      "nutrient_mass_units": "mg"
     },
     "stearic_acid": {
       "ingredient_qty": null,
@@ -713,9 +713,9 @@
     }
   },
   "vol_density": {
-    "ingredient_mass": null,
-    "ingredient_mass_units": null,
-    "ingredient_vol": null,
-    "ingredient_vol_units": null
+    "ingredient_mass": 1.03,
+    "ingredient_mass_units": "kg",
+    "ingredient_vol": 1.0,
+    "ingredient_vol_units": "L"
   }
 }

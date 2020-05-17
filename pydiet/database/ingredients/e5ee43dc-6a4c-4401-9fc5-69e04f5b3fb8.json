@@ -1,6 +1,6 @@
 {
   "cost_per_mass": {
-    "cost": 0.65,
+    "cost": 7.5,
     "ingredient_qty": 1.0,
     "ingredient_qty_units": "kg"
   },
@@ -10,10 +10,10 @@
     "dairy_free": true,
     "gluten_free": true,
     "nut_free": true,
-    "vegan": true,
-    "vegetarian": true
+    "vegan": false,
+    "vegetarian": false
   },
-  "name": "White Sugar",
+  "name": "Chicken Breast",
   "nutrients": {
     "a_carotene": {
       "ingredient_qty": null,
@@ -34,9 +34,9 @@
       "nutrient_mass_units": null
     },
     "alcohol": {
-      "ingredient_qty": 100.0,
+      "ingredient_qty": 100,
       "ingredient_qty_units": "g",
-      "nutrient_mass": 0.0,
+      "nutrient_mass": 0,
       "nutrient_mass_units": "g"
     },
     "amylopectin": {
@@ -132,7 +132,7 @@
     "carbohydrate": {
       "ingredient_qty": 100.0,
       "ingredient_qty_units": "g",
-      "nutrient_mass": 100.0,
+      "nutrient_mass": 0.0,
       "nutrient_mass_units": "g"
     },
     "cartenoids": {
@@ -228,7 +228,7 @@
     "fat": {
       "ingredient_qty": 100.0,
       "ingredient_qty_units": "g",
-      "nutrient_mass": 0.0,
+      "nutrient_mass": 3.6,
       "nutrient_mass_units": "g"
     },
     "fibre": {
@@ -396,7 +396,7 @@
     "monounsaturated_fat": {
       "ingredient_qty": 100.0,
       "ingredient_qty_units": "g",
-      "nutrient_mass": 0.0,
+      "nutrient_mass": 1.2,
       "nutrient_mass_units": "g"
     },
     "myristic_acid": {
@@ -486,7 +486,7 @@
     "polyunsaturated_fat": {
       "ingredient_qty": 100.0,
       "ingredient_qty_units": "g",
-      "nutrient_mass": 0.0,
+      "nutrient_mass": 0.8,
       "nutrient_mass_units": "g"
     },
     "potassium": {
@@ -504,7 +504,7 @@
     "protein": {
       "ingredient_qty": 100.0,
       "ingredient_qty_units": "g",
-      "nutrient_mass": 0.0,
+      "nutrient_mass": 31.0,
       "nutrient_mass_units": "g"
     },
     "pyridoxal_5_phosphate": {
@@ -558,7 +558,7 @@
     "saturated_fat": {
       "ingredient_qty": 100.0,
       "ingredient_qty_units": "g",
-      "nutrient_mass": 0.0,
+      "nutrient_mass": 1.0,
       "nutrient_mass_units": "g"
     },
     "selenium": {
@@ -576,8 +576,8 @@
     "sodium": {
       "ingredient_qty": 100.0,
       "ingredient_qty_units": "g",
-      "nutrient_mass": 0.0,
-      "nutrient_mass_units": "g"
+      "nutrient_mass": 74.0,
+      "nutrient_mass_units": "mg"
     },
     "stearic_acid": {
       "ingredient_qty": null,

@@ -36,6 +36,7 @@ class RecipeEditMenuComponent(ConsoleAppComponent):
         self._rcs: 'recipe_service' = inject('pydiet.recipe_service')
         self.set_option_response('s', self.on_save)
         self.set_option_response('1', self.on_edit_name)
+        self.set_option_response('2', self.on_edit_serve_times)
 
     def run(self):
         # If there is no recipe loaded;
@@ -59,6 +60,14 @@ class RecipeEditMenuComponent(ConsoleAppComponent):
         # Return the view;
         return output
 
+    @property
+    def _check_name_defined(self) -> bool:
+        if not self._res.recipe.name:
+            self.app.error_message = 'Recipe name must be set first.'
+            return False
+        else:
+            return True
+
     def on_save(self) -> None:
         # Try and save the recipe;
         try:
@@ -68,4 +77,8 @@ class RecipeEditMenuComponent(ConsoleAppComponent):
             self.app.error_message = 'Cannot save an un-named recipe.'
 
     def on_edit_name(self)->None:
-        self.app.goto('.edit_name')
+        self.app.goto('home.recipes.edit.name')
+
+    def on_edit_serve_times(self)->None:
+        if self._check_name_defined:
+            self.app.goto('home.recipes.edit.serve_times')

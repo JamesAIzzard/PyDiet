@@ -87,4 +87,4 @@ class EditIngredientNutrientMassComponent(ConsoleAppComponent):
             self.app.info_message = 'Flag status updated to correspond with {} quantity'.format(
                 self._ies.current_nutrient_amount.name)
         # Navigate back to the nutrient menu;
-        self.app.goto('..')
+        self.app.goto('home.ingredients.edit.nutrients')

@@ -15,7 +15,7 @@ class AskCycleIngredientFlagsComponent(YesNoDialogComponent):
     def on_yes(self):
         self._ies.current_flag_number = 1
         self._ies.cycling_flags = True
-        self.app.goto('..edit_flag')
+        self.app.goto('home.ingredients.edit.flags.set_flag')
 
     def on_no(self):
-        self.app.goto('...flags')
+        self.app.goto('home.ingredients.edit.flags')

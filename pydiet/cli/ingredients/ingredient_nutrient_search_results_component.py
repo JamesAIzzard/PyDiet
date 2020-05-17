@@ -50,4 +50,4 @@ class IngredientNutrientSearchResultsComponent(ConsoleAppComponent):
                 self._ies.nutrient_search_result_number_name_map[response]
             self._ies.current_nutrient_amount = \
                 self._ies.ingredient.get_nutrient_amount(nutrient_name)
-            self.app.goto('..edit_nutrient_ingredient_qty')
+            self.app.goto('home.ingredients.edit.nutrients.nutrient_ingredient_qty')

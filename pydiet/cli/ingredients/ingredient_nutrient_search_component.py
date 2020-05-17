@@ -25,4 +25,4 @@ class IngredientNutrientSearchComponent(ConsoleAppComponent):
     def dynamic_response(self, response):
         self._ies.nutrient_name_search_results = \
             self._igs.get_matching_nutrient_names(response, 5)
-        self.app.goto('..nutrient_search_results')
+        self.app.goto('home.ingredients.edit.nutrients.search_results')

@@ -1,6 +1,6 @@
 {
   "cost_per_mass": {
-    "cost": 0.65,
+    "cost": 1.84,
     "ingredient_qty": 1.0,
     "ingredient_qty_units": "kg"
   },
@@ -13,7 +13,7 @@
     "vegan": true,
     "vegetarian": true
   },
-  "name": "White Sugar",
+  "name": "Tomato",
   "nutrients": {
     "a_carotene": {
       "ingredient_qty": null,
@@ -34,9 +34,9 @@
       "nutrient_mass_units": null
     },
     "alcohol": {
-      "ingredient_qty": 100.0,
+      "ingredient_qty": 100,
       "ingredient_qty_units": "g",
-      "nutrient_mass": 0.0,
+      "nutrient_mass": 0,
       "nutrient_mass_units": "g"
     },
     "amylopectin": {
@@ -132,7 +132,7 @@
     "carbohydrate": {
       "ingredient_qty": 100.0,
       "ingredient_qty_units": "g",
-      "nutrient_mass": 100.0,
+      "nutrient_mass": 3.9,
       "nutrient_mass_units": "g"
     },
     "cartenoids": {
@@ -228,7 +228,7 @@
     "fat": {
       "ingredient_qty": 100.0,
       "ingredient_qty_units": "g",
-      "nutrient_mass": 0.0,
+      "nutrient_mass": 0.2,
       "nutrient_mass_units": "g"
     },
     "fibre": {
@@ -486,7 +486,7 @@
     "polyunsaturated_fat": {
       "ingredient_qty": 100.0,
       "ingredient_qty_units": "g",
-      "nutrient_mass": 0.0,
+      "nutrient_mass": 0.1,
       "nutrient_mass_units": "g"
     },
     "potassium": {
@@ -504,7 +504,7 @@
     "protein": {
       "ingredient_qty": 100.0,
       "ingredient_qty_units": "g",
-      "nutrient_mass": 0.0,
+      "nutrient_mass": 0.9,
       "nutrient_mass_units": "g"
     },
     "pyridoxal_5_phosphate": {
@@ -576,8 +576,8 @@
     "sodium": {
       "ingredient_qty": 100.0,
       "ingredient_qty_units": "g",
-      "nutrient_mass": 0.0,
-      "nutrient_mass_units": "g"
+      "nutrient_mass": 6.0,
+      "nutrient_mass_units": "mg"
     },
     "stearic_acid": {
       "ingredient_qty": null,

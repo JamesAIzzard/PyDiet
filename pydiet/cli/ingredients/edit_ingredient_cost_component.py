@@ -53,4 +53,4 @@ class EditIngredientCostComponent(ConsoleAppComponent):
             self._ies.temp_qty, 
             self._ies.temp_qty_units)
         # Return to the menu;
-        self.app.goto('..')
+        self.app.goto('home.ingredients.edit')

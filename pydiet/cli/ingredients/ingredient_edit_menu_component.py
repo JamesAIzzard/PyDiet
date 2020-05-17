@@ -49,7 +49,7 @@ class IngredientEditMenuComponent(ConsoleAppComponent):
 
     def run(self):
         # If we shouldn't be here;
-        if not self._ies.ingredient or self.app.route == 'home.ingredients.delete':
+        if not self._ies.ingredient or not self._ies.mode == 'edit':
             # Go back another level;
             self.app.goto('home.ingredients')
 
@@ -106,25 +106,23 @@ class IngredientEditMenuComponent(ConsoleAppComponent):
             self.app.error_message = 'Cannot save an un-named ingredient.'
 
     def on_edit_name(self):
-        self.app.goto('.edit_name')
+        self.app.goto('home.ingredients.edit.name')
 
     def on_edit_cost(self):
         if self._check_name_defined():
-            self.app.goto('.edit_cost_qty')
+            self.app.goto('home.ingredients.edit.cost_qty')
 
     def on_configure_liquid_measurements(self):
         if self._check_name_defined():
-            self.app.goto('.edit_density_volume')
+            self.app.goto('home.ingredients.edit.density_volume')
 
     def on_edit_flags(self):
-        ies: 'IngredientEditService' = inject(
-            'pydiet.cli.ingredient_edit_service')
         if self._check_name_defined():
-            if ies.ingredient.all_flags_undefined:
-                self.app.goto('.flags.ask_cycle_flags')
+            if self._ies.ingredient.all_flags_undefined:
+                self.app.goto('home.ingredients.edit.flags.ask_cycle_flags')
             else:
-                self.app.goto('.flags')
+                self.app.goto('home.ingredients.edit.flags')
 
     def on_edit_nutrients(self) -> None:
         if self._check_name_defined():
-            self.app.goto('.nutrients')
+            self.app.goto('home.ingredients.edit.nutrients')

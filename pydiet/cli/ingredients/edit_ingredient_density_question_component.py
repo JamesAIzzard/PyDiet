@@ -14,7 +14,7 @@ class EditIngredientDensityQuestionComponent(YesNoDialogComponent):
         self.message = 'Volumetric measurements are not configured on {} yet. Would you like to configure them now?'
 
     def on_yes(self):
-        self.app.goto('..edit_density_volume')
+        self.app.goto('home.ingredients.edit.density_volume')
 
     def on_no(self):
-        self.app.goto('..')
+        self.app.goto('home.ingredients.edit')

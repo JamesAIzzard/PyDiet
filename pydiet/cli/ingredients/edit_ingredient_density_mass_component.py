@@ -62,5 +62,5 @@ class EditIngredientDensityMassComponent(ConsoleAppComponent):
             )
         else:
             raise AttributeError
-        # Redirect;
-        self.app.goto('..')
+        # Done, head back to edit menu;
+        self.app.goto('home.ingredients.edit')

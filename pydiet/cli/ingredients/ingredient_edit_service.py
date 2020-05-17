@@ -16,12 +16,14 @@ class IngredientEditService():
     def __init__(self):
         self._igs: 'ingredient_service' = inject('pydiet.ingredient_service')
         self._cf: 'configs' = inject('pydiet.configs')
-        self._app: 'ConsoleApp' = inject('pydiet.cli.app')    
-        self._cli_utils:'cli_utility_service' = inject('pydiet.cli.utility_service')    
+        self._app: 'ConsoleApp' = inject('pydiet.cli.app')
+        self._cli_utils: 'cli_utility_service' = inject(
+            'pydiet.cli.utility_service')
         self._flag_number_name_map: Optional[Dict[int, str]] = None
         self._primary_nutrient_number_name_map: Optional[Dict[int, str]] = None
         self.ingredient: Optional['Ingredient'] = None
         self.datafile_name: Optional[str] = None
+        self.mode: str = 'edit'
         self.temp_qty: Optional[float]
         self.temp_qty_units: Optional[str]
         self.current_flag_number: int
@@ -47,7 +49,8 @@ class IngredientEditService():
         # (Caching is OK because same for all ingredients);
         if not self._primary_nutrient_number_name_map:
             self._primary_nutrient_number_name_map = \
-                self._cli_utils.create_number_name_map(self._cf.PRIMARY_NUTRIENTS)
+                self._cli_utils.create_number_name_map(
+                    self._cf.PRIMARY_NUTRIENTS)
         #  Return from cache;
         return self._primary_nutrient_number_name_map
 
@@ -92,7 +95,8 @@ class IngredientEditService():
             # Redirect to edit, now datafile exists;
             if redirect_to:
                 self._app.clear_exit('home.ingredients.new')
-                self._app.guard_exit('home.ingredients.edit', 'IngredientSaveCheckComponent')
+                self._app.guard_exit(
+                    'home.ingredients.edit', 'IngredientSaveCheckComponent')
                 self._app.goto(redirect_to)
         # If updating an existing datafile;
         else:
