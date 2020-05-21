@@ -1,17 +1,17 @@
-from pydiet.shared.configs import PRESET_SERVE_TIMES
 from typing import TYPE_CHECKING
 
 from pinjector import inject
 from pyconsoleapp import ConsoleAppComponent
 
+from pydiet.cli.shared.exceptions import LetterIntegerParseError
+
 if TYPE_CHECKING:
     from pydiet.cli.recipes.recipe_edit_service import RecipeEditService
+    from pydiet.cli.shared import utility_service as cli_utility_service
     from pydiet.shared import configs
 
-_TEMPLATE = '''Recipe Serve Times:
+_TEMPLATE = '''{recipe_name} can be served at the following times:
 -------------------
-
-{recipe_name} can be served at the following times:
 {serve_times}
 (e*) -- Edit | (d*) -- Delete (where * = number)
 
@@ -32,17 +32,21 @@ class RecipeServeTimeEditorComponent(ConsoleAppComponent):
         super().__init__()
         self._res:'RecipeEditService' = inject('pydiet.cli.recipe_edit_service')
         self._cf:'configs' = inject('pydiet.configs')
+        self._cut:'cli_utility_service' = inject('pydiet.cli.utility_service')
         self.set_option_response('s', self.on_save_changes)
         self.set_option_response('n', self.on_include_new_custom_time)
 
     def print(self):
         # Build the serve times display;
         serve_times = ''
-        for time_num in self._res.serve_time_number_map:
-            serve_times = serve_times + '{num}. {time}\n'.format(
-                num=time_num,
-                time=self._res.serve_time_number_map[time_num]
-            )     
+        if len(self._res.recipe.serve_intervals):
+            for time_num in self._res.serve_time_number_map:
+                serve_times = serve_times + '{num}. {time}\n'.format(
+                    num=time_num,
+                    time=self._res.serve_time_number_map[time_num]
+                )
+        else:
+            serve_times = 'No serve times added yet.\n'     
         # Build the preset serve times display;
         preset_serve_times = ''
         for time_num in self._res.preset_serve_time_number_map:
@@ -69,4 +73,25 @@ class RecipeServeTimeEditorComponent(ConsoleAppComponent):
         pass
 
     def dynamic_response(self, raw_response: str) -> None:
-        pass
+        # Try and parse the raw response into a single letter and integer;
+        try:
+            letter, integer = self._cut.parse_letter_and_integer(raw_response)
+        except LetterIntegerParseError:
+            return
+        # If we are deleting an existing time;
+        if letter == 'd':
+            # Try and remove the serve time;
+            try:
+                self._res.recipe.serve_intervals.pop(integer-1)
+            except IndexError:
+                return
+        # If we are adding a preset time;
+        if letter == 'p':
+            # Try grab the preset name from the map;
+            try:
+                p_name = self._res.preset_serve_time_number_map[integer]
+            except KeyError:
+                return
+            # Add the preset time to the recipe;
+            self._res.recipe.add_serve_interval(self._cf.PRESET_SERVE_TIMES[p_name])
+            return

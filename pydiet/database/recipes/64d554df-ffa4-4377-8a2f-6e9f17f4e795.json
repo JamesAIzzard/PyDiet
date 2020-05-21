@@ -2,5 +2,7 @@
   "categories": [],
   "ingredients": {},
   "name": "Porridge Oats",
-  "serve_intervals": []
+  "serve_intervals": [
+    "04:00-10:00"
+  ]
 }

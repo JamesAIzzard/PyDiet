@@ -39,7 +39,7 @@ class Recipe():
         # If it isn't already there;
         if not serve_interval in self.serve_intervals:
             # Assign it;
-            self._data['serve_between'].append(serve_interval)
+            self._data['serve_intervals'].append(serve_interval)
 
     def remove_serve_interval(self, serve_interval:str) -> None:
         # Cycle through the serve intervals
