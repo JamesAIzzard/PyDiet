@@ -1,13 +1,8 @@
-from typing import TYPE_CHECKING
-
 from pyconsoleapp import ConsoleAppComponent
-from pinjector import inject
 
 from pydiet.shared.exceptions import UnknownUnitError
-
-if TYPE_CHECKING:
-    from pydiet.cli.ingredients.ingredient_edit_service import IngredientEditService
-    from pydiet.shared import utility_service
+from pydiet.cli.ingredients import ingredient_edit_service as igs
+from pydiet.shared import utility_service as uts
 
 _TEMPLATE = '''
     ______ of {ingredient_name}
@@ -26,13 +21,12 @@ Valid units:
 class EditIngredientDensityVolumeComponent(ConsoleAppComponent):
     def __init__(self):
         super().__init__()
-        self._ies:'IngredientEditService' = inject('pydiet.cli.ingredient_edit_service')
-        self._us:'utility_service' = inject('pydiet.utility_service')
+        self._ies = igs.IngredientEditService()
 
     def print(self):
         output = _TEMPLATE.format(
             ingredient_name=self._ies.ingredient.name.lower(),
-            valid_units=self._us.recognised_vol_units()
+            valid_units=uts.recognised_vol_units()
         )
         output = self.app.fetch_component('standard_page_component').print(output)
         return output
@@ -40,7 +34,7 @@ class EditIngredientDensityVolumeComponent(ConsoleAppComponent):
     def dynamic_response(self, response):
         # Try and parse the response as mass and units;
         try:
-            vol, units = self._us.parse_number_and_text(response)
+            vol, units = uts.parse_number_and_text(response)
         # Catch parse failure;
         except ValueError:
             self.app.error_message = "Unable to parse {} as a volume & unit. Try again."\
@@ -48,7 +42,7 @@ class EditIngredientDensityVolumeComponent(ConsoleAppComponent):
             return
         # Parse unit to correct case;
         try:
-            units = self._us.parse_vol_unit(units)
+            units = uts.parse_vol_unit(units)
         # Catch unknown units;
         except UnknownUnitError:
             self.app.error_message = "{} is not a recognised unit of volume.".format(units)

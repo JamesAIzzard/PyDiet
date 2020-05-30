@@ -3,17 +3,14 @@ from typing import TYPE_CHECKING
 from pyconsoleapp.builtin_components.yes_no_dialog_component import YesNoDialogComponent
 from pinjector import inject
 
-
-if TYPE_CHECKING:
-    from pydiet.cli.ingredients.ingredient_edit_service import IngredientEditService
-    from pydiet.data import repository_service
+from pydiet.cli.ingredients import ingredient_edit_service as ies
+from pydiet.data import repository_service as rep
 
 class ConfirmIngredientDeleteComponent(YesNoDialogComponent):
 
     def __init__(self):
         super().__init__()
-        self._ies:'IngredientEditService' = inject('pydiet.cli.ingredient_edit_service')
-        self._rp:'repository_service' = inject('pydiet.repository_service')
+        self._ies = ies.IngredientEditService()
         self.message = 'Are you sure you want to delete {}'.format(
             self._ies.ingredient.name
         )
@@ -23,7 +20,7 @@ class ConfirmIngredientDeleteComponent(YesNoDialogComponent):
         if not self._ies.datafile_name:
             raise AttributeError
         # Delete the datafile;
-        self._rp.delete_ingredient_data(self._ies.datafile_name)
+        rep.delete_ingredient_data(self._ies.datafile_name)
         # Set status message;
         self.app.info_message = '{} deleted.'.format(self._ies.ingredient.name)
         # Redirect;

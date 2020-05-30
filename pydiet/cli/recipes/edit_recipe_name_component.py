@@ -1,11 +1,7 @@
-from typing import TYPE_CHECKING
-
 from pyconsoleapp.console_app_component import ConsoleAppComponent
-from pinjector import inject
 
-if TYPE_CHECKING:
-    from pydiet.cli.recipes.recipe_edit_service import RecipeEditService
-    from pydiet.recipes import recipe_service
+from pydiet.cli.recipes import recipe_edit_service as res
+from pydiet.recipes import recipe_service as rcs
 
 _TEMPLATE = '''Enter recipe name:
 '''
@@ -15,9 +11,7 @@ class EditRecipeNameComponent(ConsoleAppComponent):
 
     def __init__(self):
         super().__init__()
-        self._res: 'RecipeEditService' = inject(
-            'pydiet.cli.recipe_edit_service')
-        self._rcs: 'recipe_service' = inject('pydiet.recipe_service')
+        self._res = res.RecipeEditService()
 
     def print(self):
         output = _TEMPLATE
@@ -29,7 +23,7 @@ class EditRecipeNameComponent(ConsoleAppComponent):
         # If the name has been changed;
         if not response == self._res.datafile_name:
             # Check the another recipe doesn't have this name;
-            if self._rcs.recipe_name_used(response, self._res.datafile_name):
+            if rcs.recipe_name_used(response, self._res.datafile_name):
                 self.app.error_message = 'There is already an recipe called {}'.\
                     format(response)
                 return

@@ -1,13 +1,7 @@
-from typing import TYPE_CHECKING, cast
-
 from pyconsoleapp import ConsoleAppComponent
-from pinjector import inject
 
-if TYPE_CHECKING:
-    from pydiet.cli.ingredients.ingredient_edit_service import IngredientEditService
-    from pydiet.cli.ingredients.ingredient_save_check_component import IngredientSaveCheckComponent
-    from pydiet.ingredients import ingredient_service
-    from pydiet.data import repository_service
+from pydiet.cli.ingredients import ingredient_edit_service as ies
+from pydiet.ingredients import ingredient_service as igs
 
 _TEMPLATE = '''Ingredient Search Results:
 -------------------------
@@ -21,10 +15,7 @@ class IngredientSearchResultsComponent(ConsoleAppComponent):
 
     def __init__(self):
         super().__init__()
-        self._ies: 'IngredientEditService' = inject(
-            'pydiet.cli.ingredient_edit_service')
-        self._igs: 'ingredient_service' = inject('pydiet.ingredient_service')
-        self._rp: 'repository_service' = inject('pydiet.repository_service')
+        self._ies = ies.IngredientEditService()
 
     def print(self):
         results_display = ''
@@ -49,7 +40,7 @@ class IngredientSearchResultsComponent(ConsoleAppComponent):
             # Convert the response into an ingredient name;
             ingredient_name = self._ies.ingredient_search_result_number_name_map[response]
             # Resolve the datafile name for the ingredient;
-            datafile_name = self._igs.resolve_ingredient_datafile_name(
+            datafile_name = igs.resolve_ingredient_datafile_name(
                 ingredient_name)
             # If the corresponding datafile was found;
             if datafile_name:
@@ -58,17 +49,17 @@ class IngredientSearchResultsComponent(ConsoleAppComponent):
                 # If we are editing;
                 if self._ies.mode == 'edit':
                     # Load the ingredient into the ies;
-                    self._ies.ingredient = self._igs.load_ingredient(
+                    self._ies.ingredient = igs.load_ingredient(
                         datafile_name)
                     # Configure the save reminder;
                     self.app.guard_exit('home.ingredients.edit',
-                                    'IngredientSaveCheckComponent')
+                                        'IngredientSaveCheckComponent')
                     # Redirect to edit;
                     self.app.goto('home.ingredients.edit')
                 # If we are deleting;
                 elif self._ies.mode == 'delete':
                     # Load the ingredient into the ies;
-                    self._ies.ingredient = self._igs.load_ingredient(
+                    self._ies.ingredient = igs.load_ingredient(
                         datafile_name)
                     # Move on to confirm deletion;
                     self.app.goto('home.ingredients.delete.confirm')

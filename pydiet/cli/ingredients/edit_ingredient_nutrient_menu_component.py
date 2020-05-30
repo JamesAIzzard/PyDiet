@@ -1,13 +1,9 @@
-from typing import TYPE_CHECKING
-
 from pinjector import inject
 from pyconsoleapp import ConsoleAppComponent
 
-if TYPE_CHECKING:
-    from pydiet.cli.ingredients.ingredient_edit_service import IngredientEditService
-    from pydiet.cli.ingredients.ingredient_save_check_component import IngredientSaveCheckComponent
-    from pydiet.ingredients import ingredient_service
-    from pydiet.data import repository_service
+from pydiet.cli.ingredients import ingredient_edit_service as ies
+from pydiet.ingredients import ingredient_service as igs
+
 
 _TEMPLATE = '''Nutrient Editor:
 ----------------
@@ -28,10 +24,7 @@ class EditIngredientNutrientMenuComponent(ConsoleAppComponent):
 
     def __init__(self):
         super().__init__()
-        self._ies: 'IngredientEditService' = inject(
-            'pydiet.cli.ingredient_edit_service')
-        self._igs: 'ingredient_service' = inject('pydiet.ingredient_service')
-        self._rp: 'repository_service' = inject('pydiet.repository_service')
+        self._ies = ies.IngredientEditService()
         self.set_option_response('n', self.on_edit_other)
         self.set_option_response('s', self.on_save_changes)
 
@@ -43,7 +36,7 @@ class EditIngredientNutrientMenuComponent(ConsoleAppComponent):
             na = self._ies.ingredient.get_nutrient_amount(pnmap[option_number])
             pn = pn + '({}) -- {}\n'.format(
                 option_number,
-                self._igs.summarise_nutrient_amount(na)
+                igs.summarise_nutrient_amount(na)
             )
         # Now build the secondary nutrient string;
         sn = ''  # secondary nutrient string;
@@ -54,7 +47,7 @@ class EditIngredientNutrientMenuComponent(ConsoleAppComponent):
                     snmap[option_number])
                 sn = sn + '({}) -- {}\n'.format(
                     option_number,
-                    self._igs.summarise_nutrient_amount(na)
+                    igs.summarise_nutrient_amount(na)
                 )
         else:
             sn = 'None defined.'

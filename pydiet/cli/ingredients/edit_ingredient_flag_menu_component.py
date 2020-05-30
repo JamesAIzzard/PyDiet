@@ -1,13 +1,7 @@
-from typing import TYPE_CHECKING, cast
-
-from pinjector import inject
-
 from pyconsoleapp import ConsoleAppComponent
 
-if TYPE_CHECKING:
-    from pydiet.cli.ingredients.ingredient_edit_service import IngredientEditService
-    from pydiet.ingredients import ingredient_service
-    from pydiet.data import repository_service
+from pydiet.cli.ingredients import ingredient_edit_service as ies
+from pydiet.ingredients import ingredient_service as igs
 
 _FLAG_MENU = '''(s) -- Save Changes
 
@@ -20,9 +14,7 @@ class EditIngredientFlagMenuComponent(ConsoleAppComponent):
 
     def __init__(self):
         super().__init__()
-        self._ies:'IngredientEditService' = inject('pydiet.cli.ingredient_edit_service')
-        self._igs:'ingredient_service' = inject('pydiet.ingredient_service')
-        self._rp:'repository_service' = inject('pydiet.repository_service')
+        self._ies = ies.IngredientEditService()
         self.set_option_response('s', self.on_save_changes)
 
     def print(self):
@@ -31,7 +23,7 @@ class EditIngredientFlagMenuComponent(ConsoleAppComponent):
             raise AttributeError
         flags_menu = ''
         for flag_number in self._ies.flag_number_name_map.keys():
-            flag_summary = self._igs.summarise_flag(self._ies.ingredient, 
+            flag_summary = igs.summarise_flag(self._ies.ingredient, 
                 self._ies.flag_name_from_number(flag_number))
             flags_menu = flags_menu + _FLAG_MENU_ITEM.format(
                 flag_number=flag_number,

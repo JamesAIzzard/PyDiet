@@ -1,12 +1,7 @@
-from typing import TYPE_CHECKING
-
 from pyconsoleapp import ConsoleAppComponent
-from pinjector import inject
 
-if TYPE_CHECKING:
-    from pydiet.recipes import recipe_service
-    from pydiet.cli.recipes.recipe_edit_service import RecipeEditService
-#   from pydiet.cli.recipes.recipe_save_check_component import RecipeSaveCheckComponent
+from pydiet.recipes import recipe_service as rcs
+from pydiet.cli.recipes import recipe_edit_service as res
 
 _MENU_TEMPLATE = '''Choose an option:
 (1) -- Create a new recipe.
@@ -20,9 +15,7 @@ class RecipeMenuComponent(ConsoleAppComponent):
 
     def __init__(self):
         super().__init__()
-        self._res: 'RecipeEditService' = inject(
-            'pydiet.cli.recipe_edit_service')
-        self._rcs: 'recipe_service' = inject('pydiet.recipe_service')
+        self._res = res.RecipeEditService()
         self.set_option_response('1', self.on_create)
         self.set_option_response('2', self.on_edit)
         self.set_option_response('3', self.on_delete)
@@ -40,7 +33,7 @@ class RecipeMenuComponent(ConsoleAppComponent):
 
     def on_create(self):
         # Put a fresh recipe on the scope;
-        self._res.recipe = self._rcs.load_new_recipe()
+        self._res.recipe = rcs.load_new_recipe()
         # Configure the save reminder;
         self.app.guard_exit('home.recipes.edit', 'RecipeSaveCheckComponent')
         # Go into edit mode;

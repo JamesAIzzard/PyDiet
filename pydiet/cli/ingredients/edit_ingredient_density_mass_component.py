@@ -1,13 +1,8 @@
-from typing import TYPE_CHECKING
-
 from pyconsoleapp import ConsoleAppComponent
-from pinjector import inject
 
 from pydiet.shared.exceptions import UnknownUnitError
-
-if TYPE_CHECKING:
-    from pydiet.cli.ingredients.ingredient_edit_service import IngredientEditService
-    from pydiet.shared import utility_service
+from pydiet.cli.ingredients import ingredient_edit_service as ies
+from pydiet.shared import utility_service as uts
 
 _TEMPLATE = '''
     {vol}{vol_units} of {ingredient_name}
@@ -25,15 +20,14 @@ Valid units:
 class EditIngredientDensityMassComponent(ConsoleAppComponent):
     def __init__(self):
         super().__init__()
-        self._ies:'IngredientEditService' = inject('pydiet.cli.ingredient_edit_service')
-        self._us:'utility_service' = inject('pydiet.utility_service')
+        self._ies = ies.IngredientEditService()
 
     def print(self):
         output = _TEMPLATE.format(
             vol=self._ies.temp_qty,
             vol_units=self._ies.temp_qty_units,
             ingredient_name=self._ies.ingredient.name.lower(),
-            valid_units=self._us.recognised_mass_units()
+            valid_units=uts.recognised_mass_units()
         )
         output = self.app.fetch_component('standard_page_component').print(output)
         return output
@@ -41,14 +35,14 @@ class EditIngredientDensityMassComponent(ConsoleAppComponent):
     def dynamic_response(self, response):
         try:
             # Try and parse the number and text;
-            mass, units = self._us.parse_number_and_text(response)
+            mass, units = uts.parse_number_and_text(response)
         # Catch the parse failure;
         except ValueError:
             self.app.error_message = "Unable to parse {} as a mass and unit. Try again.".format(response)
             return
         try:
             # Try and parse the unit into the correct case;
-            units = self._us.parse_mass_unit(units)
+            units = uts.parse_mass_unit(units)
         except UnknownUnitError:
             self.app.error_message = "{} is not a recognised mass unit.".format(units)
             return            

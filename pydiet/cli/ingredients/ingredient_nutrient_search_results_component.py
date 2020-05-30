@@ -1,11 +1,7 @@
-from typing import TYPE_CHECKING
-
 from pyconsoleapp import ConsoleAppComponent
-from pinjector import inject
 
-if TYPE_CHECKING:
-    from pydiet.cli.ingredients.ingredient_edit_service import IngredientEditService
-    from pydiet.ingredients import ingredient_service
+from pydiet.cli.ingredients import ingredient_edit_service as ies
+from pydiet.ingredients import ingredient_service as igs
 
 _TEMPLATE = '''Nutrient Search Results:
 ------------------------
@@ -14,19 +10,19 @@ Select a nutrient:
 {results_display}
 '''
 
+
 class IngredientNutrientSearchResultsComponent(ConsoleAppComponent):
 
     def __init__(self):
         super().__init__()
-        self._ies:'IngredientEditService' = inject('pydiet.cli.ingredient_edit_service')
-        self._igs:'ingredient_service' = inject('pydiet.ingredient_service')
+        self._ies = ies.IngredientEditService()
 
     def print(self):
         results_display = ''
         nmap = self._ies.nutrient_search_result_number_name_map
         for num in nmap.keys():
             na = self._ies.ingredient.get_nutrient_amount(nmap[num])
-            summary = self._igs.summarise_nutrient_amount(na)
+            summary = igs.summarise_nutrient_amount(na)
             results_display = \
                 results_display + '({}) -- {}\n'.format(
                     num,
@@ -50,4 +46,5 @@ class IngredientNutrientSearchResultsComponent(ConsoleAppComponent):
                 self._ies.nutrient_search_result_number_name_map[response]
             self._ies.current_nutrient_amount = \
                 self._ies.ingredient.get_nutrient_amount(nutrient_name)
-            self.app.goto('home.ingredients.edit.nutrients.nutrient_ingredient_qty')
+            self.app.goto(
+                'home.ingredients.edit.nutrients.nutrient_ingredient_qty')

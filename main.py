@@ -1,13 +1,12 @@
 import pinjector
 from pyconsoleapp import ConsoleApp
 
-import dependencies
-
 # Run startup checks on data integrity;
 from pydiet.data import validate_ingredient_template
 
 # Configure the cli;
 app:'ConsoleApp' = ConsoleApp('PyDiet')
+pinjector.create_namespace('pydiet.cli')
 pinjector.register('pydiet.cli', app, 'app')
 app.register_component_package('pydiet.cli')
 app.register_component_package('pydiet.cli.ingredients')

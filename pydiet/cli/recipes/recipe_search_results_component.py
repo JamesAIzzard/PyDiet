@@ -1,13 +1,7 @@
-from typing import TYPE_CHECKING
-
 from pyconsoleapp import ConsoleAppComponent
-from pinjector import inject
 
-if TYPE_CHECKING:
-    from pydiet.cli.recipes.recipe_edit_service import RecipeEditService
-    from pydiet.cli.recipes.recipe_save_check_component import RecipeSaveCheckComponent
-    from pydiet.recipes import recipe_service
-    from pydiet.data import repository_service
+from pydiet.cli.recipes import recipe_edit_service as res
+from pydiet.recipes import recipe_service as rcs
 
 _TEMPLATE = '''Recipe Search Results:
 ----------------------
@@ -21,10 +15,7 @@ class RecipeSearchResultsComponent(ConsoleAppComponent):
 
     def __init__(self):
         super().__init__()
-        self._res: 'RecipeEditService' = inject(
-            'pydiet.cli.recipe_edit_service')
-        self._rcs: 'recipe_service' = inject('pydiet.recipe_service')
-        self._rp: 'repository_service' = inject('pydiet.repository_service')
+        self._res = res.RecipeEditService()
 
     def print(self):
         results_display = ''
@@ -49,12 +40,12 @@ class RecipeSearchResultsComponent(ConsoleAppComponent):
             # Convert the response into an recipe name;
             recipe_name = self._res.recipe_search_result_number_name_map[response]
             # Resolve the datafile name for the recipe;
-            self._res.datafile_name = self._rcs.resolve_recipe_datafile_name(
+            self._res.datafile_name = rcs.resolve_recipe_datafile_name(
                 recipe_name)
             # If we are in edit mode;
             if self._res.mode == 'edit':
                 # Load the ingredient into the res;
-                self._res.recipe = self._rcs.load_recipe(
+                self._res.recipe = rcs.load_recipe(
                     self._res.datafile_name)
                 # Configure the save reminder;
                 self.app.guard_exit('home.recipes.edit',
@@ -64,7 +55,7 @@ class RecipeSearchResultsComponent(ConsoleAppComponent):
             # If we are in delete mode;
             elif self._res.mode == 'delete':
                 # Load the ingredient into the res;
-                self._res.recipe = self._rcs.load_recipe(
+                self._res.recipe = rcs.load_recipe(
                     self._res.datafile_name)
                 # Move on to confirm deletion;
                 self.app.goto('home.recipes.confirm_delete')

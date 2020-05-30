@@ -1,7 +1,5 @@
-from pydiet.shared.exceptions import UnknownUnitError
 from typing import TYPE_CHECKING, Dict, Union
 
-from pinjector import inject
 
 from pydiet.ingredients.exceptions import (
     NutrientQtyExceedsIngredientQtyError,
@@ -9,11 +7,11 @@ from pydiet.ingredients.exceptions import (
     NutrientAmountUndefinedError,
     FlagNutrientConflictError
 )
+from pydiet.shared import utility_service as uts
+from pydiet.shared import configs as cfg
 
 if TYPE_CHECKING:
     from pydiet.ingredients.ingredient import Ingredient
-    from pydiet.shared import utility_service
-    from pydiet.shared import configs
 
 class NutrientAmount():
     def __init__(
@@ -22,15 +20,13 @@ class NutrientAmount():
         parent_ingredient: 'Ingredient'
     ):
         self.name = name
-        self._us:'utility_service' = inject('pydiet.utility_service')
-        self._cf:'configs' = inject('pydiet.configs')
         self._parent_ingredient: 'Ingredient' = parent_ingredient
         self._child_nutrient_amounts: Dict[str, 'NutrientAmount'] = {}
         self._parent_nutrient_amounts: Dict[str, 'NutrientAmount'] = {}
         # If I have child nutrients, then populate those;
-        if self.name in self._cf.NUTRIENT_GROUP_DEFINITIONS.keys():
+        if self.name in cfg.NUTRIENT_GROUP_DEFINITIONS.keys():
             # For each of my constituents;
-            for cn_name in self._cf.NUTRIENT_GROUP_DEFINITIONS[name]:
+            for cn_name in cfg.NUTRIENT_GROUP_DEFINITIONS[name]:
                 # Has its object been instantiated on the parent already?
                 if cn_name in self._parent_ingredient._nutrient_amounts.keys():
                     cn = self._parent_ingredient.get_nutrient_amount(cn_name)
@@ -72,7 +68,7 @@ class NutrientAmount():
     @ingredient_qty_units.setter
     def ingredient_qty_units(self, value: str):
         # Interpret the qty unit;
-        self._us.parse_qty_unit(value)
+        uts.parse_qty_unit(value)
         # Proceed with safe set;
         self._safe_set('ingredient_qty_units', value)
 
@@ -82,15 +78,15 @@ class NutrientAmount():
         if not self.defined:
             raise NutrientAmountUndefinedError
         # If my units are already defined as a mass;
-        if self.ingredient_qty_units in self._us.recognised_mass_units():
-            return self._us.convert_mass_units(
+        if self.ingredient_qty_units in uts.recognised_mass_units():
+            return uts.convert_mass_units(
                 self.ingredient_qty,
                 self.ingredient_qty_units,
                 'g'
             )
         # My units must be defined as a vol;
         else:
-            return self._us.convert_volume_to_mass(
+            return uts.convert_volume_to_mass(
                 self.ingredient_qty,
                 self.ingredient_qty_units,
                 'g',
@@ -104,7 +100,7 @@ class NutrientAmount():
 
     @property
     def nutrient_mass_g(self) -> float:
-        return self._us.convert_mass_units(
+        return uts.convert_mass_units(
             self.nutrient_mass,
             self.nutrient_mass_units,
             'g'
@@ -115,8 +111,8 @@ class NutrientAmount():
         # Try and set the value first;
         self._safe_set('nutrient_mass', value)
         # Check through all the flag associations;
-        for flag_name in self._cf.NUTRIENT_FLAG_RELS.keys():
-            for assoc_nutr in self._cf.NUTRIENT_FLAG_RELS[flag_name]:
+        for flag_name in cfg.NUTRIENT_FLAG_RELS.keys():
+            for assoc_nutr in cfg.NUTRIENT_FLAG_RELS[flag_name]:
                 # If I am associated with a flag;
                 if self.name == assoc_nutr:
                     # If I am >0 and flag says free;
@@ -138,7 +134,7 @@ class NutrientAmount():
     @nutrient_mass_units.setter
     def nutrient_mass_units(self, value: str):
         # Parse the unit;
-        value = self._us.parse_qty_unit(value)
+        value = uts.parse_qty_unit(value)
         # Proceed with safe set;
         self._safe_set('nutrient_mass_units', value)
 
@@ -148,21 +144,21 @@ class NutrientAmount():
         if not self.defined:
             raise NutrientAmountUndefinedError
         # Convert the nutrient mass to grams;
-        nutrient_mass_g = self._us.convert_mass_units(
+        nutrient_mass_g = uts.convert_mass_units(
             self.nutrient_mass,
             self.nutrient_mass_units,
             'g'
         )
         # If ingredient qty is a mass, convert to grams;
-        if self.ingredient_qty_units in self._us.recognised_mass_units():
-            ingredient_mass_g = self._us.convert_mass_units(
+        if self.ingredient_qty_units in uts.recognised_mass_units():
+            ingredient_mass_g = uts.convert_mass_units(
                 self.ingredient_qty,
                 self.ingredient_qty_units,
                 'g'
             )
         # If ingredient qty is a vol, convert to grams;
         else:
-            ingredient_mass_g = self._us.convert_volume_to_mass(
+            ingredient_mass_g = uts.convert_volume_to_mass(
                 self.ingredient_qty,
                 self.ingredient_qty_units,
                 'g',
@@ -192,7 +188,7 @@ class NutrientAmount():
         if not self.defined:
             raise NutrientAmountUndefinedError
         # Check nutrient qty does not exceed ingredient qty;
-        nut_mass_g = self._us.convert_mass_units(
+        nut_mass_g = uts.convert_mass_units(
             self.nutrient_mass, self.nutrient_mass_units, 'g'
         )
         if nut_mass_g > self.ingredient_qty_g:

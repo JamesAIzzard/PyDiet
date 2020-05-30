@@ -1,15 +1,11 @@
-from typing import TYPE_CHECKING
-
 from pyconsoleapp import ConsoleAppComponent
-from pinjector import inject
 
 from pydiet.recipes.exceptions import (
     RecipeNameUndefinedError
 )
 
-if TYPE_CHECKING:
-    from pydiet.cli.recipes.recipe_edit_service import RecipeEditService
-    from pydiet.recipes import recipe_service
+from pydiet.cli.recipes import recipe_edit_service as res
+from pydiet.recipes import recipe_service as rcs
 
 _TEMPLATE = '''
 Recipe Editor:
@@ -31,9 +27,7 @@ class RecipeEditMenuComponent(ConsoleAppComponent):
 
     def __init__(self):
         super().__init__()
-        self._res: 'RecipeEditService' = inject(
-            'pydiet.cli.recipe_edit_service')
-        self._rcs: 'recipe_service' = inject('pydiet.recipe_service')
+        self._res = res.RecipeEditService()
         self.set_option_response('s', self.on_save)
         self.set_option_response('1', self.on_edit_name)
         self.set_option_response('2', self.on_edit_serve_times)
@@ -50,10 +44,10 @@ class RecipeEditMenuComponent(ConsoleAppComponent):
             raise AttributeError
         # Build the template;
         output = _TEMPLATE.format(
-            name=self._rcs.summarise_name(self._res.recipe),
-            serve_times=self._rcs.summarise_serve_intervals(self._res.recipe),
-            categories=self._rcs.summarise_categories(self._res.recipe),
-            ingredients=self._rcs.summarise_ingredients(self._res.recipe)
+            name=rcs.summarise_name(self._res.recipe),
+            serve_times=rcs.summarise_serve_intervals(self._res.recipe),
+            categories=rcs.summarise_categories(self._res.recipe),
+            ingredients=rcs.summarise_ingredients(self._res.recipe)
         )
         output = self.app.fetch_component(
             'standard_page_component').print(output)

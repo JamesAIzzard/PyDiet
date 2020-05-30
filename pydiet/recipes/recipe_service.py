@@ -1,39 +1,33 @@
 from typing import TYPE_CHECKING, List, Optional
 from heapq import nlargest
 
-from pinjector import inject
-
-from pydiet.recipes.recipe import Recipe
 from pydiet.recipes.exceptions import RecipeNotFoundError
 
+from pydiet.data import repository_service as rps
+from pydiet.shared import utility_service as uts
+from pydiet.recipes import recipe
+
 if TYPE_CHECKING:
-    from pydiet.data import repository_service
-    from pydiet.shared import utility_service
     from pydiet.recipes.recipe import Recipe
 
 def load_new_recipe() -> 'Recipe':
-    _rs:'repository_service' = inject('pydiet.repository_service')
-    data_template = _rs.read_recipe_template_data()
-    return Recipe(data_template)
+    data_template = rps.read_recipe_template_data()
+    return recipe.Recipe(data_template)
 
 def load_recipe(datafile_name:str) -> 'Recipe':
-    _rs:'repository_service' = inject('pydiet.repository_service')
-    r_data = _rs.read_recipe_data(datafile_name)
-    return Recipe(r_data)
+    r_data = rps.read_recipe_data(datafile_name)
+    return recipe.Recipe(r_data)
 
 def save_new_recipe(recipe: 'Recipe') -> str:
-    _rs:'repository_service' = inject('pydiet.repository_service')
-    return _rs.create_recipe_data(recipe._data)
+    return rps.create_recipe_data(recipe._data)
 
 def update_existing_recipe(recipe:'Recipe', datafile_name:str)->None:
-    _rs:'repository_service' = inject('pydiet.repository_service')
     # Update the ingredient;
-    _rs.update_recipe_data(recipe._data, datafile_name)
+    rps.update_recipe_data(recipe._data, datafile_name)
 
 def resolve_recipe_datafile_name(recipe_name:str) -> str:
-    _rs:'repository_service' = inject('pydiet.repository_service')
     # Load the index;
-    index = _rs.read_recipe_index()
+    index = rps.read_recipe_index()
     # Iterate through the index, searching for the filename;
     for datafile_name in index.keys():
         if index[datafile_name] == recipe_name:
@@ -43,19 +37,16 @@ def resolve_recipe_datafile_name(recipe_name:str) -> str:
     raise RecipeNotFoundError
 
 def get_matching_recipe_names(search_term:str, num_results:int) -> List[str]:
-    _rs:'repository_service' = inject('pydiet.repository_service')
-    _ut:'utility_service' = inject('pydiet.utility_service')
     # Load a list of the recipe names;
-    index = _rs.read_recipe_index()
+    index = rps.read_recipe_index()
     # Score each of the names against the search term;
-    results = _ut.score_similarity(list(index.values()), search_term)
+    results = uts.score_similarity(list(index.values()), search_term)
     # Return the n largest scores;
     return nlargest(num_results, results, key=results.get)
 
 def recipe_name_used(name:str, ignore_datafile:Optional[str]=None)->bool:
-    _rs:'repository_service' = inject('pydiet.repository_service')
     # Bring the name list in;
-    index = _rs.read_recipe_index()
+    index = rps.read_recipe_index()
     # If we are ignoring a datafile, then drop it;
     if ignore_datafile:
         index.pop(ignore_datafile)

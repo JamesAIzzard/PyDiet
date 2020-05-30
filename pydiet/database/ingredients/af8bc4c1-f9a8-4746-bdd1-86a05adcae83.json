@@ -13,7 +13,7 @@
     "vegan": false,
     "vegetarian": true
   },
-  "name": "Goat Cheese",
+  "name": "Goat's Cheese",
   "nutrients": {
     "a_carotene": {
       "ingredient_qty": null,
@@ -34,9 +34,9 @@
       "nutrient_mass_units": null
     },
     "alcohol": {
-      "ingredient_qty": 100.0,
+      "ingredient_qty": 100,
       "ingredient_qty_units": "g",
-      "nutrient_mass": 0.0,
+      "nutrient_mass": 0,
       "nutrient_mass_units": "g"
     },
     "amylopectin": {

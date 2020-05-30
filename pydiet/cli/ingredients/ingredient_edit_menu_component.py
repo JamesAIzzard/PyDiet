@@ -1,16 +1,8 @@
-from pydiet.shared.configs import PRIMARY_NUTRIENTS
-from typing import TYPE_CHECKING, cast
-
-from pinjector import inject
-
 from pyconsoleapp import ConsoleAppComponent
 
-if TYPE_CHECKING:
-    from pydiet.shared import configs
-    from pydiet.ingredients import ingredient_service
-    from pydiet.data import repository_service
-    from pydiet.cli.ingredients.ingredient_edit_service import IngredientEditService
-    from pydiet.cli.ingredients.ingredient_save_check_component import IngredientSaveCheckComponent
+from pydiet.data import repository_service as rps
+from pydiet.ingredients import ingredient_service as igs
+from pydiet.cli.ingredients import ingredient_edit_service as ies
 
 _TEMPLATE = '''Ingredient Editor:
 ------------------
@@ -35,11 +27,7 @@ Status: {status}
 class IngredientEditMenuComponent(ConsoleAppComponent):
     def __init__(self):
         super().__init__()
-        self._cf: 'configs' = inject('pydiet.configs')
-        self._igs: 'ingredient_service' = inject('pydiet.ingredient_service')
-        self._ies: 'IngredientEditService' = inject(
-            'pydiet.cli.ingredient_edit_service')
-        self._rp: 'repository_service' = inject('pydiet.repository_service')
+        self._ies = ies.IngredientEditService()
         self.set_option_response('1', self.on_edit_name)
         self.set_option_response('2', self.on_edit_cost)
         self.set_option_response('3', self.on_configure_liquid_measurements)
@@ -62,26 +50,26 @@ class IngredientEditMenuComponent(ConsoleAppComponent):
         # Start with the primary nutrients;
         primary_nutrients = self._ies.ingredient.primary_nutrients
         for pnn in primary_nutrients.keys():
-            n = n + '- {}\n'.format(self._igs.
+            n = n + '- {}\n'.format(igs.
                                     summarise_nutrient_amount(primary_nutrients[pnn]))
         # Now do any defined secondary nutrients;
         defined_secondary_nutrients = self._ies.ingredient.defined_secondary_nutrients
         for dsnn in defined_secondary_nutrients:
-            n = n + '- {}\n'.format(self._igs.
+            n = n + '- {}\n'.format(igs.
                                     summarise_nutrient_amount(defined_secondary_nutrients[dsnn]))
         # Build the flag summary;
         f = ''
         for flag_name in self._ies.ingredient.all_flag_data.keys():
-            f = f + '- {}\n'.format(self._igs.summarise_flag(
+            f = f + '- {}\n'.format(igs.summarise_flag(
                 self._ies.ingredient,
                 flag_name
             ))
         # Assemble the template
         output = _TEMPLATE.format(
-            status=self._igs.summarise_status(self._ies.ingredient),
-            name=self._igs.summarise_name(self._ies.ingredient),
-            cost=self._igs.summarise_cost(self._ies.ingredient),
-            density_status=self._igs.summarise_density(self._ies.ingredient),
+            status=igs.summarise_status(self._ies.ingredient),
+            name=igs.summarise_name(self._ies.ingredient),
+            cost=igs.summarise_cost(self._ies.ingredient),
+            density_status=igs.summarise_density(self._ies.ingredient),
             flags=f,
             nutrients=n
         )

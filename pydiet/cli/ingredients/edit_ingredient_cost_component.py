@@ -1,12 +1,6 @@
-from typing import TYPE_CHECKING
-
 from pyconsoleapp import ConsoleAppComponent
-from pinjector import inject
 
-if TYPE_CHECKING:
-    from pydiet.ingredients import ingredient_service
-    from pydiet.ingredients.ingredient import Ingredient
-    from pydiet.cli.ingredients.ingredient_edit_service import IngredientEditService
+from pydiet.cli.ingredients import ingredient_edit_service as ies
 
 _UNITS_TEMPLATE = '''
     {qty}{units} of {ingredient_name} costs 
@@ -21,8 +15,7 @@ class EditIngredientCostComponent(ConsoleAppComponent):
 
     def __init__(self):
         super().__init__()
-        self._igs:'ingredient_service' = inject('pydiet.ingredient_service')
-        self._ies:'IngredientEditService' = inject('pydiet.cli.ingredient_edit_service')
+        self._ies = ies.IngredientEditService()
 
     def print(self):
         # Build the output;

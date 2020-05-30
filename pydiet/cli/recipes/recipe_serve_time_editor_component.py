@@ -1,14 +1,10 @@
-from typing import TYPE_CHECKING
-
-from pinjector import inject
 from pyconsoleapp import ConsoleAppComponent
 
 from pydiet.cli.shared.exceptions import LetterIntegerParseError
 
-if TYPE_CHECKING:
-    from pydiet.cli.recipes.recipe_edit_service import RecipeEditService
-    from pydiet.cli.shared import utility_service as cli_utility_service
-    from pydiet.shared import configs
+from pydiet.cli.recipes import recipe_edit_service as res
+from pydiet.shared import configs as cfg
+from pydiet.cli.shared import utility_service as cut
 
 _TEMPLATE = '''{recipe_name} can be served at the following times:
 -------------------
@@ -30,9 +26,7 @@ class RecipeServeTimeEditorComponent(ConsoleAppComponent):
 
     def __init__(self):
         super().__init__()
-        self._res:'RecipeEditService' = inject('pydiet.cli.recipe_edit_service')
-        self._cf:'configs' = inject('pydiet.configs')
-        self._cut:'cli_utility_service' = inject('pydiet.cli.utility_service')
+        self._res = res.RecipeEditService()
         self.set_option_response('s', self.on_save_changes)
         self.set_option_response('n', self.on_include_new_custom_time)
 
@@ -54,7 +48,7 @@ class RecipeServeTimeEditorComponent(ConsoleAppComponent):
             preset_serve_times = preset_serve_times + '(p{num}) -- {preset_name}: {preset_time}\n'.format(
                 num=time_num,
                 preset_name=preset_name,
-                preset_time=self._cf.PRESET_SERVE_TIMES[preset_name]
+                preset_time=cfg.PRESET_SERVE_TIMES[preset_name]
             )
         # Add these parts into the main template;
         output = _TEMPLATE.format(
@@ -75,7 +69,7 @@ class RecipeServeTimeEditorComponent(ConsoleAppComponent):
     def dynamic_response(self, raw_response: str) -> None:
         # Try and parse the raw response into a single letter and integer;
         try:
-            letter, integer = self._cut.parse_letter_and_integer(raw_response)
+            letter, integer = cut.parse_letter_and_integer(raw_response)
         except LetterIntegerParseError:
             return
         # If we are deleting an existing time;
@@ -93,5 +87,5 @@ class RecipeServeTimeEditorComponent(ConsoleAppComponent):
             except KeyError:
                 return
             # Add the preset time to the recipe;
-            self._res.recipe.add_serve_interval(self._cf.PRESET_SERVE_TIMES[p_name])
+            self._res.recipe.add_serve_interval(cfg.PRESET_SERVE_TIMES[p_name])
             return

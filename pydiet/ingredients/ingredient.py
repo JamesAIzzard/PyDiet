@@ -1,18 +1,13 @@
-from typing import TYPE_CHECKING, Optional, Dict, List
-
-from pinjector import inject
+from typing import Optional, Dict, List
 
 from pydiet.ingredients.nutrient_amount import NutrientAmount
 from pydiet.ingredients.exceptions import IngredientDensityUndefinedError
 
-if TYPE_CHECKING:
-    from pydiet.shared import configs
-    from pydiet.shared import utility_service
+from pydiet.shared import utility_service as uts
+from pydiet.shared import configs as cfg
 
 class Ingredient():
     def __init__(self, data):
-        self._ut:'utility_service' = inject('pydiet.utility_service')
-        self._cf:'configs' = inject('pydiet.configs')
         self._data = data
         self._nutrient_amounts: Dict[str, 'NutrientAmount'] = {}
         # Instantiate the nutrient amounts;
@@ -38,14 +33,14 @@ class Ingredient():
     @property
     def cost_per_g(self) -> float:
         # If ingredient qty is a mass;
-        if self.cost_data['ingredient_qty_units'] in self._ut.recognised_mass_units():
-            return self._data['cost_per_mass']['cost']/self._ut.convert_mass_units(
+        if self.cost_data['ingredient_qty_units'] in uts.recognised_mass_units():
+            return self._data['cost_per_mass']['cost']/uts.convert_mass_units(
                 self._data['cost_per_mass']['ingredient_qty'],
                 self._data['cost_per_mass']['ingredient_qty_units'], "g"            
             )
         # Ingredient qty is a volume;
         else:
-            return self._data['cost_per_mass']['cost']/self._ut.convert_volume_to_mass(
+            return self._data['cost_per_mass']['cost']/uts.convert_volume_to_mass(
                 self._data['cost_per_mass']['ingredient_qty'],
                 self._data['cost_per_mass']['ingredient_qty_units'],
                 'g',
@@ -58,7 +53,7 @@ class Ingredient():
 
     def set_cost(self, cost: float, mass: float, mass_units: str) -> None:
         # Parse the qty units;
-        mass_units = self._ut.parse_qty_unit(mass_units)
+        mass_units = uts.parse_qty_unit(mass_units)
         # Set the data;
         self._data['cost_per_mass']['cost'] = cost
         self._data['cost_per_mass']['ingredient_qty'] = mass
@@ -77,13 +72,13 @@ class Ingredient():
         if not self.density_is_defined:
             raise IngredientDensityUndefinedError
         # Convert mass component to grams;
-        mass_g = self._ut.convert_mass_units(
+        mass_g = uts.convert_mass_units(
             self._data['vol_density']['ingredient_mass'],
             self._data['vol_density']['ingredient_mass_units'],
             'g'
         )
         # Convert vol component to ml;
-        vol_ml = self._ut.convert_volume_units(
+        vol_ml = uts.convert_volume_units(
             self._data['vol_density']['ingredient_vol'],
             self._data['vol_density']['ingredient_vol_units'],
             'ml'
@@ -98,8 +93,8 @@ class Ingredient():
         ingredient_mass_units: str
     ) -> None:
         # Interpret the units;
-        ingredient_mass_units = self._ut.parse_qty_unit(ingredient_mass_units)
-        ingredient_vol_units = self._ut.parse_qty_unit(ingredient_vol_units)
+        ingredient_mass_units = uts.parse_qty_unit(ingredient_mass_units)
+        ingredient_vol_units = uts.parse_qty_unit(ingredient_vol_units)
         # Set the units;
         self._data['vol_density']['ingredient_mass'] = ingredient_mass
         self._data['vol_density']['ingredient_mass_units'] = ingredient_mass_units
@@ -127,8 +122,8 @@ class Ingredient():
         # Set the flag;
         self.all_flag_data[flag_name] = value
         # Update any associated nutrients:
-        if value and flag_name in self._cf.NUTRIENT_FLAG_RELS.keys():
-            for assoc_nutr_name in self._cf.NUTRIENT_FLAG_RELS[flag_name]:
+        if value and flag_name in cfg.NUTRIENT_FLAG_RELS.keys():
+            for assoc_nutr_name in cfg.NUTRIENT_FLAG_RELS[flag_name]:
                 self.set_nutrient_amount(
                     assoc_nutr_name,
                     100,
@@ -144,16 +139,16 @@ class Ingredient():
     @property
     def primary_nutrients(self)->Dict[str, 'NutrientAmount']:
         primary_nutrients = {}
-        for pn in self._cf.PRIMARY_NUTRIENTS:
+        for pn in cfg.PRIMARY_NUTRIENTS:
             primary_nutrients[pn] = self.get_nutrient_amount(pn)
         return primary_nutrients
 
     @property
     def secondary_nutrients(self)->Dict[str, 'NutrientAmount']:
         secondary_nutrients = {}
-        all_nutrient_names = self._ut.get_all_nutrient_names()
+        all_nutrient_names = uts.get_all_nutrient_names()
         for nn in all_nutrient_names:
-            if not nn in self._cf.PRIMARY_NUTRIENTS:
+            if not nn in cfg.PRIMARY_NUTRIENTS:
                 secondary_nutrients[nn] = self.get_nutrient_amount(nn)
         return secondary_nutrients
 

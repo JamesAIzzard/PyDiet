@@ -1,15 +1,13 @@
 from typing import TYPE_CHECKING
 
-from pinjector import inject
 from pyconsoleapp.builtin_components.yes_no_dialog_component import YesNoDialogComponent
 
-if TYPE_CHECKING:
-    from pydiet.cli.ingredients.ingredient_edit_service import IngredientEditService
+from pydiet.cli.ingredients import ingredient_edit_service as ies
 
 class AskCycleIngredientFlagsComponent(YesNoDialogComponent):
     def __init__(self):
         super().__init__()
-        self._ies:'IngredientEditService' = inject('pydiet.cli.ingredient_edit_service')
+        self._ies = ies.IngredientEditService()
         self.message = 'Set all flags now?'
 
     def on_yes(self):

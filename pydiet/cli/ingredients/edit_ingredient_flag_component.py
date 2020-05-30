@@ -1,12 +1,8 @@
-from typing import TYPE_CHECKING
-
-from pinjector import inject
-
 from pyconsoleapp import ConsoleAppComponent
 
-if TYPE_CHECKING:
-    from pydiet.ingredients import ingredient_service
-    from pydiet.cli.ingredients.ingredient_edit_service import IngredientEditService
+from pydiet.cli.ingredients import ingredient_edit_service as ies
+from pydiet.ingredients import ingredient_service as igs
+
 
 _TEMPLATE = '\nIs {ingredient_name} {flag}?  (y)/(n)\n\n'
 
@@ -14,8 +10,7 @@ _TEMPLATE = '\nIs {ingredient_name} {flag}?  (y)/(n)\n\n'
 class EditIngredientFlagComponent(ConsoleAppComponent):
     def __init__(self):
         super().__init__()
-        self._ies:'IngredientEditService' = inject('pydiet.cli.ingredient_edit_service')
-        self._igs:'ingredient_service' = inject('pydiet.ingredient_service')
+        self._ies = ies.IngredientEditService()
         self.set_option_response('y', self.on_yes)
         self.set_option_response('n', self.on_no)
 

@@ -1,24 +1,16 @@
-from typing import TYPE_CHECKING
-
-
-from pinjector import inject
 from pyconsoleapp.console_app_guard_component import ConsoleAppGuardComponent
 from pyconsoleapp.builtin_components.yes_no_dialog_component import YesNoDialogComponent
 
 from pydiet.recipes.exceptions import (
     RecipeNameUndefinedError
 )
-
-if TYPE_CHECKING:
-    from pydiet.data import repository_service
-    from pydiet.cli.recipes.recipe_edit_service import RecipeEditService
+from pydiet.cli.recipes import recipe_edit_service as res
 
 class RecipeSaveCheckComponent(YesNoDialogComponent, ConsoleAppGuardComponent):
 
     def __init__(self):
         super().__init__()
-        self._rp:'repository_service' = inject('pydiet.repository_service')
-        self._res:'RecipeEditService' = inject('pydiet.cli.recipe_edit_service')
+        self._res = res.RecipeEditService()
         self.message = 'Save changes to this recipe?'
 
     def on_yes(self):

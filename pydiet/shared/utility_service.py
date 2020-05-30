@@ -2,13 +2,12 @@ from typing import Tuple, List, Dict, TYPE_CHECKING
 from difflib import SequenceMatcher
 from datetime import datetime
 
-from pinjector import inject
-
 from pydiet.shared.exceptions import (
     TimeIntervalValueError, 
     UnknownUnitError,
     TimeIntervalParseError, 
 )
+from pydiet.data import repository_service as rps
 
 if TYPE_CHECKING:
     from pydiet.data import repository_service
@@ -97,8 +96,7 @@ def convert_volume_to_mass(
 
 
 def get_all_nutrient_names() -> List[str]:
-    rp: 'repository_service' = inject('pydiet.repository_service')
-    data_template = rp.read_ingredient_template_data()
+    data_template = rps.read_ingredient_template_data()
     return list(data_template['nutrients'].keys())
 
 

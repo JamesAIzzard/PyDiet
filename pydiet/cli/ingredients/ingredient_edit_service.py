@@ -1,24 +1,22 @@
 from typing import TYPE_CHECKING, Dict, Optional, List
 
 from pinjector import inject
+from singleton_decorator import singleton
+
+from pydiet.ingredients import ingredient_service as igs
+from pydiet.shared import configs as cf
+from pydiet.cli.shared import utility_service as cut
 
 if TYPE_CHECKING:
     from pydiet.ingredients.ingredient import Ingredient
     from pydiet.ingredients.nutrient_amount import NutrientAmount
-    from pydiet.ingredients import ingredient_service
     from pyconsoleapp import ConsoleApp
-    from pydiet.shared import configs
-    from pydiet.cli.shared import utility_service as cli_utility_service
-#    from pydiet.cli.ingredients.ingredient_save_check_component import IngredientSaveCheckComponent
 
 
+@singleton
 class IngredientEditService():
     def __init__(self):
-        self._igs: 'ingredient_service' = inject('pydiet.ingredient_service')
-        self._cf: 'configs' = inject('pydiet.configs')
-        self._app: 'ConsoleApp' = inject('pydiet.cli.app')
-        self._cli_utils: 'cli_utility_service' = inject(
-            'pydiet.cli.utility_service')
+        self._app:'ConsoleApp' = inject('pydiet.cli.app')
         self._flag_number_name_map: Optional[Dict[int, str]] = None
         self._primary_nutrient_number_name_map: Optional[Dict[int, str]] = None
         self.ingredient: Optional['Ingredient'] = None
@@ -38,7 +36,7 @@ class IngredientEditService():
         # (Caching is OK because same for all ingredients);
         if not self._flag_number_name_map:
             self._flag_number_name_map = \
-                self._cli_utils.create_number_name_map(
+                cut.create_number_name_map(
                     list(self.ingredient.all_flag_data.keys()))
         # Return from cache;
         return self._flag_number_name_map
@@ -49,18 +47,18 @@ class IngredientEditService():
         # (Caching is OK because same for all ingredients);
         if not self._primary_nutrient_number_name_map:
             self._primary_nutrient_number_name_map = \
-                self._cli_utils.create_number_name_map(
-                    self._cf.PRIMARY_NUTRIENTS)
+                cut.create_number_name_map(
+                    cf.PRIMARY_NUTRIENTS)
         #  Return from cache;
         return self._primary_nutrient_number_name_map
 
     @property
     def nutrient_search_result_number_name_map(self) -> Dict[int, str]:
-        return self._cli_utils.create_number_name_map(self.nutrient_name_search_results)
+        return cut.create_number_name_map(self.nutrient_name_search_results)
 
     @property
     def ingredient_search_result_number_name_map(self) -> Dict[int, str]:
-        return self._cli_utils.create_number_name_map(self.ingredient_search_results)
+        return cut.create_number_name_map(self.ingredient_search_results)
 
     @property
     def current_flag_name(self) -> str:
@@ -77,8 +75,8 @@ class IngredientEditService():
     def defined_secondary_nutrient_number_name_map(self) -> Dict[int, str]:
         defined_secondary_nutr_names = list(
             self.ingredient.defined_secondary_nutrients.keys())
-        start_num = len(self._cf.PRIMARY_NUTRIENTS)+1
-        return self._cli_utils.create_number_name_map(defined_secondary_nutr_names, start_num=start_num)
+        start_num = len(cf.PRIMARY_NUTRIENTS)+1
+        return cut.create_number_name_map(defined_secondary_nutr_names, start_num=start_num)
 
     def flag_name_from_number(self, selection_number: int) -> str:
         return self.flag_number_name_map[selection_number]
@@ -90,8 +88,7 @@ class IngredientEditService():
         # If creating ingredient for first time;
         if not self.datafile_name:
             # Create the datafile and stash the name;
-            self.datafile_name = \
-                self._igs.save_new_ingredient(self.ingredient)
+            self.datafile_name = igs.save_new_ingredient(self.ingredient)
             # Redirect to edit, now datafile exists;
             if redirect_to:
                 self._app.clear_exit('home.ingredients.new')
@@ -101,7 +98,7 @@ class IngredientEditService():
         # If updating an existing datafile;
         else:
             # Update the ingredient;
-            self._igs.update_existing_ingredient(
+            igs.update_existing_ingredient(
                 self.ingredient,
                 self.datafile_name
             )

@@ -1,12 +1,10 @@
-from typing import TYPE_CHECKING, OrderedDict
+from typing import OrderedDict
 
 from pyconsoleapp import ConsoleAppComponent
-from pinjector import inject
 
-if TYPE_CHECKING:
-    from pydiet.data import repository_service
-    from pydiet.cli.ingredients.ingredient_edit_service import IngredientEditService
-    from pydiet.ingredients import ingredient_service
+from pydiet.data import repository_service as rps
+from pydiet.cli.ingredients import ingredient_edit_service as ies
+from pydiet.ingredients import ingredient_service as igs
 
 _TEMPLATE = '''All Ingredients:
 ----------------
@@ -19,15 +17,12 @@ class ViewAllIngredientsComponent(ConsoleAppComponent):
         super().__init__()
         self._numbered_ingredients: OrderedDict[int, str] = {}
         self._selected_ingredient_name: str
-        self._rp: 'repository_service' = inject('pydiet.repository_service')
-        self._ies: 'IngredientEditService' = inject(
-            'pydiet.cli.ingredient_edit_service')
-        self._igs: 'ingredient_service' = inject('pydiet.ingredient_service')
+        self._ies = ies.IngredientEditService()
 
     def print(self):
         # Form the ingredients list;
         # Load the index of names;
-        index = self._rp.read_ingredient_index()
+        index = rps.read_ingredient_index()
         # Init the menu string;
         ingredients_menu = ''
         # If there are no ingredients yet;
@@ -43,17 +38,17 @@ class ViewAllIngredientsComponent(ConsoleAppComponent):
             # Use this dictionary to create the output string;
             for number in self._numbered_ingredients.keys():
                 ## Grab the datafile (we need to load to get the status)
-                current_ingredient_datafile_name = self._igs.resolve_ingredient_datafile_name(
+                current_ingredient_datafile_name = igs.resolve_ingredient_datafile_name(
                     self._numbered_ingredients[number]
                 )
                 ## Load the ingredient;
-                current_ingredient = self._igs.load_ingredient(current_ingredient_datafile_name)
+                current_ingredient = igs.load_ingredient(current_ingredient_datafile_name)
                 ## Add this to the menu;
                 ingredients_menu = ingredients_menu + \
                     '({number}) -- {ingredient_name}: {ingredient_status}\n'.format(
                         number=str(number),
                         ingredient_name=self._numbered_ingredients[number],
-                        ingredient_status=self._igs.summarise_status(current_ingredient)
+                        ingredient_status=igs.summarise_status(current_ingredient)
                     )
         # Place the list into the template;
         output = _TEMPLATE.format(
@@ -76,9 +71,9 @@ class ViewAllIngredientsComponent(ConsoleAppComponent):
         except KeyError:
             return None
         # Load the ingredient into the ies;
-        self._ies.datafile_name = self._igs.resolve_ingredient_datafile_name(
+        self._ies.datafile_name = igs.resolve_ingredient_datafile_name(
             self._selected_ingredient_name)
-        self._ies.ingredient = self._igs.load_ingredient(
+        self._ies.ingredient = igs.load_ingredient(
             self._ies.datafile_name)
         # Redirect to the edit page for that ingredient;
         self.app.goto('home.ingredients.edit')

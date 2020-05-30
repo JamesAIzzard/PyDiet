@@ -1,18 +1,18 @@
-from typing import Callable, TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING, List, Optional
 from heapq import nlargest
 
-from pinjector import inject
-
-from pydiet.ingredients.ingredient import Ingredient
+from pydiet.ingredients import ingredient
 from pydiet.ingredients.exceptions import (
     IngredientNotFoundError
 )
+from pydiet.data import repository_service as rps
+from pydiet.shared import configs as cfg
+from pydiet.shared import utility_service as uts
 
 if TYPE_CHECKING:
     from pydiet.ingredients.ingredient import NutrientAmount
-    from pydiet.shared import utility_service
-    from pydiet.data import repository_service
-    from pydiet.shared import configs
+    from pydiet.ingredients.ingredient import Ingredient
+
 
 INGREDIENT_COST_SUMMARY_TEMPLATE = '£{cost:.2f} for {mass}{mass_units} (£{g_cost:.3f}/g)'
 INGREDIENT_FLAG_SUMMARY_TEMPLATE = '{flag_name}: {status}'
@@ -21,28 +21,23 @@ NUTRIENT_SUMMARY_TEMPLATE = \
 UNDEFINED_NUTRIENT_SUMMARY_TEMPLATE = '{nutrient_name}: Undefined'
 
 def load_new_ingredient() -> 'Ingredient':
-    _rs:'repository_service' = inject('pydiet.repository_service')
-    data_template = _rs.read_ingredient_template_data()
-    return Ingredient(data_template)
+    data_template = rps.read_ingredient_template_data()
+    return ingredient.Ingredient(data_template)
 
 def load_ingredient(datafile_name:str) -> 'Ingredient':
-    _rs:'repository_service' = inject('pydiet.repository_service')
-    i_data = _rs.read_ingredient_data(datafile_name)
-    return Ingredient(i_data)
+    i_data = rps.read_ingredient_data(datafile_name)
+    return ingredient.Ingredient(i_data)
 
 def save_new_ingredient(ingredient: 'Ingredient') -> str:
-    _rs:'repository_service' = inject('pydiet.repository_service')
-    return _rs.create_ingredient_data(ingredient._data)
+    return rps.create_ingredient_data(ingredient._data)
 
 def update_existing_ingredient(ingredient:'Ingredient', datafile_name:str)->None:
-    _rs:'repository_service' = inject('pydiet.repository_service')
     # Update the ingredient;
-    _rs.update_ingredient_data(ingredient._data, datafile_name)
+    rps.update_ingredient_data(ingredient._data, datafile_name)
 
 def resolve_ingredient_datafile_name(ingredient_name:str)->str:
-    _rs:'repository_service' = inject('pydiet.repository_service')
     # Load the index;
-    index = _rs.read_ingredient_index()
+    index = rps.read_ingredient_index()
     # Iterate through the index, searching for filename;
     for datafile_name in index.keys():
         if index[datafile_name] == ingredient_name:
@@ -52,38 +47,32 @@ def resolve_ingredient_datafile_name(ingredient_name:str)->str:
     raise IngredientNotFoundError
 
 def resolve_nutrient_alias(alias: str) -> str:
-    _cf:'configs' = inject('pydiet.configs')
     # Hunt through the alias list and return rootname
     # if match is found;
-    for rootname in _cf.NUTRIENT_ALIASES.keys():
-        if alias in _cf.NUTRIENT_ALIASES[rootname]:
+    for rootname in cfg.NUTRIENT_ALIASES.keys():
+        if alias in cfg.NUTRIENT_ALIASES[rootname]:
             return rootname
     # Not found, just return;
     return alias
 
 def get_matching_ingredient_names(search_term:str, num_results: int) -> List[str]:
-    _rs:'repository_service' = inject('pydiet.repository_service')
-    _ut:'utility_service' = inject('pydiet.utility_service')
     # Load a list of the ingredient names;
-    index = _rs.read_ingredient_index()
+    index = rps.read_ingredient_index()
     # Score each of the names against the search term;
-    results = _ut.score_similarity(list(index.values()), search_term)
+    results = uts.score_similarity(list(index.values()), search_term)
     # Return the n largest scores;
     return nlargest(num_results, results, key=results.get)
 
 def get_matching_nutrient_names(search_term: str, num_results: int) -> List[str]:
-    _rs:'repository_service' = inject('pydiet.repository_service')
-    template = _rs.read_ingredient_template_data()
+    template = rps.read_ingredient_template_data()
     # Score each of the nutrient names against the search term;
-    ut: 'utility_service' = inject('pydiet.utility_service')
-    results = ut.score_similarity(
+    results = uts.score_similarity(
         list(template['nutrients'].keys()), search_term)
     return nlargest(num_results, results, key=results.get)
 
 def ingredient_name_used(name:str, ignore_datafile:Optional[str]=None)->bool:
-    _rs:'repository_service' = inject('pydiet.repository_service')
     # Load the index data;
-    index = _rs.read_ingredient_index()
+    index = rps.read_ingredient_index()
     # If we are ignoring a datafile, drop it;
     if ignore_datafile:
         index.pop(ignore_datafile)
