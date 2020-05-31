@@ -13,8 +13,8 @@ _MENU_TEMPLATE = '''Choose an option:
 
 class IngredientMenuComponent(ConsoleAppComponent):
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, app):
+        super().__init__(app)
         self._ies = ies.IngredientEditService()
         self.set_option_response('1', self.on_create)
         self.set_option_response('2', self.on_edit)

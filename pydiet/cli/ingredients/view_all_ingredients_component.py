@@ -13,8 +13,8 @@ _TEMPLATE = '''All Ingredients:
 
 
 class ViewAllIngredientsComponent(ConsoleAppComponent):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, app):
+        super().__init__(app)
         self._numbered_ingredients: OrderedDict[int, str] = {}
         self._selected_ingredient_name: str
         self._ies = ies.IngredientEditService()

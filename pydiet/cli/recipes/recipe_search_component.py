@@ -12,8 +12,8 @@ Enter recipe name and press enter: '''
 
 class RecipeSearchComponent(ConsoleAppComponent):
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, app):
+        super().__init__(app)
         self._res = res.RecipeEditService()
 
     def print(self):

@@ -2,8 +2,8 @@ from pyconsoleapp.builtin_components.yes_no_dialog_component import YesNoDialogC
 
 
 class EditIngredientDensityQuestionComponent(YesNoDialogComponent):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, app):
+        super().__init__(app)
         self.message = 'Volumetric measurements are not configured on {} yet. Would you like to configure them now?'
 
     def on_yes(self):

@@ -11,8 +11,8 @@ Enter nutrient name and press enter: '''
 
 class IngredientNutrientSearchComponent(ConsoleAppComponent):
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, app):
+        super().__init__(app)
         self._ies = ies.IngredientEditService()
 
     def print(self):

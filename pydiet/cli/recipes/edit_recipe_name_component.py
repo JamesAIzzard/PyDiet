@@ -1,4 +1,4 @@
-from pyconsoleapp.console_app_component import ConsoleAppComponent
+from pyconsoleapp import ConsoleAppComponent
 
 from pydiet.cli.recipes import recipe_edit_service as res
 from pydiet.recipes import recipe_service as rcs
@@ -9,8 +9,8 @@ _TEMPLATE = '''Enter recipe name:
 
 class EditRecipeNameComponent(ConsoleAppComponent):
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, app):
+        super().__init__(app)
         self._res = res.RecipeEditService()
 
     def print(self):

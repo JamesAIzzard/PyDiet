@@ -3,25 +3,17 @@ import importlib
 import importlib.util
 from typing import Callable, Dict, List, Optional, TYPE_CHECKING, cast
 
-import pinjector
-from pinjector import inject
-
-from pyconsoleapp import utility_service
-from pyconsoleapp import configs
+from pyconsoleapp import utility_service as uts
+from pyconsoleapp import configs as cfg
 
 if TYPE_CHECKING:
-    from pyconsoleapp.console_app_component import ConsoleAppComponent
-    from pyconsoleapp.console_app_guard_component import ConsoleAppGuardComponent
-
-pinjector.create_namespace('pyconsoleapp')
-pinjector.register('pyconsoleapp', utility_service)
-pinjector.register('pyconsoleapp', configs)
-
+    from pyconsoleapp.components import (
+        ConsoleAppComponent,
+        ConsoleAppGuardComponent
+    )
 
 class ConsoleApp():
     def __init__(self, name):
-        self._ut: 'utility_service' = inject('pyconsoleapp.utility_service')
-        self._cf: 'configs' = inject('pyconsoleapp.configs')
         self._response: Optional[str] = None
         self._root_route: str = ''
         self._route: str = ''
@@ -37,8 +29,6 @@ class ConsoleApp():
         self.name: str = name
         self.error_message: Optional[str] = None
         self.info_message: Optional[str] = None
-        # Upload self to DI;
-        pinjector.register('pyconsoleapp', self, 'app')
 
     @property
     def _active_option_responses(self) -> Dict[str, Callable]:
@@ -165,11 +155,11 @@ class ConsoleApp():
         constructor in the registered component packages.
         '''
         # Convert the class name into its corresponding filename;
-        component_filename = self._ut.pascal_to_snake(component_class_name)
+        component_filename = uts.pascal_to_snake(component_class_name)
         # Create place to put constructor when found;
         constructor = None
         # Then look in the default components;
-        builtins_package = self._cf.builtin_component_package + '.{}'
+        builtins_package = cfg.builtin_component_package + '.{}'
         if importlib.util.find_spec(builtins_package.format(component_filename)):
             component_module = importlib.import_module(
                 builtins_package.format(component_filename))
@@ -185,7 +175,7 @@ class ConsoleApp():
             raise ModuleNotFoundError('The component class {} was not found.'.
                                       format(component_class_name))
         # Instantiate the class and add it to the components dict;
-        component: 'ConsoleAppComponent' = constructor()
+        component: 'ConsoleAppComponent' = constructor(self)
         self._components[component_class_name] = component
         # Add the app reference to the component instance;
         component.app = self
@@ -201,7 +191,7 @@ class ConsoleApp():
             return self._components[component_instance_name]
         # Possibly not loaded yet, so make try make;
         # Make the instance name into a class name;
-        component_class_name = self._ut.snake_to_pascal(
+        component_class_name = uts.snake_to_pascal(
             component_instance_name)
         return self.make_component(component_class_name)
 
@@ -211,7 +201,7 @@ class ConsoleApp():
 
     def add_route(self, route: str, component_class_name: str) -> None:
         self._route_component_maps[route] = \
-            self._ut.pascal_to_snake(component_class_name)
+            uts.pascal_to_snake(component_class_name)
 
     def guard_entrance(self, route: str, guard_component_class_name: str) -> None:
         # Interpret the route;
@@ -292,7 +282,7 @@ class ConsoleApp():
         # Save the current route to the history;
         self._route_history.append(self.route)
         ## Make sure the history doesn't get too long;
-        while len(self._route_history) > self._cf.route_history_length:
+        while len(self._route_history) > cfg.route_history_length:
             self._route_history.pop(0)
         # Set the new route;
         self.route = route

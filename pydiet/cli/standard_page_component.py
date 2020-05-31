@@ -1,6 +1,8 @@
 from pyconsoleapp import ConsoleAppComponent
 
 class StandardPageComponent(ConsoleAppComponent):
+    def __init__(self, app):
+        super().__init__(app)
 
     def print(self, page_content:str):
         output = ''

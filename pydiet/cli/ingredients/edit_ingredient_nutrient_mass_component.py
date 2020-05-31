@@ -2,7 +2,6 @@ from pyconsoleapp import ConsoleAppComponent
 
 from pydiet.cli.ingredients import ingredient_edit_service as ies
 from pydiet.shared import utility_service as uts
-
 from pydiet.ingredients.exceptions import (
     ConstituentsExceedGroupError, FlagNutrientConflictError,
     NutrientQtyExceedsIngredientQtyError
@@ -25,8 +24,8 @@ Valid units:
 
 
 class EditIngredientNutrientMassComponent(ConsoleAppComponent):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, app):
+        super().__init__(app)
         self._ies = ies.IngredientEditService()
 
     def print(self):

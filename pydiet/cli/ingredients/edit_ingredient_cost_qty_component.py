@@ -1,9 +1,8 @@
-from pydiet.shared.exceptions import UnknownUnitError
-
 from pyconsoleapp import ConsoleAppComponent
 
 from pydiet.cli.ingredients import ingredient_edit_service as ies
 from pydiet.shared import utility_service as uts
+from pydiet.shared.exceptions import UnknownUnitError
 
 _TEMPLATE = '''
     ____ of {ingredient_name} costs £__.____
@@ -20,8 +19,8 @@ Valid units:
 
 
 class EditIngredientCostQtyComponent(ConsoleAppComponent):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, app):
+        super().__init__(app)
         self._ies = ies.IngredientEditService()
 
     def run(self):

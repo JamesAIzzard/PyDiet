@@ -25,8 +25,8 @@ Status: {status}
 
 
 class IngredientEditMenuComponent(ConsoleAppComponent):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, app):
+        super().__init__(app)
         self._ies = ies.IngredientEditService()
         self.set_option_response('1', self.on_edit_name)
         self.set_option_response('2', self.on_edit_cost)

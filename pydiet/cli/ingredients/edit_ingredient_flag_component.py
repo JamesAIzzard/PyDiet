@@ -8,8 +8,8 @@ _TEMPLATE = '\nIs {ingredient_name} {flag}?  (y)/(n)\n\n'
 
 
 class EditIngredientFlagComponent(ConsoleAppComponent):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, app):
+        super().__init__(app)
         self._ies = ies.IngredientEditService()
         self.set_option_response('y', self.on_yes)
         self.set_option_response('n', self.on_no)

@@ -24,8 +24,8 @@ Add Preset Times:
 
 class RecipeServeTimeEditorComponent(ConsoleAppComponent):
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, app):
+        super().__init__(app)
         self._res = res.RecipeEditService()
         self.set_option_response('s', self.on_save_changes)
         self.set_option_response('n', self.on_include_new_custom_time)

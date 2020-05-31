@@ -12,8 +12,8 @@ _FLAG_MENU_ITEM = '({flag_number}) -- {flag_summary}\n'
 
 class EditIngredientFlagMenuComponent(ConsoleAppComponent):
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, app):
+        super().__init__(app)
         self._ies = ies.IngredientEditService()
         self.set_option_response('s', self.on_save_changes)
 

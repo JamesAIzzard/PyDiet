@@ -1,4 +1,4 @@
-from pyconsoleapp.console_app_guard_component import ConsoleAppGuardComponent
+from pyconsoleapp import ConsoleAppGuardComponent
 from pyconsoleapp.builtin_components.yes_no_dialog_component import YesNoDialogComponent
 
 from pydiet.recipes.exceptions import (
@@ -8,8 +8,8 @@ from pydiet.cli.recipes import recipe_edit_service as res
 
 class RecipeSaveCheckComponent(YesNoDialogComponent, ConsoleAppGuardComponent):
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, app):
+        super().__init__(app)
         self._res = res.RecipeEditService()
         self.message = 'Save changes to this recipe?'
 

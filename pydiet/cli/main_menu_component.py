@@ -1,3 +1,4 @@
+import pydiet
 from pyconsoleapp import ConsoleAppComponent
 
 _MENU_TEMPLATE = '''Choose an option:
@@ -11,8 +12,8 @@ _MENU_TEMPLATE = '''Choose an option:
 
 class MainMenuComponent(ConsoleAppComponent):
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, app):
+        super().__init__(app)
         self.set_option_response('1', self.on_manage_ingredients)
         self.set_option_response('2', self.on_manage_recipes)
         self.set_option_response('3', self.on_manage_goals)

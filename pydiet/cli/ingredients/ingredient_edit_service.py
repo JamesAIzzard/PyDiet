@@ -1,8 +1,8 @@
 from typing import TYPE_CHECKING, Dict, Optional, List
 
-from pinjector import inject
 from singleton_decorator import singleton
 
+import pydiet
 from pydiet.ingredients import ingredient_service as igs
 from pydiet.shared import configs as cf
 from pydiet.cli.shared import utility_service as cut
@@ -10,13 +10,11 @@ from pydiet.cli.shared import utility_service as cut
 if TYPE_CHECKING:
     from pydiet.ingredients.ingredient import Ingredient
     from pydiet.ingredients.nutrient_amount import NutrientAmount
-    from pyconsoleapp import ConsoleApp
 
 
 @singleton
 class IngredientEditService():
     def __init__(self):
-        self._app:'ConsoleApp' = inject('pydiet.cli.app')
         self._flag_number_name_map: Optional[Dict[int, str]] = None
         self._primary_nutrient_number_name_map: Optional[Dict[int, str]] = None
         self.ingredient: Optional['Ingredient'] = None
@@ -91,10 +89,10 @@ class IngredientEditService():
             self.datafile_name = igs.save_new_ingredient(self.ingredient)
             # Redirect to edit, now datafile exists;
             if redirect_to:
-                self._app.clear_exit('home.ingredients.new')
-                self._app.guard_exit(
+                pydiet.app.clear_exit('home.ingredients.new')
+                pydiet.app.guard_exit(
                     'home.ingredients.edit', 'IngredientSaveCheckComponent')
-                self._app.goto(redirect_to)
+                pydiet.app.goto(redirect_to)
         # If updating an existing datafile;
         else:
             # Update the ingredient;
@@ -103,4 +101,4 @@ class IngredientEditService():
                 self.datafile_name
             )
         # Confirm save;
-        self._app.info_message = "Ingredient saved."
+        pydiet.app.info_message = "Ingredient saved."

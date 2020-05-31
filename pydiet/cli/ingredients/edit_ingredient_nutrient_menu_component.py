@@ -1,4 +1,3 @@
-from pinjector import inject
 from pyconsoleapp import ConsoleAppComponent
 
 from pydiet.cli.ingredients import ingredient_edit_service as ies
@@ -22,8 +21,8 @@ Other Nutrients (Optional):
 
 class EditIngredientNutrientMenuComponent(ConsoleAppComponent):
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, app):
+        super().__init__(app)
         self._ies = ies.IngredientEditService()
         self.set_option_response('n', self.on_edit_other)
         self.set_option_response('s', self.on_save_changes)

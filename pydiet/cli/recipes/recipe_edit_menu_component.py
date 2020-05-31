@@ -25,8 +25,8 @@ Recipe Editor:
 
 class RecipeEditMenuComponent(ConsoleAppComponent):
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, app):
+        super().__init__(app)
         self._res = res.RecipeEditService()
         self.set_option_response('s', self.on_save)
         self.set_option_response('1', self.on_edit_name)

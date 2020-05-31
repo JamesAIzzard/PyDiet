@@ -1,9 +1,14 @@
-from pyconsoleapp.console_app_component import ConsoleAppComponent
+from typing import TYPE_CHECKING
+
+from pyconsoleapp.components import ConsoleAppComponent
+
+if TYPE_CHECKING: 
+    from pyconsoleapp.console_app import ConsoleApp
 
 class NavOptionsComponent(ConsoleAppComponent):
     
-    def __init__(self):
-        super().__init__()
+    def __init__(self, app:'ConsoleApp'):
+        super().__init__(app)
         self.set_option_response('b', self.on_back)
         self.set_option_response('q', self.on_quit)
 

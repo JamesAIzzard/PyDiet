@@ -1,21 +1,19 @@
 from typing import TYPE_CHECKING, Optional, List, Dict
 
 from singleton_decorator import singleton
-from pinjector import inject
 
+import pydiet
 from pydiet.recipes import recipe_service as rcs
 from pydiet.shared import configs as cfg
 from pydiet.cli.shared import utility_service as cut
 
 if TYPE_CHECKING:
-    from pyconsoleapp.console_app import ConsoleApp
     from pydiet.recipes.recipe import Recipe
 
 @singleton
 class RecipeEditService():
 
     def __init__(self):
-        self._app:'ConsoleApp' = inject('pydiet.cli.app')
         self.recipe: Optional['Recipe'] = None
         self.datafile_name: Optional[str] = None
         self.mode:str = 'edit'
@@ -42,7 +40,7 @@ class RecipeEditService():
             # Create the new datafile and stash the name;
             self.datafile_name = rcs.save_new_recipe(self.recipe)
             # Confirm the save;
-            self._app.info_message = "Recipe saved."
+            pydiet.app.info_message = "Recipe saved."
         # If updating an existing datafile;
         else:
             # Update the recipe;
@@ -51,4 +49,4 @@ class RecipeEditService():
                 self.datafile_name
             )
             # Confirm save;
-            self._app.info_message = "Recipe saved."
+            pydiet.app.info_message = "Recipe saved."

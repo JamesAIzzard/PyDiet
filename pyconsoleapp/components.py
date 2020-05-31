@@ -1,17 +1,13 @@
 from abc import abstractmethod, ABC
 from typing import Callable, Dict, Any, TYPE_CHECKING
 
-from pyconsoleapp.console_app import ConsoleApp
-from pinjector import inject
-
 if TYPE_CHECKING:
-    from pyconsoleapp import utility_service
-
+    from pyconsoleapp import ConsoleApp
 
 class ConsoleAppComponent(ABC):
-    def __init__(self):
+    def __init__(self, app:'ConsoleApp'):
         self.option_responses: Dict[str, Callable] = {}
-        self.app: 'ConsoleApp' = inject('pyconsoleapp.app')
+        self.app = app
 
     def __getattribute__(self, name: str) -> Any:
         '''Intercepts the print command and adds the component to
@@ -46,3 +42,23 @@ class ConsoleAppComponent(ABC):
 
     def run(self) -> None:
         pass
+
+class ConsoleAppGuardComponent(ConsoleAppComponent):
+    def __init__(self, app:'ConsoleApp'):
+        super().__init__(app)
+
+    def clear_self(self):
+        def search_and_clear_guard_map(guard_map):
+            # Place to store guarded route to clear;
+            rt_to_clear = None
+            # Work through the entrance guard list looking for self;
+            for route in guard_map.keys():
+                # If found;
+                if guard_map[route] == self:
+                    # Delete entry from guard dict;
+                    rt_to_clear = route
+            if rt_to_clear:
+                del guard_map[rt_to_clear]
+        # Search and clear entrance & exit maps;
+        search_and_clear_guard_map(self.app._route_entrance_guard_map)
+        search_and_clear_guard_map(self.app._route_exit_guard_map)

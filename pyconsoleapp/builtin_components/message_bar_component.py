@@ -1,10 +1,17 @@
+from typing import TYPE_CHECKING
 from textwrap import fill
 
-from pyconsoleapp.console_app_component import ConsoleAppComponent
+from pyconsoleapp.components import ConsoleAppComponent
 from pyconsoleapp import configs
 
+if TYPE_CHECKING:
+    from pyconsoleapp.console_app import ConsoleApp
+
+
 class MessageBarComponent(ConsoleAppComponent):
-    
+    def __init__(self, app: 'ConsoleApp'):
+        super().__init__(app)
+
     def print(self):
         output = ''
         if self.app.error_message:

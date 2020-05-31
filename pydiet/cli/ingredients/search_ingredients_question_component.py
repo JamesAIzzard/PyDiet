@@ -1,8 +1,8 @@
 from pyconsoleapp.builtin_components.yes_no_dialog_component import YesNoDialogComponent
 
 class SearchIngredientsQuestionComponent(YesNoDialogComponent):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, app):
+        super().__init__(app)
         self.message = 'Search for a particular ingredient?'
 
     def on_yes(self):

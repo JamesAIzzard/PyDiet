@@ -1,12 +1,16 @@
-from pyconsoleapp.console_app_guard_component import ConsoleAppGuardComponent
-from pyconsoleapp.builtin_components.yes_no_dialog_component import YesNoDialogComponent
+from typing import TYPE_CHECKING
 
+from pyconsoleapp import ConsoleAppGuardComponent
+from pyconsoleapp.builtin_components.yes_no_dialog_component import YesNoDialogComponent
 from pydiet.cli.ingredients import ingredient_edit_service as ies
+
+if TYPE_CHECKING:
+    from pyconsoleapp import ConsoleApp
 
 class IngredientSaveCheckComponent(YesNoDialogComponent, ConsoleAppGuardComponent):
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, app):
+        super().__init__(app)
         self._ies = ies.IngredientEditService()
         self.message = 'Save changes to this ingredient?'
 
@@ -24,9 +28,10 @@ class IngredientSaveCheckComponent(YesNoDialogComponent, ConsoleAppGuardComponen
             # Clear the exit to the new page;
             self.clear_self()
             # Configure the exit guard for the edit page;
-            self.app.guard_exit('home.ingredients.edit', 'IngredientSaveCheckComponent')
+            self.app.guard_exit('home.ingredients.edit',
+                                'IngredientSaveCheckComponent')
             # Redirect to edit page;
-            self.app.goto('home.ingredients.edit')   
+            self.app.goto('home.ingredients.edit')
 
     def on_no(self):
         self.app.info_message = 'Ingredient not saved.'

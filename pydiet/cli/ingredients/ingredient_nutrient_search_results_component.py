@@ -13,8 +13,8 @@ Select a nutrient:
 
 class IngredientNutrientSearchResultsComponent(ConsoleAppComponent):
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, app):
+        super().__init__(app)
         self._ies = ies.IngredientEditService()
 
     def print(self):

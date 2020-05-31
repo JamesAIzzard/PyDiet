@@ -1,15 +1,12 @@
-from typing import TYPE_CHECKING
-
 from pyconsoleapp.builtin_components.yes_no_dialog_component import YesNoDialogComponent
-from pinjector import inject
 
 from pydiet.cli.ingredients import ingredient_edit_service as ies
 from pydiet.data import repository_service as rep
 
 class ConfirmIngredientDeleteComponent(YesNoDialogComponent):
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, app):
+        super().__init__(app)
         self._ies = ies.IngredientEditService()
         self.message = 'Are you sure you want to delete {}'.format(
             self._ies.ingredient.name

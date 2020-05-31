@@ -19,8 +19,8 @@ Valid units:
 '''
 
 class EditIngredientDensityVolumeComponent(ConsoleAppComponent):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, app):
+        super().__init__(app)
         self._ies = igs.IngredientEditService()
 
     def print(self):
