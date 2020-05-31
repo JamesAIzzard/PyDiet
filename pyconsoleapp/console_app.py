@@ -1,9 +1,9 @@
 import os
+import re
 import importlib
 import importlib.util
 from typing import Callable, Dict, List, Optional, TYPE_CHECKING, cast
 
-from pyconsoleapp import utility_service as uts
 from pyconsoleapp import configs as cfg
 
 if TYPE_CHECKING:
@@ -11,6 +11,15 @@ if TYPE_CHECKING:
         ConsoleAppComponent,
         ConsoleAppGuardComponent
     )
+
+def pascal_to_snake(text: str) -> str:
+    s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', text)
+    return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
+
+
+def snake_to_pascal(text: str) -> str:
+    import re
+    return ''.join(x.capitalize() or '_' for x in text.split('_'))
 
 class ConsoleApp():
     def __init__(self, name):
@@ -155,7 +164,7 @@ class ConsoleApp():
         constructor in the registered component packages.
         '''
         # Convert the class name into its corresponding filename;
-        component_filename = uts.pascal_to_snake(component_class_name)
+        component_filename = pascal_to_snake(component_class_name)
         # Create place to put constructor when found;
         constructor = None
         # Then look in the default components;
@@ -191,7 +200,7 @@ class ConsoleApp():
             return self._components[component_instance_name]
         # Possibly not loaded yet, so make try make;
         # Make the instance name into a class name;
-        component_class_name = uts.snake_to_pascal(
+        component_class_name = snake_to_pascal(
             component_instance_name)
         return self.make_component(component_class_name)
 
@@ -201,7 +210,7 @@ class ConsoleApp():
 
     def add_route(self, route: str, component_class_name: str) -> None:
         self._route_component_maps[route] = \
-            uts.pascal_to_snake(component_class_name)
+            pascal_to_snake(component_class_name)
 
     def guard_entrance(self, route: str, guard_component_class_name: str) -> None:
         # Interpret the route;

@@ -1,13 +1,14 @@
 from typing import TYPE_CHECKING, List, Optional
 from heapq import nlargest
 
+from pyconsoleapp import search_tools
+
 from pydiet.ingredients import ingredient
 from pydiet.ingredients.exceptions import (
     IngredientNotFoundError
 )
-from pydiet.data import repository_service as rps
-from pydiet.shared import configs as cfg
-from pydiet.shared import utility_service as uts
+from pydiet import repository_service as rps
+from pydiet import configs as cfg
 
 if TYPE_CHECKING:
     from pydiet.ingredients.ingredient import NutrientAmount
@@ -55,18 +56,22 @@ def resolve_nutrient_alias(alias: str) -> str:
     # Not found, just return;
     return alias
 
+def get_all_nutrient_names() -> List[str]:
+    data_template = rps.read_ingredient_template_data()
+    return list(data_template['nutrients'].keys())
+
 def get_matching_ingredient_names(search_term:str, num_results: int) -> List[str]:
     # Load a list of the ingredient names;
     index = rps.read_ingredient_index()
     # Score each of the names against the search term;
-    results = uts.score_similarity(list(index.values()), search_term)
+    results = search_tools.score_similarity(list(index.values()), search_term)
     # Return the n largest scores;
     return nlargest(num_results, results, key=results.get)
 
 def get_matching_nutrient_names(search_term: str, num_results: int) -> List[str]:
     template = rps.read_ingredient_template_data()
     # Score each of the nutrient names against the search term;
-    results = uts.score_similarity(
+    results = search_tools.score_similarity(
         list(template['nutrients'].keys()), search_term)
     return nlargest(num_results, results, key=results.get)
 

@@ -2,7 +2,6 @@ from typing import TYPE_CHECKING, Dict, List
 
 from pydiet.recipes.exceptions import DuplicateRecipeNameError
 from pydiet.recipes import recipe_service as rcs
-from pydiet.shared import utility_service as uts
 
 if TYPE_CHECKING:
     from pydiet.ingredients.ingredient_amount import IngredientAmount
@@ -31,7 +30,7 @@ class Recipe():
 
     def add_serve_interval(self, serve_interval:str) -> None:
         # Check the serve interval is valid;
-        serve_interval = uts.parse_time_interval(serve_interval)
+        serve_interval = rcs.parse_time_interval(serve_interval)
         # If it isn't already there;
         if not serve_interval in self.serve_intervals:
             # Assign it;

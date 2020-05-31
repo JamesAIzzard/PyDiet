@@ -1,17 +1,20 @@
 from typing import TYPE_CHECKING
 
-import pyconsoleapp as capp
+from pyconsoleapp import ConsoleApp
 
 if TYPE_CHECKING:
     from pyconsoleapp import ConsoleApp
 
 # Run startup checks on data integrity;
-from pydiet.data import validate_ingredient_template
+from pydiet.ingredients import validate_ingredient_template
 
-app:'ConsoleApp' = capp.ConsoleApp('PyDiet')
-app.register_component_package('pydiet.cli')
-app.register_component_package('pydiet.cli.ingredients')
-app.register_component_package('pydiet.cli.recipes')
+# Create the app instance;
+app:'ConsoleApp' = ConsoleApp('PyDiet')
+
+# Configure the app framework;
+app.register_component_package('pydiet.cli_components')
+app.register_component_package('pydiet.ingredients.cli_components')
+app.register_component_package('pydiet.recipes.cli_components')
 app.root_route('home', 'MainMenuComponent')
 app.add_route('home.ingredients', 'IngredientMenuComponent')
 app.add_route('home.ingredients.search', 'IngredientSearchComponent')

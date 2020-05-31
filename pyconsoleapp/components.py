@@ -4,8 +4,9 @@ from typing import Callable, Dict, Any, TYPE_CHECKING
 if TYPE_CHECKING:
     from pyconsoleapp import ConsoleApp
 
+
 class ConsoleAppComponent(ABC):
-    def __init__(self, app:'ConsoleApp'):
+    def __init__(self, app: 'ConsoleApp'):
         self.option_responses: Dict[str, Callable] = {}
         self.app = app
 
@@ -43,8 +44,9 @@ class ConsoleAppComponent(ABC):
     def run(self) -> None:
         pass
 
+
 class ConsoleAppGuardComponent(ConsoleAppComponent):
-    def __init__(self, app:'ConsoleApp'):
+    def __init__(self, app: 'ConsoleApp'):
         super().__init__(app)
 
     def clear_self(self):
