@@ -1,5 +1,5 @@
 from pyconsoleapp import ConsoleAppComponent
-from pyconsoleapp import parse_input
+from pyconsoleapp import parse_tools
 
 from pydiet import units
 from pydiet.ingredients import ingredient_edit_service as igs
@@ -34,7 +34,7 @@ class EditIngredientDensityVolumeComponent(ConsoleAppComponent):
     def dynamic_response(self, response):
         # Try and parse the response as mass and units;
         try:
-            vol, unit = parse_input.parse_number_and_text(response)
+            vol, unit = parse_tools.parse_number_and_text(response)
         # Catch parse failure;
         except ValueError:
             self.app.error_message = "Unable to parse {} as a volume & unit. Try again."\

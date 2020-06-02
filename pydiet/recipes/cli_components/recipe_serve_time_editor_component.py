@@ -1,4 +1,4 @@
-from pyconsoleapp import ConsoleAppComponent, parse_input
+from pyconsoleapp import ConsoleAppComponent, parse_tools
 
 from pydiet.recipes import recipe_edit_service as res
 from pydiet import configs
@@ -66,8 +66,8 @@ class RecipeServeTimeEditorComponent(ConsoleAppComponent):
     def dynamic_response(self, raw_response: str) -> None:
         # Try and parse the raw response into a single letter and integer;
         try:
-            letter, integer = parse_input.parse_letter_and_integer(raw_response)
-        except parse_input.LetterIntegerParseError:
+            letter, integer = parse_tools.parse_letter_and_integer(raw_response)
+        except parse_tools.LetterIntegerParseError:
             return
         # If we are deleting an existing time;
         if letter == 'd':

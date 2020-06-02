@@ -1,4 +1,4 @@
-from pyconsoleapp import ConsoleAppComponent, parse_input
+from pyconsoleapp import ConsoleAppComponent, parse_tools
 
 from pydiet import units
 from pydiet.ingredients import ingredient_edit_service as ies
@@ -34,7 +34,7 @@ class EditIngredientNutrientQtyComponent(ConsoleAppComponent):
     def dynamic_response(self, response):
         # Try and parse the response as mass and units;
         try:
-            qty, unit = parse_input.parse_number_and_text(response)
+            qty, unit = parse_tools.parse_number_and_text(response)
         # Catch parse failure;
         except ValueError:
             self.app.error_message = "Unable to parse {} as a qty & unit. Try again."\

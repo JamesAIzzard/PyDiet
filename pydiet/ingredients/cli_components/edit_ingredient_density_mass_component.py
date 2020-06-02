@@ -1,5 +1,5 @@
 from pyconsoleapp import ConsoleAppComponent
-from pyconsoleapp import parse_input
+from pyconsoleapp import parse_tools
 
 from pydiet import units
 from pydiet.ingredients import ingredient_edit_service as ies
@@ -35,7 +35,7 @@ class EditIngredientDensityMassComponent(ConsoleAppComponent):
     def dynamic_response(self, response):
         try:
             # Try and parse the number and text;
-            mass, unit = parse_input.parse_number_and_text(response)
+            mass, unit = parse_tools.parse_number_and_text(response)
         # Catch the parse failure;
         except ValueError:
             self.app.error_message = "Unable to parse {} as a mass and unit. Try again.".format(response)

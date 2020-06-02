@@ -1,13 +1,6 @@
 from unittest import TestCase
-from typing import TYPE_CHECKING
 
-from pinjector import inject
-
-import dependencies
-
-if TYPE_CHECKING:
-    from pydiet.ingredients import ingredient_service
-
+from pydiet.ingredients import ingredient_service as igs
 from pydiet.ingredients.exceptions import (
     ConstituentsExceedGroupError, 
     NutrientQtyExceedsIngredientQtyError
@@ -15,8 +8,7 @@ from pydiet.ingredients.exceptions import (
 
 class TestSettingNutrients(TestCase):
     def setUp(self):
-        ig:'ingredient_service' = inject('pydiet.ingredient_service')
-        self.i = ig.load_new_ingredient()
+        self.i = igs.load_new_ingredient()
 
     def test_molecule_can_be_set(self):
         self.i.set_nutrient_amount('sodium', 250, 'g', 2, 'g')
