@@ -6,6 +6,7 @@ from pydiet.recipes import recipe_service as rcs
 if TYPE_CHECKING:
     from pydiet.ingredients.ingredient_amount import IngredientAmount
 
+
 class Recipe():
 
     def __init__(self, data_template: Dict):
@@ -28,7 +29,14 @@ class Recipe():
     def serve_intervals(self) -> List[str]:
         return self._data['serve_intervals']
 
-    def add_serve_interval(self, serve_interval:str) -> None:
+    def update_serve_interval(self, new_serve_interval:str, index:int)->None:
+        # Validate the time interval;
+        new_serve_interval = rcs.parse_time_interval(new_serve_interval)
+        # Overwrite the specified index;
+        self._data['serve_intervals'][index] = new_serve_interval
+
+
+    def add_serve_interval(self, serve_interval: str) -> None:
         # Check the serve interval is valid;
         serve_interval = rcs.parse_time_interval(serve_interval)
         # If it isn't already there;
@@ -36,18 +44,17 @@ class Recipe():
             # Assign it;
             self._data['serve_intervals'].append(serve_interval)
 
-    def remove_serve_interval(self, serve_interval:str) -> None:
+    def remove_serve_interval(self, serve_interval: str) -> None:
         # Cycle through the serve intervals
         for se in self.serve_intervals:
             # Remove matchign one if found;
             if se == serve_interval:
-                self._data['serve_between'].pop(serve_interval)
+                self._data['serve_intervals'].pop(serve_interval)
 
     def clear_serve_intervals(self):
         # Clear all;
         self._data['serve_between'] = []
 
     @property
-    def ingredient_amounts(self)->Dict[str, 'IngredientAmount']:
+    def ingredient_amounts(self) -> Dict[str, 'IngredientAmount']:
         return self._ingredient_amounts
-

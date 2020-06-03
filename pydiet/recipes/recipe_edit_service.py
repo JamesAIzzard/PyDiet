@@ -18,6 +18,7 @@ class RecipeEditService():
         self.datafile_name: Optional[str] = None
         self.mode:str = 'edit'
         self.recipe_name_search_results:List[str] = []
+        self.selected_serve_time_index:Optional[int] = None
 
     @property
     def recipe_search_result_number_name_map(self) -> Dict[int, str]:

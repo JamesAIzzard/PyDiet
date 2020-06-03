@@ -1,8 +1,9 @@
 {
   "categories": [],
   "ingredients": {},
-  "name": "Porridge with Water",
+  "name": "Oats",
   "serve_intervals": [
-    "04:00-10:00"
-  ]
+    "05:00-10:00"
+  ],
+  "steps": []
 }

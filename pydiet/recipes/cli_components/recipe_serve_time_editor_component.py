@@ -61,7 +61,10 @@ class RecipeServeTimeEditorComponent(ConsoleAppComponent):
         self._res.save_changes()
 
     def on_include_new_custom_time(self):
-        pass
+        # Make sure there is no selected index (to prevent editing existing one);
+        self._res.selected_serve_time_index = None
+        # Redirect to interval editor;
+        self.app.goto('.edit_interval')
 
     def dynamic_response(self, raw_response: str) -> None:
         # Try and parse the raw response into a single letter and integer;
@@ -69,13 +72,6 @@ class RecipeServeTimeEditorComponent(ConsoleAppComponent):
             letter, integer = parse_tools.parse_letter_and_integer(raw_response)
         except parse_tools.LetterIntegerParseError:
             return
-        # If we are deleting an existing time;
-        if letter == 'd':
-            # Try and remove the serve time;
-            try:
-                self._res.recipe.serve_intervals.pop(integer-1)
-            except IndexError:
-                return
         # If we are adding a preset time;
         if letter == 'p':
             # Try grab the preset name from the map;
@@ -85,4 +81,20 @@ class RecipeServeTimeEditorComponent(ConsoleAppComponent):
                 return
             # Add the preset time to the recipe;
             self._res.recipe.add_serve_interval(configs.PRESET_SERVE_TIMES[p_name])
+            return            
+        # Check the integer references an interval on the list;
+        if integer > len(self._res.recipe.serve_intervals) or integer < 1:
             return
+        # If we are deleting an existing time;
+        elif letter == 'd':
+            # Remove the serve time;
+            self._res.recipe.serve_intervals.pop(integer-1)
+            return
+        # If we are editing an existing time;
+        elif letter == 'e':
+            # Select the serve time;
+            self._res.selected_serve_time_index = integer-1
+            # Redirect to editor;
+            self.app.goto('.edit_interval')
+            return
+
