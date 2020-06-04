@@ -86,3 +86,12 @@ PRESET_SERVE_TIMES: Dict[str, str] = {
     "Dinner": "17:00-22:00",
     "Any Time": "00:00-23:59"
 }
+
+RECIPE_TAGS: List[str] = [
+    "main",
+    "side",
+    "sweet",
+    "savory",
+    "snack",
+    "drink"
+]

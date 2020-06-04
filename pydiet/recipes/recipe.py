@@ -2,6 +2,10 @@ from typing import TYPE_CHECKING, Dict, List
 
 from pydiet.recipes.exceptions import DuplicateRecipeNameError
 from pydiet.recipes import recipe_service as rcs
+from pydiet import configs
+from pydiet.recipes.exceptions import (
+    UnknownTagError
+)
 
 if TYPE_CHECKING:
     from pydiet.ingredients.ingredient_amount import IngredientAmount
@@ -12,7 +16,6 @@ class Recipe():
     def __init__(self, data_template: Dict):
         self._data: Dict = data_template
         self._ingredient_amounts: Dict[str, 'IngredientAmount'] = {}
-        self.categories: List[str] = []
 
     @property
     def name(self) -> str:
@@ -24,6 +27,24 @@ class Recipe():
             raise DuplicateRecipeNameError
         else:
             self._data['name'] = name
+
+    @property
+    def tags(self) -> List[str]:
+        return self._data['tags']
+
+    def add_tag(self, tag:str) -> None:
+        # Check that the tag is on the list in configs;
+        if not tag in configs.RECIPE_TAGS:
+            raise UnknownTagError
+        # If the tag is not already on the list;
+        if not tag in self.tags:
+            self._data['tags'].append(tag)
+
+    def remove_tag(self, tag:str) -> None:
+        # If the tag is in the list;
+        if tag in self.tags:
+            # Remove it;
+            self._data['tags'].remove(tag)
 
     @property
     def serve_intervals(self) -> List[str]:

@@ -95,10 +95,10 @@ def summarise_serve_intervals(recipe:'Recipe') -> str:
     else:
         return 'No serve intervals added yet.\n'
 
-def summarise_categories(recipe:'Recipe') -> str:
-    if len(recipe.categories):
+def summarise_tags(recipe:'Recipe') -> str:
+    if len(recipe.tags):
         output = ''
-        for cat in recipe.categories:
+        for cat in recipe.tags:
             output = output+cat+'\n'
         return output
     else:

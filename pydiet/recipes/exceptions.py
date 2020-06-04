@@ -21,4 +21,9 @@ class TimeIntervalParseError(Exception):
 class TimeIntervalValueError(Exception):
     def __init__(self, *args):
         if len(args) and args[0]:
-            super().__init__(args[0])            
+            super().__init__(args[0])      
+
+class UnknownTagError(Exception):
+    def __init__(self, *args):
+        if len(args) and args[0]:
+            super().__init__(args[0])                   
