@@ -18,6 +18,8 @@ _TEMPLATE = '''Recipe Editor:
 {tags}
 (4) -- Edit Ingredients:
 {ingredients}
+(5) -- Edit Steps:
+{steps}
 '''
 
 
@@ -46,7 +48,8 @@ class RecipeEditMenuComponent(ConsoleAppComponent):
             name=rcs.summarise_name(self._res.recipe),
             serve_times=rcs.summarise_serve_intervals(self._res.recipe),
             tags=rcs.summarise_tags(self._res.recipe),
-            ingredients=rcs.summarise_ingredients(self._res.recipe)
+            ingredients=rcs.summarise_ingredients(self._res.recipe),
+            steps=rcs.summarise_steps(self._res.recipe)
         )
         output = self.app.fetch_component(
             'standard_page_component').print(output)

@@ -99,7 +99,7 @@ def summarise_tags(recipe:'Recipe') -> str:
     if len(recipe.tags):
         output = ''
         for cat in recipe.tags:
-            output = output+cat+'\n'
+            output = output+'- {}\n'.format(cat)
         return output
     else:
         return 'No categories added yet.\n'
@@ -115,4 +115,13 @@ def summarise_ingredients(recipe:'Recipe') -> str:
             )
         return output
     else:
-        return 'No ingredients added yet.\n'    
+        return 'No ingredients added yet.\n'
+
+def summarise_steps(recipe:'Recipe') -> str:
+    if len(recipe.steps):
+        output = recipe.steps[0][0:20]+'...'
+    elif len(recipe.steps) == 0:
+        output = 'No steps added yet. \n'
+    else:
+        raise KeyError
+    return output

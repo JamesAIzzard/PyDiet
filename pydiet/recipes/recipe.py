@@ -32,7 +32,7 @@ class Recipe():
     def tags(self) -> List[str]:
         return self._data['tags']
 
-    def add_tag(self, tag:str) -> None:
+    def add_tag(self, tag: str) -> None:
         # Check that the tag is on the list in configs;
         if not tag in configs.RECIPE_TAGS:
             raise UnknownTagError
@@ -40,7 +40,7 @@ class Recipe():
         if not tag in self.tags:
             self._data['tags'].append(tag)
 
-    def remove_tag(self, tag:str) -> None:
+    def remove_tag(self, tag: str) -> None:
         # If the tag is in the list;
         if tag in self.tags:
             # Remove it;
@@ -50,12 +50,11 @@ class Recipe():
     def serve_intervals(self) -> List[str]:
         return self._data['serve_intervals']
 
-    def update_serve_interval(self, new_serve_interval:str, index:int)->None:
+    def update_serve_interval(self, new_serve_interval: str, index: int) -> None:
         # Validate the time interval;
         new_serve_interval = rcs.parse_time_interval(new_serve_interval)
         # Overwrite the specified index;
         self._data['serve_intervals'][index] = new_serve_interval
-
 
     def add_serve_interval(self, serve_interval: str) -> None:
         # Check the serve interval is valid;
@@ -79,3 +78,35 @@ class Recipe():
     @property
     def ingredient_amounts(self) -> Dict[str, 'IngredientAmount']:
         return self._ingredient_amounts
+
+    @property
+    def steps(self) -> Dict[int, str]:
+        return self._data['steps']
+
+    def append_step(self, step: str) -> None:
+        self._data['steps'][len(self.steps)+1] = step
+
+    def remove_step(self, step_number: int) -> None:
+        # Create a list to store steps with step removed;
+        new_steps_list = []
+        # Pull the steps into a list;
+        for i, step in enumerate(self.steps, start=1):
+            new_steps_list.append(self.steps[i])
+        # Remove the item at the specified index;
+        new_steps_list.pop(step_number-1)
+        # rewrite the step dictionary;
+        self._data['steps'] = {}        
+        for i, step in enumerate(new_steps_list, start=1):
+            self._data['steps'][i] = step
+
+    def move_step(self, current_step_number: int, new_step_number: int) -> None:
+        # Create a list of steps;
+        reordered_steps = []
+        for i, step in enumerate(self.steps, start=1):
+            reordered_steps.append(self.steps[i])
+        # Move the step;
+        reordered_steps.insert(
+            new_step_number-1, reordered_steps.pop(current_step_number-1))
+        # Overwrite the old step dict with the new order;
+        for i, step in enumerate(reordered_steps, start=1):
+            self._data['steps'][i] = step
