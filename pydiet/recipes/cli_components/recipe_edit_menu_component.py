@@ -32,6 +32,8 @@ class RecipeEditMenuComponent(ConsoleAppComponent):
         self.set_option_response('1', self.on_edit_name)
         self.set_option_response('2', self.on_edit_serve_times)
         self.set_option_response('3', self.on_edit_tags)
+        self.set_option_response('4', self.on_edit_ingredients)
+        self.set_option_response('5', self.on_edit_steps)
 
     def run(self):
         # If there is no recipe loaded;
@@ -82,3 +84,10 @@ class RecipeEditMenuComponent(ConsoleAppComponent):
     def on_edit_tags(self) -> None:
         if self._check_name_defined:
             self.app.goto('home.recipes.edit.tags')
+
+    def on_edit_ingredients(self) -> None:
+        raise NotImplementedError
+
+    def on_edit_steps(self) -> None:
+        if self._check_name_defined:
+            self.app.goto('home.recipes.edit.steps')

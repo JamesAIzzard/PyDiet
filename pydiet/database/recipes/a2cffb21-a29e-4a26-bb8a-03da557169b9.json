@@ -1,0 +1,18 @@
+{
+  "ingredients": {},
+  "name": "Porridge",
+  "serve_intervals": [
+    "04:00-10:00"
+  ],
+  "steps": {
+    "1": "Take the bag of porridge oats and pour them into the bowl. Make sure you leave about half of the bowl's height for expansion during cooking.",
+    "2": "Then, add a sprinkling of raisins or other dried fruit that you would like to include.",
+    "3": "Place the bowl in the microwave for three minutes on full power.",
+    "4": "Remove the bowl from the microwave and stir the contents.",
+    "5": "Place the bowl back in the microwave for an additional minute."
+  },
+  "tags": [
+    "main",
+    "savory"
+  ]
+}

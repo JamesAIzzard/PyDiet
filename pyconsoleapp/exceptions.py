@@ -1,0 +1,2 @@
+class PyConsoleAppException(Exception):
+    pass

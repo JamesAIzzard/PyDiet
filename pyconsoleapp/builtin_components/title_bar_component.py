@@ -1,5 +1,6 @@
 from typing import TYPE_CHECKING
 
+from pyconsoleapp import styles
 from pyconsoleapp.components import ConsoleAppComponent
 
 if TYPE_CHECKING:
@@ -12,4 +13,5 @@ class TitleBarComponent(ConsoleAppComponent):
 
     def print(self):
         output = self.app.name+'\n'
+        output = styles.weight(output, 'bright')
         return output

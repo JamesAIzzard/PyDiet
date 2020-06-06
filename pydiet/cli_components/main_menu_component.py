@@ -1,4 +1,3 @@
-import pydiet
 from pyconsoleapp import ConsoleAppComponent
 
 _MENU_TEMPLATE = '''Choose an option:

@@ -14,14 +14,20 @@ class EditRecipeNameComponent(ConsoleAppComponent):
         self._res = res.RecipeEditService()
 
     def print(self):
+        # Build the output;
         output = _TEMPLATE
         output = self.app.fetch_component(
             'standard_page_component').print(output)
-        return output
+        # If we are naming for the first time;
+        if self._res.recipe.name == None:
+            return output
+        # If we are editing an existing name;
+        else:
+            return output, self._res.recipe.name
 
     def dynamic_response(self, response):
         # If the name has been changed;
-        if not response == self._res.datafile_name:
+        if not response == self._res.recipe.name:
             # Check the another recipe doesn't have this name;
             if rcs.recipe_name_used(response, self._res.datafile_name):
                 self.app.error_message = 'There is already an recipe called {}'.\

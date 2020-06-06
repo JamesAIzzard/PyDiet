@@ -3,6 +3,10 @@ import re
 import importlib
 import importlib.util
 from typing import Callable, Dict, List, Optional, TYPE_CHECKING, cast
+if os.name == 'nt':
+    from pyautogui import write
+else:
+    import readline
 
 from pyconsoleapp import configs as cfg
 
@@ -18,8 +22,18 @@ def pascal_to_snake(text: str) -> str:
 
 
 def snake_to_pascal(text: str) -> str:
-    import re
     return ''.join(x.capitalize() or '_' for x in text.split('_'))
+
+def rlinput(prompt, prefill=''):
+    if os.name == 'nt':
+        write(prefill)
+        return input(prompt)
+    else:
+        readline.set_startup_hook(lambda: readline.insert_text(prefill))
+        try:
+            return input(prompt)
+        finally:
+            readline.set_startup_hook()
 
 class ConsoleApp():
     def __init__(self, name):
@@ -281,9 +295,16 @@ class ConsoleApp():
                     component.run()
                     # Grab component again, in case run changed the route;
                     component = self._fetch_component_for_route(self.route)
-                    # Print the view and collect response;
+                    # Clear the screen;
                     self.clear_console()
-                    self._response = input(component.print())
+                    # Collect the output from the component's print response;
+                    from_print = component.print()
+                    # If there is no prefill;
+                    if type(from_print) is str:
+                        self._response = input(from_print)
+                    # If there is prefill;
+                    elif type(from_print) is tuple:
+                        self._response = rlinput(from_print[0], from_print[1])
 
     def goto(self, route: str) -> None:
         # Convert the new route to be absolute;

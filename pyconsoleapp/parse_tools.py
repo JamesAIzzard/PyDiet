@@ -1,11 +1,28 @@
 from typing import Tuple
 
-class LetterIntegerParseError(Exception):
-    def __init__(self, *args):
-        if len(args) and args[0]:
-            super().__init__(args[0])
+from pyconsoleapp import PyConsoleAppException
+
+class LetterIntegerParseError(PyConsoleAppException):
+    pass
+
+class NumberAndTextParseError(PyConsoleAppException):
+    pass
 
 def parse_number_and_text(qty_and_text: str) -> Tuple[float, str]:
+    '''Parses a string made up of a number and text. Returns
+    the two components seperately as a tuple, number first.
+
+    Args:
+        qty_and_text (str): String to parse.
+
+    Raises:
+        NumberAndTextParseError: If the string cannot be parsed
+            into the two components.
+
+    Returns:
+        Tuple[float, str]: Number and text element, seperately
+            in a tuple.
+    '''
     output = None
     # Strip any initial whitespace;
     qty_and_text = qty_and_text.replace(' ', '')

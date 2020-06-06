@@ -19,6 +19,7 @@ class RecipeEditService():
         self.mode:str = 'edit'
         self.recipe_name_search_results:List[str] = []
         self.selected_serve_time_index:Optional[int] = None
+        self.selected_step_number:Optional[int] = None
 
     @property
     def recipe_search_result_number_name_map(self) -> Dict[int, str]:

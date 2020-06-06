@@ -80,33 +80,35 @@ class Recipe():
         return self._ingredient_amounts
 
     @property
-    def steps(self) -> Dict[int, str]:
+    def steps(self) -> Dict[str, str]:
         return self._data['steps']
 
     def append_step(self, step: str) -> None:
-        self._data['steps'][len(self.steps)+1] = step
+        self._data['steps'][str(len(self.steps)+1)] = step
 
     def remove_step(self, step_number: int) -> None:
         # Create a list to store steps with step removed;
         new_steps_list = []
         # Pull the steps into a list;
         for i, step in enumerate(self.steps, start=1):
-            new_steps_list.append(self.steps[i])
+            new_steps_list.append(self.steps[str(i)])
         # Remove the item at the specified index;
         new_steps_list.pop(step_number-1)
         # rewrite the step dictionary;
         self._data['steps'] = {}        
         for i, step in enumerate(new_steps_list, start=1):
-            self._data['steps'][i] = step
+            self._data['steps'][str(i)] = step
 
     def move_step(self, current_step_number: int, new_step_number: int) -> None:
         # Create a list of steps;
         reordered_steps = []
         for i, step in enumerate(self.steps, start=1):
-            reordered_steps.append(self.steps[i])
+            reordered_steps.append(self.steps[str(i)])
         # Move the step;
         reordered_steps.insert(
             new_step_number-1, reordered_steps.pop(current_step_number-1))
         # Overwrite the old step dict with the new order;
         for i, step in enumerate(reordered_steps, start=1):
-            self._data['steps'][i] = step
+            self._data['steps'][str(i)] = step
+
+        
