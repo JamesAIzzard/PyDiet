@@ -11,26 +11,34 @@ from pydiet.recipes.exceptions import (
 )
 from pydiet import repository_service as rps
 from pydiet.recipes import recipe
+from pydiet.ingredients import ingredient_amount
 
 if TYPE_CHECKING:
     from pydiet.recipes.recipe import Recipe
+    from pydiet.ingredients.ingredient_amount import IngredientAmount
+    from pydiet.ingredients.ingredient import Ingredient
+
 
 def load_new_recipe() -> 'Recipe':
     data_template = rps.read_recipe_template_data()
     return recipe.Recipe(data_template)
 
-def load_recipe(datafile_name:str) -> 'Recipe':
+
+def load_recipe(datafile_name: str) -> 'Recipe':
     r_data = rps.read_recipe_data(datafile_name)
     return recipe.Recipe(r_data)
+
 
 def save_new_recipe(recipe: 'Recipe') -> str:
     return rps.create_recipe_data(recipe._data)
 
-def update_existing_recipe(recipe:'Recipe', datafile_name:str)->None:
+
+def update_existing_recipe(recipe: 'Recipe', datafile_name: str) -> None:
     # Update the ingredient;
     rps.update_recipe_data(recipe._data, datafile_name)
 
-def resolve_recipe_datafile_name(recipe_name:str) -> str:
+
+def resolve_recipe_datafile_name(recipe_name: str) -> str:
     # Load the index;
     index = rps.read_recipe_index()
     # Iterate through the index, searching for the filename;
@@ -41,7 +49,8 @@ def resolve_recipe_datafile_name(recipe_name:str) -> str:
     # Raise an exception if none was found;
     raise RecipeNotFoundError
 
-def get_matching_recipe_names(search_term:str, num_results:int) -> List[str]:
+
+def get_matching_recipe_names(search_term: str, num_results: int) -> List[str]:
     # Load a list of the recipe names;
     index = rps.read_recipe_index()
     # Score each of the names against the search term;
@@ -49,7 +58,8 @@ def get_matching_recipe_names(search_term:str, num_results:int) -> List[str]:
     # Return the n largest scores;
     return nlargest(num_results, results, key=results.get)
 
-def recipe_name_used(name:str, ignore_datafile:Optional[str]=None)->bool:
+
+def recipe_name_used(name: str, ignore_datafile: Optional[str] = None) -> bool:
     # Bring the name list in;
     index = rps.read_recipe_index()
     # If we are ignoring a datafile, then drop it;
@@ -60,6 +70,7 @@ def recipe_name_used(name:str, ignore_datafile:Optional[str]=None)->bool:
         return True
     else:
         return False
+
 
 def parse_time_interval(time_interval: str) -> str:
     # Split the string into two parts about the hyphen;
@@ -80,13 +91,15 @@ def parse_time_interval(time_interval: str) -> str:
     # Return the interval;
     return '-'.join(start_and_end_time)
 
-def summarise_name(recipe:'Recipe') -> str:
+
+def summarise_name(recipe: 'Recipe') -> str:
     if recipe.name:
         return recipe.name
     else:
         return 'Undefined'
 
-def summarise_serve_intervals(recipe:'Recipe') -> str:
+
+def summarise_serve_intervals(recipe: 'Recipe') -> str:
     if len(recipe.serve_intervals):
         output = ''
         for se in recipe.serve_intervals:
@@ -95,7 +108,8 @@ def summarise_serve_intervals(recipe:'Recipe') -> str:
     else:
         return 'No serve intervals added yet.\n'
 
-def summarise_tags(recipe:'Recipe') -> str:
+
+def summarise_tags(recipe: 'Recipe') -> str:
     if len(recipe.tags):
         output = ''
         for cat in recipe.tags:
@@ -104,20 +118,32 @@ def summarise_tags(recipe:'Recipe') -> str:
     else:
         return 'No tags added yet.\n'
 
-def summarise_ingredients(recipe:'Recipe') -> str:
-    if len(recipe.ingredient_amounts):
-        output = ''
-        for ie in recipe.ingredient_amounts.values():
-            output = output + '{name}: +{perc_inc}%/-{perc_dec}%\n'.format(
-                name=ie.ingredient.name,
-                perc_inc=ie.perc_increase,
-                perc_dec=ie.perc_decrease
-            )
-        return output
-    else:
-        return 'No ingredients added yet.\n'
 
-def summarise_steps(recipe:'Recipe') -> str:
+def summarise_ingredient_amount(ingredient_amount: 'IngredientAmount') -> str:
+    _MAIN_INGRED_TEMPLATE = '{qty_template}{ingredient_name}{var_template}'
+    _QTY_TEMPLATE = '{ingredient_qty}{ingredient_qty_units} of '
+    _VAR_TEMPLATE = ' | +{inc_perc}%/-{dec_perc}%'    
+    output = ''
+    # Build the qty string;
+    if ingredient_amount.quantity:
+        qty_template = _QTY_TEMPLATE.format(
+            ingredient_qty=ingredient_amount.quantity, ingredient_qty_units=ingredient_amount.quantity_units)
+    else:
+        qty_template = 'Undefined amount of '
+    # Build the var string;
+    if ingredient_amount.perc_decrease == None or ingredient_amount.perc_increase == None:
+        var_template = ' with undefined allowable variation'
+    else:
+        var_template = _VAR_TEMPLATE.format(
+            inc_perc=ingredient_amount.perc_increase, dec_perc=ingredient_amount.perc_decrease)
+    output = output + _MAIN_INGRED_TEMPLATE.format(
+        ingredient_name=ingredient_amount.name,
+        qty_template=qty_template,
+        var_template=var_template
+    )
+    return output
+
+def summarise_steps(recipe: 'Recipe') -> str:
     if len(recipe.steps):
         output = '{} steps added.\n'.format(len(recipe.steps))
     else:

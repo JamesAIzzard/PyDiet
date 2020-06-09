@@ -9,12 +9,14 @@ from pydiet import configs
 
 if TYPE_CHECKING:
     from pydiet.recipes.recipe import Recipe
+    from pydiet.ingredients.ingredient import Ingredient
 
 @singleton
 class RecipeEditService():
 
     def __init__(self):
         self.recipe: Optional['Recipe'] = None
+        self.ingredient:Optional['Ingredient'] = None
         self.datafile_name: Optional[str] = None
         self.mode:str = 'edit'
         self.recipe_name_search_results:List[str] = []

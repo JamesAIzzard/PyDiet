@@ -38,7 +38,7 @@ class ViewAllIngredientsComponent(ConsoleAppComponent):
             # Use this dictionary to create the output string;
             for number in self._numbered_ingredients.keys():
                 ## Grab the datafile (we need to load to get the status)
-                current_ingredient_datafile_name = igs.resolve_ingredient_datafile_name(
+                current_ingredient_datafile_name = igs.convert_ingredient_name_to_datafile_name(
                     self._numbered_ingredients[number]
                 )
                 ## Load the ingredient;
@@ -71,7 +71,7 @@ class ViewAllIngredientsComponent(ConsoleAppComponent):
         except KeyError:
             return None
         # Load the ingredient into the ies;
-        self._ies.datafile_name = igs.resolve_ingredient_datafile_name(
+        self._ies.datafile_name = igs.convert_ingredient_name_to_datafile_name(
             self._selected_ingredient_name)
         self._ies.ingredient = igs.load_ingredient(
             self._ies.datafile_name)

@@ -45,12 +45,21 @@ class RecipeEditMenuComponent(ConsoleAppComponent):
         # Raise an exception if recipe has not been loaded;
         if not self._res.recipe:
             raise AttributeError
+        # Build the ingredient list;
+        if len(self._res.recipe.ingredient_amounts) == 0:
+            ingredients = 'No ingredients added.\n'
+        else:
+            ingredients = ''
+            for ia in self._res.recipe.ingredient_amounts.values():
+                ingredients = ingredients + '- {}\n'.format(
+                    rcs.summarise_ingredient_amount(ia)
+                )
         # Build the template;
         output = _TEMPLATE.format(
             name=rcs.summarise_name(self._res.recipe),
             serve_times=rcs.summarise_serve_intervals(self._res.recipe),
             tags=rcs.summarise_tags(self._res.recipe),
-            ingredients=rcs.summarise_ingredients(self._res.recipe),
+            ingredients=ingredients,
             steps=rcs.summarise_steps(self._res.recipe)
         )
         output = self.app.fetch_component(
@@ -86,7 +95,8 @@ class RecipeEditMenuComponent(ConsoleAppComponent):
             self.app.goto('home.recipes.edit.tags')
 
     def on_edit_ingredients(self) -> None:
-        raise NotImplementedError
+        if self._check_name_defined:
+            self.app.goto('home.recipes.edit.ingredients')
 
     def on_edit_steps(self) -> None:
         if self._check_name_defined:

@@ -30,7 +30,7 @@ class EditRecipeNameComponent(ConsoleAppComponent):
         if not response == self._res.recipe.name:
             # Check the another recipe doesn't have this name;
             if rcs.recipe_name_used(response, self._res.datafile_name):
-                self.app.error_message = 'There is already an recipe called {}'.\
+                self.app.error_message = 'There is already a recipe called {}'.\
                     format(response)
                 return
             # Update the name

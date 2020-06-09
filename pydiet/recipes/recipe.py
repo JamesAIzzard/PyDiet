@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING, Dict, List
 
-from pydiet.recipes.exceptions import DuplicateRecipeNameError
+from pydiet.ingredients import ingredient_service as igs
+from pydiet.ingredients import ingredient_amount
 from pydiet.recipes import recipe_service as rcs
 from pydiet import configs
 from pydiet.recipes.exceptions import (
@@ -9,13 +10,19 @@ from pydiet.recipes.exceptions import (
 
 if TYPE_CHECKING:
     from pydiet.ingredients.ingredient_amount import IngredientAmount
+    from pydiet.ingredients.ingredient import Ingredient
 
 
 class Recipe():
 
     def __init__(self, data_template: Dict):
         self._data: Dict = data_template
+        # Configure the ingredient amount objects;
         self._ingredient_amounts: Dict[str, 'IngredientAmount'] = {}
+        for ingredient_datafile_name in self._data['ingredients'].keys():
+            ingredient = igs.load_ingredient(ingredient_datafile_name)
+            self._ingredient_amounts[ingredient.name] = \
+                ingredient_amount.IngredientAmount(self, ingredient)
 
     @property
     def name(self) -> str:
@@ -23,10 +30,7 @@ class Recipe():
 
     @name.setter
     def name(self, name: str) -> None:
-        if rcs.recipe_name_used(name):
-            raise DuplicateRecipeNameError
-        else:
-            self._data['name'] = name
+        self._data['name'] = name
 
     @property
     def tags(self) -> List[str]:
@@ -79,6 +83,16 @@ class Recipe():
     def ingredient_amounts(self) -> Dict[str, 'IngredientAmount']:
         return self._ingredient_amounts
 
+    def add_ingredient_amount(self, ingredient: 'Ingredient') -> None:
+        # Grab the datafile name for the ingredient;
+        df_name = igs.convert_ingredient_name_to_datafile_name(ingredient.name)
+        # Copy ingredient amount data template to the recipe;
+        self._data['ingredients'][df_name] = ingredient_amount.data_template
+        # Create a new ingredient amount instance;
+        ia = ingredient_amount.IngredientAmount(self, ingredient)
+        # Add the ingredient amount instance to the live dict;
+        self._ingredient_amounts[ingredient.name] = ia
+
     @property
     def steps(self) -> Dict[str, str]:
         return self._data['steps']
@@ -95,7 +109,7 @@ class Recipe():
         # Remove the item at the specified index;
         new_steps_list.pop(step_number-1)
         # rewrite the step dictionary;
-        self._data['steps'] = {}        
+        self._data['steps'] = {}
         for i, step in enumerate(new_steps_list, start=1):
             self._data['steps'][str(i)] = step
 
@@ -110,5 +124,3 @@ class Recipe():
         # Overwrite the old step dict with the new order;
         for i, step in enumerate(reordered_steps, start=1):
             self._data['steps'][str(i)] = step
-
-        

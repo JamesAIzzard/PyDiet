@@ -36,7 +36,7 @@ def update_existing_ingredient(ingredient:'Ingredient', datafile_name:str)->None
     # Update the ingredient;
     rps.update_ingredient_data(ingredient._data, datafile_name)
 
-def resolve_ingredient_datafile_name(ingredient_name:str)->str:
+def convert_ingredient_name_to_datafile_name(ingredient_name:str)->str:
     # Load the index;
     index = rps.read_ingredient_index()
     # Iterate through the index, searching for filename;
@@ -46,6 +46,15 @@ def resolve_ingredient_datafile_name(ingredient_name:str)->str:
             return datafile_name
     # Raise exception if none was found;
     raise IngredientNotFoundError
+
+def convert_datafile_name_to_ingredient_name(datafile_name:str)->str:
+    # Load the index;
+    index = rps.read_ingredient_index()
+    # Return the name associated with the datafile name;
+    if datafile_name in index.keys():
+        return index[datafile_name]
+    else:
+        raise IngredientNotFoundError
 
 def resolve_nutrient_alias(alias: str) -> str:
     # Hunt through the alias list and return rootname
