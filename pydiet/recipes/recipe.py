@@ -2,7 +2,9 @@ from typing import TYPE_CHECKING, Dict, List
 
 from pydiet.ingredients import ingredient_service as igs
 from pydiet.ingredients import ingredient_amount
+from pydiet.ingredients.exceptions import IngredientDensityUndefinedError
 from pydiet.recipes import recipe_service as rcs
+from pydiet import units as unt
 from pydiet import configs
 from pydiet.recipes.exceptions import (
     UnknownTagError
@@ -83,7 +85,12 @@ class Recipe():
     def ingredient_amounts(self) -> Dict[str, 'IngredientAmount']:
         return self._ingredient_amounts
 
-    def add_ingredient_amount(self, ingredient: 'Ingredient') -> None:
+    def add_ingredient(self, ingredient: 'Ingredient') -> None:
+        '''Assigns an ingredient to the recipe.
+
+        Args:
+            ingredient (Ingredient): Ingredient to assign.
+        '''
         # Grab the datafile name for the ingredient;
         df_name = igs.convert_ingredient_name_to_datafile_name(ingredient.name)
         # Copy ingredient amount data template to the recipe;

@@ -122,7 +122,7 @@ def summarise_tags(recipe: 'Recipe') -> str:
 def summarise_ingredient_amount(ingredient_amount: 'IngredientAmount') -> str:
     _MAIN_INGRED_TEMPLATE = '{qty_template}{ingredient_name}{var_template}'
     _QTY_TEMPLATE = '{ingredient_qty}{ingredient_qty_units} of '
-    _VAR_TEMPLATE = ' | +{inc_perc}%/-{dec_perc}%'    
+    _VAR_TEMPLATE = ' | between {qty_max}{ingredient_qty_units} and {qty_min}{ingredient_qty_units}'    
     output = ''
     # Build the qty string;
     if ingredient_amount.quantity:
@@ -131,11 +131,15 @@ def summarise_ingredient_amount(ingredient_amount: 'IngredientAmount') -> str:
     else:
         qty_template = 'Undefined amount of '
     # Build the var string;
-    if ingredient_amount.perc_decrease == None or ingredient_amount.perc_increase == None:
-        var_template = ' with undefined allowable variation'
+    if ingredient_amount.quantity == None:
+        var_template = ''
+    elif ingredient_amount.perc_increase == 0 and ingredient_amount.perc_decrease == 0:
+        var_template = ''
     else:
         var_template = _VAR_TEMPLATE.format(
-            inc_perc=ingredient_amount.perc_increase, dec_perc=ingredient_amount.perc_decrease)
+            qty_max=ingredient_amount.max_quantity, qty_min=ingredient_amount.min_quantity,
+            ingredient_qty_units=ingredient_amount.quantity_units)
+    # Put everything together;
     output = output + _MAIN_INGRED_TEMPLATE.format(
         ingredient_name=ingredient_amount.name,
         qty_template=qty_template,

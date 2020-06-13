@@ -279,7 +279,7 @@ class ConsoleApp():
         # Enter the main loop;
         while not self._quit:
             # If response has been collected;
-            if self._response:
+            if not self._response == None:
                 self.process_response(self._response)
                 self._response = None
             # If we are drawing the next view;

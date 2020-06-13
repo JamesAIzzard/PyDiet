@@ -38,6 +38,9 @@ class ConsoleAppComponent(ABC):
     def set_option_response(self, signature: str, func: Callable) -> None:
         self.option_responses[signature] = func
 
+    def set_empty_enter_response(self, func:Callable)->None:
+        self.option_responses[''] = func
+
     def dynamic_response(self, raw_response: str) -> None:
         pass
 

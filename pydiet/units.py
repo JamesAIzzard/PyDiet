@@ -36,6 +36,17 @@ def recognised_qty_units() -> List[str]:
 
 
 def parse_qty_unit(unit: str) -> str:
+    '''Parses the string into a known unit (either volumetric or mass).
+
+    Args:
+        unit (str): String to parse into a unit.
+
+    Raises:
+        UnknownUnitError: If the string is not recognised as a unit.
+
+    Returns:
+        str: The parsed version of the unit.
+    '''
     for u in recognised_qty_units():
         if unit.lower() == u.lower():
             return u

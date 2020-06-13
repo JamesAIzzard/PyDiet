@@ -1,5 +1,24 @@
 {
-  "ingredients": {},
+  "ingredients": {
+    "270582fc-36a5-4012-ab7b-eaebc091ee4f": {
+      "perc_decrease": 100.0,
+      "perc_increase": 150.0,
+      "quantity": 15.0,
+      "quantity_units": "g"
+    },
+    "88b5a256-6849-4167-b705-1f7420dc595e": {
+      "perc_decrease": 0.0,
+      "perc_increase": 50.0,
+      "quantity": 10.0,
+      "quantity_units": "g"
+    },
+    "d0c0e073-17d5-485b-a29a-0362116830bc": {
+      "perc_decrease": 0,
+      "perc_increase": 20.0,
+      "quantity": 100.0,
+      "quantity_units": "ml"
+    }
+  },
   "name": "Porridge",
   "serve_intervals": [
     "04:00-10:00"

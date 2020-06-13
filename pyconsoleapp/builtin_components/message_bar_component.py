@@ -18,7 +18,7 @@ class MessageBarComponent(ConsoleAppComponent):
             output = output+'/!\\ Error:\n{}\n'.format(
                 fill(self.app.error_message, configs.terminal_width_chars)
             )
-            output = styles.fore(output, 'yellow')
+            output = styles.fore(output, 'red')
             output = output+('-'*configs.terminal_width_chars)+'\n'
             self.app.error_message = None
         if self.app.info_message:

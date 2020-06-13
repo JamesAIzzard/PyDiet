@@ -70,9 +70,9 @@ class IngredientSearchResultsComponent(ConsoleAppComponent):
                 elif 'home.recipes.edit.ingredients.search_results' in self.app.route:
                     # Load the ingredient;
                     i = igs.load_ingredient(datafile_name)
-                    # Place it on the recipe edit service;
-                    self._res.ingredient = i
                     # Add the ingredient amount to the current recipe;
-                    self._res.recipe.add_ingredient_amount(i)
+                    self._res.recipe.add_ingredient(i)
+                    # Store the ingredient amount on the recipe edit service;
+                    self._res.ingredient_amount = self._res.recipe.ingredient_amounts[ingredient_name]
                     # Head back to the edit recipe ingredients page;
                     self.app.goto('home.recipes.edit.ingredients')
