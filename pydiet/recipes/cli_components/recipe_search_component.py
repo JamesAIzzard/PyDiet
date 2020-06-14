@@ -20,6 +20,13 @@ class RecipeSearchComponent(ConsoleAppComponent):
         return self.app.fetch_component('standard_page_component').print(_TEMPLATE)
 
     def dynamic_response(self, response):
+        # Load the matching recipe names;
         self._res.recipe_name_search_results = rcs.get_matching_recipe_names(
             response, 5)
-        self.app.goto('home.recipes.search_results')
+        # If we are viewing and editing recipes;
+        if 'home.recipes.search' in self.app.route:
+            self.app.goto('home.recipes.search_results')
+        # If we are deleting recipes;
+        elif 'home.recipes.delete' in self.app.route:
+            self.app.goto('home.recipes.delete.search_results')
+        

@@ -18,7 +18,6 @@ class RecipeEditService():
         self.recipe: Optional['Recipe'] = None
         self.ingredient_amount: Optional['IngredientAmount']
         self.datafile_name: Optional[str] = None
-        self.mode:str = 'edit'
         self.recipe_name_search_results:List[str] = []
         self.selected_serve_time_index:Optional[int] = None
         self.selected_step_number:Optional[int] = None

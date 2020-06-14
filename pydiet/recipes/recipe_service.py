@@ -38,7 +38,7 @@ def update_existing_recipe(recipe: 'Recipe', datafile_name: str) -> None:
     rps.update_recipe_data(recipe._data, datafile_name)
 
 
-def resolve_recipe_datafile_name(recipe_name: str) -> str:
+def convert_recipe_name_to_datafile_name(recipe_name: str) -> str:
     # Load the index;
     index = rps.read_recipe_index()
     # Iterate through the index, searching for the filename;
@@ -48,7 +48,6 @@ def resolve_recipe_datafile_name(recipe_name: str) -> str:
             return datafile_name
     # Raise an exception if none was found;
     raise RecipeNotFoundError
-
 
 def get_matching_recipe_names(search_term: str, num_results: int) -> List[str]:
     # Load a list of the recipe names;

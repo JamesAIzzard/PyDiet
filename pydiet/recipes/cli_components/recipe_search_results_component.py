@@ -40,10 +40,10 @@ class RecipeSearchResultsComponent(ConsoleAppComponent):
             # Convert the response into an recipe name;
             recipe_name = self._res.recipe_search_result_number_name_map[response]
             # Resolve the datafile name for the recipe;
-            self._res.datafile_name = rcs.resolve_recipe_datafile_name(
+            self._res.datafile_name = rcs.convert_recipe_name_to_datafile_name(
                 recipe_name)
             # If we are in edit mode;
-            if self._res.mode == 'edit':
+            if 'home.recipes.search' in self.app.route:
                 # Load the ingredient into the res;
                 self._res.recipe = rcs.load_recipe(
                     self._res.datafile_name)
@@ -53,9 +53,9 @@ class RecipeSearchResultsComponent(ConsoleAppComponent):
                 # Redirect to edit;
                 self.app.goto('home.recipes.edit')
             # If we are in delete mode;
-            elif self._res.mode == 'delete':
+            elif 'home.recipes.delete' in self.app.route:
                 # Load the ingredient into the res;
                 self._res.recipe = rcs.load_recipe(
                     self._res.datafile_name)
                 # Move on to confirm deletion;
-                self.app.goto('home.recipes.confirm_delete')
+                self.app.goto('home.recipes.delete.confirm')

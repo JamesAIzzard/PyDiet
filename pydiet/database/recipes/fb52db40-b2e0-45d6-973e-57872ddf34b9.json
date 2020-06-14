@@ -1,0 +1,23 @@
+{
+  "ingredients": {
+    "2c100ceb-d40d-4d3c-b7d7-2b0cf652ec29": {
+      "perc_decrease": 0,
+      "perc_increase": 0,
+      "quantity": 100.0,
+      "quantity_units": "g"
+    }
+  },
+  "name": "Pasta Bake",
+  "serve_intervals": [
+    "12:00-15:00",
+    "17:00-22:00"
+  ],
+  "steps": {
+    "1": "Put the pasta in a bowl half full of water.",
+    "2": "Put the bowl on the hob for 30mins, making sure it does not boil over."
+  },
+  "tags": [
+    "main",
+    "savory"
+  ]
+}

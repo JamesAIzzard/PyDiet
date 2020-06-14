@@ -3,14 +3,14 @@ from pyconsoleapp.builtin_components.yes_no_dialog_component import YesNoDialogC
 from pydiet.ingredients import ingredient_edit_service as ies
 from pydiet import repository_service as rep
 
+
 class ConfirmIngredientDeleteComponent(YesNoDialogComponent):
 
     def __init__(self, app):
         super().__init__(app)
         self._ies = ies.IngredientEditService()
-        self.message = 'Are you sure you want to delete {}'.format(
-            self._ies.ingredient.name
-        )
+        self.message = 'Are you sure you want to delete {ingredient_name}'.format(
+            ingredient_name=self._ies.ingredient.name)
 
     def on_yes(self):
         # If no datafile;
