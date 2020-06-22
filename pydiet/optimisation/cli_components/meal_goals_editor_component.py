@@ -15,30 +15,40 @@ Basic Composition:
 (p-*)  -- % Protein    | {perc_prot}
 (t-*)  -- % Total Cals | {perc_tot_cals}
 -----------------------------------------------
+Custom Nutrients: 
+(an)   -- Add nutrient target.
+(rn-*) -- Remove nutrient target.
 
+1. Sodium - 200mg
+
+-----------------------------------------------
+Components:
 (ac-*) -- Add components.
 (rc-*) -- Remove component *.
 
-Current Components:
 1. main
 2. savory
 3. drink
-{current_components}
 
-Available Components:
+Available:
 1. side
 2. sweet
 3. savory
 4. snack
+------------------------------------------------
 
 Flags:
 1. alcohol-free
 (af-*)  -- Add flag.
 (rf-*)  -- Remove flag.
 
+Available:
+1. Vegetarian
+2. Vegan
+
 '''
 
-class MealEditorComponent(ConsoleAppComponent):
+class MealGoalsEditorComponent(ConsoleAppComponent):
     def __init__(self, app):
         super().__init__(app)
         self.set_option_response('s', self.on_save_changes)

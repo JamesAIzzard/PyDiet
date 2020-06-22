@@ -11,12 +11,10 @@ from pydiet.recipes.exceptions import (
 )
 from pydiet import repository_service as rps
 from pydiet.recipes import recipe
-from pydiet.ingredients import ingredient_amount
 
 if TYPE_CHECKING:
     from pydiet.recipes.recipe import Recipe
     from pydiet.ingredients.ingredient_amount import IngredientAmount
-    from pydiet.ingredients.ingredient import Ingredient
 
 
 def load_new_recipe() -> 'Recipe':

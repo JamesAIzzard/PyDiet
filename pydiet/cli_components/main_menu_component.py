@@ -3,7 +3,7 @@ from pyconsoleapp import ConsoleAppComponent
 _MENU_TEMPLATE = '''Choose an option:
 (1) -- Manage ingredients.
 (2) -- Manage recipes.
-(3) -- Manage objectives.
+(3) -- Manage goals.
 (4) -- Generate meal plans.
 (5) -- View meal plans.
 '''
@@ -25,13 +25,13 @@ class MainMenuComponent(ConsoleAppComponent):
 
     def on_manage_ingredients(self):
         # Navigate;
-        self.app.goto('.ingredients')
+        self.app.goto('home.ingredients')
 
     def on_manage_recipes(self):
-        self.app.goto('.recipes')
+        self.app.goto('home.recipes')
 
     def on_manage_goals(self):
-        pass
+        self.app.goto('home.goals')
 
     def on_run_optimiser(self):
         pass

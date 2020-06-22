@@ -56,6 +56,8 @@ def create_recipe_data(recipe_data: Dict) -> str:
     # Return the datafile name;
     return filename
 
+def create_day_goals_data(day_goals_data:Dict)->str:
+    raise NotImplementedError
 
 def read_ingredient_template_data() -> Dict:
     return read_ingredient_data(
@@ -116,6 +118,13 @@ def read_recipe_index() ->Dict[str, str]:
         raw_data = fh.read()
         data = json.loads(raw_data)
         return data    
+
+def read_day_goals_index() -> Dict[str, str]:
+    with open(configs.DAY_GOALS_DB_PATH+'{}.json'.
+              format(configs.DAY_GOALS_INDEX_NAME)) as fh:
+        raw_data = fh.read()
+        data = json.loads(raw_data)
+        return data       
 
 def update_ingredient_data(ingredient_data: Dict, datafile_name: str) -> None:
     # Load the index to do some checks;
