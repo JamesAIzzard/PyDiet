@@ -5,9 +5,7 @@ from datetime import datetime
 from pyconsoleapp import search_tools
 
 from pydiet.recipes.exceptions import (
-    RecipeNotFoundError,
-    TimeIntervalParseError,
-    TimeIntervalValueError
+    RecipeNotFoundError
 )
 from pydiet import repository_service as rps
 from pydiet.recipes import recipe
@@ -67,26 +65,6 @@ def recipe_name_used(name: str, ignore_datafile: Optional[str] = None) -> bool:
         return True
     else:
         return False
-
-
-def parse_time_interval(time_interval: str) -> str:
-    # Split the string into two parts about the hyphen;
-    start_and_end_time = time_interval.split('-')
-    # Check there are two parts;
-    if not len(start_and_end_time) == 2:
-        raise TimeIntervalParseError
-    # Try format the time into double digit 24hr format;
-    try:
-        for n, t in enumerate(start_and_end_time):
-            d = datetime.strptime(t, "%H:%M")
-            start_and_end_time[n] = d.strftime("%H:%M")
-    except ValueError:
-        raise TimeIntervalValueError
-    # Check the intervals are not the same;
-    if start_and_end_time[0] == start_and_end_time[1]:
-        raise TimeIntervalValueError
-    # Return the interval;
-    return '-'.join(start_and_end_time)
 
 
 def summarise_name(recipe: 'Recipe') -> str:

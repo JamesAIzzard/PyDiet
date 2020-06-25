@@ -2,6 +2,7 @@ from pyconsoleapp import ConsoleAppComponent
 
 from pydiet.recipes import recipe_service as rps
 from pydiet.recipes import recipe_edit_service
+from pydiet import time
 
 _TEMPLATE = '''
 Enter a time interval in 24hr format:
@@ -32,8 +33,8 @@ class TimeIntervalEditorComponent(ConsoleAppComponent):
     def dynamic_response(self, raw_response: str) -> None:
         # First, validate the interval;
         try:
-            serve_interval = rps.parse_time_interval(raw_response)
-        except (rps.TimeIntervalParseError, rps.TimeIntervalValueError):
+            serve_interval = time.parse_time_interval(raw_response)
+        except (time.TimeIntervalParseError, time.TimeIntervalValueError):
             self.app.error_message = 'Unable to parse {} into a time interval.'.format(
                 raw_response)
             return

@@ -1,6 +1,11 @@
-from typing import Dict
+from typing import Dict, TYPE_CHECKING
 
-_day_goal_data_template = {
+from pydiet.optimisation import meal_goals
+
+if TYPE_CHECKING:
+    from pydiet.optimisation.meal_goals import MealGoals
+
+data_template = {
     "solution_datafile_names": {},
     "max_cost_gbp": None,
     "flags": [],
@@ -16,6 +21,10 @@ _day_goal_data_template = {
 class DayGoals():
     def __init__(self, data: Dict):
         self._data = data
+        # Populate the list of meal goal objects;
+        self._meal_goals: Dict[str, 'MealGoals'] = {}
+        for mg_name in self._data['meal_goals'].keys():
+            self._meal_goals[mg_name] = meal_goals.MealGoals(mg_name, self)
 
     @property
     def name(self) -> str:
@@ -32,3 +41,7 @@ class DayGoals():
     @max_cost_gbp.setter
     def max_cost_gbp(self, value: float) -> None:
         self._data['max_cost_gbp'] = value
+
+    @property
+    def meal_goals(self) -> Dict[str, 'MealGoals']:
+        return self._meal_goals
