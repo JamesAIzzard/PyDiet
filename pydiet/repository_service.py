@@ -1,3 +1,4 @@
+from pydiet.optimisation.exceptions import DayGoalsNameUndefinedError, DuplicateDayGoalsNameError
 from typing import Dict
 import json
 import uuid
@@ -57,7 +58,25 @@ def create_recipe_data(recipe_data: Dict) -> str:
     return filename
 
 def create_day_goals_data(day_goals_data:Dict)->str:
-    raise NotImplementedError
+    # Check the name is populated;
+    if not day_goals_data['name']:
+        raise DayGoalsNameUndefinedError
+    # Check the name has not been used already;
+    index = read_day_goals_index()
+    if day_goals_data['name'] in index.values():
+        raise DuplicateDayGoalsNameError
+    
+    # Create the filename;
+    filename = str(uuid.uuid4())
+    filename_w_ext = filename+'.json'
+    # Update the index with the filename;
+    index[filename] = day_goals_data['name']
+    update_day_goals_index(index)
+    # Write the day goals datafile;
+    with open(configs.DAY_GOALS_DB_PATH+filename_w_ext, 'w') as fh:
+        json.dump(day_goals_data, fh, indent=2, sort_keys=True)
+    # Return the datafile name;
+    return filename
 
 def read_ingredient_template_data() -> Dict:
     return read_ingredient_data(
@@ -99,6 +118,25 @@ def read_recipe_data(recipe_datafile_name: str) -> Dict:
     # Read the datafile contents;
     with open(configs.RECIPE_DB_PATH+'{}.json'.format(
             recipe_datafile_name), 'r') as fh:
+        raw_data = fh.read()
+        # Parse into dict;
+        data = json.loads(raw_data)
+        # Return it;
+        return data
+
+def read_day_goals_data(day_goals_datafile_name: str) -> Dict:
+    '''Returns an day goals datafile as a dict.
+
+    Args:
+        day_goals_datafile_name (str): Filename of day goals
+            datafile, without the extension.
+
+    Returns:
+        Dict: day goals datafile in dictionary format.
+    '''
+    # Read the datafile contents;
+    with open(configs.DAY_GOALS_DB_PATH+'{}.json'.format(
+            day_goals_datafile_name), 'r') as fh:
         raw_data = fh.read()
         # Parse into dict;
         data = json.loads(raw_data)
@@ -168,8 +206,28 @@ def update_recipe_data(recipe_data: Dict, datafile_name: str) -> None:
     index[datafile_name] = recipe_data['name']
     update_recipe_index(index)
 
+def update_day_goals_data(day_goals_data: Dict, datafile_name: str) -> None:
+    # Load the index to do some checks;
+    index = read_day_goals_index()
+    # Check the day_goals name is populated;
+    if not day_goals_data['name']:
+        raise DayGoalsNameUndefinedError
+    # Check the day_goals name is not used by another datafile;
+    # Pop the current name, because if it hasn't changed, we don't want to
+    # detect it;
+    index.pop(datafile_name)
+    # Now current has been removed, check everwhere else for name;
+    if day_goals_data['name'] in index.values():
+        raise DuplicateDayGoalsNameError(
+            'Another day already uses the name {}'.format(day_goals_data['name']))
+    # Write the day_goals data;
+    with open(configs.DAY_GOALS_DB_PATH+datafile_name+'.json', 'w') as fh:
+        json.dump(day_goals_data, fh, indent=2, sort_keys=True)
+    # Update the index;
+    index[datafile_name] = day_goals_data['name']
+    update_day_goals_index(index)
+
 def update_ingredient_index(index: Dict[str, str]) -> None:
-    #
     with open(configs.INGREDIENT_DB_PATH+'{}.json'.
               format(configs.INGREDIENT_INDEX_NAME), 'w') as fh:
         json.dump(index, fh, indent=2, sort_keys=True)
@@ -179,6 +237,10 @@ def update_recipe_index(index: Dict[str, str]) -> None:
               format(configs.RECIPE_INDEX_NAME), 'w') as fh:
         json.dump(index, fh, indent=2, sort_keys=True)        
 
+def update_day_goals_index(index: Dict[str, str]) -> None:
+    with open(configs.DAY_GOALS_DB_PATH+'{}.json'.
+              format(configs.DAY_GOALS_INDEX_NAME), 'w') as fh:
+        json.dump(index, fh, indent=2, sort_keys=True)       
 
 def delete_ingredient_data(datafile_name: str) -> None:
     # Open the index;

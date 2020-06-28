@@ -2,29 +2,29 @@ from pyconsoleapp import ConsoleAppComponent
 
 _MAIN = '''Meal Description:
 
-(s)    -- Save changes.
+(s)     -- Save changes.
 -----------------------------------------------
 General:
-(n-*)  -- Name         | {name}
-(t-*)  -- Time         | {time}
-(m-*)  -- Max Cost     | {max_cost}
+(-n *)  -- Name         | {name}
+(-t *)  -- Time         | {time}
+(-m *)  -- Max Cost     | {max_cost}
 -----------------------------------------------
 Basic Composition:
-(f-*)  -- % Fat        | {perc_fat}
-(c-*)  -- % Carbs      | {perc_carbs}
-(p-*)  -- % Protein    | {perc_prot}
-(t-*)  -- % Total Cals | {perc_tot_cals}
+(-f *)  -- % Fat        | {perc_fat}
+(-c *)  -- % Carbs      | {perc_carbs}
+(-p *)  -- % Protein    | {perc_prot}
+(-t *)  -- % Total Cals | {perc_tot_cals}
 -----------------------------------------------
 Custom Nutrients: 
-(an)   -- Add nutrient target.
-(rn-*) -- Remove nutrient target.
+(-an)   -- Add nutrient target.
+(-rn *) -- Remove nutrient target.
 
 1. Sodium - 200mg
 
 -----------------------------------------------
 Components:
-(ac-*) -- Add components.
-(rc-*) -- Remove component *.
+(-ac *) -- Add component.
+(-rc *) -- Remove component.
 
 1. main
 2. savory
@@ -39,8 +39,8 @@ Available:
 
 Flags:
 1. alcohol-free
-(af-*)  -- Add flag.
-(rf-*)  -- Remove flag.
+(-af *)  -- Add flag.
+(-rf *)  -- Remove flag.
 
 Available:
 1. Vegetarian

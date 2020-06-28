@@ -209,13 +209,12 @@ class ConsoleApp():
         '''Looks for the component in the loaded component cache first,
         and, if not found there, calls make_component to get a new instance.
         '''
+        # Convert the instance name into the class name;
+        component_class_name = snake_to_pascal(component_instance_name)
         # First look inside initialised components;
-        if component_instance_name in self._components.keys():
-            return self._components[component_instance_name]
+        if component_class_name in self._components.keys():
+            return self._components[component_class_name]
         # Possibly not loaded yet, so make try make;
-        # Make the instance name into a class name;
-        component_class_name = snake_to_pascal(
-            component_instance_name)
         return self.make_component(component_class_name)
 
     def root_route(self, route: str, component_class_name: str) -> None:

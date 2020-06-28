@@ -1,0 +1,20 @@
+{
+  "ingredients": {
+    "2c100ceb-d40d-4d3c-b7d7-2b0cf652ec29": {
+      "perc_decrease": 0,
+      "perc_increase": 0,
+      "quantity": 150.0,
+      "quantity_units": "g"
+    }
+  },
+  "name": "Cheeseburger",
+  "serve_intervals": [],
+  "steps": {
+    "1": "Get the bread out of the wrapper.",
+    "2": "Spread the butter on the bread."
+  },
+  "tags": [
+    "main",
+    "savory"
+  ]
+}

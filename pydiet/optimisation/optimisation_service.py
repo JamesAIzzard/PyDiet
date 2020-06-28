@@ -10,12 +10,9 @@ if TYPE_CHECKING:
     from pydiet.optimisation.day_goals import DayGoals
 
 
-def load_day_goals_names() -> List[str]:
-    raise NotImplementedError
-
-
 def load_day_goals(datafile_name: str) -> 'DayGoals':
-    raise NotImplementedError
+    dg_data = rps.read_day_goals_data(datafile_name)
+    return day_goals.DayGoals(dg_data)
 
 
 def load_new_day_goals() -> 'DayGoals':
@@ -26,12 +23,11 @@ def load_new_day_goals() -> 'DayGoals':
 
 
 def save_new_day_goals(day_goals: 'DayGoals') -> str:
-    rps.create_day_goals_data(day_goals._data)
-    raise NotImplementedError
+    return rps.create_day_goals_data(day_goals._data)
 
 
 def update_existing_day_goals(day_goals: 'DayGoals', datafile_name: str) -> None:
-    raise NotImplementedError
+    rps.update_day_goals_data(day_goals._data, datafile_name)
 
 
 def convert_day_goals_name_to_datafile_name(day_goals_name: str) -> str:

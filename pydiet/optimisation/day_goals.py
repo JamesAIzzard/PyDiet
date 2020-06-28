@@ -1,18 +1,20 @@
 from typing import Dict, TYPE_CHECKING
 
 from pydiet.optimisation import meal_goals
+from pydiet.optimisation.exceptions import DuplicateMealGoalsNameError
 
 if TYPE_CHECKING:
     from pydiet.optimisation.meal_goals import MealGoals
 
 data_template = {
+    "name": None,
     "solution_datafile_names": {},
     "max_cost_gbp": None,
     "flags": [],
-    "total_cals": None,
-    "total_perc_fat": None,
-    "total_perc_carbs": None,
-    "total_perc_protein": None,
+    "calories": None,
+    "perc_fat": None,
+    "perc_carbs": None,
+    "perc_protein": None,
     "nutrient_mass_targets": {},
     "meal_goals": {}
 }
@@ -45,3 +47,11 @@ class DayGoals():
     @property
     def meal_goals(self) -> Dict[str, 'MealGoals']:
         return self._meal_goals
+
+    def add_meal_goal(self, meal_name:str, meal_goals:'MealGoals') ->None:
+        # Check there isn't a meal by this name already;
+        if meal_name in self.meal_goals.keys():
+            raise DuplicateMealGoalsNameError
+        # Add it;
+        self._meal_goals['meal_name'] = meal_goals
+

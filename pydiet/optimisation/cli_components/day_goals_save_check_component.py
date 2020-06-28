@@ -16,7 +16,7 @@ class DayGoalsSaveCheckComponent(YesNoDialogComponent, ConsoleAppGuardComponent)
     def on_yes(self):
         # Try and save;
         try:
-            self._res.save_changes()
+            self._oes.save_changes()
             # Clear the exit guard;
             self.clear_self()
         # If the day_goals were unnamed;

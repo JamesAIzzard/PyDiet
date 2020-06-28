@@ -10,7 +10,7 @@ data_template = {
     "max_cost_gbp": None,
     "flags": [],
     "components": [],
-    "perc_total_cals": None,
+    "calories": None,
     "perc_fat": None,
     "perc_carbs": None,
     "perc_protein": None,
@@ -80,3 +80,11 @@ class MealGoals():
     @perc_fat.setter
     def perc_fat(self, value:float)->None:
         self.data['perc_fat']                              
+
+    @property
+    def calories(self) -> float:
+        return self.data['calories']
+
+    @calories.setter
+    def calories(self, value:float) -> None:
+        self.data['calories'] = value
