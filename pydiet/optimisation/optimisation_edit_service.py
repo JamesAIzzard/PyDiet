@@ -17,7 +17,7 @@ class OptimisationEditService():
     def save_changes(self):
         # Check there is a daygoals instance loaded;
         if not self.day_goals:
-            raise AttributeError
+            return
         # If we are creating the daygoals for the first time;
         if not self.datafile_name:
             # Create the new datafile and stash the name;

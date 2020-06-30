@@ -143,6 +143,15 @@ def read_day_goals_data(day_goals_datafile_name: str) -> Dict:
         # Return it;
         return data
 
+def read_global_day_goals_data() -> Dict:
+    # Read the datafile contents;
+    with open(configs.GLOBAL_DAY_GOALS_DB_PATH, 'r') as fh:
+        raw_data = fh.read()
+        # Parse into dict;
+        data = json.loads(raw_data)
+        # Return it;
+        return data    
+
 def read_ingredient_index() -> Dict[str, str]:
     with open(configs.INGREDIENT_DB_PATH+'{}.json'.
               format(configs.INGREDIENT_INDEX_NAME)) as fh:
@@ -261,3 +270,13 @@ def delete_recipe_data(datafile_name: str) -> None:
     update_recipe_index(index)
     # Delete the datafile;
     os.remove(configs.RECIPE_DB_PATH+datafile_name+'.json')    
+
+def delete_day_goals_data(datafile_name: str) -> None:
+    # Open the index;
+    index = read_day_goals_index()
+    # Remove the entry from the index;
+    index.pop(datafile_name)
+    # Rewrite the index;
+    update_day_goals_index(index)
+    # Delete the datafile;
+    os.remove(configs.DAY_GOALS_DB_PATH+datafile_name+'.json')   

@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, Optional
 
 from pyconsoleapp import ConsoleAppComponent, menu_tools, parse_tools
 
@@ -10,11 +10,10 @@ from pydiet.optimisation.exceptions import DuplicateDayGoalsNameError
 _MAIN = '''Day Goals:
 
 {day_goals}
-
 (-a [day name])   -> Add a new day.
 (-e [day number]) -> Edit a day.
 (-d [day number]) -> Delete a day.
-(-m)              -> Manage global goals.
+(-m)              -> Manage global daily nutrient targets.
 (-s)              -> Save changes.
 
 '''
@@ -25,13 +24,21 @@ class GoalMenuComponent(ConsoleAppComponent):
         super().__init__(app)
         self._oes = oes.OptimisationEditService()
         self.day_goals_menu = ''
-        self.num_day_goals:int = 0
-        self.numbered_day_goals:Dict[int, str] = {}
+        self.num_day_goals: int = 0
+        self.numbered_day_goals: Dict[int, str] = {}
         self.set_option_response('-m', self.on_manage_global_goals)
         self.set_option_response('-s', self.on_save_changes)
 
+    def _parse_day_goals_num(self, text:Optional[str]) -> int:
+        if not text:
+            raise ValueError
+        day_num = int(text)
+        if day_num < 1 or day_num > self.num_day_goals:
+            raise ValueError
+        return day_num
+        
+
     def run(self) -> None:
-        # Build the day goals menu;
         # First, read the day_goals index;
         dg_index = rps.read_day_goals_index()
         # Stash the number of saved day goals;
@@ -40,13 +47,17 @@ class GoalMenuComponent(ConsoleAppComponent):
         # (save for dynamic response later);
         self.numbered_day_goals = menu_tools.create_number_name_map(
             list(dg_index.values()))
-        # Cycle though the dict and build the menu;
+        
+        # Build the menu;
         output = ''
-        for dg_num in self.numbered_day_goals.keys():
-            output = output + "{dg_num}. {dg_name}\n".format(
-                dg_num=dg_num,
-                dg_name=self.numbered_day_goals[dg_num]
-            )
+        if self.num_day_goals > 0:
+            for dg_num in self.numbered_day_goals.keys():
+                output = output + "{dg_num}. {dg_name}\n".format(
+                    dg_num=dg_num,
+                    dg_name=self.numbered_day_goals[dg_num]
+                )
+        else:
+            output = 'No day goals to show.\n'
         self.day_goals_menu = output
 
     def print(self, *args, **kwargs) -> str:
@@ -57,11 +68,11 @@ class GoalMenuComponent(ConsoleAppComponent):
             'standard_page_component').print(output)
         return output
 
-    def on_manage_global_goals(self)->None:
+    def on_manage_global_goals(self) -> None:
         raise NotImplementedError
 
-    def on_save_changes(self)->None:
-        raise NotImplementedError
+    def on_save_changes(self) -> None:
+        self._oes.save_changes()
 
     def dynamic_response(self, raw_response: str) -> None:
         # Parse response into flags and text;
@@ -78,36 +89,47 @@ class GoalMenuComponent(ConsoleAppComponent):
             try:
                 dg.name = text
             except DuplicateDayGoalsNameError:
-                self.app.error_message = 'There is already a day called {day_goals_name}'.format(day_goals_name=text)
+                self.app.error_message = 'There is already a day called {day_goals_name}'.format(
+                    day_goals_name=text)
             # Place it on the scope;
             self._oes.day_goals = dg
             # Configure the save output reminder;
-            self.app.guard_exit('home.goals.edit_day', 'DayGoalsSaveCheckComponent')
+            self.app.guard_exit('home.goals.edit_day',
+                                'DayGoalsSaveCheckComponent')
             # Navigate to editor;
             self.app.goto('home.goals.edit_day')
             return
 
         # If we are editing a day;
         elif flags == ['-e']:
-            # Check the text is a corresponds to a dg number;
-            if not text:
-                self.app.info_message = 'A selection number must be specified.'
-                return
             try:
-                day_num = int(text)
+                day_num = self._parse_day_goals_num(text)
             except ValueError:
-                return
-            if day_num < 1 or day_num > self.num_day_goals:
                 return
             # Get the day_goals name;
             dg_datafile_name = ops.convert_day_goals_name_to_datafile_name(
                 self.numbered_day_goals[day_num])
             # Load the day into the edit service;
             self._oes.day_goals = ops.load_day_goals(dg_datafile_name)
+            # Don't forget the datafile name!;
+            self._oes.datafile_name = dg_datafile_name
+            # Configure the save output reminder;
+            self.app.guard_exit('home.goals.edit_day',
+                                'DayGoalsSaveCheckComponent')            
             # Redirect to day goals editor;
             self.app.goto('home.goals.edit_day')
 
         # If we are deleting a day;
         elif flags == ['-d']:
-            pass
-        
+            try:
+                day_num = self._parse_day_goals_num(text)
+            except ValueError:
+                return
+            # Get the datafile name;
+            df_to_delete = ops.convert_day_goals_name_to_datafile_name(
+                self.numbered_day_goals[day_num])
+            # Put details on the edit service;
+            self._oes.datafile_name = df_to_delete
+            self._oes.day_goals = ops.load_day_goals(df_to_delete)
+            # Navigate to confirm;
+            self.app.goto('home.goals.confirm_delete_day')

@@ -1,5 +1,8 @@
 from typing import Dict, TYPE_CHECKING
 
+from singleton_decorator import singleton
+
+from pydiet import repository_service as rps
 from pydiet.optimisation import meal_goals
 from pydiet.optimisation.exceptions import DuplicateMealGoalsNameError
 
@@ -19,6 +22,16 @@ data_template = {
     "meal_goals": {}
 }
 
+@singleton
+class GlobalDayGoals():
+    def __init__(self):
+        self._data = rps.read_global_day_goals_data()
+
+    @property
+    def max_cost_gbp(self)->float:
+        raise NotImplementedError
+
+    
 
 class DayGoals():
     def __init__(self, data: Dict):

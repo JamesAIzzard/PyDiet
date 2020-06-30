@@ -112,7 +112,7 @@ def summarise_ingredient_amount(ingredient_amount: 'IngredientAmount') -> str:
         var_template = ''
     else:
         var_template = _VAR_TEMPLATE.format(
-            qty_max=ingredient_amount.max_quantity, qty_min=ingredient_amount.min_quantity,
+            qty_max=round(ingredient_amount.max_quantity, 2), qty_min=round(ingredient_amount.min_quantity, 2),
             ingredient_qty_units=ingredient_amount.quantity_units)
     # Put everything together;
     output = output + _MAIN_INGRED_TEMPLATE.format(

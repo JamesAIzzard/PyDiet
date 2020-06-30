@@ -21,11 +21,11 @@ Meal Name               Ratios     Cals
 ------------------------------------------------------
 Where ratio is : protein-carb-fat
 
-(-a [meal name])   -- Add a meal.
-(-e [meal number]) -- Edit a meal.
-(-d [meal number]) -- Delete a meal.
-(-m)               -- Manage day micronutrient targets.
-(-s)               -- Save changes.
+(-a [meal name])   -> Add a meal.
+(-e [meal number]) -> Edit a meal.
+(-d [meal number]) -> Delete a meal.
+(-m)               -> Manage the day's nutrient targets.
+(-s)               -> Save changes.
 
 '''
 _MEAL_TEMPLATE = '{num}. {meal_name} | {ratios} | {cals}cals\n'
