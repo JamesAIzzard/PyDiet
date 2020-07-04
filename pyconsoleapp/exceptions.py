@@ -1,2 +1,2 @@
-class PyConsoleAppException(Exception):
+class PyConsoleAppError(Exception):
     pass

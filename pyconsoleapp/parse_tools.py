@@ -1,15 +1,15 @@
 from typing import Tuple, List, Optional
 
-from pyconsoleapp import PyConsoleAppException
+from pyconsoleapp.exceptions import PyConsoleAppError
 
 
-class LetterIntegerParseError(PyConsoleAppException):
+class LetterIntegerParseError(PyConsoleAppError):
     pass
 
-class LetterFloatParseError(PyConsoleAppException):
+class LetterFloatParseError(PyConsoleAppError):
     pass
 
-class NumberAndTextParseError(PyConsoleAppException):
+class NumberAndTextParseError(PyConsoleAppError):
     pass
 
 

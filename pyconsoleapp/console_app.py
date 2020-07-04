@@ -2,6 +2,7 @@ import os
 import re
 import importlib
 import importlib.util
+from inspect import signature
 from typing import Callable, Dict, List, Optional, TYPE_CHECKING, cast
 if os.name == 'nt':
     from pyautogui import write
@@ -9,6 +10,7 @@ else:
     import readline
 
 from pyconsoleapp import configs as cfg
+from pyconsoleapp import parse_tools
 
 if TYPE_CHECKING:
     from pyconsoleapp.components import (
@@ -54,19 +56,19 @@ class ConsoleApp():
         self.info_message: Optional[str] = None
 
     @property
-    def _active_option_responses(self) -> Dict[str, Callable]:
+    def _active_response_functions(self) -> Dict[str, Callable]:
         '''Returns a dict of all currently active option responses.
 
         Returns:
             Dict[str, Callable]: A dict of all currently active option
             responses.
         '''
-        # Collect the option responses map from each active component;
-        option_responses = {}
+        # Collect the response function map from each active component;
+        response_functions = {}
         for component in self._active_components:
-            option_responses.update(component.option_responses)
+            response_functions.update(component.response_functions)
         # Then return them;
-        return option_responses
+        return response_functions
 
     @property
     def route(self) -> str:
@@ -255,22 +257,45 @@ class ConsoleApp():
         if route in self._route_exit_guard_map.keys():
             del self._route_exit_guard_map[route]
 
-    def process_response(self, response):
-        '''First runs any matching active option responses. Then runs
-        all active dynamic responses.
+    def process_response(self, response:str):
+        '''First runs the response function for any matching flags. 
+        Then runs dynamic responses for all active components.
 
         Args:
             response (str): The user's response.
         '''
+        
         # Collect the currently active option responses;
-        active_option_responses = self._active_option_responses
-        # If the response matches any static options;
-        if response in active_option_responses.keys():
-            active_option_responses[response]()
-        # If not, run the dynamic responses;
-        else:
-            for component in self._active_components:
-                component.dynamic_response(response)
+        active_response_functions = self._active_response_functions        
+
+        # Search for perfect response-command match, and
+        # run matching function;
+        for func_sig in active_response_functions.keys():
+            if response == func_sig:
+                active_response_functions[func_sig]()
+
+        # Search the response for flags, and run matching functions;
+        # Try and parse command flags out of the response;
+        flags, text = parse_tools.parse_flags_and_text(response)        
+        # First find any matching functions for each flag;
+        for flag in flags:
+            if flag in active_response_functions.keys():
+                # Figure out if it is expecting arguments;
+                sig = signature(active_response_functions[flag])
+                pass_args = bool(len(sig.parameters))
+                # If the function is expecting arguments;
+                if pass_args:
+                    active_response_functions[flag](text)
+                else:
+                    active_response_functions[flag]()
+        
+        # Cycle through all active components, and run their any
+        # response functions if they have been implemented;
+        for component in self._active_components:
+            try:
+                component.any_response(response)
+            except NotImplementedError:
+                pass
 
     def run(self) -> None:
         '''Main run loop for the CLI

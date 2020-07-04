@@ -1,5 +1,5 @@
 from abc import abstractmethod, ABC
-from typing import Callable, Dict, Any, TYPE_CHECKING
+from typing import Callable, Dict, List, Any, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pyconsoleapp import ConsoleApp
@@ -7,7 +7,7 @@ if TYPE_CHECKING:
 
 class ConsoleAppComponent(ABC):
     def __init__(self, app: 'ConsoleApp'):
-        self.option_responses: Dict[str, Callable] = {}
+        self.response_functions: Dict[str, Callable] = {}
         self.app = app
 
     def __getattribute__(self, name: str) -> Any:
@@ -35,14 +35,27 @@ class ConsoleAppComponent(ABC):
     def print(self, *args, **kwargs) -> str:
         pass
 
+    def set_response_function(self, signatures: List[str], func: Callable) -> None:
+        for signature in signatures:
+            self.response_functions[signature] = func
+    
+    def set_empty_response_function(self, func: Callable) -> None:
+        self.set_response_function([''], func)
+
+    def any_response(self, response:str) -> None:
+        raise NotImplementedError
+
+    # Deprecated
     def set_option_response(self, signature: str, func: Callable) -> None:
-        self.option_responses[signature] = func
+        self.response_functions[signature] = func
 
+    # Deprecated
     def set_empty_enter_response(self, func:Callable)->None:
-        self.option_responses[''] = func
+        self.response_functions[''] = func
 
-    def dynamic_response(self, raw_response: str) -> None:
-        pass
+    # Deprecated
+    def dynamic_response(self, response: str) -> None:
+        self.any_response(response)
 
     def run(self) -> None:
         pass

@@ -1,8 +1,8 @@
 {
   "cost_per_mass": {
-    "cost": 1.84,
-    "ingredient_qty": 1.0,
-    "ingredient_qty_units": "kg"
+    "cost": 3.5,
+    "ingredient_qty": 100.0,
+    "ingredient_qty_units": "g"
   },
   "flags": {
     "alcohol_free": true,

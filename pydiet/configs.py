@@ -13,7 +13,7 @@ DAY_GOALS_INDEX_NAME = 'index'
 INGREDIENT_DB_PATH = cwd()+'/pydiet/database/ingredients/'
 RECIPE_DB_PATH = cwd()+'/pydiet/database/recipes/'
 DAY_GOALS_DB_PATH = cwd()+'/pydiet/database/goals/day_goals/'
-GLOBAL_DAY_GOALS_DB_PATH = cwd()+'/pydiet/database/goals/day_goals/global_day_goals.json'
+GLOBAL_DAY_GOALS_DB_PATH = cwd()+'/pydiet/database/goals/global_day_goals.json'
 PRIMARY_NUTRIENTS: List[str] = [
     "carbohydrate",
     "fat",
