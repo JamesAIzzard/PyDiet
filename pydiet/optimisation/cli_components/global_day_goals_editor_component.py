@@ -5,17 +5,18 @@ from pydiet.optimisation import global_day_goals
 _MAIN = '''Global Day Goals:
 ------------------
 
-Max Daily Food Cost: £{cost}              | -cost [cost]
-Daily Calorie Goal: {cals}cals            | -cals [calories]
-Percentage Daily Fat: {perc_fat}%         | -pfat [percentage]
-Percentage Daily Protein: {perc_prot}%    | -pprt [percentage]
-Percentage Daily Carbs: {perc_carbs}%     | -pcrb [percentage]
+Max Daily Food Cost: {cost} {"|":<30} -cost [cost]
+Daily Calorie Goal: {cals}  | -cals [calories]
+Percentage Daily Fat: {perc_fat} | -pfat [percentage]
+Percentage Daily Protein: {perc_protein} | -pprt [percentage]
+Percentage Daily Carbs: {perc_carbs} | -pcrb [percentage]
 
--f -> Edit global flags.
--n -> Edit global nutrient targets.
--s -> Save changes.
+-flags, -f  -> Edit global flags.
+-nuts, -n   -> Edit global nutrient targets.
+-save, -s   -> Save changes.
 
 '''
+
 
 class GlobalDayGoalsEditorComponent(ConsoleAppComponent):
     def __init__(self, app):
@@ -26,17 +27,23 @@ class GlobalDayGoalsEditorComponent(ConsoleAppComponent):
         self.set_response_function(['-pfat'], self.on_edit_perc_fat)
         self.set_response_function(['-pprt'], self.on_edit_perc_protein)
         self.set_response_function(['-pcrb'], self.on_edit_perc_carbs)
-        self.set_response_function(['-f'], self.on_edit_flags)
-        self.set_response_function(['-n'], self.on_edit_nutrient_targets)
-        self.set_response_function(['-s'], self.on_save)
+        self.set_response_function(['-flags', '-f'], self.on_edit_flags)
+        self.set_response_function(
+            ['nuts', '-n'], self.on_edit_nutrient_targets)
+        self.set_response_function(['-save', '-s'], self.on_save)
 
     def print(self, *args, **kwargs) -> str:
         return _MAIN.format(
-            cost=self._gdg.max_cost_gbp,
-            cals=self._gdg.calories,
-            perc_fat=self._gdg.perc_fat,
-            perc_carbs=self._gdg.perc_carbs,
-            perc_prot=self._gdg.perc_protein
+            cost='£' +
+            str(format(self._gdg.max_cost_gbp, '.2f')) if self._gdg.max_cost_gbp else 'Undefined',
+            cals=str(self._gdg.calories) +
+            'cals' if self._gdg.calories else 'Undefined',
+            perc_fat=str(self._gdg.perc_fat) +
+            '%' if self._gdg.perc_fat else 'Undefined',
+            perc_protein=str(self._gdg.perc_protein) +
+            '%' if self._gdg.perc_protein else 'Undefined',
+            perc_carbs=str(self._gdg.perc_carbs) +
+            '%' if self._gdg.perc_carbs else 'Undefined',
         )
 
     def on_edit_cost(self, args):
