@@ -5,11 +5,11 @@ from pydiet.optimisation import global_day_goals
 _MAIN = '''Global Day Goals:
 ------------------
 
-Max Daily Food Cost: {cost} {"|":<30} -cost [cost]
-Daily Calorie Goal: {cals}  | -cals [calories]
-Percentage Daily Fat: {perc_fat} | -pfat [percentage]
-Percentage Daily Protein: {perc_protein} | -pprt [percentage]
-Percentage Daily Carbs: {perc_carbs} | -pcrb [percentage]
+Max Daily Food Cost:   {cost:>10} | -cost [cost]
+Daily Calorie Goal:    {cals:>10} | -cals [calories]
+Perc Daily Fat:        {perc_fat:>10} | -pfat [percentage]
+Perc Daily Protein:    {perc_protein:>10} | -pprt [percentage]
+Perc Daily Carbs:      {perc_carbs:>10} | -pcrb [percentage]
 
 -flags, -f  -> Edit global flags.
 -nuts, -n   -> Edit global nutrient targets.
@@ -34,16 +34,11 @@ class GlobalDayGoalsEditorComponent(ConsoleAppComponent):
 
     def print(self, *args, **kwargs) -> str:
         return _MAIN.format(
-            cost='£' +
-            str(format(self._gdg.max_cost_gbp, '.2f')) if self._gdg.max_cost_gbp else 'Undefined',
-            cals=str(self._gdg.calories) +
-            'cals' if self._gdg.calories else 'Undefined',
-            perc_fat=str(self._gdg.perc_fat) +
-            '%' if self._gdg.perc_fat else 'Undefined',
-            perc_protein=str(self._gdg.perc_protein) +
-            '%' if self._gdg.perc_protein else 'Undefined',
-            perc_carbs=str(self._gdg.perc_carbs) +
-            '%' if self._gdg.perc_carbs else 'Undefined',
+            cost='£'+str(format(self._gdg.max_cost_gbp, '.2f')) if self._gdg.max_cost_gbp else 'Undefined',
+            cals=str(self._gdg.calories)+'cals' if self._gdg.calories else 'Undefined',
+            perc_fat=str(self._gdg.perc_fat)+'%' if self._gdg.perc_fat else 'Undefined',
+            perc_protein=str(self._gdg.perc_protein)+'%' if self._gdg.perc_protein else 'Undefined',
+            perc_carbs=str(self._gdg.perc_carbs)+'%' if self._gdg.perc_carbs else 'Undefined'
         )
 
     def on_edit_cost(self, args):
