@@ -1,11 +1,14 @@
-from typing import Optional
+from typing import Optional, List
 
 from singleton_decorator import singleton
 
+from pydiet import flaggable
 from pydiet import repository_service as rps
+from pydiet.ingredients import ingredient_service
+from pydiet.optimisation.exceptions import PercentageSumError
 
 @singleton
-class GlobalDayGoals():
+class GlobalDayGoals(flaggable.Flaggable):
     def __init__(self):
         self._data = rps.read_global_day_goals_data()
 
@@ -61,4 +64,29 @@ class GlobalDayGoals():
     def perc_protein(self, value:float) -> None:
         self._perc_setter('protein', value)
 
-            
+    @property
+    def flags(self) -> List[str]:
+        return self._data['flags']
+
+    def add_flag(self, flag_name:str)->None:
+        # Check the flag name is a valid flag;
+        if not flag_name in ingredient_service.get_all_flag_names():
+            raise ValueError
+        if not flag_name in self._data['flags']:
+            self._data['flags'].append(flag_name)
+
+    def remove_flag(self, flag_name:str)->None:
+        if flag_name in self._data['flags']:
+            self._data['flags'].remove(flag_name)
+
+    def validate(self)->None:
+        # Check the percentage sums do not exceed 100%;
+        perc_sum = self.perc_fat+self.perc_protein+self.perc_carbs
+        if not perc_sum == 100:
+            raise PercentageSumError
+
+    def save(self) -> None:
+        # Run validation checks;
+        self.validate()
+        # Save the file;
+        rps.update_global_day_goals_data(self._data)

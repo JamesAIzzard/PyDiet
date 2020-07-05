@@ -236,6 +236,12 @@ def update_day_goals_data(day_goals_data: Dict, datafile_name: str) -> None:
     index[datafile_name] = day_goals_data['name']
     update_day_goals_index(index)
 
+def update_global_day_goals_data(global_day_goals_data:Dict)->None:
+    # Write the data;
+    with open(configs.GLOBAL_DAY_GOALS_DB_PATH, 'w') as fh:
+        json.dump(global_day_goals_data, fh, indent=2, sort_keys=True)
+
+
 def update_ingredient_index(index: Dict[str, str]) -> None:
     with open(configs.INGREDIENT_DB_PATH+'{}.json'.
               format(configs.INGREDIENT_INDEX_NAME), 'w') as fh:

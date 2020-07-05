@@ -16,4 +16,9 @@ class DuplicateMealGoalsNameError(ValueError):
 class DuplicateDayGoalsNameError(ValueError):
     def __init__(self, *args):
         if len(args) and args[0]:
-            super().__init__(args[0])                   
+            super().__init__(args[0])    
+
+class PercentageSumError(ValueError):
+    def __init__(self, *args):
+        if len(args) and args[0]:
+            super().__init__(args[0])                                

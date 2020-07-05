@@ -1,9 +1,9 @@
 {
-    "max_cost_gbp": null,
-    "flags": [],      
-    "calories": null,
-    "perc_fat": null,
-    "perc_carbs": null,
-    "perc_protein": null,
-    "nutrient_mass_targets": {}
+  "calories": 3500.0,
+  "flags": [],
+  "max_cost_gbp": 12.3,
+  "nutrient_mass_targets": {},
+  "perc_carbs": 40.0,
+  "perc_fat": 30.0,
+  "perc_protein": 30.0
 }

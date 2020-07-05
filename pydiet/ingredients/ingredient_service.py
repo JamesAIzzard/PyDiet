@@ -69,6 +69,10 @@ def get_all_nutrient_names() -> List[str]:
     data_template = rps.read_ingredient_template_data()
     return list(data_template['nutrients'].keys())
 
+def get_all_flag_names() -> List[str]:
+    data_template = rps.read_ingredient_template_data()
+    return list(data_template['flags'].keys())
+
 def get_matching_ingredient_names(search_term:str, num_results: int) -> List[str]:
     # Load a list of the ingredient names;
     index = rps.read_ingredient_index()
