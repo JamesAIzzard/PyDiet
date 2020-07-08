@@ -1,4 +1,4 @@
-from typing import Optional, Dict, TYPE_CHECKING
+from typing import Dict, TYPE_CHECKING
 
 from pyconsoleapp import ConsoleAppComponent, menu_tools
 

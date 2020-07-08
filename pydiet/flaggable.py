@@ -1,5 +1,4 @@
 import abc
-from pydiet.ingredients import ingredient
 from typing import List
 
 from pydiet.ingredients import ingredient_service

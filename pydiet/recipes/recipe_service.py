@@ -1,6 +1,5 @@
 from typing import TYPE_CHECKING, List, Optional
 from heapq import nlargest
-from datetime import datetime
 
 from pyconsoleapp import search_tools
 

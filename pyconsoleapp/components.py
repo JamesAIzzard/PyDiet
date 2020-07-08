@@ -1,14 +1,26 @@
 from abc import abstractmethod, ABC
 from typing import Callable, Dict, List, Any, TYPE_CHECKING
 
+from pyconsoleapp.exceptions import (
+    NoPrintFunctionError,
+    StateNotConfiguredError
+)
+
 if TYPE_CHECKING:
     from pyconsoleapp import ConsoleApp
 
 
 class ConsoleAppComponent(ABC):
     def __init__(self, app: 'ConsoleApp'):
-        self.response_functions: Dict[str, Callable] = {}
+        # Stash the app reference;
         self.app = app
+        # Dicts to store state specific print & response funcs;
+        self._sig_response_functions: Dict[str, Dict[str, Dict]] = {}
+        self._any_response_functions: Dict[str, Callable] = {}
+        self._print_functions: Dict[str, Callable] = {}
+        # Configure the states;
+        self._states: List[str] = ['DEFAULT']
+        self._state: str = self._states[0]
 
     def __getattribute__(self, name: str) -> Any:
         '''Intercepts the print command and adds the component to
@@ -31,33 +43,147 @@ class ConsoleAppComponent(ABC):
     def name(self) -> str:
         return self.__class__.__name__
 
-    @abstractmethod
+    @property
+    def state(self) -> str:
+        return self._state
+
+    @state.setter
+    def state(self, value:str) -> None:
+        if not value in self._states:
+            raise StateNotConfiguredError
+        self._state = value
+
     def print(self, *args, **kwargs) -> str:
-        pass
+        # Check the current state has a print function assigned;
+        if not self.state in self._print_functions.keys():
+            raise NoPrintFunctionError
+        # Run the function;
+        return self._print_functions[self._state](args, kwargs)
 
-    def set_response_function(self, signatures: List[str], func: Callable) -> None:
-        for signature in signatures:
-            self.response_functions[signature] = func
-    
-    def set_empty_response_function(self, func: Callable) -> None:
-        self.set_response_function([''], func)
+    def respond(self, response:str)->None:
+        # Check the any-response function for this state;
+        if self.state in self._any_response_functions.keys():
+            self._any_response_functions[self.state](response)
+        # Check if the component finalised response;
+        if self.app._stop_responding:
+            return
+        # Check each signature response stored against this state;
+        for sig in self._sig_response_functions[self.state].keys():
+            # Handle an empty response;
+            if response.replace(' ', '') == '':
+                if '' in self._sig_response_functions[self.state].keys():
+                    self._sig_response_functions[self.state]['']()
+            # Parse the response, looking for signature;
+            # Split into chunks;
+            # Search for flags;   
 
-    def any_response(self, response:str) -> None:
-        raise NotImplementedError
+    def configure_states(self, states: List[str]):
+        # Prevent default being overwritten by no states;
+        if len(states):
+            # Assign states;
+            self._states = states
+            # Init the current state as the first one;
+            self.state = states[0]
+            # Remove the default states from the print and response dicts;
+            self._print_functions = {}
+            self._sig_response_functions = {}
+            self._any_response_functions = {}
 
-    # Deprecated
-    def set_option_response(self, signature: str, func: Callable) -> None:
-        self.response_functions[signature] = func
+    def validate_state(self, state:str)->None:
+        if not state in self._states:
+            raise StateNotConfiguredError
 
-    # Deprecated
-    def set_empty_enter_response(self, func:Callable)->None:
-        self.response_functions[''] = func
+    def set_print_function(
+            self,
+            func: Callable,
+            states: List[str] = []) -> None:
+        # If no state was specified;
+        if not len(states):
+            # If no states have been configured;
+            if self.states == ['DEFAULT']:
+                # Assign to default;
+                self._print_functions['DEFAULT'] = func
+            # If states have been configured;
+            else:
+                # Assign print function to each state;
+                for state in self._states:
+                    self._print_functions[state] = func
+        # If state(s) were specified;
+        elif len(states):
+            # Cycle through each specified state;
+            for state in states:
+                # Check it exists;
+                self.validate_state(state)
+                # Assign the function to the state;
+                self._print_functions[state] = func
 
-    # Deprecated
-    def dynamic_response(self, response: str) -> None:
-        self.any_response(response)
+    def set_response_function(
+            self,
+            signatures: List[str],
+            func: Callable,
+            states: List[str] = [],
+            exact: bool = False) -> None:
+        # If no state was specified;
+        if not len(states):
+            # If no states have been configured;
+            if self.states == ['DEFAULT']:
+                # Assign to default;
+                self._sig_response_functions['DEFAULT'] = {
+                    'exact': exact,
+                    'func': func
+                }
+            # If states have been configured;
+            else:
+                # Assign to every state;
+                for state in self._states:
+                    self._sig_response_functions[state] = {
+                        'exact': exact,
+                        'func': func
+                    }
+        # If state(s) were specified;
+        elif len(states):
+            # Cycle through each specifed state;
+            for state in states:
+                # Check it exists;
+                self.validate_state(state)
+                # Assign the function to the state;
+                self._sig_response_functions[state] = {
+                    'exact': exact,
+                    'func': func
+                }
 
-    def run(self) -> None:
+    def set_empty_response_function(
+            self,
+            func: Callable,
+            states: List[str] = []) -> None:
+        self.set_response_function([''], func, states=states, exact=True)
+
+    def set_any_response_function(
+        self,
+        func: Callable,
+        states: List[str] = []) -> None:
+        # If no state was specified;
+        if not len(states):
+            # If no states have been configured;
+            if self.states == ['DEFAULT']:
+                # Assign to default;
+                self._any_response_functions['DEFAULT'] = func
+            # If states have been configured;
+            else:
+                # Assign to every state;
+                for state in self._states:
+                    self._any_response_functions[state] = func
+        # If states were specified;
+        elif len(states):
+            # Cycle through each specified state;
+            for state in states:
+                # Check the state exists;
+                self.validate_state(state)
+                # Assign the function to the state;
+                self._any_response_functions[state] = func
+
+
+    def before_print(self) -> None:
         pass
 
 

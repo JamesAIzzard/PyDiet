@@ -8,6 +8,7 @@ from pydiet.optimisation.exceptions import PercentageSumError
 
 if TYPE_CHECKING:
     from pydiet.cli_components.flag_editor_component import FlagEditorComponent
+    from pydiet.cli_component.nutrient_target_editor_component import NutrientTargetEditorComponent
 
 _MAIN = '''Global Day Goals:
 ------------------
@@ -85,6 +86,9 @@ class GlobalDayGoalsEditorComponent(ConsoleAppComponent):
         self.app.goto('home.goals.edit_globals.edit_flags')
 
     def on_edit_nutrient_targets(self):
+        # Place the day goals object on the nutrient target editor;
+        cast('NutrientTargetEditorComponent', self.app.fetch_component('nutrient_target_editor_component')).subject = self._gdg
+        # Redirect to the nutrient target editor;
         self.app.goto('home.goals.edit_globals.edit_nutrient_targets')
 
     def on_save(self):

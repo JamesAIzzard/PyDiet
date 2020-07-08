@@ -18,6 +18,7 @@ if TYPE_CHECKING:
         ConsoleAppGuardComponent
     )
 
+
 def pascal_to_snake(text: str) -> str:
     s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', text)
     return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
@@ -25,6 +26,7 @@ def pascal_to_snake(text: str) -> str:
 
 def snake_to_pascal(text: str) -> str:
     return ''.join(x.capitalize() or '_' for x in text.split('_'))
+
 
 def rlinput(prompt, prefill=''):
     if os.name == 'nt':
@@ -37,6 +39,7 @@ def rlinput(prompt, prefill=''):
         finally:
             readline.set_startup_hook()
 
+
 class ConsoleApp():
     def __init__(self, name):
         self._response: Optional[str] = None
@@ -45,11 +48,11 @@ class ConsoleApp():
         self._route_history: List[str] = []
         self._route_component_maps: Dict[str, str] = {}
         self._route_exit_guard_map: Dict[str, 'ConsoleAppGuardComponent'] = {}
-        self._route_entrance_guard_map: Dict[str,
-                                             'ConsoleAppGuardComponent'] = {}
+        self._route_entrance_guard_map: Dict[str, 'ConsoleAppGuardComponent'] = {}
         self._components: Dict[str, 'ConsoleAppComponent'] = {}
-        self._active_components: List['ConsoleAppComponent'] = []        
+        self._active_components: List['ConsoleAppComponent'] = []
         self._component_packages: List[str] = []
+        self._stop_responding: bool = False        
         self._quit: bool = False
         self.name: str = name
         self.error_message: Optional[str] = None
@@ -66,7 +69,7 @@ class ConsoleApp():
         # Collect the response function map from each active component;
         response_functions = {}
         for component in self._active_components:
-            response_functions.update(component.response_functions)
+            response_functions.update(component._response_functions)
         # Then return them;
         return response_functions
 
@@ -172,7 +175,7 @@ class ConsoleApp():
     def register_component_package(self, package_path: str) -> None:
         self._component_packages.append(package_path)
 
-    def activate_component(self, component_instance:'ConsoleAppComponent') -> None:
+    def activate_component(self, component_instance: 'ConsoleAppComponent') -> None:
         self._active_components.append(component_instance)
 
     def make_component(self, component_class_name: str) -> 'ConsoleAppComponent':
@@ -257,16 +260,27 @@ class ConsoleApp():
         if route in self._route_exit_guard_map.keys():
             del self._route_exit_guard_map[route]
 
-    def process_response(self, response:str):
+    def process_response(self, response: str):
         '''First runs the response function for any matching flags. 
         Then runs dynamic responses for all active components.
 
         Args:
             response (str): The user's response.
         '''
-        
+
+        # Give each active component chance to process the response;
+        for component in self._active_components:
+            component.respond(response)
+            # Check for end signal;
+            if self._stop_responding:
+                break
+        # Reset the stop responding flag;
+        self._stop_responding = False
+
+        # Old implmenetation;
+
         # Collect the currently active option responses;
-        active_response_functions = self._active_response_functions        
+        active_response_functions = self._active_response_functions
 
         # Search for perfect response-command match, and
         # run matching function;
@@ -276,7 +290,7 @@ class ConsoleApp():
 
         # Search the response for flags, and run matching functions;
         # Try and parse command flags out of the response;
-        flags, text = parse_tools.parse_flags_and_text(response)        
+        flags, text = parse_tools.parse_flags_and_text(response)
         # First find any matching functions for each flag;
         for flag in flags:
             if flag in active_response_functions.keys():
@@ -288,7 +302,7 @@ class ConsoleApp():
                     active_response_functions[flag](text)
                 else:
                     active_response_functions[flag]()
-        
+
         # Cycle through all active components, and run their any
         # response functions if they have been implemented;
         for component in self._active_components:
@@ -296,6 +310,12 @@ class ConsoleApp():
                 component.any_response(response)
             except NotImplementedError:
                 pass
+
+    def stop_responding(self) -> None:
+        '''Sets a flag to break the process response loop for
+        the app, causing it to skip to displaying the next page.
+        '''
+        self._stop_responding = True
 
     def run(self) -> None:
         '''Main run loop for the CLI
@@ -315,9 +335,9 @@ class ConsoleApp():
                 if not self._response:
                     # Grab the matching component;
                     component = self._fetch_component_for_route(self.route)
-                    # Call run;
-                    component.run()
-                    # Grab component again, in case run changed the route;
+                    # Call before print function;
+                    component.before_print()
+                    # Grab component again, in case before print changed the route;
                     component = self._fetch_component_for_route(self.route)
                     # Clear the screen;
                     self.clear_console()
@@ -335,7 +355,7 @@ class ConsoleApp():
         route = self.interpret_relative_route(route)
         # Save the current route to the history;
         self._route_history.append(self.route)
-        ## Make sure the history doesn't get too long;
+        # Make sure the history doesn't get too long;
         while len(self._route_history) > cfg.route_history_length:
             self._route_history.pop(0)
         # Set the new route;
