@@ -55,7 +55,7 @@ class ViewAllIngredientsComponent(ConsoleAppComponent):
             ingredients_menu=ingredients_menu
         )
         # Build the template;
-        output = self.app.fetch_component('standard_page_component').print(output)
+        output = self.app.fetch_component('standard_page_component').call_print(output)
         #
         return output
 

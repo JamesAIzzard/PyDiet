@@ -36,7 +36,7 @@ class NutrientTargetEditorComponent(ConsoleAppComponent):
 
     def print_edit_template(self)->str:
         output = _EDIT_QTY_TEMPLATE.format(nutrient_name=self.nutrient_name[0])
-        return self.app.fetch_component('standard_page_component').print(output)
+        return self.app.fetch_component('standard_page_component').call_print(output)
 
     def on_edit_nutrient_qty(self, response:str)->None:
         # Try parse the qty and units;

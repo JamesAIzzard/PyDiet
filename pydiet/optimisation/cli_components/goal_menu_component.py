@@ -1,4 +1,4 @@
-from typing import Dict, Optional
+from typing import Dict, Optional, TYPE_CHECKING, cast
 
 from pyconsoleapp import ConsoleAppComponent, menu_tools, parse_tools
 
@@ -7,15 +7,15 @@ from pydiet.optimisation import optimisation_edit_service as oes
 from pydiet import repository_service as rps
 from pydiet.optimisation.exceptions import DuplicateDayGoalsNameError
 
-_MAIN = '''Day Goals:
+if TYPE_CHECKING: 
+    from pydiet.optimisation.cli_components.day_goals_editor_component import DayGoalsEditorComponent
 
-{day_goals}
+_MAIN = '''{day_goals}
 -add, -a       [day name]     -> Add a new day.
 -edit, -e      [day number]   -> Edit a day.
 -delete, -d    [day number]   -> Delete a day.
 -globals, -g                  -> Manage global daily nutrient targets.
 -save, -s                     -> Save changes.
-
 '''
 
 
@@ -26,6 +26,7 @@ class GoalMenuComponent(ConsoleAppComponent):
         self.day_goals_menu = ''
         self.num_day_goals: int = 0
         self.numbered_day_goals: Dict[int, str] = {}
+        self.set_print_function(self.print)
         self.set_response_function(['-a', '-add'], self.on_add_day)
         self.set_response_function(['-e', '-edit'], self.on_edit_day)
         self.set_response_function(['-d', '-delete'], self.on_delete_day)
@@ -40,7 +41,7 @@ class GoalMenuComponent(ConsoleAppComponent):
             raise ValueError
         return day_num
 
-    def run(self) -> None:
+    def before_print(self) -> None:
         # First, read the day_goals index;
         dg_index = rps.read_day_goals_index()
         # Stash the number of saved day goals;
@@ -62,12 +63,14 @@ class GoalMenuComponent(ConsoleAppComponent):
             output = 'No day goals to show.\n'
         self.day_goals_menu = output
 
-    def print(self, *args, **kwargs) -> str:
+    def print(self) -> str:
         # Create the content;
         output = _MAIN.format(day_goals=self.day_goals_menu)
         # Format and return the template;
         output = self.app.fetch_component(
-            'standard_page_component').print(output)
+            'standard_page_component').call_print(
+                page_content=output, 
+                page_title='Goal Menu')
         return output
 
     def on_manage_global_goals(self) -> None:
@@ -88,9 +91,12 @@ class GoalMenuComponent(ConsoleAppComponent):
         except DuplicateDayGoalsNameError:
             self.app.error_message = 'There is already a day called {day_goals_name}'.format(
                 day_goals_name=text)
+            return
 
-        # Place it on the scope;
-        self._oes.day_goals = dg
+        # Configure the day goals editor;
+        dg_editor = self.app.fetch_component('day_goals_editor_component')
+        dg_editor = cast('DayGoalsEditorComponent', dg_editor)
+        dg_editor.subject = dg
 
         # Configure the save output reminder;
         self.app.guard_exit('home.goals.edit_day',

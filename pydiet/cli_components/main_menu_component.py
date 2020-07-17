@@ -1,11 +1,11 @@
 from pyconsoleapp import ConsoleAppComponent
 
-_MENU_TEMPLATE = '''Choose an option:
-(1) -- Manage ingredients.
-(2) -- Manage recipes.
-(3) -- Manage goals.
-(4) -- Generate meal plans.
-(5) -- View meal plans.
+_MENU_TEMPLATE = '''
+-ingredients, -i    -> Manage ingredients.
+-recipes, -r        -> Manage recipes.
+-goals, -g          -> Manage goals.
+-solve, -s          -> Generate meal plans.
+-view, -v           -> View meal plans.
 '''
 
 
@@ -13,18 +13,21 @@ class MainMenuComponent(ConsoleAppComponent):
 
     def __init__(self, app):
         super().__init__(app)
-        self.set_option_response('1', self.on_manage_ingredients)
-        self.set_option_response('2', self.on_manage_recipes)
-        self.set_option_response('3', self.on_manage_goals)
-        self.set_option_response('4', self.on_run_optimiser)
+        self.set_print_function(self.print_menu)
+        self.set_response_function(['-ingredients', '-i'], self.on_manage_ingredients)
+        self.set_response_function(['-recipes', '-r'], self.on_manage_recipes)
+        self.set_response_function(['-goals', '-g'], self.on_manage_goals)
+        self.set_response_function(['-solve', '-s'], self.on_run_optimiser)
+        self.set_response_function(['-view', '-v'], self.on_view_meal_plans)
 
-    def print(self):
+    def print_menu(self):
         output = _MENU_TEMPLATE
-        output = self.app.fetch_component('standard_page_component').print(output)
+        output = self.app.fetch_component('standard_page_component').call_print(
+            page_content=output, 
+            page_title='Main Menu')
         return output
 
     def on_manage_ingredients(self):
-        # Navigate;
         self.app.goto('home.ingredients')
 
     def on_manage_recipes(self):
@@ -34,4 +37,7 @@ class MainMenuComponent(ConsoleAppComponent):
         self.app.goto('home.goals')
 
     def on_run_optimiser(self):
+        pass
+
+    def on_view_meal_plans(self):
         pass

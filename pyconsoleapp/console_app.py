@@ -122,7 +122,7 @@ class ConsoleApp():
         # If the guard component was populated, then use it;
         if component:
             self.clear_console()
-            self._response = input(component.print())
+            self._response = input(component.call_print())
 
     def interpret_relative_route(self, route: str) -> str:
         '''Converts a relative route with point notation
@@ -176,7 +176,8 @@ class ConsoleApp():
         self._component_packages.append(package_path)
 
     def activate_component(self, component_instance: 'ConsoleAppComponent') -> None:
-        self._active_components.append(component_instance)
+        if not component_instance in self._active_components:
+            self._active_components.append(component_instance)
 
     def make_component(self, component_class_name: str) -> 'ConsoleAppComponent':
         '''Creates and returns a new instance of the component by finding its 
@@ -277,40 +278,6 @@ class ConsoleApp():
         # Reset the stop responding flag;
         self._stop_responding = False
 
-        # Old implmenetation;
-
-        # Collect the currently active option responses;
-        active_response_functions = self._active_response_functions
-
-        # Search for perfect response-command match, and
-        # run matching function;
-        for func_sig in active_response_functions.keys():
-            if response == func_sig:
-                active_response_functions[func_sig]()
-
-        # Search the response for flags, and run matching functions;
-        # Try and parse command flags out of the response;
-        flags, text = parse_tools.parse_flags_and_text(response)
-        # First find any matching functions for each flag;
-        for flag in flags:
-            if flag in active_response_functions.keys():
-                # Figure out if it is expecting arguments;
-                sig = signature(active_response_functions[flag])
-                pass_args = bool(len(sig.parameters))
-                # If the function is expecting arguments;
-                if pass_args:
-                    active_response_functions[flag](text)
-                else:
-                    active_response_functions[flag]()
-
-        # Cycle through all active components, and run their any
-        # response functions if they have been implemented;
-        for component in self._active_components:
-            try:
-                component.any_response(response)
-            except NotImplementedError:
-                pass
-
     def stop_responding(self) -> None:
         '''Sets a flag to break the process response loop for
         the app, causing it to skip to displaying the next page.
@@ -342,7 +309,7 @@ class ConsoleApp():
                     # Clear the screen;
                     self.clear_console()
                     # Collect the output from the component's print response;
-                    from_print = component.print()
+                    from_print = component.call_print()
                     # If there is no prefill;
                     if type(from_print) is str:
                         self._response = input(from_print)

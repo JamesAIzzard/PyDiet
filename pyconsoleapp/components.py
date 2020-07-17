@@ -1,5 +1,5 @@
-from abc import abstractmethod, ABC
-from typing import Callable, Dict, List, Any, TYPE_CHECKING
+from abc import ABC
+from typing import Callable, Dict, List, Any, Optional, TYPE_CHECKING
 
 from pyconsoleapp.exceptions import (
     NoPrintFunctionError,
@@ -9,15 +9,14 @@ from pyconsoleapp.exceptions import (
 if TYPE_CHECKING:
     from pyconsoleapp import ConsoleApp
 
-
 class ConsoleAppComponent(ABC):
     def __init__(self, app: 'ConsoleApp'):
         # Stash the app reference;
         self.app = app
         # Dicts to store state specific print & response funcs;
-        self._sig_response_functions: Dict[str, Dict[str, Dict]] = {}
-        self._any_response_functions: Dict[str, Callable] = {}
-        self._print_functions: Dict[str, Callable] = {}
+        self._sig_response_functions: Dict[str, Dict[str, Dict]] = {'DEFAULT': {}}
+        self._any_response_functions: Dict[str, Optional[Callable]] = {'DEFAULT': None}
+        self._print_functions: Dict[str, Optional[Callable]] = {'DEFAULT': None}
         # Configure the states;
         self._states: List[str] = ['DEFAULT']
         self._state: str = self._states[0]
@@ -33,7 +32,7 @@ class ConsoleAppComponent(ABC):
             Any -- The attribute which was requested.
         '''
         # If the print method was called;
-        if name == 'print':
+        if name == 'call_print':
             # Add this component to the active components list
             self.app.activate_component(self)
         # Return whatever was requested;
@@ -53,31 +52,63 @@ class ConsoleAppComponent(ABC):
             raise StateNotConfiguredError
         self._state = value
 
-    def print(self, *args, **kwargs) -> str:
+    @property
+    def states(self) -> List[str]:
+        return self._states
+
+    def call_print(self, *args, **kwargs) -> str:
         # Check the current state has a print function assigned;
         if not self.state in self._print_functions.keys():
             raise NoPrintFunctionError
-        # Run the function;
-        return self._print_functions[self._state](args, kwargs)
+        # Choose the correct signature and run the function;
+        if not args and not kwargs:
+            return self._print_functions[self.state]()
+        elif args and not kwargs:
+            return self._print_functions[self.state](*args)
+        elif not args and kwargs:
+            return self._print_functions[self.state](**kwargs)
+        else:
+            return self._print_functions[self.state](*args, **kwargs)
 
     def respond(self, response:str)->None:
-        # Check the any-response function for this state;
-        if self.state in self._any_response_functions.keys():
+        # First call the any-response func if defined;
+        if self._any_response_functions[self.state]:
             self._any_response_functions[self.state](response)
-        # Check if the component finalised response;
-        if self.app._stop_responding:
+            # Check if the component finalised response;
+            if self.app._stop_responding:
+                return
+        # Return now if there are no signature functions at all;
+        if not len(self._sig_response_functions[self.state]):
             return
-        # Check each signature response stored against this state;
-        for sig in self._sig_response_functions[self.state].keys():
-            # Handle an empty response;
-            if response.replace(' ', '') == '':
-                if '' in self._sig_response_functions[self.state].keys():
-                    self._sig_response_functions[self.state]['']()
-            # Parse the response, looking for signature;
-            # Split into chunks;
-            # Search for flags;   
+        # Handle an empty response;
+        if response.replace(' ', '') == '':
+            if '' in self._sig_response_functions[self.state].keys():
+                self._sig_response_functions[self.state]['']['func']()
+                # Check if the component finalised response;
+                if self.app._stop_responding:
+                    return
+        # Split the response and check each chunk against sigs;
+        split_response = response.split(' ')
+        for chunk in split_response:
+            # If there is a match;
+            if chunk in self._sig_response_functions[self.state].keys():
+                # Skip if func needs an exact match but there isn't one;
+                if self._sig_response_functions[self.state][chunk]['exact']:
+                    if not len(split_response) == 1:
+                        continue
+                
+                # Call it;
+                # If args remain, use them;
+                split_response.remove(chunk)
+                args = ' '.join(split_response)
+                if not args == '':
+                    self._sig_response_functions[self.state][chunk]['func'](args)
+                # Otherwise, call it without args;
+                else:
+                    self._sig_response_functions[self.state][chunk]['func']()
+                        
 
-    def configure_states(self, states: List[str]):
+    def configure_states(self, states: List[str])->None:
         # Prevent default being overwritten by no states;
         if len(states):
             # Assign states;
@@ -90,7 +121,7 @@ class ConsoleAppComponent(ABC):
             self._any_response_functions = {}
 
     def validate_state(self, state:str)->None:
-        if not state in self._states:
+        if not state in self.states:
             raise StateNotConfiguredError
 
     def set_print_function(
@@ -127,19 +158,21 @@ class ConsoleAppComponent(ABC):
         if not len(states):
             # If no states have been configured;
             if self.states == ['DEFAULT']:
-                # Assign to default;
-                self._sig_response_functions['DEFAULT'] = {
-                    'exact': exact,
-                    'func': func
-                }
+                # Assign signatures to default state;
+                    for signature in signatures:
+                        self._sig_response_functions['DEFAULT'][signature] = {
+                            'exact': exact, 
+                            'func': func
+                        }
             # If states have been configured;
             else:
                 # Assign to every state;
                 for state in self._states:
-                    self._sig_response_functions[state] = {
-                        'exact': exact,
-                        'func': func
-                    }
+                    for signature in signatures:
+                        self._sig_response_functions[state][signature] = {
+                            'exact': exact,
+                            'func': func
+                        }
         # If state(s) were specified;
         elif len(states):
             # Cycle through each specifed state;
@@ -147,10 +180,11 @@ class ConsoleAppComponent(ABC):
                 # Check it exists;
                 self.validate_state(state)
                 # Assign the function to the state;
-                self._sig_response_functions[state] = {
-                    'exact': exact,
-                    'func': func
-                }
+                for signature in signatures:
+                    self._sig_response_functions[state][signature] = {
+                        'exact': exact,
+                        'func': func
+                    }
 
     def set_empty_response_function(
             self,

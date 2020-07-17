@@ -51,7 +51,7 @@ class RecipeIngredientEditMenu(ConsoleAppComponent):
         # Build and return the page output;
         output = _MAIN_TEMPLATE.format(ingredients_list=ingredients_list)
         output = self.app.fetch_component(
-            'standard_page_component').print(output)
+            'standard_page_component').call_print(output)
         return output
 
     def on_save(self):

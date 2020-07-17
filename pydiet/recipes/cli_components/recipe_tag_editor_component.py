@@ -69,7 +69,7 @@ class RecipeTagEditorComponent(ConsoleAppComponent):
             current_tags=current_tags,
             addable_tags=addable_tags
         )
-        output = self.app.fetch_component('standard_page_component').print(output)
+        output = self.app.fetch_component('standard_page_component').call_print(output)
         return output
 
     def on_save_changes(self):

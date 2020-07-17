@@ -53,7 +53,7 @@ class RecipeServeTimeEditorComponent(ConsoleAppComponent):
             serve_times=serve_times,
             preset_serve_times=preset_serve_times
         )
-        output = self.app.fetch_component('standard_page_component').print(output)
+        output = self.app.fetch_component('standard_page_component').call_print(output)
         # Return
         return output
 

@@ -16,7 +16,7 @@ class IngredientSearchComponent(ConsoleAppComponent):
         self._ies = ies.IngredientEditService()
 
     def print(self):
-        return self.app.fetch_component('standard_page_component').print(_TEMPLATE)
+        return self.app.fetch_component('standard_page_component').call_print(_TEMPLATE)
 
     def dynamic_response(self, response):
         self._ies.ingredient_search_results = igs.get_matching_ingredient_names(

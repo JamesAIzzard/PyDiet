@@ -38,7 +38,7 @@ class FlagEditorComponent(ConsoleAppComponent):
             current_flags=self.current_flags_menu,
             available_flags=self.available_flags_menu
         )
-        return self.app.fetch_component('standard_page_component').print(output)
+        return self.app.fetch_component('standard_page_component').call_print(output)
 
     @property
     def current_flags_menu(self) -> str:

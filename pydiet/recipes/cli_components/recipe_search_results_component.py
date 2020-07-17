@@ -27,7 +27,7 @@ class RecipeSearchResultsComponent(ConsoleAppComponent):
                 results_display = results_display + \
                     '({}) -- {}\n'.format(num, nmap[num])
         output = _TEMPLATE.format(results_display=results_display)
-        return self.app.fetch_component('standard_page_component').print(output)
+        return self.app.fetch_component('standard_page_component').call_print(output)
 
     def dynamic_response(self, response):
         # Try and parse the response as an integer;

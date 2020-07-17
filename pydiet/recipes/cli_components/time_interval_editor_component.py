@@ -27,7 +27,7 @@ class TimeIntervalEditorComponent(ConsoleAppComponent):
                     self._res.selected_serve_time_index])
         output = _TEMPLATE.format(current_value=current_value)
         output = self.app.fetch_component(
-            'standard_page_component').print(output)
+            'standard_page_component').call_print(output)
         return output
 
     def dynamic_response(self, raw_response: str) -> None:

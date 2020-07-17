@@ -9,17 +9,14 @@ if TYPE_CHECKING:
 
 class HeaderComponent(ConsoleAppComponent):
 
-    def __init__(self, app: 'ConsoleApp'):
+    def __init__(self, app):
         super().__init__(app)
+        self.set_print_function(self.print)
 
     def print(self):
         output = ''
-        output = output+self.app.fetch_component('title_bar_component').print()
-        output = output+styles.weight(self.app.fetch_component('double_hr_component').print(), 'bright')
-        output = output + \
-            styles.weight(self.app.fetch_component('nav_options_component').print(), 'bright')
-        output = output+styles.fore(self.app.fetch_component('nav_trail_component').print(), 'yellow')
-        output = output+styles.weight(self.app.fetch_component('double_hr_component').print(), 'bright')
-        output = output + \
-            self.app.fetch_component('message_bar_component').print()
+        output = output+self.app.fetch_component('title_bar_component').call_print()
+        output = output + self.app.fetch_component('nav_options_component').call_print()
+        output = output+self.app.fetch_component('single_hr_component').call_print()
+        output = output + self.app.fetch_component('message_bar_component').call_print()
         return output

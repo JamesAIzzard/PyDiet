@@ -28,7 +28,7 @@ class EditIngredientNutrientQtyComponent(ConsoleAppComponent):
             nutrient_name=self._ies.current_nutrient_amount.name,
             valid_units=units.recognised_qty_units()
         )
-        output = self.app.fetch_component('standard_page_component').print(output)
+        output = self.app.fetch_component('standard_page_component').call_print(output)
         return output
 
     def dynamic_response(self, response):

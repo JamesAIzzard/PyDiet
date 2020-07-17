@@ -9,8 +9,9 @@ if TYPE_CHECKING:
 
 
 class MessageBarComponent(ConsoleAppComponent):
-    def __init__(self, app: 'ConsoleApp'):
+    def __init__(self, app):
         super().__init__(app)
+        self.set_print_function(self.print)
 
     def print(self):
         output = ''
@@ -26,6 +27,6 @@ class MessageBarComponent(ConsoleAppComponent):
                 fill(self.app.info_message, configs.terminal_width_chars)
             )
             output = styles.fore(output, 'blue')
-            output = output+('-'*configs.terminal_width_chars)+'\n'
+            output = output+self.app.fetch_component('single_hr_component').call_print()
             self.app.info_message = None
         return output

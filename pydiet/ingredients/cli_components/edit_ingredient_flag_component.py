@@ -19,7 +19,7 @@ class EditIngredientFlagComponent(ConsoleAppComponent):
             ingredient_name=self._ies.ingredient.name.lower(),
             flag=self._ies.flag_name_from_number(self._ies.current_flag_number)
         ).replace('_', ' ')
-        output = self.app.fetch_component('standard_page_component').print(output)
+        output = self.app.fetch_component('standard_page_component').call_print(output)
         return output
 
     def on_yes(self):

@@ -9,25 +9,26 @@ if TYPE_CHECKING:
 
 _TEMPLATE = '''
 {message}
-{space}(y)es / (n)o?{space}
+-yes, -y    -> Yes
+-no, -n     -> No
 '''
 
 
 class YesNoDialogComponent(ConsoleAppComponent):
 
-    def __init__(self, app: 'ConsoleApp'):
+    def __init__(self, app):
         super().__init__(app)
         self.message: str
-        self.set_option_response('y', self.on_yes)
-        self.set_option_response('n', self.on_no)
+        self.set_print_function(self.print)
+        self.set_response_function(['-yes', '-y'], self.on_yes)
+        self.set_response_function(['-no', '-n'], self.on_no)
 
     def print(self):
         output = _TEMPLATE.format(
-            message=self.message,
-            space=int((configs.terminal_width_chars-13)/2)*''
+            message=self.message
         )
         output = self.app.fetch_component(
-            'standard_page_component').print(output)
+            'standard_page_component').call_print(content=output)
         return output
 
     @abstractmethod

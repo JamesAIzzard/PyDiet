@@ -69,3 +69,7 @@ app.add_route('home.goals.edit_globals', 'GlobalDayGoalsEditorComponent')
 app.add_route('home.goals.edit_globals.edit_flags', 'FlagEditorComponent')
 app.add_route('home.goals.edit_globals.edit_nutrient_targets', 'NutrientTargetEditorComponent')
 app.add_route('home.goals.edit_globals.edit_nutrient_targets.search_nutrient', 'NutrientSearchComponent')
+
+# Create an app-wide exception to inherit from;
+class PyDietException(Exception):
+    pass

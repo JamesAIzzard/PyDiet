@@ -55,7 +55,7 @@ class EditIngredientNutrientMenuComponent(ConsoleAppComponent):
             secondary_nutrients=sn
         )
         output = self.app.fetch_component(
-            'standard_page_component').print(output)
+            'standard_page_component').call_print(output)
         return output
 
     def on_save_changes(self) -> None:

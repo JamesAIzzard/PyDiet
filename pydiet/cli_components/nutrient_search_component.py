@@ -34,7 +34,7 @@ class NutrientSearchComponent(ConsoleAppComponent):
 
     def print_search(self)->str:
         output = _SEARCH_TEMPLATE
-        return self.app.fetch_component('standard_page_component').print(output)
+        return self.app.fetch_component('standard_page_component').call_print(output)
 
     @property
     def search_results_text(self)->str:
@@ -48,7 +48,7 @@ class NutrientSearchComponent(ConsoleAppComponent):
 
     def print_results(self)->str:
         output = _RESULTS_TEMPLATE.format(search_results=self.search_results_text)
-        return self.app.fetch_component('standard_page_component').print(output)
+        return self.app.fetch_component('standard_page_component').call_print(output)
 
     def on_search(self, response) -> None:
         # Load a list of all nutrient names;

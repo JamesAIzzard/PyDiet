@@ -7,8 +7,9 @@ if TYPE_CHECKING:
     from pyconsoleapp import ConsoleApp
 
 class DoubleHrComponent(ConsoleAppComponent):
-    def __init__(self, app:'ConsoleApp'):
+    def __init__(self, app):
         super().__init__(app)
+        self.set_print_function(self.print)
 
     def print(self):
         output = '='*cfg.terminal_width_chars+'\n'

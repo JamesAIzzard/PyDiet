@@ -45,7 +45,7 @@ class EditIngredientVarComponent(ConsoleAppComponent):
             min_qty=min_qty
         )
         # Format and return it;
-        output = self.app.fetch_component('standard_page_component').print(output)
+        output = self.app.fetch_component('standard_page_component').call_print(output)
         return output
 
     def on_save(self):

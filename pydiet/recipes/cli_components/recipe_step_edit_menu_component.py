@@ -43,7 +43,7 @@ class RecipeStepEditMenuComponent(ConsoleAppComponent):
             steps = 'No steps added yet.'
         # Assemble main template;
         output = _TEMPLATE.format(steps=steps)
-        return self.app.fetch_component('standard_page_component').print(output)
+        return self.app.fetch_component('standard_page_component').call_print(output)
 
     def on_save_changes(self):
         self._res.save_changes()

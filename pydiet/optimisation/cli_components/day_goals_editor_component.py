@@ -1,4 +1,4 @@
-from typing import Dict, TYPE_CHECKING
+from typing import Dict, TYPE_CHECKING, cast
 
 from pyconsoleapp import ConsoleAppComponent, menu_tools, parse_tools
 
@@ -8,9 +8,10 @@ from pydiet.optimisation.exceptions import DuplicateDayGoalsNameError, Duplicate
 
 if TYPE_CHECKING:
     from pydiet.optimisation.day_goals import DayGoals
+    from pydiet.optimisation.cli_components.meal_goals_editor_component import MealGoalsEditorComponent
 
 _MAIN = '''
-(-n [Day Name])         | {plan_name}:
+-n, -name [Day Name]    | {plan_name}:
 
 Meal Name               Ratios     Cals
 ------------------------------------------------------
@@ -21,11 +22,11 @@ Meal Name               Ratios     Cals
 ------------------------------------------------------
 Where ratio is : protein-carb-fat
 
-(-a [meal name])   -> Add a meal.
-(-e [meal number]) -> Edit a meal.
-(-d [meal number]) -> Delete a meal.
-(-m)               -> Manage the day's nutrient targets.
-(-s)               -> Save changes.
+-add, -a    [meal name]   -> Add a meal.
+-edit, -e   [meal number] -> Edit a meal.
+-delete, -d [meal number] -> Delete a meal.
+-manage, -m               -> Manage the day's nutrient targets.
+-save, -s                 -> Save changes.
 
 '''
 _MEAL_TEMPLATE = '{num}. {meal_name} | {ratios} | {cals}cals\n'
@@ -35,18 +36,22 @@ _RATIO_TEMPLATE = '{perc_prot}-{perc_fat}-{perc_carbs}'
 class DayGoalsEditorComponent(ConsoleAppComponent):
     def __init__(self, app):
         super().__init__(app)
-        self._oes = oes.OptimisationEditService()
+        self.subject:'DayGoals'
         self.meal_goals_number_name_map: Dict[int, str] = {}
-        self.set_option_response('-s', self.on_save)
+        self.set_print_function(self.print)
+        self.set_response_function(['-name', '-n'], self.on_set_name)
+        self.set_response_function(['-add', '-a'], self.on_add_meal)
+        self.set_response_function(['-save', 's'], self.on_save)
 
-    def run(self) -> None:
+    def before_print(self) -> None:
         # Create a numbered list of the MealGoals names on the DayGoals;
         self.meal_goals_number_name_map = menu_tools.create_number_name_map(
-            list(self._oes.day_goals.meal_goals.keys()))
+            list(self.subject.meal_goals.keys()))
 
-    def print_meals(self, day_goals: 'DayGoals') -> str:
+    @property
+    def meal_summary_table(self) -> str:
         # If there are no meal goals yet;
-        if not len(day_goals.meal_goals):
+        if not len(self.subject.meal_goals):
             return 'No meals added yet.'
         # Otherwise, build the meal summary;
         else:
@@ -54,7 +59,7 @@ class DayGoalsEditorComponent(ConsoleAppComponent):
             # Iterate through the number map;
             for num in self.meal_goals_number_name_map.keys():
                 # Grab the meal goals instance;
-                mg = self._oes.day_goals.meal_goals[self.meal_goals_number_name_map[num]]
+                mg = self.subject.meal_goals[self.meal_goals_number_name_map[num]]
                 # Build the line;
                 output = output + _MEAL_TEMPLATE.format(
                     num=num,
@@ -69,57 +74,50 @@ class DayGoalsEditorComponent(ConsoleAppComponent):
             # Return;
             return output
 
-    def print(self, *args, **kwargs) -> str:
-        # Check the right stuff is on the oes;
-        if not self._oes.day_goals:
-            raise AttributeError
+    def print(self) -> str:
         # Create the content;
         output = _MAIN.format(
-            plan_name=self._oes.day_goals.name,
-            meals=self.print_meals(self._oes.day_goals)
+            plan_name=self.subject.name,
+            meals=self.meal_summary_table
         )
         # Format and return the template;
         output = self.app.fetch_component(
-            'standard_page_component').print(output)
+            'standard_page_component').call_print(
+                page_title='Day Goals Editor',
+                page_content=output)
         return output
 
-    def dynamic_response(self, raw_response: str) -> None:
-        # Check there is a day_goals in scope;
-        if not self._oes.day_goals:
-            raise AttributeError
-        # Parse the input as a flags and text;
-        flags, text = parse_tools.parse_flags_and_text(raw_response)
+    def on_set_name(self, name:str) -> None:
+        try:
+            self.subject.name = name
+        except DuplicateDayGoalsNameError:
+            self.app.error_message = 'There is already a day called {day_goals_name}'.format(
+                day_goals_name=name)
+            return
 
-        # If we are renaming the day;
-        if flags == ['-n']:
-            # Check the day name is provided;
-            if not text:
-                self.app.error_message = 'Please specify a new day name.'
-                return
-            # Try set the name;
-            try:
-                self._oes.day_goals.name = text
-            except DuplicateDayGoalsNameError:
-                self.app.error_message = 'The name {dg_name} is already assigned to another day.'.format(dg_name=text)
+    def on_add_meal(self, meal_name:str=None)->None:
+        # Check the meal name was provided;
+        if not meal_name:
+            self.app.error_message = 'The meal name must be provided.'
+            return
 
-        # If we are adding a new meal;
-        elif flags == ['-a']:
-            # Check the name is provided;
-            if not text:
-                self.app.error_message = 'The meal name must be provided.'
-                return
-            # Get a fresh MealGoals instance;
-            mg = meal_goals.MealGoals(text, self._oes.day_goals)
-            try:
-                # Put a fresh MealGoals instance on scope;
-                self._oes.day_goals.add_meal_goal(text, mg)
-            except DuplicateMealGoalsNameError:
-                self.app.error_message = '{day_name} already includes a meal called {meal_name}'.format(
-                    day_name=self._oes.day_goals.name,
-                    meal_name=text
-                )
-            # Navigate to the meal_editor;
-            self.app.goto('home.goals.edit_day.edit_meal')
+        # Try to add a fresh mealgoals instance to the daygoals;
+        try:
+            mg = self.subject.add_new_meal_goal(meal_name)
+        except DuplicateMealGoalsNameError:
+            self.app.error_message = '{day_name} already contains a meal called {meal_name}'.format(
+                day_name=self.subject.name,
+                meal_name=meal_name
+            )
+            return
+
+        # Configure the mealgoals editor;
+        mge = cast('MealGoalsEditorComponent', self.app.fetch_component('meal_goals_editor_component'))
+        mge.subject = mg
+
+        # Navigate to the mealgoals editor:
+        self.app.goto('home.goals.edit_day.edit_meal')
+
 
     def on_save(self) -> None:
         self._oes.save_changes()

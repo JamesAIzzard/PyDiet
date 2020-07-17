@@ -25,7 +25,7 @@ class RecipeStepEditorComponent(ConsoleAppComponent):
             step_number = self._res.selected_step_number
         # Build the output;
         output = _TEMPLATE.format(step_number=step_number)
-        output = self.app.fetch_component('standard_page_component').print(output) 
+        output = self.app.fetch_component('standard_page_component').call_print(output) 
         # No prefill if adding new;
         if self._res.selected_step_number == None:
             return output

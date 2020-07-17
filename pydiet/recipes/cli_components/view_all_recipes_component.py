@@ -43,7 +43,7 @@ class ViewAllRecipesComponent(ConsoleAppComponent):
         output = _TEMPLATE.format(recipes_menu=recipes_menu)
         # Build & return the final page;
         output = self.app.fetch_component(
-            'standard_page_component').print(output)
+            'standard_page_component').call_print(output)
         return output
 
     def dynamic_response(self, raw_response: str) -> None:

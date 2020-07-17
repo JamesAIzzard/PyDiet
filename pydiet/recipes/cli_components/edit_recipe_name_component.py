@@ -17,7 +17,7 @@ class EditRecipeNameComponent(ConsoleAppComponent):
         # Build the output;
         output = _TEMPLATE
         output = self.app.fetch_component(
-            'standard_page_component').print(output)
+            'standard_page_component').call_print(output)
         # If we are naming for the first time;
         if self._res.recipe.name == None:
             return output

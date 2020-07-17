@@ -30,7 +30,7 @@ class EditIngredientFlagMenuComponent(ConsoleAppComponent):
                 flag_summary=flag_summary
             )
         output = _FLAG_MENU.format(flags_menu)
-        output = self.app.fetch_component('standard_page_component').print(output)
+        output = self.app.fetch_component('standard_page_component').call_print(output)
         return output
 
     def on_save_changes(self):

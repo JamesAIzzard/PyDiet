@@ -27,7 +27,7 @@ class IngredientMenuComponent(ConsoleAppComponent):
 
     def print(self):
         output = _MENU_TEMPLATE
-        output = self.app.fetch_component('standard_page_component').print(output)
+        output = self.app.fetch_component('standard_page_component').call_print(output)
         return output
 
     def on_create(self):

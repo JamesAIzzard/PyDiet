@@ -24,7 +24,7 @@ class EditIngredientCostComponent(ConsoleAppComponent):
             qty=self._ies.temp_qty,
             units=self._ies.temp_qty_units
         )
-        output = self.app.fetch_component('standard_page_component').print(output) + ' £'
+        output = self.app.fetch_component('standard_page_component').call_print(output) + ' £'
         # Return it;
         return output
 

@@ -9,11 +9,12 @@ class NavOptionsComponent(ConsoleAppComponent):
     
     def __init__(self, app:'ConsoleApp'):
         super().__init__(app)
-        self.set_option_response('b', self.on_back)
-        self.set_option_response('q', self.on_quit)
+        self.set_print_function(self.print)
+        self.set_response_function(['-b'], self.on_back)
+        self.set_response_function(['-q'], self.on_quit)
 
     def print(self):
-        output = '(b)ack | (q)uit\n'
+        output = '(-b)ack (-q)uit\n'
         return output
 
     def on_back(self)->None:

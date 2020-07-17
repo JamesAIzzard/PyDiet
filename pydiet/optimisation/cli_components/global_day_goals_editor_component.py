@@ -47,7 +47,7 @@ class GlobalDayGoalsEditorComponent(ConsoleAppComponent):
             perc_protein=str(self._gdg.perc_protein)+'%' if self._gdg.perc_protein else 'Undefined',
             perc_carbs=str(self._gdg.perc_carbs)+'%' if self._gdg.perc_carbs else 'Undefined'
         )
-        return self.app.fetch_component('standard_page_component').print(output)
+        return self.app.fetch_component('standard_page_component').call_print(output)
 
     def on_edit_cost(self, args):
         try:

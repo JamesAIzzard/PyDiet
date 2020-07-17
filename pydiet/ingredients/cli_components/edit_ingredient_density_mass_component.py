@@ -29,7 +29,7 @@ class EditIngredientDensityMassComponent(ConsoleAppComponent):
             ingredient_name=self._ies.ingredient.name.lower(),
             valid_units=units.recognised_mass_units()
         )
-        output = self.app.fetch_component('standard_page_component').print(output)
+        output = self.app.fetch_component('standard_page_component').call_print(output)
         return output
 
     def dynamic_response(self, response):

@@ -1,5 +1,6 @@
-from typing import Dict, TYPE_CHECKING
+from typing import Dict, Optional, List, Tuple, TYPE_CHECKING
 
+from pydiet import flags, nutrients
 from pydiet.optimisation import meal_goals
 from pydiet.optimisation.exceptions import DuplicateMealGoalsNameError
 
@@ -20,7 +21,8 @@ data_template = {
 }
 
 
-class DayGoals():
+class DayGoals(flags.IFlaggable,
+               nutrients.INutrientTargetable):
     def __init__(self, data: Dict):
         self._data = data
         # Populate the list of meal goal objects;
@@ -37,7 +39,7 @@ class DayGoals():
         self._data['name'] = value
 
     @property
-    def max_cost_gbp(self) -> float:
+    def max_cost_gbp(self) -> Optional[float]:
         return self._data['max_cost_gbp']
 
     @max_cost_gbp.setter
@@ -45,12 +47,63 @@ class DayGoals():
         self._data['max_cost_gbp'] = value
 
     @property
-    def meal_goals(self) -> Dict[str, 'MealGoals']:
-        return self._meal_goals
+    def flags(self) -> List[str]:
+        return self._data['flags']
 
-    def add_meal_goal(self, meal_name: str, meal_goals: 'MealGoals') -> None:
+    def add_flag(self, flag_name: str) -> None:
+        # Check the flag name is valid;
+        if not flag_name in flags.FLAGS:
+            raise flags.FlagNameError
+        # Add the flag if it isn't already there;
+        if not flag_name in self.flags:
+            self._data['flags'].append(flag_name)
+
+    def remove_flag(self, flag_name: str) -> None:
+        # Check the flag name is valid;
+        if not flag_name in flags.FLAGS:
+            raise flags.FlagNameError
+        # Remove the flag if it is in the list;
+        if flag_name in self.flags:
+            self._data['flags'].remove(flag_name)
+
+    @property
+    def calories(self) -> Optional[float]:
+        return self._data['calories']
+
+    @property
+    def nutrient_targets(self) -> Dict[str, Tuple[float, str]]:
+        return self._data['nutrient_targets']
+
+    def add_nutrient_target(self, nutrient_name: str, nutrient_qty: float, nutrient_qty_units: str) -> None:
+        # Check the nutrient name is legit;
+        # Check the nutrient target doesn't exceed the macro's;
+        # Check the nutrient target doesn't exceed another nutrient target;
+        # Check the nutrient target doesn't exceed a global target;
+        # Write the nutrient target;
+        self._data['nutrient_targets'][nutrient_name] = (
+            nutrient_qty, nutrient_qty_units)
+
+    def remove_nutrient_target(self, nutrient_name: str) -> None:
+        # Remove the element;
+        del self._data['nutrient_targets'][nutrient_name]
+
+    @property
+    def meal_goals(self) -> Dict[str, 'MealGoals']:
+        return self._data['meal_goals']
+
+    def add_new_meal_goal(self, meal_name: str) -> 'MealGoals':
         # Check there isn't a meal by this name already;
         if meal_name in self.meal_goals.keys():
             raise DuplicateMealGoalsNameError
+        
+        # Create new meal goals instance;
+        mg = meal_goals.MealGoals(meal_name, self)
+        
         # Add it;
-        self._meal_goals['meal_name'] = meal_goals
+        self._data['meal_goals'][meal_name] = mg
+
+        # Also return the mealgoals instance;
+        return mg
+
+    def remove_meal_goal(self, meal_name:str) -> None:
+        raise NotImplementedError

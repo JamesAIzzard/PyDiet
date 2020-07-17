@@ -1,14 +1,11 @@
-from typing import TYPE_CHECKING
-
-from pyconsoleapp.components import ConsoleAppComponent
-from pyconsoleapp import configs
-
-if TYPE_CHECKING:
-    from pyconsoleapp.console_app import ConsoleApp
+from pyconsoleapp import ConsoleAppComponent, configs
 
 class SingleHrComponent(ConsoleAppComponent):
-    def __init__(self, app: 'ConsoleApp'):
-        super().__init__(app)    
+
+    def __init__(self, app):
+        super().__init__(app) 
+        self.set_print_function(self.print)
+
     def print(self):
         output = '-'*configs.terminal_width_chars+'\n'
         return output

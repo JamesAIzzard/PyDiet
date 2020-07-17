@@ -63,7 +63,7 @@ class RecipeEditMenuComponent(ConsoleAppComponent):
             steps=rcs.summarise_steps(self._res.recipe)
         )
         output = self.app.fetch_component(
-            'standard_page_component').print(output)
+            'standard_page_component').call_print(output)
         # Return the view;
         return output
 
