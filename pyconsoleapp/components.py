@@ -1,10 +1,7 @@
 from abc import ABC
 from typing import Callable, Dict, List, Any, Optional, TYPE_CHECKING
 
-from pyconsoleapp.exceptions import (
-    NoPrintFunctionError,
-    StateNotConfiguredError
-)
+from pyconsoleapp import exceptions
 
 if TYPE_CHECKING:
     from pyconsoleapp import ConsoleApp
@@ -49,7 +46,7 @@ class ConsoleAppComponent(ABC):
     @state.setter
     def state(self, value:str) -> None:
         if not value in self._states:
-            raise StateNotConfiguredError
+            raise exceptions.StateNotConfiguredError
         self._state = value
 
     @property
@@ -59,7 +56,7 @@ class ConsoleAppComponent(ABC):
     def call_print(self, *args, **kwargs) -> str:
         # Check the current state has a print function assigned;
         if not self.state in self._print_functions.keys():
-            raise NoPrintFunctionError
+            raise exceptions.NoPrintFunctionError
         # Choose the correct signature and run the function;
         if not args and not kwargs:
             return self._print_functions[self.state]()
@@ -122,7 +119,7 @@ class ConsoleAppComponent(ABC):
 
     def validate_state(self, state:str)->None:
         if not state in self.states:
-            raise StateNotConfiguredError
+            raise exceptions.StateNotConfiguredError
 
     def set_print_function(
             self,

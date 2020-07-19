@@ -1,17 +1,6 @@
 from abc import abstractmethod
-from typing import TYPE_CHECKING
 
-from pyconsoleapp.components import ConsoleAppComponent
-from pyconsoleapp import configs
-
-if TYPE_CHECKING:
-    from pyconsoleapp.console_app import ConsoleApp
-
-_TEMPLATE = '''
-{message}
--yes, -y    -> Yes
--no, -n     -> No
-'''
+from pyconsoleapp import ConsoleAppComponent
 
 
 class YesNoDialogComponent(ConsoleAppComponent):
@@ -24,7 +13,15 @@ class YesNoDialogComponent(ConsoleAppComponent):
         self.set_response_function(['-no', '-n'], self.on_no)
 
     def print(self):
-        output = _TEMPLATE.format(
+        # Define the template;
+        template = '''
+        {message}
+        -yes, -y    -> Yes
+        -no, -n     -> No
+        '''    
+
+        # Fill the template and return;
+        output = template.format(
             message=self.message
         )
         output = self.app.fetch_component(

@@ -1,8 +1,7 @@
 import abc
 from typing import List
 
-import pydiet
-from pydiet.ingredients import ingredient_service
+from pydiet import flags
 
 class IHasFlags(abc.ABC):
 
@@ -20,7 +19,9 @@ class IHasFlags(abc.ABC):
 
     @property
     def available_flags(self) ->List[str]:
-        all_flags = ingredient_service.get_all_flag_names()
+        # Make a copy of the all flags list so we don't
+        # modify the original;
+        all_flags = flags.configs.FLAGS.copy()
         for flag_name in self.flags:
             all_flags.remove(flag_name)
         return all_flags

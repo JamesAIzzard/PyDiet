@@ -204,7 +204,7 @@ def read_day_goals_index() -> Dict[str, str]:
         Dict[str, str]: The saved daygoals index.
     '''
     return _read_json_datafile('{day_goals_db_path}{index_name}.json'.format(
-        recipe_db_path=repository.configs.DAY_GOALS_DB_PATH,
+        day_goals_db_path=repository.configs.DAY_GOALS_DB_PATH,
         index_name=repository.configs.DAY_GOALS_INDEX_NAME
     ))
 

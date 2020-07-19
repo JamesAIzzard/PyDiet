@@ -1,11 +1,6 @@
-from typing import TYPE_CHECKING
 from textwrap import fill
 
-from pyconsoleapp.components import ConsoleAppComponent
-from pyconsoleapp import configs, styles
-
-if TYPE_CHECKING:
-    from pyconsoleapp.console_app import ConsoleApp
+from pyconsoleapp import ConsoleAppComponent, configs, styles
 
 
 class MessageBarComponent(ConsoleAppComponent):
@@ -27,6 +22,7 @@ class MessageBarComponent(ConsoleAppComponent):
                 fill(self.app.info_message, configs.terminal_width_chars)
             )
             output = styles.fore(output, 'blue')
-            output = output+self.app.fetch_component('single_hr_component').call_print()
+            output = output + \
+                self.app.fetch_component('single_hr_component').call_print()
             self.app.info_message = None
         return output

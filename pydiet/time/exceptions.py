@@ -1,10 +1,10 @@
 import pydiet
 
-class TimeIntervalParseError(pydiet.PyDietException):
+class TimeIntervalParseError(pydiet.exceptions.PyDietException):
     pass
 
-class TimeIntervalValueError(pydiet.PyDietException):
+class TimeIntervalValueError(pydiet.exceptions.PyDietException):
     pass 
 
-class TimeValueError(pydiet.PyDietException):
+class TimeValueError(pydiet.exceptions.PyDietException):
     pass

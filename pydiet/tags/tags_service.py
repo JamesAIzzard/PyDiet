@@ -1,6 +1,6 @@
-from pydiet.tags import i_taggable
+from pydiet import tags
 
-def print_enumerated_active_tags(subject:'i_taggable.ITaggable')->str:
+def print_enumerated_active_tags(subject:'tags.i_has_tags.IHasTags')->str:
     output = ''
     if len(subject.tags):
         for i,tag in enumerate(subject.tags, start=1):

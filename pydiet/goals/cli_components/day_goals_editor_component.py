@@ -1,14 +1,12 @@
 from typing import Dict, TYPE_CHECKING, cast
 
-from pyconsoleapp import ConsoleAppComponent, menu_tools, parse_tools
+from pyconsoleapp import ConsoleAppComponent, menu_tools
 
-from pydiet.optimisation import optimisation_edit_service as oes
-from pydiet.optimisation import meal_goals
-from pydiet.optimisation.exceptions import DuplicateDayGoalsNameError, DuplicateMealGoalsNameError
+from pydiet import goals
 
 if TYPE_CHECKING:
-    from pydiet.optimisation.day_goals import DayGoals
-    from pydiet.optimisation.cli_components.meal_goals_editor_component import MealGoalsEditorComponent
+    from pydiet.goals.day_goals import DayGoals
+    from pydiet.goals.cli_components.meal_goals_editor_component import MealGoalsEditorComponent
 
 _MAIN = '''
 -n, -name [Day Name]    | {plan_name}:
@@ -90,7 +88,7 @@ class DayGoalsEditorComponent(ConsoleAppComponent):
     def on_set_name(self, name:str) -> None:
         try:
             self.subject.name = name
-        except DuplicateDayGoalsNameError:
+        except goals.exceptions.DuplicateDayGoalsNameError:
             self.app.error_message = 'There is already a day called {day_goals_name}'.format(
                 day_goals_name=name)
             return
@@ -104,7 +102,7 @@ class DayGoalsEditorComponent(ConsoleAppComponent):
         # Try to add a fresh mealgoals instance to the daygoals;
         try:
             mg = self.subject.add_new_meal_goal(meal_name)
-        except DuplicateMealGoalsNameError:
+        except goals.exceptions.DuplicateMealGoalsNameError:
             self.app.error_message = '{day_name} already contains a meal called {meal_name}'.format(
                 day_name=self.subject.name,
                 meal_name=meal_name

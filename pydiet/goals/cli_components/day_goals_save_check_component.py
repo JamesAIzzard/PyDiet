@@ -1,16 +1,12 @@
 from pyconsoleapp import ConsoleAppGuardComponent
 from pyconsoleapp.builtin_components.yes_no_dialog_component import YesNoDialogComponent
 
-from pydiet.optimisation.exceptions import (
-    DayGoalsNameUndefinedError
-)
-from pydiet.optimisation import optimisation_edit_service as oes
+from pydiet import goals
 
 class DayGoalsSaveCheckComponent(YesNoDialogComponent, ConsoleAppGuardComponent):
 
     def __init__(self, app):
         super().__init__(app)
-        self._oes = oes.OptimisationEditService()
         self.message = 'Save changes to these day goals?'
 
     def on_yes(self):
@@ -20,7 +16,7 @@ class DayGoalsSaveCheckComponent(YesNoDialogComponent, ConsoleAppGuardComponent)
             # Clear the exit guard;
             self.clear_self()
         # If the day_goals were unnamed;
-        except DayGoalsNameUndefinedError:
+        except goals.exceptions.DayGoalsNameUndefinedError:
             # Tell the user;
             self.app.info_message = 'Day goals must be named before they can be saved.'
             # Reverse;

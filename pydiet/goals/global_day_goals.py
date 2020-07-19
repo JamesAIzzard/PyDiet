@@ -2,10 +2,8 @@ from typing import Optional, List
 
 from singleton_decorator import singleton
 
-from pydiet import flags
-from pydiet import repository_service as rps
-from pydiet.ingredients import ingredient_service
-from pydiet.optimisation.exceptions import PercentageSumError
+import pydiet
+from pydiet import flags, repository, ingredients, goals
 
 _DATA_TEMPLATE = {
   "calories": None,
@@ -15,9 +13,9 @@ _DATA_TEMPLATE = {
 }
 
 @singleton
-class GlobalDayGoals(flags.IFlaggable):
+class GlobalDayGoals(flags.i_has_flags.IHasFlags):
     def __init__(self):
-        self._data = rps.read_global_day_goals_data()
+        self._data = repository.repository_service.read_global_day_goals_data()
 
     @property
     def max_cost_gbp(self) -> Optional[float]:
@@ -77,7 +75,7 @@ class GlobalDayGoals(flags.IFlaggable):
 
     def add_flag(self, flag_name:str)->None:
         # Check the flag name is a valid flag;
-        if not flag_name in ingredient_service.get_all_flag_names():
+        if not flag_name in flags.configs.FLAGS:
             raise ValueError
         if not flag_name in self._data['flags']:
             self._data['flags'].append(flag_name)
@@ -90,10 +88,10 @@ class GlobalDayGoals(flags.IFlaggable):
         # Check the percentage sums do not exceed 100%;
         perc_sum = self.perc_fat+self.perc_protein+self.perc_carbs
         if not perc_sum == 100:
-            raise PercentageSumError
+            raise pydiet.exceptions.PercentageSumError
 
     def save(self) -> None:
         # Run validation checks;
         self.validate()
         # Save the file;
-        rps.update_global_day_goals_data(self._data)
+        repository.repository_service.update_global_day_goals_data(self._data)

@@ -1,11 +1,4 @@
-from typing import TYPE_CHECKING
-
-from pyconsoleapp import styles
-from pyconsoleapp.components import ConsoleAppComponent
-
-if TYPE_CHECKING:
-    from pyconsoleapp.console_app import ConsoleApp
-
+from pyconsoleapp import ConsoleAppComponent
 
 class HeaderComponent(ConsoleAppComponent):
 

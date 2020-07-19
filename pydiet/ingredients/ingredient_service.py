@@ -1,4 +1,3 @@
-from pydiet.repository import repository_service
 from typing import TYPE_CHECKING, List, Optional
 from heapq import nlargest
 
@@ -8,15 +7,12 @@ from pydiet import ingredients, repository, flags, nutrients
 
 
 if TYPE_CHECKING:
-    from pydiet.nutrients.nutrient_amount import NutrientAmount
     from pydiet.ingredients.ingredient import Ingredient
 
 
 INGREDIENT_COST_SUMMARY_TEMPLATE = '£{cost:.2f} for {mass}{mass_units} (£{g_cost:.3f}/g)'
 INGREDIENT_FLAG_SUMMARY_TEMPLATE = '{flag_name}: {status}'
-NUTRIENT_SUMMARY_TEMPLATE = \
-    '{nutrient_name}: {nutrient_mass}{nutrient_mass_units}/{ingredient_qty}{ingredient_qty_units}'
-UNDEFINED_NUTRIENT_SUMMARY_TEMPLATE = '{nutrient_name}: Undefined'
+
 
 def load_new_ingredient() -> 'Ingredient':
     # Initialise the data template;
@@ -43,7 +39,8 @@ def save_new_ingredient(ingredient: 'Ingredient') -> str:
 
 def update_existing_ingredient(ingredient: 'Ingredient', datafile_name: str) -> None:
     # Update the ingredient;
-    repository.repository_service.update_ingredient_data(ingredient._data, datafile_name)
+    repository.repository_service.update_ingredient_data(
+        ingredient._data, datafile_name)
 
 
 def convert_ingredient_name_to_datafile_name(ingredient_name: str) -> str:
@@ -68,28 +65,12 @@ def convert_datafile_name_to_ingredient_name(datafile_name: str) -> str:
         raise ingredients.exceptions.IngredientNotFoundError
 
 
-def resolve_nutrient_alias(alias: str) -> str:
-    # Hunt through the alias list and return rootname
-    # if match is found;
-    for rootname in nutrients.configs.NUTRIENT_ALIASES.keys():
-        if alias in nutrients.configs.NUTRIENT_ALIASES[rootname]:
-            return rootname
-    # Not found, just return;
-    return alias
-
 def get_matching_ingredient_names(search_term: str, num_results: int) -> List[str]:
     # Load a list of the ingredient names;
     index = repository.repository_service.read_ingredient_index()
     # Score each of the names against the search term;
     results = search_tools.score_similarity(list(index.values()), search_term)
     # Return the n largest scores;
-    return nlargest(num_results, results, key=results.get)
-
-
-def get_matching_nutrient_names(search_term: str, num_results: int) -> List[str]:
-    # Score each of the nutrient names against the search term;
-    results = search_tools.score_similarity(
-        nutrients.configs.NUTRIENTS, search_term)
     return nlargest(num_results, results, key=results.get)
 
 
@@ -154,24 +135,3 @@ def summarise_flag(ingredient: 'Ingredient', flag_name: str) -> str:
         flag_name.replace('_', ' '),
         flag
     )
-
-
-def summarise_nutrient_amount(nutrient_amount: 'NutrientAmount') -> str:
-    if nutrient_amount.defined:
-        perc = nutrient_amount.percentage
-        perc_insert = ' (none)'
-        if perc > 0 and perc < 0.01:
-            perc_insert = ' (trace)'
-        elif perc > 0.01:
-            perc_insert = ' ({:.3f})%'.format(perc)
-        return NUTRIENT_SUMMARY_TEMPLATE.format(
-            nutrient_name=nutrient_amount.name.replace('_', ' '),
-            nutrient_mass=nutrient_amount.nutrient_mass,
-            nutrient_mass_units=nutrient_amount.nutrient_mass_units,
-            ingredient_qty=nutrient_amount.ingredient_qty,
-            ingredient_qty_units=nutrient_amount.ingredient_qty_units,
-        ) + perc_insert
-    else:
-        return UNDEFINED_NUTRIENT_SUMMARY_TEMPLATE.format(
-            nutrient_name=nutrient_amount.name.replace('_', ' ')
-        )

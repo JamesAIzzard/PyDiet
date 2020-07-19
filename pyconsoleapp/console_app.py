@@ -1,4 +1,5 @@
 import os, re, importlib
+from importlib import util
 from typing import Callable, Dict, List, Optional, TYPE_CHECKING, cast
 if os.name == 'nt':
     from pyautogui import write
@@ -155,13 +156,13 @@ class ConsoleApp():
         constructor = None
         # Then look in the default components;
         builtins_package = configs.builtin_component_package + '.{}'
-        if importlib.util.find_spec(builtins_package.format(component_filename)):
+        if util.find_spec(builtins_package.format(component_filename)):
             component_module = importlib.import_module(
                 builtins_package.format(component_filename))
             constructor = getattr(component_module, component_class_name)
         # Still not found, so look in the registered component packages;
         for package_path in self._component_packages:
-            if importlib.util.find_spec('{}.{}'.format(package_path, component_filename)):
+            if util.find_spec('{}.{}'.format(package_path, component_filename)):
                 component_module = importlib.import_module('{}.{}'
                                                            .format(package_path, component_filename))
                 constructor = getattr(component_module, component_class_name)

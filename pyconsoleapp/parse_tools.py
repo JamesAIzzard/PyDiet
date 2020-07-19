@@ -106,25 +106,3 @@ def parse_letter_and_float(chars_to_parse: str) -> Tuple[str, float]:
         raise LetterFloatParseError
     # Tests passed, so return the value;
     return (letter, number)
-
-def parse_flags_and_text(chars_to_parse:str) -> Tuple[List[str], Optional[str]]:
-    # Catch empty input;
-    if chars_to_parse.replace(' ', '') == '':
-        return ([], None)
-
-    # Split the input on whitespace;
-    split_input = chars_to_parse.split(' ')
-    
-    # Pop any flags into the flag list;
-    flags = []
-    for chunk in split_input.copy():
-        if chunk[0] == '-':
-            flags.append(split_input.pop(0))
-    
-    # Rejoin the remaining items;
-    string = ' '.join(split_input)
-    if not string:
-        string = None
-
-    # Return
-    return (flags, string)
