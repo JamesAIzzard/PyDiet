@@ -4,16 +4,6 @@ from typing import List
 import pydiet
 from pydiet.ingredients import ingredient_service
 
-FLAGS = [
-    "alcohol_free",
-    "caffiene_free",
-    "dairy_free",
-    "gluten_free",
-    "nut_free",
-    "vegan",
-    "vegetarian"
-]
-
 class IFlaggable(abc.ABC):
 
     @abc.abstractproperty
@@ -35,16 +25,5 @@ class IFlaggable(abc.ABC):
             all_flags.remove(flag_name)
         return all_flags
 
-def print_active_flags_menu(subject:'IFlaggable'):
-    output = ''
-    if len(subject.flags):
-        for i,flag_name in enumerate(subject.flags, start=1):
-            output = output + '{num}. {flag_name}\n'.format(
-                num=i,
-                flag_name=flag_name)
-    else:
-        output = 'No flags assigned.'
-    return output
 
-class FlagNameError(pydiet.PyDietException):
-    pass
+

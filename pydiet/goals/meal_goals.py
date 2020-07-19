@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, Dict, Optional, List, Tuple
 from pydiet import time, nutrients, flags, tags
 
 if TYPE_CHECKING:
-    from pydiet.optimisation.day_goals import DayGoals
+    from pydiet.goals.day_goals import DayGoals
 
 data_template = {
     "time": None,
@@ -11,16 +11,13 @@ data_template = {
     "flags": [],
     "tags": [],
     "calories": None,
-    "perc_fat": None,
-    "perc_carbs": None,
-    "perc_protein": None,
     "nutrient_mass_targets": {}
 }
 
 
 class MealGoals(
-    flags.IFlaggable, 
-    nutrients.INutrientTargetable,
+    flags.i_flaggable.IFlaggable, 
+    nutrients.i_nutrient_targetable.INutrientTargetable,
     tags.ITaggable):
     def __init__(self, name, parent_day_goals: 'DayGoals'):
         self._name = name
@@ -48,16 +45,16 @@ class MealGoals(
         self._parent_day_goals.meal_goals[value] = self._parent_day_goals.meal_goals[old_name]
 
     @property
-    def time(self) -> str:
+    def time(self) -> Optional[str]:
         return self.data['time']
 
     @time.setter
     def time(self, value: str) -> None:
         # Write to the data;
-        self.data['time'] = time.parse_time(value)
+        self.data['time'] = time.time_service.parse_time(value)
 
     @property
-    def max_cost_gbp(self) -> float:
+    def max_cost_gbp(self) -> Optional[float]:
         return self.data['max_cost_gbp']
 
     @max_cost_gbp.setter
@@ -85,8 +82,11 @@ class MealGoals(
         raise NotImplementedError
 
     @property
-    def perc_protein(self) -> float:
-        return round(float(self.data['perc_protein']), 0)
+    def perc_protein(self) -> Optional[float]:
+        if self.data['perc_protein'] == None:
+            return None
+        else:
+            return round(float(self.data['perc_protein']), 0)
 
     @perc_protein.setter
     def perc_protein(self, value: float) -> None:

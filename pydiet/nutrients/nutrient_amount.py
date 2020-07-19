@@ -13,6 +13,13 @@ from pydiet import units
 if TYPE_CHECKING:
     from pydiet.ingredients.ingredient import Ingredient
 
+DATA_TEMPLATE = {
+    "ingredient_qty": None,
+    "ingredient_qty_units": None,
+    "nutrient_mass": None,
+    "nutrient_mass_units": None
+}
+
 class NutrientAmount():
     def __init__(
         self,

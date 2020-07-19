@@ -4,8 +4,5 @@
     "alcohol_free"
   ],
   "max_cost_gbp": 12.3,
-  "nutrient_mass_targets": {},
-  "perc_carbs": 40.0,
-  "perc_fat": 30.0,
-  "perc_protein": 30.0
+  "nutrient_mass_targets": {}
 }

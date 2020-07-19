@@ -1,28 +1,26 @@
 from typing import Dict, Optional, List, Tuple, TYPE_CHECKING
 
-from pydiet import flags, nutrients
-from pydiet.optimisation import meal_goals
-from pydiet.optimisation.exceptions import DuplicateMealGoalsNameError
+from pydiet.flags import i_flaggable
+from pydiet.nutrients import i_nutrient_targetable
+from pydiet.goals import meal_goals
+from pydiet.goals.exceptions import DuplicateMealGoalsNameError
 
 if TYPE_CHECKING:
-    from pydiet.optimisation.meal_goals import MealGoals
+    from pydiet.goals.meal_goals import MealGoals
 
-data_template = {
+DATA_TEMPLATE = {
     "name": None,
     "solution_datafile_names": {},
     "max_cost_gbp": None,
     "flags": [],
     "calories": None,
-    "perc_fat": None,
-    "perc_carbs": None,
-    "perc_protein": None,
     "nutrient_mass_targets": {},
     "meal_goals": {}
 }
 
 
-class DayGoals(flags.IFlaggable,
-               nutrients.INutrientTargetable):
+class DayGoals(i_flaggable.IFlaggable,
+               i_nutrient_targetable.INutrientTargetable):
     def __init__(self, data: Dict):
         self._data = data
         # Populate the list of meal goal objects;
@@ -89,18 +87,18 @@ class DayGoals(flags.IFlaggable,
 
     @property
     def meal_goals(self) -> Dict[str, 'MealGoals']:
-        return self._data['meal_goals']
+        return self._meal_goals
 
     def add_new_meal_goal(self, meal_name: str) -> 'MealGoals':
         # Check there isn't a meal by this name already;
         if meal_name in self.meal_goals.keys():
             raise DuplicateMealGoalsNameError
         
-        # Create new meal goals instance;
+        # Create new meal goals instance and add it to the data
+        # and the dict;
+        self._data['meal_goals'][meal_name] = meal_goals.data_template
         mg = meal_goals.MealGoals(meal_name, self)
-        
-        # Add it;
-        self._data['meal_goals'][meal_name] = mg
+        self.meal_goals[meal_name] = mg
 
         # Also return the mealgoals instance;
         return mg

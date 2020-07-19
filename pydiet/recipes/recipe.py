@@ -2,10 +2,8 @@ from typing import TYPE_CHECKING, Dict, List
 
 from pydiet.ingredients import ingredient_service as igs
 from pydiet.ingredients import ingredient_amount
-from pydiet.ingredients.exceptions import IngredientDensityUndefinedError
 from pydiet.recipes import recipe_service as rcs
-from pydiet import units as unt
-from pydiet import configs
+from pydiet import time, configs, tags
 from pydiet.recipes.exceptions import (
     UnknownTagError
 )
@@ -13,6 +11,14 @@ from pydiet.recipes.exceptions import (
 if TYPE_CHECKING:
     from pydiet.ingredients.ingredient_amount import IngredientAmount
     from pydiet.ingredients.ingredient import Ingredient
+
+DATA_TEMPLATE = {
+    "name": None,
+    "serve_intervals": [],
+    "tags": [],
+    "ingredients": {},
+    "steps": {}
+}
 
 
 class Recipe():
@@ -40,7 +46,7 @@ class Recipe():
 
     def add_tag(self, tag: str) -> None:
         # Check that the tag is on the list in configs;
-        if not tag in configs.RECIPE_TAGS:
+        if not tag in tags.configs.TAGS:
             raise UnknownTagError
         # If the tag is not already on the list;
         if not tag in self.tags:
@@ -58,13 +64,13 @@ class Recipe():
 
     def update_serve_interval(self, new_serve_interval: str, index: int) -> None:
         # Validate the time interval;
-        new_serve_interval = rcs.parse_time_interval(new_serve_interval)
+        new_serve_interval = time.time_service.parse_time_interval(new_serve_interval)
         # Overwrite the specified index;
         self._data['serve_intervals'][index] = new_serve_interval
 
     def add_serve_interval(self, serve_interval: str) -> None:
         # Check the serve interval is valid;
-        serve_interval = rcs.parse_time_interval(serve_interval)
+        serve_interval = time.time_service.parse_time_interval(serve_interval)
         # If it isn't already there;
         if not serve_interval in self.serve_intervals:
             # Assign it;

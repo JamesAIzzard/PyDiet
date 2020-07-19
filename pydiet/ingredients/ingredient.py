@@ -1,20 +1,37 @@
 from typing import Optional, Dict, List
 
-from pydiet.ingredients.nutrient_amount import NutrientAmount
+from pydiet.nutrients import nutrient_amount
+from pydiet import nutrients
 from pydiet.ingredients.exceptions import IngredientDensityUndefinedError
-
 from pydiet import configs as cfg
-from pydiet import units
+from pydiet.units import units_service as us
 from pydiet.ingredients import ingredient_service as igs
+
+DATA_TEMPLATE = {
+  "cost_per_mass": {
+    "cost": None,
+    "ingredient_qty": None,
+    "ingredient_qty_units": None
+  },
+  "flags": {},
+  "name": None,
+  "nutrients": {},
+  "vol_density": {
+    "ingredient_mass": None,
+    "ingredient_mass_units": None,
+    "ingredient_vol": None,
+    "ingredient_vol_units": None
+  }
+}
 
 class Ingredient():
     def __init__(self, data):
         self._data = data
-        self._nutrient_amounts: Dict[str, 'NutrientAmount'] = {}
+        self._nutrient_amounts: Dict[str, 'nutrient_amount.NutrientAmount'] = {}
         # Instantiate the nutrient amounts;
         for na_name in data['nutrients'].keys():
             if not na_name in self._nutrient_amounts.keys():
-                self._nutrient_amounts[na_name] = NutrientAmount(na_name, self)
+                self._nutrient_amounts[na_name] = nutrient_amount.NutrientAmount(na_name, self)
 
     @property
     def name(self) -> str:
@@ -34,14 +51,14 @@ class Ingredient():
     @property
     def cost_per_g(self) -> float:
         # If ingredient qty is a mass;
-        if self.cost_data['ingredient_qty_units'] in units.recognised_mass_units():
-            return self._data['cost_per_mass']['cost']/units.convert_mass_units(
+        if self.cost_data['ingredient_qty_units'] in us.recognised_mass_units():
+            return self._data['cost_per_mass']['cost']/us.convert_mass_units(
                 self._data['cost_per_mass']['ingredient_qty'],
                 self._data['cost_per_mass']['ingredient_qty_units'], "g"            
             )
         # Ingredient qty is a volume;
         else:
-            return self._data['cost_per_mass']['cost']/units.convert_volume_to_mass(
+            return self._data['cost_per_mass']['cost']/us.convert_volume_to_mass(
                 self._data['cost_per_mass']['ingredient_qty'],
                 self._data['cost_per_mass']['ingredient_qty_units'],
                 'g',
@@ -54,7 +71,7 @@ class Ingredient():
 
     def set_cost(self, cost: float, mass: float, mass_units: str) -> None:
         # Parse the qty units;
-        mass_units = units.parse_qty_unit(mass_units)
+        mass_units = us.parse_qty_unit(mass_units)
         # Set the data;
         self._data['cost_per_mass']['cost'] = cost
         self._data['cost_per_mass']['ingredient_qty'] = mass
@@ -73,13 +90,13 @@ class Ingredient():
         if not self.density_is_defined:
             raise IngredientDensityUndefinedError
         # Convert mass component to grams;
-        mass_g = units.convert_mass_units(
+        mass_g = us.convert_mass_units(
             self._data['vol_density']['ingredient_mass'],
             self._data['vol_density']['ingredient_mass_units'],
             'g'
         )
         # Convert vol component to ml;
-        vol_ml = units.convert_volume_units(
+        vol_ml = us.convert_volume_units(
             self._data['vol_density']['ingredient_vol'],
             self._data['vol_density']['ingredient_vol_units'],
             'ml'
@@ -94,8 +111,8 @@ class Ingredient():
         ingredient_mass_units: str
     ) -> None:
         # Interpret the units;
-        ingredient_mass_units = units.parse_qty_unit(ingredient_mass_units)
-        ingredient_vol_units = units.parse_qty_unit(ingredient_vol_units)
+        ingredient_mass_units = us.parse_qty_unit(ingredient_mass_units)
+        ingredient_vol_units = us.parse_qty_unit(ingredient_vol_units)
         # Set the units;
         self._data['vol_density']['ingredient_mass'] = ingredient_mass
         self._data['vol_density']['ingredient_mass_units'] = ingredient_mass_units
@@ -120,41 +137,37 @@ class Ingredient():
             return True
 
     def set_flag(self, flag_name: str, value: bool) -> None:
+        # Reference the nutrient-flag relations;
+        nfls = nutrients.configs.NUTRIENT_FLAG_RELS
         # Set the flag;
         self.all_flag_data[flag_name] = value
-        # Update any associated nutrients:
-        if value and flag_name in cfg.NUTRIENT_FLAG_RELS.keys():
-            for assoc_nutr_name in cfg.NUTRIENT_FLAG_RELS[flag_name]:
-                self.set_nutrient_amount(
-                    assoc_nutr_name,
-                    100,
-                    'g',
-                    0,
-                    'g'
-                )
+        # Update any associated nutrients;
+        if value and flag_name in nfls.keys():
+            for assoc_nutr_name in nfls[flag_name]:
+                self.set_nutrient_amount(assoc_nutr_name, 100, 'g', 0, 'g')
 
 
     def get_flag(self, flag_name: str) -> Optional[bool]:
         return self._data['flags'][flag_name]
 
     @property
-    def primary_nutrients(self)->Dict[str, 'NutrientAmount']:
+    def primary_nutrients(self)->Dict[str, 'nutrient_amount.NutrientAmount']:
         primary_nutrients = {}
-        for pn in cfg.PRIMARY_NUTRIENTS:
+        for pn in nutrients.configs.PRIMARY_NUTRIENTS:
             primary_nutrients[pn] = self.get_nutrient_amount(pn)
         return primary_nutrients
 
     @property
-    def secondary_nutrients(self)->Dict[str, 'NutrientAmount']:
+    def secondary_nutrients(self)->Dict[str, 'nutrient_amount.NutrientAmount']:
         secondary_nutrients = {}
         all_nutrient_names = igs.get_all_nutrient_names()
         for nn in all_nutrient_names:
-            if not nn in cfg.PRIMARY_NUTRIENTS:
+            if not nn in nutrients.data_templates.PRIMARY_NUTRIENTS:
                 secondary_nutrients[nn] = self.get_nutrient_amount(nn)
         return secondary_nutrients
 
     @property
-    def defined_secondary_nutrients(self)->Dict[str, 'NutrientAmount']:
+    def defined_secondary_nutrients(self)->Dict[str, 'nutrient_amount.NutrientAmount']:
         dsn = {} # defined secondary nutreints
         secondary_nutrients = self.secondary_nutrients
         for snn in secondary_nutrients.keys():
@@ -168,15 +181,14 @@ class Ingredient():
         ingredient_qty: float,
         ingredient_qty_units: str,
         nutrient_mass: float,
-        nutrient_mass_units: str,
-    ) -> None:
+        nutrient_mass_units: str,) -> None:
         na = self.get_nutrient_amount(nutrient_name)
         na.ingredient_qty = ingredient_qty
         na.ingredient_qty_units = ingredient_qty_units
         na.nutrient_mass = nutrient_mass
         na.nutrient_mass_units = nutrient_mass_units
 
-    def get_nutrient_amount(self, nutrient_name) -> 'NutrientAmount':
+    def get_nutrient_amount(self, nutrient_name) -> 'nutrient_amount.NutrientAmount':
         return self._nutrient_amounts[nutrient_name]
 
     def validate(self):

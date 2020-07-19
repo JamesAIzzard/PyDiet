@@ -2,13 +2,20 @@ from typing import Optional, List
 
 from singleton_decorator import singleton
 
-from pydiet import flaggable
+from pydiet import flags
 from pydiet import repository_service as rps
 from pydiet.ingredients import ingredient_service
 from pydiet.optimisation.exceptions import PercentageSumError
 
+_DATA_TEMPLATE = {
+  "calories": None,
+  "flags": [],
+  "max_cost_gbp": None,
+  "nutrient_mass_targets": {}
+}
+
 @singleton
-class GlobalDayGoals(flaggable.Flaggable):
+class GlobalDayGoals(flags.IFlaggable):
     def __init__(self):
         self._data = rps.read_global_day_goals_data()
 

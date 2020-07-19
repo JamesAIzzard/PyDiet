@@ -1,5 +1,9 @@
 from typing import List
 
+from pydiet.units.exceptions import (
+    UnknownUnitError
+)
+
 _G_CONVERSIONS = {
     "ug": 1e-6,  # 1 microgram = 0.000001 grams
     "mg": 1e-3,  # 1 milligram = 0.001 grams
@@ -16,11 +20,6 @@ _ML_CONVERSIONS = {
     "tsp": 4.929,
     "tbsp": 14.79
 }
-
-class UnknownUnitError(Exception):
-    def __init__(self, *args):
-        if len(args) and args[0]:
-            super().__init__(args[0])
 
 def recognised_mass_units() -> List[str]:
     return list(_G_CONVERSIONS.keys())
