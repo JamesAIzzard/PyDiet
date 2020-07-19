@@ -2,20 +2,23 @@ from typing import TYPE_CHECKING
 
 from pyconsoleapp import ConsoleApp
 
-if TYPE_CHECKING:
-    from pyconsoleapp import ConsoleApp
-
-# Run startup checks on data integrity;
-from pydiet.ingredients import validate_ingredient_template
+# Expose internal modules
+from . import exceptions, configs
 
 # Create the app instance;
 app:'ConsoleApp' = ConsoleApp('PyDiet')
 
 # Configure the app framework;
-app.register_component_package('pydiet.cli_components')
-app.register_component_package('pydiet.ingredients.cli_components')
-app.register_component_package('pydiet.recipes.cli_components')
-app.register_component_package('pydiet.optimisation.cli_components')
+app.register_component_packages([
+    'pydiet.cli_components',
+    'pydiet.flags.cli_components',
+    'pydiet.goals.cli_components',
+    'pydiet.ingredients.cli_components',
+    'pydiet.nutrients.cli_components',
+    'pydiet.recipes.cli_components',
+    'pydiet.tags.cli_components',
+    'pydiet.time.cli_components',
+])
 app.root_route('home', 'MainMenuComponent')
 app.add_route('home.ingredients', 'IngredientMenuComponent')
 app.add_route('home.ingredients.search', 'IngredientSearchComponent')
@@ -69,7 +72,3 @@ app.add_route('home.goals.edit_globals', 'GlobalDayGoalsEditorComponent')
 app.add_route('home.goals.edit_globals.edit_flags', 'FlagEditorComponent')
 app.add_route('home.goals.edit_globals.edit_nutrient_targets', 'NutrientTargetEditorComponent')
 app.add_route('home.goals.edit_globals.edit_nutrient_targets.search_nutrient', 'NutrientSearchComponent')
-
-# Create an app-wide exception to inherit from;
-class PyDietException(Exception):
-    pass

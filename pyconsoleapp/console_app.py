@@ -1,16 +1,11 @@
-import os
-import re
-import importlib
-import importlib.util
-from inspect import signature
+import os, re, importlib
 from typing import Callable, Dict, List, Optional, TYPE_CHECKING, cast
 if os.name == 'nt':
     from pyautogui import write
 else:
     import readline
 
-from pyconsoleapp import configs as cfg
-from pyconsoleapp import parse_tools
+from pyconsoleapp import configs
 
 if TYPE_CHECKING:
     from pyconsoleapp.components import (
@@ -90,39 +85,13 @@ class ConsoleApp():
         else:
             raise KeyError('The route {} was not recognised.'.format(route))
 
-    def _fetch_component_for_route(self, route: str) -> 'ConsoleAppComponent':
-        component_name = self._route_component_maps[route]
-        return self.fetch_component(component_name)
+    def root_route(self, route: str, component_class_name: str) -> None:
+        self._root_route = route
+        self.add_route(route, component_class_name)
 
-    def _check_guards(self, route: str) -> None:
-        '''Runs and collects response from any applicable guards.
-
-        Args:
-            route (List[str]): The current route.
-        '''
-        # Place to put matching guard component (if found);
-        component = None
-        # First check the exit guards;
-        for guarded_route in self._route_exit_guard_map.keys():
-            # If the guarded root does not feature in the submitted route;
-            if not guarded_route in route:
-                # The submitted route must have exited, so populate the component;
-                component = self._route_exit_guard_map[guarded_route]
-                # And don't look through any more exit guards;
-                break
-        # Now check the entrance guards;
-        for guarded_route in self._route_entrance_guard_map.keys():
-            # If the guarded root is part of the submitted route;
-            if guarded_route in route:
-                # Then the submitted route must be beyond the guard, so populate the
-                # component;
-                component = self._route_entrance_guard_map[guarded_route]
-                # And don't look through any more entrance guards;
-                break
-        # If the guard component was populated, then use it;
-        if component:
-            self.clear_console()
-            self._response = input(component.call_print())
+    def add_route(self, route: str, component_class_name: str) -> None:
+        self._route_component_maps[route] = \
+            pascal_to_snake(component_class_name)
 
     def interpret_relative_route(self, route: str) -> str:
         '''Converts a relative route with point notation
@@ -172,12 +141,9 @@ class ConsoleApp():
             else:
                 return self._root_route + route
 
-    def register_component_package(self, package_path: str) -> None:
-        self._component_packages.append(package_path)
-
-    def activate_component(self, component_instance: 'ConsoleAppComponent') -> None:
-        if not component_instance in self._active_components:
-            self._active_components.append(component_instance)
+    def _fetch_component_for_route(self, route: str) -> 'ConsoleAppComponent':
+        component_name = self._route_component_maps[route]
+        return self.fetch_component(component_name)
 
     def make_component(self, component_class_name: str) -> 'ConsoleAppComponent':
         '''Creates and returns a new instance of the component by finding its 
@@ -188,7 +154,7 @@ class ConsoleApp():
         # Create place to put constructor when found;
         constructor = None
         # Then look in the default components;
-        builtins_package = cfg.builtin_component_package + '.{}'
+        builtins_package = configs.builtin_component_package + '.{}'
         if importlib.util.find_spec(builtins_package.format(component_filename)):
             component_module = importlib.import_module(
                 builtins_package.format(component_filename))
@@ -223,13 +189,56 @@ class ConsoleApp():
         # Possibly not loaded yet, so make try make;
         return self.make_component(component_class_name)
 
-    def root_route(self, route: str, component_class_name: str) -> None:
-        self._root_route = route
-        self.add_route(route, component_class_name)
+    def register_component_package(self, package_path: str) -> None:
+        '''Registers a dir as containing component files.
 
-    def add_route(self, route: str, component_class_name: str) -> None:
-        self._route_component_maps[route] = \
-            pascal_to_snake(component_class_name)
+        Args:
+            package_path (str): Path to dir containing files.
+        '''
+        self._component_packages.append(package_path)
+
+    def register_component_packages(self, package_paths: List[str]) -> None:
+        '''Registers a list of dirs as containing component files.
+
+        Args:
+            package_paths (List[str]): List of dirs containing component files.
+        '''
+        for path in package_paths:
+            self.register_component_package(path)
+
+    def activate_component(self, component_instance: 'ConsoleAppComponent') -> None:
+        if not component_instance in self._active_components:
+            self._active_components.append(component_instance)
+
+    def _check_guards(self, route: str) -> None:
+        '''Runs and collects response from any applicable guards.
+
+        Args:
+            route (List[str]): The current route.
+        '''
+        # Place to put matching guard component (if found);
+        component = None
+        # First check the exit guards;
+        for guarded_route in self._route_exit_guard_map.keys():
+            # If the guarded root does not feature in the submitted route;
+            if not guarded_route in route:
+                # The submitted route must have exited, so populate the component;
+                component = self._route_exit_guard_map[guarded_route]
+                # And don't look through any more exit guards;
+                break
+        # Now check the entrance guards;
+        for guarded_route in self._route_entrance_guard_map.keys():
+            # If the guarded root is part of the submitted route;
+            if guarded_route in route:
+                # Then the submitted route must be beyond the guard, so populate the
+                # component;
+                component = self._route_entrance_guard_map[guarded_route]
+                # And don't look through any more entrance guards;
+                break
+        # If the guard component was populated, then use it;
+        if component:
+            self.clear_console()
+            self._response = input(component.call_print())
 
     def guard_entrance(self, route: str, guard_component_class_name: str) -> None:
         # Interpret the route;
@@ -323,7 +332,7 @@ class ConsoleApp():
         # Save the current route to the history;
         self._route_history.append(self.route)
         # Make sure the history doesn't get too long;
-        while len(self._route_history) > cfg.route_history_length:
+        while len(self._route_history) > configs.route_history_length:
             self._route_history.pop(0)
         # Set the new route;
         self.route = route

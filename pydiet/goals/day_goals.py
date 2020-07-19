@@ -1,9 +1,7 @@
 from typing import Dict, Optional, List, Tuple, TYPE_CHECKING
 
-from pydiet.flags import i_flaggable
-from pydiet.nutrients import i_nutrient_targetable
-from pydiet.goals import meal_goals
-from pydiet.goals.exceptions import DuplicateMealGoalsNameError
+from pydiet import flags, nutrients, goals
+
 
 if TYPE_CHECKING:
     from pydiet.goals.meal_goals import MealGoals
@@ -19,14 +17,15 @@ DATA_TEMPLATE = {
 }
 
 
-class DayGoals(i_flaggable.IFlaggable,
-               i_nutrient_targetable.INutrientTargetable):
+class DayGoals(flags.i_has_flags.IHasFlags,
+               nutrients.i_has_nutrient_targets.IHasNutrientTargets):
     def __init__(self, data: Dict):
         self._data = data
         # Populate the list of meal goal objects;
         self._meal_goals: Dict[str, 'MealGoals'] = {}
         for mg_name in self._data['meal_goals'].keys():
-            self._meal_goals[mg_name] = meal_goals.MealGoals(mg_name, self)
+            self._meal_goals[mg_name] = goals.meal_goals.MealGoals(
+                mg_name, self)
 
     @property
     def name(self) -> str:
@@ -93,7 +92,7 @@ class DayGoals(i_flaggable.IFlaggable,
         # Check there isn't a meal by this name already;
         if meal_name in self.meal_goals.keys():
             raise DuplicateMealGoalsNameError
-        
+
         # Create new meal goals instance and add it to the data
         # and the dict;
         self._data['meal_goals'][meal_name] = meal_goals.data_template
@@ -103,5 +102,5 @@ class DayGoals(i_flaggable.IFlaggable,
         # Also return the mealgoals instance;
         return mg
 
-    def remove_meal_goal(self, meal_name:str) -> None:
+    def remove_meal_goal(self, meal_name: str) -> None:
         raise NotImplementedError

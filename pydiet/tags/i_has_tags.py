@@ -1,7 +1,7 @@
 import abc
 from typing import List
 
-class ITaggable(abc.ABC):
+class IHasTags(abc.ABC):
 
     @abc.abstractproperty
     def tags(self) -> List[str]:

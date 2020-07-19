@@ -1,4 +1,4 @@
 import pydiet
 
-class UnknownUnitError(pydiet.PyDietException):
+class UnknownUnitError(pydiet.exceptions.PyDietException):
     pass

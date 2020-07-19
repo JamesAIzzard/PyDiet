@@ -1,7 +1,10 @@
 from typing import Dict, Callable
-import json, uuid, os
+import json
+import uuid
+import os
 
-from pydiet import configs, ingredients, recipes, goals, repository
+from pydiet import ingredients, recipes, goals, repository
+
 
 def _create_indexed_datafile(data: Dict,
                              read_index_func: Callable,
@@ -27,7 +30,7 @@ def _create_indexed_datafile(data: Dict,
     index = read_index_func()
     if data['name'] in index.values():
         raise repository.exceptions.DuplicateDatafileNameError
-    
+
     # Create the unique filename;
     filename = str(uuid.uuid4())
     filename_w_ext = filename+'.json'
@@ -43,7 +46,8 @@ def _create_indexed_datafile(data: Dict,
     # Return the filename;
     return filename
 
-def _read_json_datafile(filepath:str) -> Dict:
+
+def _read_json_datafile(filepath: str) -> Dict:
     '''Reads a .json datafile and returns as a dict.
 
     Args:
@@ -58,7 +62,20 @@ def _read_json_datafile(filepath:str) -> Dict:
         # Parse into dict;
         data = json.loads(raw_data)
         # Return it;
-        return data  
+        return data
+
+
+def _update_index(index: Dict, filepath: str) -> None:
+    '''Updates an index with the new data dict provided.
+
+    Args:
+        index (Dict): Index data.
+        filepath (str): Index filepath.
+    '''
+    with open('{filepath}.json'.format(
+            filepath=filepath), 'w') as fh:
+        json.dump(index, fh, indent=2, sort_keys=True)
+
 
 def create_ingredient_data(ingredient_data: Dict) -> str:
     '''Writes an ingredient data dict to a new ingredient
@@ -82,7 +99,7 @@ def create_recipe_data(recipe_data: Dict) -> str:
 
     Returns:
         str: The filename for the recipe datafile on disk.
-    '''    
+    '''
     return _create_indexed_datafile(recipe_data, read_recipe_index, update_recipe_index)
 
 
@@ -96,7 +113,8 @@ def create_day_goals_data(day_goals_data: Dict) -> str:
     Returns:
         str: The filename for the daygoals datafile on disk.
     '''
-    return _create_indexed_datafile(day_goals_data, read_day_goals_index, update_day_goals_index)  
+    return _create_indexed_datafile(day_goals_data, read_day_goals_index, update_day_goals_index)
+
 
 def read_ingredient_data(ingredient_datafile_name: str) -> Dict:
     '''Returns an ingredient datafile as a dict.
@@ -109,7 +127,7 @@ def read_ingredient_data(ingredient_datafile_name: str) -> Dict:
         Dict: Ingredient datafile in dictionary format.
     '''
     return _read_json_datafile('{path_to}+{filename}.json'.format(
-        path_to=configs.INGREDIENT_DB_PATH,
+        path_to=repository.configs.INGREDIENT_DB_PATH,
         filename=ingredient_datafile_name
     ))
 
@@ -125,7 +143,7 @@ def read_recipe_data(recipe_datafile_name: str) -> Dict:
         Dict: recipe datafile in dictionary format.
     '''
     return _read_json_datafile('{path_to}+{filename}.json'.format(
-        path_to=configs.RECIPE_DB_PATH,
+        path_to=repository.configs.RECIPE_DB_PATH,
         filename=recipe_datafile_name
     ))
 
@@ -141,7 +159,7 @@ def read_day_goals_data(day_goals_datafile_name: str) -> Dict:
         Dict: day goals datafile in dictionary format.
     '''
     return _read_json_datafile('{path_to}+{filename}.json'.format(
-        path_to=configs.DAY_GOALS_DB_PATH,
+        path_to=repository.configs.DAY_GOALS_DB_PATH,
         filename=day_goals_datafile_name
     ))
 
@@ -152,7 +170,7 @@ def read_global_day_goals_data() -> Dict:
     Returns:
         Dict: Global day goals data.
     '''
-    return _read_json_datafile(configs.GLOBAL_DAY_GOALS_DB_PATH)
+    return _read_json_datafile(repository.configs.GLOBAL_DAY_GOALS_DB_PATH)
 
 
 def read_ingredient_index() -> Dict[str, str]:
@@ -162,8 +180,8 @@ def read_ingredient_index() -> Dict[str, str]:
         Dict[str, str]: The saved ingredients index.
     '''
     return _read_json_datafile('{ingredient_db_path}{index_name}.json'.format(
-        ingredient_db_path=configs.INGREDIENT_DB_PATH,
-        index_name=configs.INGREDIENT_INDEX_NAME
+        ingredient_db_path=repository.configs.INGREDIENT_DB_PATH,
+        index_name=repository.configs.INGREDIENT_INDEX_NAME
     ))
 
 
@@ -174,137 +192,213 @@ def read_recipe_index() -> Dict[str, str]:
         Dict[str, str]: The saved recipe index.
     '''
     return _read_json_datafile('{recipe_db_path}{index_name}.json'.format(
-        recipe_db_path=configs.RECIPE_DB_PATH,
-        index_name=configs.RECIPE_INDEX_NAME
+        recipe_db_path=repository.configs.RECIPE_DB_PATH,
+        index_name=repository.configs.RECIPE_INDEX_NAME
     ))
 
 
 def read_day_goals_index() -> Dict[str, str]:
-    with open(configs.DAY_GOALS_DB_PATH+'{}.json'.
-              format(configs.DAY_GOALS_INDEX_NAME)) as fh:
-        raw_data = fh.read()
-        data = json.loads(raw_data)
-        return data
+    '''Returns the saved daygoals index as a dict;
+
+    Returns:
+        Dict[str, str]: The saved daygoals index.
+    '''
+    return _read_json_datafile('{day_goals_db_path}{index_name}.json'.format(
+        recipe_db_path=repository.configs.DAY_GOALS_DB_PATH,
+        index_name=repository.configs.DAY_GOALS_INDEX_NAME
+    ))
+
+
+def _update_indexed_datafile(data: Dict,
+                             path_to_db_dir: str,
+                             datafile_name: str,
+                             read_index_func: Callable,
+                             update_index_func: Callable) -> None:
+    '''Updates an indexed datafile on disk, with new data.
+
+    Args:
+        data (Dict): Data to be written.
+        path_to_db_dir (str): Path to the folder containing the datafiles.
+        datafile_name (str): Name of the datafile to write to.
+        read_index_func (Callable): Function used to read the relevant index file.
+        update_index_func (Callable): Function used to update the relevant index file.
+
+    Raises:
+        repository.exceptions.DatafileNameUndefinedError
+        repository.exceptions.DuplicateDatafileNameError
+    '''
+    # Load the index to do some checks;
+    index = read_index_func()
+    # Check the ingredient name is populated;
+    if not data['name']:
+        raise repository.exceptions.DatafileNameUndefinedError
+    # Check the name is not used by another datafile;
+    # Pop the current name, because if it hasn't changed, we don't want to
+    # detect it;
+    index.pop(datafile_name)
+    # Now current has been removed, check everwhere else for name;
+    if data['name'] in index.values():
+        raise repository.exceptions.DuplicateDatafileNameError
+
+    # Write the data;
+    with open('{path_to_db_dir}{datafile_name}.json'.format(
+        path_to_db_dir=path_to_db_dir,
+        datafile_name=datafile_name
+    ), 'w') as fh:
+        json.dump(data, fh, indent=2, sort_keys=True)
+
+    # Update the index;
+    index[datafile_name] = data['name']
+    update_index_func(index)
 
 
 def update_ingredient_data(ingredient_data: Dict, datafile_name: str) -> None:
-    # Load the index to do some checks;
-    index = read_ingredient_index()
-    # Check the ingredient name is populated;
-    if not ingredient_data['name']:
-        raise ingredients.exceptions.IngredientNameUndefinedError
-    # Check the ingredient name is not used by another datafile;
-    # Pop the current name, because if it hasn't changed, we don't want to
-    # detect it;
-    index.pop(datafile_name)
-    # Now current has been removed, check everwhere else for name;
-    if ingredient_data['name'] in index.values():
-        raise ingredients.exceptions.DuplicateIngredientNameError(
-            'Another ingredient already uses the name {}'.format(ingredient_data['name']))
-    # Write the ingredient data;
-    with open(configs.INGREDIENT_DB_PATH+datafile_name+'.json', 'w') as fh:
-        json.dump(ingredient_data, fh, indent=2, sort_keys=True)
-    # Update the index;
-    index[datafile_name] = ingredient_data['name']
-    update_ingredient_index(index)
+    '''Updates an ingredient datafile with new data.
+
+    Args:
+        ingredient_data (Dict): New data.
+        datafile_name (str): Name of datafile to write to.
+    '''
+    _update_indexed_datafile(
+        ingredient_data,
+        repository.configs.INGREDIENT_DB_PATH,
+        datafile_name,
+        read_ingredient_index,
+        update_ingredient_index)
 
 
 def update_recipe_data(recipe_data: Dict, datafile_name: str) -> None:
-    # Load the index to do some checks;
-    index = read_recipe_index()
-    # Check the recipe name is populated;
-    if not recipe_data['name']:
-        raise recipes.exceptions.RecipeNameUndefinedError
-    # Check the recipe name is not used by another datafile;
-    # Pop the current name, because if it hasn't changed, we don't want to
-    # detect it;
-    index.pop(datafile_name)
-    # Now current has been removed, check everwhere else for name;
-    if recipe_data['name'] in index.values():
-        raise recipes.exceptions.DuplicateRecipeNameError(
-            'Another recipe already uses the name {}'.format(recipe_data['name']))
-    # Write the recipe data;
-    with open(configs.RECIPE_DB_PATH+datafile_name+'.json', 'w') as fh:
-        json.dump(recipe_data, fh, indent=2, sort_keys=True)
-    # Update the index;
-    index[datafile_name] = recipe_data['name']
-    update_recipe_index(index)
+    '''Updates a recipe datafile with new data.
+
+    Args:
+        recipe_data (Dict): New data.
+        datafile_name (str): Name of datafile to write to.
+    '''
+    _update_indexed_datafile(
+        recipe_data,
+        repository.configs.RECIPE_DB_PATH,
+        datafile_name,
+        read_recipe_index,
+        update_recipe_index
+    )
 
 
 def update_day_goals_data(day_goals_data: Dict, datafile_name: str) -> None:
-    # Load the index to do some checks;
-    index = read_day_goals_index()
-    # Check the day_goals name is populated;
-    if not day_goals_data['name']:
-        raise goals.exceptions.DayGoalsNameUndefinedError
-    # Check the day_goals name is not used by another datafile;
-    # Pop the current name, because if it hasn't changed, we don't want to
-    # detect it;
-    index.pop(datafile_name)
-    # Now current has been removed, check everwhere else for name;
-    if day_goals_data['name'] in index.values():
-        raise goals.exceptions.DuplicateDayGoalsNameError(
-            'Another day already uses the name {}'.format(day_goals_data['name']))
-    # Write the day_goals data;
-    with open(configs.DAY_GOALS_DB_PATH+datafile_name+'.json', 'w') as fh:
-        json.dump(day_goals_data, fh, indent=2, sort_keys=True)
-    # Update the index;
-    index[datafile_name] = day_goals_data['name']
-    update_day_goals_index(index)
+    '''Updates a daygoals datafile with new data.
+
+    Args:
+        day_goals_data (Dict): New data.
+        datafile_name (str): Name of datafile to write to.
+    '''
+    _update_indexed_datafile(
+        day_goals_data,
+        repository.configs.DAY_GOALS_DB_PATH,
+        datafile_name,
+        read_day_goals_index,
+        update_day_goals_index
+    )
 
 
 def update_global_day_goals_data(global_day_goals_data: Dict) -> None:
+    '''Updates the global daygoals data with the new dict supplied.
+
+    Args:
+        global_day_goals_data (Dict): New global daygoals data dict.
+    '''
     # Write the data;
-    with open(configs.GLOBAL_DAY_GOALS_DB_PATH, 'w') as fh:
+    with open(repository.configs.GLOBAL_DAY_GOALS_DB_PATH, 'w') as fh:
         json.dump(global_day_goals_data, fh, indent=2, sort_keys=True)
 
 
 def update_ingredient_index(index: Dict[str, str]) -> None:
-    with open(configs.INGREDIENT_DB_PATH+'{}.json'.
-              format(configs.INGREDIENT_INDEX_NAME), 'w') as fh:
-        json.dump(index, fh, indent=2, sort_keys=True)
+    '''Updates the ingredient index with the new datafile provided.
+
+    Args:
+        index (Dict[str, str]): New index data.
+    '''
+    _update_index(index, '{db_path}{index_name}.json'.format(
+        db_path=repository.configs.INGREDIENT_DB_PATH,
+        index_name=repository.configs.INGREDIENT_INDEX_NAME
+    ))
 
 
 def update_recipe_index(index: Dict[str, str]) -> None:
-    with open(configs.RECIPE_DB_PATH+'{}.json'.
-              format(configs.RECIPE_INDEX_NAME), 'w') as fh:
-        json.dump(index, fh, indent=2, sort_keys=True)
+    '''Updates the recipe index with the new datafile provided.
+
+    Args:
+        index (Dict[str, str]): New index data.
+    '''
+    _update_index(index, '{db_path}{index_name}.json'.format(
+        db_path=repository.configs.RECIPE_DB_PATH,
+        index_name=repository.configs.RECIPE_INDEX_NAME
+    ))
 
 
 def update_day_goals_index(index: Dict[str, str]) -> None:
-    with open(configs.DAY_GOALS_DB_PATH+'{}.json'.
-              format(configs.DAY_GOALS_INDEX_NAME), 'w') as fh:
-        json.dump(index, fh, indent=2, sort_keys=True)
+    '''Updates the daygoals index with the new datafile provided.
+
+    Args:
+        index (Dict[str, str]): New index data.
+    '''
+    _update_index(index, '{db_path}{index_name}.json'.format(
+        db_path=repository.configs.DAY_GOALS_DB_PATH,
+        index_name=repository.configs.DAY_GOALS_INDEX_NAME
+    ))
+
+
+def _delete_indexed_datafile(datafile_path: str,
+                             read_index_func: Callable,
+                             update_index_func: Callable) -> None:
+    '''Deletes an indexed datafile from disk, updating index to reflect deletion.
+
+    Args:
+        datafile_path (str): Path to datafile for deletion.
+        read_index_func (Callable): Function to read the relevant index.
+        update_index_func (Callable): Function to update the relevant index.
+    '''
+    # Open the index;
+    index = read_index_func()
+    # Remove the entry from the index;
+    index.pop(datafile_path)
+    # Rewrite the index;
+    update_index_func(index)
+    # Delete the datafile;
+    os.remove('{df_path}.json'.format(
+        df_path=datafile_path
+    ))
 
 
 def delete_ingredient_data(datafile_name: str) -> None:
-    # Open the index;
-    index = read_ingredient_index()
-    # Remove the entry from the index;
-    index.pop(datafile_name)
-    # Rewrite the index;
-    update_ingredient_index(index)
-    # Delete the datafile;
-    os.remove(configs.INGREDIENT_DB_PATH+datafile_name+'.json')
+    '''Deletes an ingredient datafile and updates the index.
+
+    Args:
+        datafile_name (str): Name of datafile to delete.
+    '''
+    _delete_indexed_datafile('{db_path}{df_name}.json'.format(
+        db_path=repository.configs.INGREDIENT_DB_PATH,
+        df_name=datafile_name,
+    ), read_ingredient_index, update_ingredient_index)
 
 
 def delete_recipe_data(datafile_name: str) -> None:
-    # Open the index;
-    index = read_recipe_index()
-    # Remove the entry from the index;
-    index.pop(datafile_name)
-    # Rewrite the index;
-    update_recipe_index(index)
-    # Delete the datafile;
-    os.remove(configs.RECIPE_DB_PATH+datafile_name+'.json')
+    '''Deletes an recipe datafile and updates the index.
+
+    Args:
+        datafile_name (str): Name of datafile to delete.
+    '''
+    _delete_indexed_datafile('{db_path}{df_name}.json'.format(
+        db_path=repository.configs.RECIPE_DB_PATH,
+        df_name=datafile_name,
+    ), read_recipe_index, update_recipe_index)
 
 
 def delete_day_goals_data(datafile_name: str) -> None:
-    # Open the index;
-    index = read_day_goals_index()
-    # Remove the entry from the index;
-    index.pop(datafile_name)
-    # Rewrite the index;
-    update_day_goals_index(index)
-    # Delete the datafile;
-    os.remove(configs.DAY_GOALS_DB_PATH+datafile_name+'.json')
+    '''Deletes an ingredient datafile and updates the index.
+
+    Args:
+        datafile_name (str): Name of datafile to delete.
+    '''
+    _delete_indexed_datafile('{db_path}{df_name}.json'.format(
+        db_path=repository.configs.DAY_GOALS_DB_PATH,
+        df_name=datafile_name,
+    ), read_day_goals_index, update_day_goals_index)

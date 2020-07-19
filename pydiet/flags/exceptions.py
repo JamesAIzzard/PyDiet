@@ -1,7 +1,7 @@
 import pydiet
 
-class FlagNutrientConflictError(pydiet.PyDietException):
+class FlagNutrientConflictError(pydiet.exceptions.PyDietException):
     pass
 
-class FlagNameError(pydiet.PyDietException):
+class FlagNameError(pydiet.exceptions.PyDietException):
     pass

@@ -1,10 +1,10 @@
 import pydiet
 
-class NutrientQtyExceedsIngredientQtyError(pydiet.PyDietException):
+class NutrientQtyExceedsIngredientQtyError(pydiet.exceptions.PyDietException):
     pass
 
-class NutrientConstituentsExceedGroupError(pydiet.PyDietException):
+class NutrientConstituentsExceedGroupError(pydiet.exceptions.PyDietException):
     pass
 
-class NutrientAmountUndefinedError(pydiet.PyDietException):
+class NutrientAmountUndefinedError(pydiet.exceptions.PyDietException):
     pass

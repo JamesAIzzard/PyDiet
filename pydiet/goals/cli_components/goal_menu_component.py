@@ -1,14 +1,11 @@
 from typing import Dict, Optional, TYPE_CHECKING, cast
 
-from pyconsoleapp import ConsoleAppComponent, menu_tools, parse_tools
+from pyconsoleapp import ConsoleAppComponent, menu_tools
 
-from pydiet.optimisation import optimisation_service as ops
-from pydiet.optimisation import optimisation_edit_service as oes
-from pydiet import repository_service as rps
-from pydiet.optimisation.exceptions import DuplicateDayGoalsNameError
+from pydiet import repository, goals
 
 if TYPE_CHECKING: 
-    from pydiet.optimisation.cli_components.day_goals_editor_component import DayGoalsEditorComponent
+    from pydiet.goals.cli_components.day_goals_editor_component import DayGoalsEditorComponent
 
 _MAIN = '''{day_goals}
 -add, -a       [day name]     -> Add a new day.
@@ -22,7 +19,6 @@ _MAIN = '''{day_goals}
 class GoalMenuComponent(ConsoleAppComponent):
     def __init__(self, app):
         super().__init__(app)
-        self._oes = oes.OptimisationEditService()
         self.day_goals_menu = ''
         self.num_day_goals: int = 0
         self.numbered_day_goals: Dict[int, str] = {}
@@ -43,7 +39,7 @@ class GoalMenuComponent(ConsoleAppComponent):
 
     def before_print(self) -> None:
         # First, read the day_goals index;
-        dg_index = rps.read_day_goals_index()
+        dg_index = repository.repository_service.read_day_goals_index()
         # Stash the number of saved day goals;
         self.num_day_goals = len(dg_index)
         # Get a dictionary of names & numbers
@@ -85,7 +81,7 @@ class GoalMenuComponent(ConsoleAppComponent):
             return
 
         # Create a new DayGoals instance;
-        dg = ops.load_new_day_goals()
+        dg = goals.goals_service.load_new_day_goals()
         try:
             dg.name = text
         except DuplicateDayGoalsNameError:

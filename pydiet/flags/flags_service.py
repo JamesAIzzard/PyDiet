@@ -1,6 +1,6 @@
-from pydiet.flags import i_flaggable
+from pydiet import flags
 
-def print_active_flags_menu(subject:'i_flaggable.IFlaggable'):
+def print_active_flags_menu(subject:'flags.i_has_flags.IHasFlags'):
     output = ''
     if len(subject.flags):
         for i,flag_name in enumerate(subject.flags, start=1):

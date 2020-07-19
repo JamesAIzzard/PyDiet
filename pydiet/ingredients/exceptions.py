@@ -1,18 +1,18 @@
 import pydiet
 
-class DuplicateIngredientNameError(pydiet.PyDietException):
+class DuplicateIngredientNameError(pydiet.exceptions.PyDietException):
     pass
 
 
-class IngredientNameUndefinedError(pydiet.PyDietException):
+class IngredientNameUndefinedError(pydiet.exceptions.PyDietException):
     pass
 
 
-class IngredientNotFoundError(pydiet.PyDietException):
+class IngredientNotFoundError(pydiet.exceptions.PyDietException):
     pass
 
 
-class IngredientDensityUndefinedError(pydiet.PyDietException):
+class IngredientDensityUndefinedError(pydiet.exceptions.PyDietException):
     pass
 
 

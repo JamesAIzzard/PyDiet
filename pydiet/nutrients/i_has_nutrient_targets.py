@@ -1,7 +1,7 @@
 import abc
 from typing import Dict, Tuple
 
-class INutrientTargetable(abc.ABC):
+class IHasNutrientTargets(abc.ABC):
 
     @abc.abstractproperty
     def nutrient_targets(self)-> Dict[str, Tuple[float, str]]:

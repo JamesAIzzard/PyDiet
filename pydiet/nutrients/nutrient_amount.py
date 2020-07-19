@@ -1,14 +1,6 @@
 from typing import TYPE_CHECKING, Dict, Union
 
-
-from pydiet.ingredients.exceptions import (
-    NutrientQtyExceedsIngredientQtyError,
-    ConstituentsExceedGroupError,
-    NutrientAmountUndefinedError,
-    FlagNutrientConflictError
-)
-from pydiet import configs
-from pydiet import units
+from pydiet import nutrients, units, flags
 
 if TYPE_CHECKING:
     from pydiet.ingredients.ingredient import Ingredient
@@ -30,10 +22,11 @@ class NutrientAmount():
         self._parent_ingredient: 'Ingredient' = parent_ingredient
         self._child_nutrient_amounts: Dict[str, 'NutrientAmount'] = {}
         self._parent_nutrient_amounts: Dict[str, 'NutrientAmount'] = {}
+
         # If I have child nutrients, then populate those;
-        if self.name in configs.NUTRIENT_GROUP_DEFINITIONS.keys():
+        if self.name in nutrients.configs.NUTRIENT_GROUP_DEFINITIONS.keys():
             # For each of my constituents;
-            for cn_name in configs.NUTRIENT_GROUP_DEFINITIONS[name]:
+            for cn_name in nutrients.configs.NUTRIENT_GROUP_DEFINITIONS[name]:
                 # Has its object been instantiated on the parent already?
                 if cn_name in self._parent_ingredient._nutrient_amounts.keys():
                     cn = self._parent_ingredient.get_nutrient_amount(cn_name)
@@ -75,7 +68,7 @@ class NutrientAmount():
     @ingredient_qty_units.setter
     def ingredient_qty_units(self, value: str):
         # Interpret the qty unit;
-        units.parse_qty_unit(value)
+        units.units_service.parse_qty_unit(value)
         # Proceed with safe set;
         self._safe_set('ingredient_qty_units', value)
 
@@ -83,17 +76,17 @@ class NutrientAmount():
     def ingredient_qty_g(self) -> float:
         # Check I am defined first;
         if not self.defined:
-            raise NutrientAmountUndefinedError
+            raise nutrients.exceptions.NutrientAmountUndefinedError
         # If my units are already defined as a mass;
-        if self.ingredient_qty_units in units.recognised_mass_units():
-            return units.convert_mass_units(
+        if self.ingredient_qty_units in units.units_service.recognised_mass_units():
+            return units.units_service.convert_mass_units(
                 self.ingredient_qty,
                 self.ingredient_qty_units,
                 'g'
             )
         # My units must be defined as a vol;
         else:
-            return units.convert_volume_to_mass(
+            return units.units_service.convert_volume_to_mass(
                 self.ingredient_qty,
                 self.ingredient_qty_units,
                 'g',
@@ -107,7 +100,7 @@ class NutrientAmount():
 
     @property
     def nutrient_mass_g(self) -> float:
-        return units.convert_mass_units(
+        return units.units_service.convert_mass_units(
             self.nutrient_mass,
             self.nutrient_mass_units,
             'g'
@@ -118,8 +111,8 @@ class NutrientAmount():
         # Try and set the value first;
         self._safe_set('nutrient_mass', value)
         # Check through all the flag associations;
-        for flag_name in configs.NUTRIENT_FLAG_RELS.keys():
-            for assoc_nutr in configs.NUTRIENT_FLAG_RELS[flag_name]:
+        for flag_name in nutrients.configs.NUTRIENT_FLAG_RELS.keys():
+            for assoc_nutr in nutrients.configs.NUTRIENT_FLAG_RELS[flag_name]:
                 # If I am associated with a flag;
                 if self.name == assoc_nutr:
                     # If I am >0 and flag says free;
@@ -127,7 +120,7 @@ class NutrientAmount():
                         # Invert the flag;
                         self._parent_ingredient.set_flag(flag_name, False)
                         # And raise exception;
-                        raise FlagNutrientConflictError
+                        raise flags.exceptions.FlagNutrientConflictError
                     # If I am > 0 and flag is undefined;
                     elif value > 0 and not self._parent_ingredient.flag_is_defined:
                         # Define the flag;
@@ -141,7 +134,7 @@ class NutrientAmount():
     @nutrient_mass_units.setter
     def nutrient_mass_units(self, value: str):
         # Parse the unit;
-        value = units.parse_qty_unit(value)
+        value = units.units_service.parse_qty_unit(value)
         # Proceed with safe set;
         self._safe_set('nutrient_mass_units', value)
 
@@ -149,23 +142,23 @@ class NutrientAmount():
     def percentage(self) -> float:
         # Catch if I am undefined;
         if not self.defined:
-            raise NutrientAmountUndefinedError
+            raise nutrients.exceptions.NutrientAmountUndefinedError
         # Convert the nutrient mass to grams;
-        nutrient_mass_g = units.convert_mass_units(
+        nutrient_mass_g = units.units_service.convert_mass_units(
             self.nutrient_mass,
             self.nutrient_mass_units,
             'g'
         )
         # If ingredient qty is a mass, convert to grams;
-        if self.ingredient_qty_units in units.recognised_mass_units():
-            ingredient_mass_g = units.convert_mass_units(
+        if self.ingredient_qty_units in units.units_service.recognised_mass_units():
+            ingredient_mass_g = units.units_service.convert_mass_units(
                 self.ingredient_qty,
                 self.ingredient_qty_units,
                 'g'
             )
         # If ingredient qty is a vol, convert to grams;
         else:
-            ingredient_mass_g = units.convert_volume_to_mass(
+            ingredient_mass_g = units.units_service.convert_volume_to_mass(
                 self.ingredient_qty,
                 self.ingredient_qty_units,
                 'g',
@@ -185,22 +178,21 @@ class NutrientAmount():
                 self.validate()
             # If I am now invalid, reset the old data and pass the exception on;
             except (
-                NutrientQtyExceedsIngredientQtyError, 
-                ConstituentsExceedGroupError) as e:
+                nutrients.exceptions.NutrientQtyExceedsIngredientQtyError, 
+                nutrients.exceptions.NutrientConstituentsExceedGroupError) as e:
                 self._parent_ingredient._data['nutrients'][self.name] = backup
                 raise e
 
     def validate(self):
         # Check I am defined;
         if not self.defined:
-            raise NutrientAmountUndefinedError
+            raise nutrients.exceptions.NutrientAmountUndefinedError
         # Check nutrient qty does not exceed ingredient qty;
-        nut_mass_g = units.convert_mass_units(
+        nut_mass_g = units.units_service.convert_mass_units(
             self.nutrient_mass, self.nutrient_mass_units, 'g'
         )
         if nut_mass_g > self.ingredient_qty_g:
-            raise NutrientQtyExceedsIngredientQtyError('The quantity of {} cannot exceed the mass of the ingredient containing it'.format(self.name)
-            )
+            raise nutrients.exceptions.NutrientQtyExceedsIngredientQtyError
         # If I am a child nutrient;
         if len(self._parent_nutrient_amounts):
             # For each parent nutrient group I am part of;
@@ -214,4 +206,4 @@ class NutrientAmount():
                             sibling_perc_sum = sibling_perc_sum + sibling.percentage
                     # Raise exception if sibling sum exceed parent sum;
                     if sibling_perc_sum > pna.percentage:
-                        raise ConstituentsExceedGroupError('The combined {group} cannot exceed the total {group}'.format(group=pna.name))
+                        raise nutrients.exceptions.NutrientConstituentsExceedGroupError

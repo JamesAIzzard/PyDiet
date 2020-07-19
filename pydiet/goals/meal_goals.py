@@ -15,10 +15,9 @@ data_template = {
 }
 
 
-class MealGoals(
-    flags.i_flaggable.IFlaggable, 
-    nutrients.i_nutrient_targetable.INutrientTargetable,
-    tags.ITaggable):
+class MealGoals(flags.i_has_flags.IHasFlags,
+                nutrients.i_has_nutrient_targets.IHasNutrientTargets,
+                tags.i_has_tags.IHasTags):
     def __init__(self, name, parent_day_goals: 'DayGoals'):
         self._name = name
         self._parent_day_goals = parent_day_goals
@@ -128,7 +127,7 @@ class MealGoals(
     @property
     def nutrient_targets(self) -> Dict[str, Tuple[float, str]]:
         return self.data['nutrient_targets']
-    
+
     def add_nutrient_target(self, nutrient_name: str, nutrient_qty: float, nutrient_qty_units: str) -> None:
         raise NotImplementedError
 

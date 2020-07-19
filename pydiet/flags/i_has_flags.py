@@ -4,7 +4,7 @@ from typing import List
 import pydiet
 from pydiet.ingredients import ingredient_service
 
-class IFlaggable(abc.ABC):
+class IHasFlags(abc.ABC):
 
     @abc.abstractproperty
     def flags(self)->List[str]:
