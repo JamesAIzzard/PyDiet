@@ -1,13 +1,10 @@
-from typing import TYPE_CHECKING, Dict, Union
+from typing import Dict, Union
 
-from pydiet import nutrients, units, flags
+from pydiet import nutrients, quantity, flags
 
-if TYPE_CHECKING:
-    from pydiet.ingredients.ingredient import Ingredient
-
-DATA_TEMPLATE = {
-    "ingredient_qty": None,
-    "ingredient_qty_units": None,
+data_template = {
+    "parent_qty": None,
+    "parent_qty_units": None,
     "nutrient_mass": None,
     "nutrient_mass_units": None
 }
@@ -16,10 +13,10 @@ class NutrientAmount():
     def __init__(
         self,
         name: str,
-        parent_ingredient: 'Ingredient'
+        parent: 'nutrients.i_has_nutrient_amounts.IHasNutrientAmounts'
     ):
         self.name = name
-        self._parent_ingredient: 'Ingredient' = parent_ingredient
+        self._parent: 'nutrients.i_has_nutrient_amounts.IHasNutrientAmounts' = parent
         self._child_nutrient_amounts: Dict[str, 'NutrientAmount'] = {}
         self._parent_nutrient_amounts: Dict[str, 'NutrientAmount'] = {}
 
@@ -68,7 +65,7 @@ class NutrientAmount():
     @ingredient_qty_units.setter
     def ingredient_qty_units(self, value: str):
         # Interpret the qty unit;
-        units.units_service.parse_qty_unit(value)
+        quantity.quantity_service.validate_qty_unit(value)
         # Proceed with safe set;
         self._safe_set('ingredient_qty_units', value)
 
@@ -78,15 +75,15 @@ class NutrientAmount():
         if not self.defined:
             raise nutrients.exceptions.NutrientAmountUndefinedError
         # If my units are already defined as a mass;
-        if self.ingredient_qty_units in units.units_service.recognised_mass_units():
-            return units.units_service.convert_mass_units(
+        if self.ingredient_qty_units in quantity.quantity_service.get_recognised_mass_units():
+            return quantity.quantity_service.convert_mass_units(
                 self.ingredient_qty,
                 self.ingredient_qty_units,
                 'g'
             )
         # My units must be defined as a vol;
         else:
-            return units.units_service.convert_volume_to_mass(
+            return quantity.quantity_service.convert_volume_to_mass(
                 self.ingredient_qty,
                 self.ingredient_qty_units,
                 'g',
@@ -100,7 +97,7 @@ class NutrientAmount():
 
     @property
     def nutrient_mass_g(self) -> float:
-        return units.units_service.convert_mass_units(
+        return quantity.quantity_service.convert_mass_units(
             self.nutrient_mass,
             self.nutrient_mass_units,
             'g'
@@ -134,7 +131,7 @@ class NutrientAmount():
     @nutrient_mass_units.setter
     def nutrient_mass_units(self, value: str):
         # Parse the unit;
-        value = units.units_service.parse_qty_unit(value)
+        value = quantity.quantity_service.validate_qty_unit(value)
         # Proceed with safe set;
         self._safe_set('nutrient_mass_units', value)
 
@@ -144,21 +141,21 @@ class NutrientAmount():
         if not self.defined:
             raise nutrients.exceptions.NutrientAmountUndefinedError
         # Convert the nutrient mass to grams;
-        nutrient_mass_g = units.units_service.convert_mass_units(
+        nutrient_mass_g = quantity.quantity_service.convert_mass_units(
             self.nutrient_mass,
             self.nutrient_mass_units,
             'g'
         )
         # If ingredient qty is a mass, convert to grams;
-        if self.ingredient_qty_units in units.units_service.recognised_mass_units():
-            ingredient_mass_g = units.units_service.convert_mass_units(
+        if self.ingredient_qty_units in quantity.quantity_service.get_recognised_mass_units():
+            ingredient_mass_g = quantity.quantity_service.convert_mass_units(
                 self.ingredient_qty,
                 self.ingredient_qty_units,
                 'g'
             )
         # If ingredient qty is a vol, convert to grams;
         else:
-            ingredient_mass_g = units.units_service.convert_volume_to_mass(
+            ingredient_mass_g = quantity.quantity_service.convert_volume_to_mass(
                 self.ingredient_qty,
                 self.ingredient_qty_units,
                 'g',
@@ -188,7 +185,7 @@ class NutrientAmount():
         if not self.defined:
             raise nutrients.exceptions.NutrientAmountUndefinedError
         # Check nutrient qty does not exceed ingredient qty;
-        nut_mass_g = units.units_service.convert_mass_units(
+        nut_mass_g = quantity.quantity_service.convert_mass_units(
             self.nutrient_mass, self.nutrient_mass_units, 'g'
         )
         if nut_mass_g > self.ingredient_qty_g:

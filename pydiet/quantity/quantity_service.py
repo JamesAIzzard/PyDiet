@@ -1,8 +1,6 @@
 from typing import List
 
-from pydiet.units.exceptions import (
-    UnknownUnitError
-)
+from pydiet import quantity
 
 _G_CONVERSIONS = {
     "ug": 1e-6,  # 1 microgram = 0.000001 grams
@@ -21,20 +19,21 @@ _ML_CONVERSIONS = {
     "tbsp": 14.79
 }
 
-def recognised_mass_units() -> List[str]:
+
+def get_recognised_mass_units() -> List[str]:
     return list(_G_CONVERSIONS.keys())
 
 
-def recognised_vol_units() -> List[str]:
+def get_recognised_vol_units() -> List[str]:
     return list(_ML_CONVERSIONS.keys())
 
 
-def recognised_qty_units() -> List[str]:
-    return recognised_mass_units() + \
-        recognised_vol_units()
+def get_recognised_qty_units() -> List[str]:
+    return get_recognised_mass_units() + \
+        get_recognised_vol_units()
 
 
-def parse_qty_unit(unit: str) -> str:
+def validate_qty_unit(unit: str) -> str:
     '''Parses the string into a known unit (either volumetric or mass).
 
     Args:
@@ -46,24 +45,24 @@ def parse_qty_unit(unit: str) -> str:
     Returns:
         str: The parsed version of the unit.
     '''
-    for u in recognised_qty_units():
+    for u in get_recognised_qty_units():
         if unit.lower() == u.lower():
             return u
-    raise UnknownUnitError
+    raise quantity.exceptions.UnknownUnitError
 
 
-def parse_mass_unit(unit: str) -> str:
-    for u in recognised_mass_units():
+def validate_mass_unit(unit: str) -> str:
+    for u in get_recognised_mass_units():
         if unit.lower() == u.lower():
             return u
-    raise UnknownUnitError
+    raise quantity.exceptions.UnknownUnitError
 
 
-def parse_vol_unit(unit: str) -> str:
-    for u in recognised_vol_units():
+def validate_vol_unit(unit: str) -> str:
+    for u in get_recognised_vol_units():
         if unit.lower() == u.lower():
             return u
-    raise UnknownUnitError
+    raise quantity.exceptions.UnknownUnitError
 
 
 def convert_mass_units(mass: float, start_units: str, end_units: str) -> float:
@@ -77,18 +76,17 @@ def convert_mass_units(mass: float, start_units: str, end_units: str) -> float:
 
 def convert_volume_units(volume: float, start_units: str, end_units: str) -> float:
     # Parse the units to correct any case differences;
-    start_units = parse_qty_unit(start_units)
-    end_units = parse_qty_unit(end_units)
+    start_units = validate_qty_unit(start_units)
+    end_units = validate_qty_unit(end_units)
     vol_in_ml = _ML_CONVERSIONS[start_units]*volume
     return vol_in_ml/_ML_CONVERSIONS[end_units]
 
 
 def convert_volume_to_mass(
-    volume: float,
-    vol_units: str,
-    mass_units: str,
-    density_g_per_ml: float
-) -> float:
+        volume: float,
+        vol_units: str,
+        mass_units: str,
+        density_g_per_ml: float) -> float:
     # First convert the volume to ml;
     vol_ml = convert_volume_units(volume, vol_units, 'ml')
     # Calculate mass in g;
@@ -98,5 +96,5 @@ def convert_volume_to_mass(
     # Return result;
     return mass_output
 
-
-
+def print_density_summary(subject:'quantity.i_has_density.IHasDensity')->str:
+    raise NotImplementedError

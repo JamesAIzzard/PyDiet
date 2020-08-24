@@ -1,11 +1,11 @@
 from pyconsoleapp import ConsoleAppComponent
 
-_MENU_TEMPLATE = '''
--ingredients, -i    -> Manage ingredients.
--recipes, -r        -> Manage recipes.
--goals, -g          -> Manage goals.
--solve, -s          -> Generate meal plans.
--view, -v           -> View meal plans.
+_menu_template = '''
+Manage Ingredients      | -ingredients, -i
+Manage Recipes          | -recipes, -r
+Manage Goals            | -goals, -g
+Generate Meal Plans     | -solve, -s
+View Meal Plans         | -view, -v
 '''
 
 
@@ -13,16 +13,21 @@ class MainMenuComponent(ConsoleAppComponent):
 
     def __init__(self, app):
         super().__init__(app)
-        self.set_print_function(self.print_menu)
-        self.set_response_function(['-ingredients', '-i'], self.on_manage_ingredients)
-        self.set_response_function(['-recipes', '-r'], self.on_manage_recipes)
-        self.set_response_function(['-goals', '-g'], self.on_manage_goals)
-        self.set_response_function(['-solve', '-s'], self.on_run_optimiser)
-        self.set_response_function(['-view', '-v'], self.on_view_meal_plans)
+        self.configure_printer(self.print_menu_view)
+        self.configure_responder(self.on_manage_ingredients, args=[
+            self.configure_valueless_primary_arg('ingredients', ['-ingredients', '-i'])])
+        self.configure_responder(self.on_manage_recipes, args=[
+            self.configure_valueless_primary_arg('recipes', ['-recipes', '-r'])])         
+        self.configure_responder(self.on_manage_goals, args=[
+            self.configure_valueless_primary_arg('goals', ['-goals', '-g'])])                  
+        self.configure_responder(self.on_run_optimiser, args=[
+            self.configure_valueless_primary_arg('optimiser', ['-optimiser', '-o'])]) 
+        self.configure_responder(self.on_view_meal_plans, args=[
+            self.configure_valueless_primary_arg('view', ['-view', '-v'])])             
 
-    def print_menu(self):
-        output = _MENU_TEMPLATE
-        output = self.app.fetch_component('standard_page_component').call_print(
+    def print_menu_view(self):
+        output = _menu_template
+        output = self.app.fetch_component('standard_page_component').print(
             page_content=output, 
             page_title='Main Menu')
         return output

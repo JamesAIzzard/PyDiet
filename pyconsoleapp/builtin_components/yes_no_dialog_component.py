@@ -8,11 +8,15 @@ class YesNoDialogComponent(ConsoleAppComponent):
     def __init__(self, app):
         super().__init__(app)
         self.message: str
-        self.set_print_function(self.print)
-        self.set_response_function(['-yes', '-y'], self.on_yes)
-        self.set_response_function(['-no', '-n'], self.on_no)
+        self.configure_printer(self.print_view)
+        self.configure_responder(self.on_yes, args=[
+            self.configure_valueless_primary_arg(name='yes', markers=['-yes', '-y'])
+        ])
+        self.configure_responder(self.on_no, args=[
+            self.configure_valueless_primary_arg(name='no', markers=['-no', '-n'])
+        ])
 
-    def print(self):
+    def print_view(self):
         # Define the template;
         template = '''
         {message}
@@ -25,7 +29,7 @@ class YesNoDialogComponent(ConsoleAppComponent):
             message=self.message
         )
         output = self.app.fetch_component(
-            'standard_page_component').call_print(content=output)
+            'standard_page_component').print(content=output)
         return output
 
     @abstractmethod

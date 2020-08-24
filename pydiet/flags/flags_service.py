@@ -1,3 +1,5 @@
+from typing import Optional
+
 from pydiet import flags
 
 def print_active_flags_menu(subject:'flags.i_has_flags.IHasFlags'):
@@ -10,3 +12,9 @@ def print_active_flags_menu(subject:'flags.i_has_flags.IHasFlags'):
     else:
         output = 'No flags assigned.'
     return output
+
+def print_flag_summary(flag_name:str, flag_value:Optional[bool])->str:
+    return '{flag_name}: {flag_value}'.format(
+        flag_name=flag_name,
+        flag_value=flag_value
+    )

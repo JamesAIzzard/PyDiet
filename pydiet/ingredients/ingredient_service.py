@@ -1,31 +1,35 @@
+from pydiet.quantity import quantity_service
 from typing import TYPE_CHECKING, List, Optional
 from heapq import nlargest
 
 from pyconsoleapp import search_tools
 
-from pydiet import ingredients, repository, flags, nutrients
+from pydiet import ingredients, repository, flags, nutrients, cost, quantity
 
 
 if TYPE_CHECKING:
     from pydiet.ingredients.ingredient import Ingredient
 
 
-INGREDIENT_COST_SUMMARY_TEMPLATE = '£{cost:.2f} for {mass}{mass_units} (£{g_cost:.3f}/g)'
 INGREDIENT_FLAG_SUMMARY_TEMPLATE = '{flag_name}: {status}'
 
 
 def load_new_ingredient() -> 'Ingredient':
     # Initialise the data template;
-    dt = ingredients.ingredient.DATA_TEMPLATE
+    data_template = ingredients.ingredient.data_template
+    # Add the costs;
+    data_template['cost_per_mass'] = cost.i_has_cost.data_template
     # Add the flags;
-    for flag in flags.configs.FLAGS:
-        dt['flags'][flag] = None
+    for flag in flags.configs.all_flag_names:
+        data_template['flags'][flag] = None
     # Add the nutrients;
-    for nutrient in nutrients.configs.NUTRIENTS:
-        dt['nutrients'][nutrient] = nutrients.nutrient_amount.DATA_TEMPLATE
+    for nutrient_name in nutrients.configs.all_nutrient_names:
+        data_template['nutrients'][nutrient_name] = nutrients.nutrient_amount.data_template
+    # Add the density;
+    data_template['vol_density'] = quantity.i_has_density.data_template
 
     # Init and return the ingredient;
-    return ingredients.ingredient.Ingredient(dt)
+    return ingredients.ingredient.Ingredient(data_template)
 
 
 def load_ingredient(datafile_name: str) -> 'Ingredient':
@@ -92,26 +96,6 @@ def summarise_status(ingredient: 'Ingredient') -> str:
         return 'Complete'
     else:
         return 'Incomplete, requires {}'.format(ingredient.missing_mandatory_attrs[0])
-
-
-def summarise_name(ingredient: 'Ingredient') -> str:
-    if ingredient.name:
-        return ingredient.name
-    else:
-        return 'Undefined'
-
-
-def summarise_cost(ingredient: 'Ingredient') -> str:
-    if ingredient.cost_is_defined:
-        cost_data = ingredient.cost_data
-        return INGREDIENT_COST_SUMMARY_TEMPLATE.format(
-            cost=cost_data['cost'],
-            mass=cost_data['ingredient_qty'],
-            mass_units=cost_data['ingredient_qty_units'],
-            g_cost=ingredient.cost_per_g
-        )
-    else:
-        return 'Undefined'
 
 
 def summarise_density(ingredient: 'Ingredient') -> str:

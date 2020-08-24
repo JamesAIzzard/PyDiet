@@ -1,4 +1,4 @@
-FLAGS = [
+all_flag_names = [
     "alcohol_free",
     "caffiene_free",
     "dairy_free",

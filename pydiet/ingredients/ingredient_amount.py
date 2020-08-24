@@ -1,9 +1,6 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
-from pydiet.ingredients import ingredient_service
-from pydiet import units as unt
-from pydiet.ingredients.exceptions import IngredientDensityUndefinedError
-from pydiet.recipes.exceptions import SaturatedPercDecreaseError
+from pydiet import ingredients, quantity, recipes
 
 if TYPE_CHECKING:
     from pydiet.ingredients.ingredient import Ingredient
@@ -24,12 +21,14 @@ class IngredientAmount():
         self.parent_recipe = parent_recipe
 
     @property
-    def name(self) -> str:
+    def name(self) -> Optional[str]:
         return self.ingredient.name
 
     @property
     def ingredient_datafile_name(self) -> str:
-        return ingredient_service.convert_ingredient_name_to_datafile_name(self.name)
+        if self.name == None:
+            raise ingredients.exceptions.IngredientNameUndefinedError
+        return ingredients.ingredient_service.convert_ingredient_name_to_datafile_name(self.name)
 
     @property
     def quantity(self) -> float:
@@ -39,7 +38,7 @@ class IngredientAmount():
     def quantity_units(self) -> str:
         return self.parent_recipe._data['ingredients'][self.ingredient_datafile_name]['quantity_units']
 
-    def set_quantity_and_units(self, quantity: float, units: str) -> None:
+    def set_quantity_and_units(self, quant: float, units: str) -> None:
         '''Set the quantity and units of the named ingredient amount.
 
         Args:
@@ -52,16 +51,16 @@ class IngredientAmount():
                 volumentrics are not configured on the ingredient.
         '''
         # Check the quantity value;
-        quantity = float(quantity)
-        if quantity <= 0:
+        quant = float(quant)
+        if quant <= 0:
             raise ValueError
         # Check the units;
-        units = unt.parse_qty_unit(units)
+        units = quantity.quantity_service.validate_qty_unit(units)
         # If the unit is volumetric, check the ingredient has density configured;
-        if units in unt.recognised_vol_units() and not self.ingredient.density_is_defined:
-            raise IngredientDensityUndefinedError
+        if units in quantity.quantity_service.get_recognised_vol_units() and not self.ingredient.density_is_defined:
+            raise ingredients.exceptions.IngredientDensityUndefinedError
         # All is OK, go ahead and set;
-        self.parent_recipe._data['ingredients'][self.ingredient_datafile_name]['quantity'] = quantity
+        self.parent_recipe._data['ingredients'][self.ingredient_datafile_name]['quantity'] = quant
         self.parent_recipe._data['ingredients'][self.ingredient_datafile_name]['quantity_units'] = units
 
     @property
@@ -104,7 +103,7 @@ class IngredientAmount():
         if perc_decrease < 0:
             raise ValueError
         if perc_decrease > 100:
-            raise SaturatedPercDecreaseError
+            raise recipes.exceptions.SaturatedPercDecreaseError
         # Write the value;
         self.parent_recipe._data['ingredients'][self.ingredient_datafile_name]['perc_decrease'] = perc_decrease
 

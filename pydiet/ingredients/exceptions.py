@@ -12,8 +12,5 @@ class IngredientNotFoundError(pydiet.exceptions.PyDietException):
     pass
 
 
-class IngredientDensityUndefinedError(pydiet.exceptions.PyDietException):
-    pass
-
 
 

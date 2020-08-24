@@ -1,4 +1,5 @@
 import os, re, importlib
+from pyconsoleapp.exceptions import ResponseValidationError
 from importlib import util
 from typing import Callable, Dict, List, Optional, TYPE_CHECKING, cast
 if os.name == 'nt':
@@ -6,7 +7,7 @@ if os.name == 'nt':
 else:
     import readline
 
-from pyconsoleapp import configs
+import pyconsoleapp as pcap
 
 if TYPE_CHECKING:
     from pyconsoleapp.components import (
@@ -48,7 +49,7 @@ class ConsoleApp():
         self._components: Dict[str, 'ConsoleAppComponent'] = {}
         self._active_components: List['ConsoleAppComponent'] = []
         self._component_packages: List[str] = []
-        self._stop_responding: bool = False        
+        self._finished_responding: bool = False        
         self._quit: bool = False
         self.name: str = name
         self.error_message: Optional[str] = None
@@ -155,7 +156,7 @@ class ConsoleApp():
         # Create place to put constructor when found;
         constructor = None
         # Then look in the default components;
-        builtins_package = configs.builtin_component_package + '.{}'
+        builtins_package = pcap.configs.builtin_component_package + '.{}'
         if util.find_spec(builtins_package.format(component_filename)):
             component_module = importlib.import_module(
                 builtins_package.format(component_filename))
@@ -271,28 +272,59 @@ class ConsoleApp():
         if route in self._route_exit_guard_map.keys():
             del self._route_exit_guard_map[route]
 
-    def process_response(self, response: str):
-        '''First runs the response function for any matching flags. 
-        Then runs dynamic responses for all active components.
+    def process_response(self, response: str) -> None:
+        '''If the response is empty, iterates over active components
+        calling for an available empty-responder. If not empty, first
+        iterates over active components looking for a matching marker-responder,
+        then iterates over active components looking for a markerless-responder.
 
         Args:
             response (str): The user's response.
         '''
+        matched_responder = False
+        try:
+            # If the response is empty, give each active component a chance to respond;
+            if response.replace(' ', '') == '':
+                for component in self._active_components:
+                    argless_responder = component.argless_responder
+                    if argless_responder:
+                        argless_responder()
+                        matched_responder = True
+                        if self._finished_responding: return
+            
+            # Otherwise, give any marker-only responders a chance;
+            else:
+                for component in self._active_components:
+                    responders = component.marker_responders
+                    if len(responders):
+                        for responder in responders:
+                            if responder.check_response_match(response):
+                                responder(response)
+                                matched_responder = True
+                                if self._finished_responding: return
+           
+            # Finally give each active component a chance to field a
+            # markerless responder;
+            for component in self._active_components:
+                markerless_responder = component.markerless_responder
+                if markerless_responder:
+                    markerless_responder(response)
+                    matched_responder = True
+                    if self._finished_responding: return
+        
+            # If no component has responded, then raise an exception;
+            if not matched_responder and not response.replace(' ', '') == '': 
+                raise ResponseValidationError('This response isn\'t recognised.')
 
-        # Give each active component chance to process the response;
-        for component in self._active_components:
-            component.respond(response)
-            # Check for end signal;
-            if self._stop_responding:
-                break
-        # Reset the stop responding flag;
-        self._stop_responding = False
+        except pcap.ResponseValidationError as err:
+            if err.message: self.error_message = err.message
+            return
+
+    def continue_responding(self) -> None:
+        self._finished_responding = False
 
     def stop_responding(self) -> None:
-        '''Sets a flag to break the process response loop for
-        the app, causing it to skip to displaying the next page.
-        '''
-        self._stop_responding = True
+        self._finished_responding = True
 
     def run(self) -> None:
         '''Main run loop for the CLI
@@ -302,6 +334,7 @@ class ConsoleApp():
             # If response has been collected;
             if not self._response == None:
                 self.process_response(self._response)
+                self._finished_responding = False
                 self._response = None
             # If we are drawing the next view;
             else:
@@ -314,12 +347,12 @@ class ConsoleApp():
                     component = self._fetch_component_for_route(self.route)
                     # Call before print function;
                     component.before_print()
-                    # Grab component again, in case before print changed the route;
+                    # Grab component again, in case before_print changed the route;
                     component = self._fetch_component_for_route(self.route)
                     # Clear the screen;
                     self.clear_console()
                     # Collect the output from the component's print response;
-                    from_print = component.call_print()
+                    from_print = component.print()
                     # If there is no prefill;
                     if type(from_print) is str:
                         self._response = input(from_print)
@@ -333,7 +366,7 @@ class ConsoleApp():
         # Save the current route to the history;
         self._route_history.append(self.route)
         # Make sure the history doesn't get too long;
-        while len(self._route_history) > configs.route_history_length:
+        while len(self._route_history) > pcap.configs.route_history_length:
             self._route_history.pop(0)
         # Set the new route;
         self.route = route

@@ -1,28 +1,23 @@
-from typing import Tuple, List, Optional
+from pyconsoleapp.exceptions import ResponseValidationError
+from typing import Any, Tuple
 
-from pyconsoleapp.exceptions import PyConsoleAppError
-
-
-class LetterIntegerParseError(PyConsoleAppError):
-    pass
-
-class LetterFloatParseError(PyConsoleAppError):
-    pass
-
-class NumberAndTextParseError(PyConsoleAppError):
-    pass
+from pyconsoleapp import exceptions
 
 
-def parse_number_and_text(qty_and_text: str) -> Tuple[float, str]:
+def validate_integer(value: Any) -> int:
+    try:
+        int_value = int(value)
+    except TypeError:
+        raise exceptions.ResponseValidationError
+    return int_value
+
+
+def validate_number_and_text(qty_and_text: Any) -> Tuple[float, str]:
     '''Parses a string made up of a number and text. Returns
     the two components seperately as a tuple, number first.
 
     Args:
         qty_and_text (str): String to parse.
-
-    Raises:
-        NumberAndTextParseError: If the string cannot be parsed
-            into the two components.
 
     Returns:
         Tuple[float, str]: Number and text element, seperately
@@ -42,13 +37,13 @@ def parse_number_and_text(qty_and_text: str) -> Tuple[float, str]:
             output = (number_part, text_part)
             break
     if not output:
-        raise ValueError('Unable to parse {} into a number and text.'
-                         .format(qty_and_text))
+        raise exceptions.ResponseValidationError('Unable to parse {} into a number and text.'
+                                                 .format(qty_and_text))
     # Return tuple;
     return output
 
 
-def parse_letter_and_integer(chars_to_parse: str) -> Tuple[str, int]:
+def validate_letter_and_integer(chars_to_parse: str) -> Tuple[str, int]:
     '''Parses a string whose first character is a letter, and
     whose following characters form an integer, into a tuple
     containing a letter and an integer.
@@ -66,16 +61,17 @@ def parse_letter_and_integer(chars_to_parse: str) -> Tuple[str, int]:
     '''
     try:
         # First parse for letter and number;
-        letter, number = parse_letter_and_float(chars_to_parse)
+        letter, number = validate_letter_and_float(chars_to_parse)
         # Convert float to int:
         integer = int(number)
-    except (LetterFloatParseError, ValueError):
-        raise LetterIntegerParseError
+    except (ValueError):
+        raise ResponseValidationError('Unable to parse {} into a letter and integer.'.format(
+            chars_to_parse))
     # Return values
     return (letter, integer)
 
 
-def parse_letter_and_float(chars_to_parse: str) -> Tuple[str, float]:
+def validate_letter_and_float(chars_to_parse: str) -> Tuple[str, float]:
     '''Parses a string whose first character is a letter, and
     whose following characters form a number, into a tuple
     containing a letter and a number.
@@ -93,16 +89,19 @@ def parse_letter_and_float(chars_to_parse: str) -> Tuple[str, float]:
     '''
     # Catch empty string;
     if chars_to_parse == '' or len(chars_to_parse) < 1:
-        raise LetterFloatParseError
+        raise ResponseValidationError('Unable to parse {} into a letter and decimal.'.format(
+            chars_to_parse))
     # Check the first char is a letter;
     letter = chars_to_parse[0]
     if not letter.isalpha():
-        raise LetterFloatParseError
+        raise ResponseValidationError('Unable to parse {} into a letter and decimal.'.format(
+            chars_to_parse))
     # Check the remaining letters are numbers;
     number = chars_to_parse[1:]
     try:
         number = float(number)
     except ValueError:
-        raise LetterFloatParseError
+        raise ResponseValidationError('Unable to parse {} into a letter and decimal.'.format(
+            chars_to_parse))
     # Tests passed, so return the value;
     return (letter, number)
