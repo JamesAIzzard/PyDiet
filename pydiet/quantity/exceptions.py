@@ -3,5 +3,5 @@ import pydiet
 class UnknownUnitError(pydiet.exceptions.PyDietException):
     pass
 
-class DensityUndefinedError(pydiet.exceptions.PyDietException):
+class DensityDataUndefinedError(pydiet.exceptions.PyDietException):
     pass

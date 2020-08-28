@@ -1,5 +1,8 @@
 import pydiet
 
+class InvalidNutrientAmountsError(pydiet.exceptions.PyDietException):
+    pass
+
 class NutrientQtyExceedsIngredientQtyError(pydiet.exceptions.PyDietException):
     pass
 

@@ -1,5 +1,6 @@
 from . import (
     exceptions,
+    configs,
     quantity_service,
-    i_has_quantity,
-    i_has_density)
+    supports_density,
+    supports_quantity)

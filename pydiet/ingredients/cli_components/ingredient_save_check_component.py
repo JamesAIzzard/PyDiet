@@ -1,38 +1,23 @@
 from typing import TYPE_CHECKING
 
-from pyconsoleapp import ConsoleAppGuardComponent
-from pyconsoleapp.builtin_components.yes_no_dialog_component import YesNoDialogComponent
-from pydiet.ingredients import ingredient_edit_service as ies
+import pyconsoleapp as pcap
+
+from pydiet import ingredients
 
 if TYPE_CHECKING:
-    from pyconsoleapp import ConsoleApp
+    from pydiet.ingredients.ingredient import Ingredient
 
-class IngredientSaveCheckComponent(YesNoDialogComponent, ConsoleAppGuardComponent):
-
+class IngredientSaveCheckComponent(
+    pcap.builtin_components.yes_no_dialog_component.YesNoDialogComponent,
+    pcap.ConsoleAppGuardComponent):
+    
     def __init__(self, app):
         super().__init__(app)
-        self._ies = ies.IngredientEditService()
         self.message = 'Save changes to this ingredient?'
+        self.ingredient:'Ingredient'
 
     def on_yes(self):
-        # If the ingredient has a name;
-        if self._ies.ingredient.name:
-            # Go ahead and save;
-            self._ies.save_changes()
-            # Then remove the guard;
-            self.clear_self()
-        # If it isn't named;
-        else:
-            # Inform the user;
-            self.app.info_message = 'Ingredient must be named before it can be saved.'
-            # Clear the exit to the new page;
-            self.clear_self()
-            # Configure the exit guard for the edit page;
-            self.app.guard_exit('home.ingredients.edit',
-                                'IngredientSaveCheckComponent')
-            # Redirect to edit page;
-            self.app.goto('home.ingredients.edit')
+        raise NotImplementedError
 
     def on_no(self):
-        self.app.info_message = 'Ingredient not saved.'
-        self.clear_self()
+        raise NotImplementedError

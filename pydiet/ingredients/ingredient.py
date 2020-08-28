@@ -3,12 +3,13 @@ from typing import Optional, Dict, List, Union
 from pydiet import nutrients, defining, quantity, cost, flags, quantity
 
 data_template = {
-  "cost_per_mass": {},
-  "flags": {},
-  "name": None,
-  "nutrients": {},
-  "vol_density": {}
+    "cost": {},
+    "flags": {},
+    "name": None,
+    "nutrients": {},
+    "density": {}
 }
+
 
 class Ingredient(
         defining.i_needs_defining.INeedsDefining,
@@ -43,7 +44,7 @@ class Ingredient(
             if not self.flag_is_defined(flag_name):
                 missing_attrs.append(flag_name.replace('_', ' ') + ' flag')
         # Check nutrients;
-        for nutrient in self.primary_nutrients.values():
+        for nutrient in self.primary_nutrient_amounts.values():
             if not nutrient.defined:
                 missing_attrs.append(nutrient.name)
         # Return list of missing attrs;
@@ -58,37 +59,28 @@ class Ingredient(
         self._data['name'] = value
 
     @property
-    def cost_data(self) -> Dict[str, Union[str, float]]:
-        return self._data['cost_per_mass']
+    def readonly_cost_data(self) -> Dict[str, Union[str, float]]:
+        return self._data['cost'].copy()
 
-    def set_cost(self, cost: float, qty: float, qty_unit: str) -> None:
+    def set_cost(self, cost: float, mass_g: float, pref_qty_units: str) -> None:
         # Validate things;
-        qty_unit = quantity.quantity_service.validate_qty_unit(qty_unit)
+        pref_qty_units = quantity.quantity_service.validate_qty_unit(pref_qty_units)
         cost = float(cost)
-        qty = float(qty)
+        mass_g = float(mass_g)
         # Set the data;
-        self._data['cost_per_mass']['cost'] = cost
-        self._data['cost_per_mass']['qty'] = qty
-        self._data['cost_per_mass']['qty_units'] = qty_unit
+        self._data['cost']['cost'] = cost
+        self._data['cost']['mass_g'] = mass_g
+        self._data['cost']['pref_qty_units'] = pref_qty_units
 
     @property
-    def density_data(self) -> Dict[str, Union[str, float]]:
-        return self._data['vol_density']
+    def readonly_density_data(self) -> Dict[str, Union[float, str]]:
+        return self._data['density'].copy()
 
-    def set_density(
-        self, vol: float,
-        vol_units: str,
-        mass: float,
-        mass_units: str) -> None:
-        # Validate things;
-        mass_units = quantity.quantity_service.validate_mass_unit(mass_units)
-        vol_units = quantity.quantity_service.validate_vol_unit(vol_units)
-        # Set the units;
-        data = self.density_data
-        data['mass'] = mass
-        data['mass_units'] = mass_units
-        data['vol'] = vol
-        data['vol_units'] = vol_units
+    def set_density(self, g_per_ml:float, pref_vol_units:str):
+        g_per_ml = quantity.quantity_service.validate_density(g_per_ml)
+        pref_vol_units = quantity.quantity_service.validate_vol_unit(pref_vol_units)
+        self._data['density']['g_per_ml'] = g_per_ml
+        self._data['density']['pref_vol_units'] = pref_vol_units
 
     @property
     def flags(self) -> Dict[str, Union[bool, None]]:
@@ -104,14 +96,37 @@ class Ingredient(
             for assoc_nutr_name in nfls[flag_name]:
                 self.set_nutrient_amount(assoc_nutr_name, 100, 'g', 0, 'g')
 
-    def get_nutrient_amount(self, nutrient_name) -> 'nutrients.nutrient_amount.NutrientAmount':
-        return self._nutrient_amounts[nutrient_name]
+    @property
+    def nutrient_amounts(self) -> Dict[str, 'nutrients.nutrient_amount.NutrientAmount']:
+        return self._nutrient_amounts
 
-    def validate(self):
-        # Call validate on all constituent nutrients;
-        for nutrient_amount in self._nutrient_amounts.values():
-            nutrient_amount.validate()
-        # TODO - Also check that the percentage sum of all constituents
-        # does not exceed 100%, but be careful not to count molecules
-        # and groups twice as some molecules may be part of different
-        # groups - careful approach needed here.
+    def get_readonly_nutrient_amount_data(self, nutrient_name: str) -> Dict[str, Union[float, str]]:
+        return self._data['nutrients'][nutrient_name].copy()
+
+    def set_nutrient_amount(self,
+                            nutrient_name:str,
+                            self_mass_g: float,
+                            self_qty_pref_units:str,
+                            nutrient_mass_g:float,
+                            nutrient_qty_pref_units:str) -> None:
+        # Get a reference to the data, and a backup;
+        data = self._data['nutrients'][nutrient_name]
+        backup_data = data.copy()
+        
+        # Make the changes;
+        data['parent_mass_g'] = self_mass_g
+        data['parent_qty_pref_units'] = self_qty_pref_units
+        data['nutrient_mass_g'] = nutrient_mass_g
+        data['nutrient_qty_pref_units'] = nutrient_qty_pref_units
+
+        # Revert if validation fails;
+        try:
+            self._validate_nutrient_amounts()
+        except nutrients.exceptions.InvalidNutrientAmountsError as e:
+            self._data['nutrients'][nutrient_name] = backup_data
+            raise e
+        
+        # TODO - Make any implied flag updates;
+
+    def _validate_nutrient_amounts(self):
+        raise NotImplementedError

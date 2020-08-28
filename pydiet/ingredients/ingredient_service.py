@@ -11,9 +11,6 @@ if TYPE_CHECKING:
     from pydiet.ingredients.ingredient import Ingredient
 
 
-INGREDIENT_FLAG_SUMMARY_TEMPLATE = '{flag_name}: {status}'
-
-
 def load_new_ingredient() -> 'Ingredient':
     # Initialise the data template;
     data_template = ingredients.ingredient.data_template
@@ -78,7 +75,7 @@ def get_matching_ingredient_names(search_term: str, num_results: int) -> List[st
     return nlargest(num_results, results, key=results.get)
 
 
-def ingredient_name_used(name: str, ignore_datafile: Optional[str] = None) -> bool:
+def ingredient_name_taken(name: str, ignore_datafile: Optional[str] = None) -> bool:
     # Load the index data;
     index = repository.repository_service.read_ingredient_index()
     # If we are ignoring a datafile, drop it;
@@ -96,26 +93,3 @@ def summarise_status(ingredient: 'Ingredient') -> str:
         return 'Complete'
     else:
         return 'Incomplete, requires {}'.format(ingredient.missing_mandatory_attrs[0])
-
-
-def summarise_density(ingredient: 'Ingredient') -> str:
-    if ingredient.density_is_defined:
-        return '{ingredient_mass}{ingredient_mass_units}/{ingredient_vol}{ingredient_vol_units} ({density_g_ml}g/ml)'.format(
-            ingredient_mass=ingredient._data['vol_density']['ingredient_mass'],
-            ingredient_mass_units=ingredient._data['vol_density']['ingredient_mass_units'],
-            ingredient_vol=ingredient._data['vol_density']['ingredient_vol'],
-            ingredient_vol_units=ingredient._data['vol_density']['ingredient_vol_units'],
-            density_g_ml=ingredient.density_g_per_ml
-        )
-    else:
-        return 'Undefined'
-
-
-def summarise_flag(ingredient: 'Ingredient', flag_name: str) -> str:
-    flag = ingredient.get_flag(flag_name)
-    if flag == None:
-        flag = 'Undefined'
-    return '{}: {}'.format(
-        flag_name.replace('_', ' '),
-        flag
-    )

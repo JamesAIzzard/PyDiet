@@ -3,11 +3,7 @@ from heapq import nlargest
 
 from pyconsoleapp import search_tools
 
-from pydiet.recipes.exceptions import (
-    RecipeNotFoundError
-)
-from pydiet import repository_service as rps
-from pydiet.recipes import recipe
+from pydiet import repository, recipes, ingredients
 
 if TYPE_CHECKING:
     from pydiet.recipes.recipe import Recipe

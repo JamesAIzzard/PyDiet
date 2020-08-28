@@ -7,6 +7,7 @@ from pyconsoleapp.exceptions import ResponseValidationError
 
 # Expose modules;
 from pyconsoleapp import (builtin_validators,
+                          builtin_components,
                           configs,
                           exceptions,
                           format_tools,

@@ -1,0 +1,16 @@
+G_CONVERSIONS = {
+    "ug": 1e-6,  # 1 microgram = 0.000001 grams
+    "mg": 1e-3,  # 1 milligram = 0.001 grams
+    "g": 1,  # 1 gram = 1 gram! :)
+    "kg": 1e3,  # 1 kilogram = 1000 grams
+}
+
+ML_CONVERSIONS = {
+    "ml": 1,
+    "cm3": 1,
+    "L": 1e3,  # 1L = 1000 ml
+    "m3": 1e6,
+    "quart": 946.4,
+    "tsp": 4.929,
+    "tbsp": 14.79
+}

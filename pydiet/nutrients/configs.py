@@ -1,6 +1,6 @@
 from typing import List, Dict
 
-all_nutrient_names:List[str] = [
+all_nutrient_names: List[str] = [
     "a_carotene",
     "a_linolenic_acid",
     "alanine",

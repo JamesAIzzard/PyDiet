@@ -37,13 +37,13 @@ class IngredientEditorComponent(ConsoleAppComponent):
         # Build the nutrient summary;
         nutrient_summary = ''  # string for nutrient display
         # Start with the primary nutrients;
-        primary_nutrients = self.subject.primary_nutrients
+        primary_nutrients = self.subject.primary_nutrient_amounts
         for pnn in primary_nutrients.keys():
             nutrient_summary = nutrient_summary + \
                 '- {}\n'.format(nutrients.nutrients_service.print_nutrient_amount_summary(
                     primary_nutrients[pnn]))
         # Now do any defined secondary nutrients;
-        defined_secondary_nutrients = self.subject.defined_secondary_nutrients
+        defined_secondary_nutrients = self.subject.defined_secondary_nutrient_amounts
         for dsnn in defined_secondary_nutrients:
             nutrient_summary = nutrient_summary + \
                 '- {}\n'.format(nutrients.nutrients_service.print_nutrient_amount_summary(
@@ -51,7 +51,7 @@ class IngredientEditorComponent(ConsoleAppComponent):
 
         # Build the flag summary;
         flag_summary = ''
-        for flag_name in self.subject.all_flag_data.keys():
+        for flag_name in self.subject.flags.keys():
             flag_summary = flag_summary + '- {}\n'.format(flags.flags_service.print_flag_summary(
                 flag_name=flag_name,
                 flag_value=self.subject.get_flag(flag_name)

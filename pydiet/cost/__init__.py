@@ -1,6 +1,6 @@
 from . import (
-    i_has_cost,
     exceptions,
     cost_service,
-    configs
-)
+    configs,
+    supports_abstract_cost,
+    supports_absolute_cost)

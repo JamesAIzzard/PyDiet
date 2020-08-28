@@ -1,12 +1,21 @@
-from pydiet import cost
+from typing import TYPE_CHECKING
 
+from pydiet import cost, quantity
 
-def print_cost_summary(subject: 'cost.i_has_cost.IHasCost') -> str:
+if TYPE_CHECKING:
+    from pydiet.cost.supports_cost import SupportsCost
+
+def print_cost_summary(subject: 'SupportsCost') -> str:
     if not subject.cost_is_defined:
         return 'Undefined'
     else:
+        qts = quantity.quantity_service  # For easy typing.
+        if subject.pref_cost_qty_units in qts.get_recognised_mass_units():
+            qty = qts.convert_mass_units(1, 'g', subject.pref_cost_qty_units)
+        elif subject.pref_cost_qty_units in qts.get_recognised_vol_units():
+            qty = qts.convert_mass_to_volume
         return '£{cost:.2f}/{qty}{qty_units}'.format(
-            cost=subject.cost_data['cost'],
-            qty=subject.cost_data['qty'],
-            qty_units=subject.cost_data['qty_units']
+            cost=subject.readonly_cost_data['cost'],
+            qty=subject.readonly_cost_data['mass_g'],
+            qty_units=subject.readonly_cost_data['pref_qty_units']
         )

@@ -1,37 +1,27 @@
-from typing import List
+from typing import List, Any, cast
 
 from pydiet import quantity
 
-_G_CONVERSIONS = {
-    "ug": 1e-6,  # 1 microgram = 0.000001 grams
-    "mg": 1e-3,  # 1 milligram = 0.001 grams
-    "g": 1,  # 1 gram = 1 gram! :)
-    "kg": 1e3,  # 1 kilogram = 1000 grams
-}
-
-_ML_CONVERSIONS = {
-    "ml": 1,
-    "cm3": 1,
-    "L": 1e3,  # 1L = 1000 ml
-    "m3": 1e6,
-    "quart": 946.4,
-    "tsp": 4.929,
-    "tbsp": 14.79
-}
-
 
 def get_recognised_mass_units() -> List[str]:
-    return list(_G_CONVERSIONS.keys())
+    return list(quantity.configs.G_CONVERSIONS.keys())
 
 
 def get_recognised_vol_units() -> List[str]:
-    return list(_ML_CONVERSIONS.keys())
+    return list(quantity.configs.ML_CONVERSIONS.keys())
 
 
 def get_recognised_qty_units() -> List[str]:
     return get_recognised_mass_units() + \
         get_recognised_vol_units()
 
+
+def validate_density(value:Any)->float:
+    value = float(value)
+    if value<=0:
+        raise ValueError('Invalid density')
+    else:
+        return value
 
 def validate_qty_unit(unit: str) -> str:
     '''Parses the string into a known unit (either volumetric or mass).
@@ -70,16 +60,16 @@ def convert_mass_units(mass: float, start_units: str, end_units: str) -> float:
     start_units = start_units.lower()
     end_units = end_units.lower()
     # Convert value to grams first
-    mass_in_g = _G_CONVERSIONS[start_units]*mass
-    return mass_in_g/_G_CONVERSIONS[end_units]
+    mass_in_g = quantity.configs.G_CONVERSIONS[start_units]*mass
+    return mass_in_g/quantity.configs.G_CONVERSIONS[end_units]
 
 
 def convert_volume_units(volume: float, start_units: str, end_units: str) -> float:
     # Parse the units to correct any case differences;
     start_units = validate_qty_unit(start_units)
     end_units = validate_qty_unit(end_units)
-    vol_in_ml = _ML_CONVERSIONS[start_units]*volume
-    return vol_in_ml/_ML_CONVERSIONS[end_units]
+    vol_in_ml = quantity.configs.ML_CONVERSIONS[start_units]*volume
+    return vol_in_ml/quantity.configs.ML_CONVERSIONS[end_units]
 
 
 def convert_volume_to_mass(
@@ -97,4 +87,12 @@ def convert_volume_to_mass(
     return mass_output
 
 def print_density_summary(subject:'quantity.i_has_density.IHasDensity')->str:
-    raise NotImplementedError
+    if subject.density_is_defined:
+        template = '{g_mass}g/{pref_vol_unit}'
+        pref_vol_units = cast(str, subject.pref_vol_units)
+        g_mass = subject.g_per_ml*quantity.configs.ML_CONVERSIONS[pref_vol_units]
+        return template.format(
+            g_mass=g_mass,
+            pref_vol_unit=pref_vol_units)
+    else:
+        return 'Undefined'
