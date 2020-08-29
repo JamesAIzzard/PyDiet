@@ -1,30 +1,37 @@
 import abc
-from typing import Optional, Dict, Union, cast
+from typing import Optional, TypedDict, Protocol
 
 from pydiet import quantity
 
-density_data_template = {
-    'g_per_ml' : None,
-    'pref_vol_units' : None
+
+class DensityData(TypedDict):
+    g_per_ml: Optional[float]
+    pref_vol_units: Optional[str]
+
+
+density_data_template:'DensityData' = {
+    'g_per_ml': None,
+    'pref_vol_units': None
 }
 
-class SupportsDensity(abc.ABC):
+
+class SupportsDensity(Protocol):
 
     @abc.abstractproperty
-    def readonly_density_data(self) -> Dict[str, Union[float, str]]:
+    def readonly_density_data(self) -> 'DensityData':
         raise NotImplementedError
 
     @property
     def g_per_ml(self) -> float:
         if not self.density_is_defined:
             raise quantity.exceptions.DensityDataUndefinedError
-        return cast(float, self.readonly_density_data['g_per_ml'])
- 
+        return self.readonly_density_data['g_per_ml']
+
     @property
     def pref_vol_units(self) -> str:
         if not self.density_is_defined:
             raise quantity.exceptions.DensityDataUndefinedError
-        return cast(str, self.readonly_density_data['pref_vol_units'])
+        return self.readonly_density_data['pref_vol_units']
 
     @property
     def density_is_defined(self) -> bool:
@@ -32,3 +39,12 @@ class SupportsDensity(abc.ABC):
             if value == None:
                 return False
         return True
+
+class SupportsDensitySetting(SupportsDensity, Protocol):
+
+    @abc.abstractproperty
+    def density_data(self) -> 'DensityData':
+        raise NotImplementedError
+
+    def set_g_per_ml(self, value:float) -> None:
+        self.density_data['g_per_ml'] = value

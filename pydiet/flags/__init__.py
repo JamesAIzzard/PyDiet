@@ -1,1 +1,7 @@
-from . import configs, exceptions, flags_service, i_has_flags
+from . import (
+    flag,
+    configs, 
+    exceptions, 
+    flags_service, 
+    supports_flags
+)

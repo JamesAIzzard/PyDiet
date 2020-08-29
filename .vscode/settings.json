@@ -16,4 +16,5 @@
     "pyright.useLibraryCodeForTypes": true,
     "python.testing.promptToConfigure": false,
     "python.pythonPath": "C:\\Users\\James Izzard\\AppData\\Local\\Microsoft\\WindowsApps\\python.exe",
+    "python.formatting.provider": "autopep8",
 }

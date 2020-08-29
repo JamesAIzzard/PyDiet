@@ -5,7 +5,7 @@ from pydiet import cost, quantity
 if TYPE_CHECKING:
     from pydiet.cost.supports_cost import SupportsCost
 
-def print_cost_summary(subject: 'SupportsCost') -> str:
+def print_general_cost_summary(subject: 'cost.supports_general_cost.SupportsGeneralCost') -> str:
     if not subject.cost_is_defined:
         return 'Undefined'
     else:

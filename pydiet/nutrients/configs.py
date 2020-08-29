@@ -1,6 +1,6 @@
 from typing import List, Dict
 
-all_nutrient_names: List[str] = [
+all_primary_nutrient_names: List[str] = [
     "a_carotene",
     "a_linolenic_acid",
     "alanine",
@@ -119,7 +119,7 @@ all_nutrient_names: List[str] = [
     "zinc"
 ]
 
-primary_nutrient_names: List[str] = [
+mandatory_nutrient_names: List[str] = [
     "carbohydrate",
     "fat",
     "saturated_fat",
@@ -186,7 +186,7 @@ nutrient_group_definitions: Dict[str, List[str]] = {
     "vitamin_e": [],
     "vitamin_k": ["vitamin_k1", "vitamin_k2"],
 }
-nutrient_flag_relationships: Dict[str, List[str]] = {
+nutrient_flag_rels: Dict[str, List[str]] = {
     "alcohol_free": ["alcohol"]
 }
 

@@ -1,7 +1,7 @@
 import abc
-from typing import List
+from typing import List, Protocol
 
-class INeedsDefining(abc.ABC):
+class SupportsDefinition(Protocol):
 
     @property
     def defined(self) -> bool:
@@ -12,4 +12,4 @@ class INeedsDefining(abc.ABC):
 
     @abc.abstractproperty
     def missing_mandatory_attrs(self) -> List[str]:
-        raise NotADirectoryError
+        raise NotImplementedError

@@ -1,3 +1,3 @@
 from . import (
-    i_needs_defining
+    supports_definition
 )

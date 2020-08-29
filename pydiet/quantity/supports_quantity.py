@@ -1,28 +1,38 @@
 import abc
-from typing import Dict, Union, cast
+from typing import TypedDict, Optional, Protocol
+
+from pydiet import quantity
+
+
+class QuantityData(TypedDict):
+    qty_g: Optional[float]
+    pref_qty_units: Optional[str]
+
 
 quantity_data_template = {
-    'qty' : None,
-    'qty_units' : None
+    'qty': None,
+    'pref_qty_units': None
 }
 
-# TODO - I think I should be using TypedDict here.
 
-class SupportsQuantity(abc.ABC):
-
-    @abc.abstractproperty
-    def readonly_quantity_data(self) -> Dict[str, Union[float, str]]:
-        raise NotImplementedError  
+class SupportsQuantity(quantity.supports_density.SupportsDensity,
+                       Protocol):
 
     @abc.abstractproperty
-    def quantity(self)->float:
+    def readonly_quantity_data(self) -> QuantityData:
+        raise NotImplementedError
+
+    @property
+    def quantity_g(self) -> float:
         if not self.quantity_is_defined:
             raise quantity.exceptions.QuantityUndefinedError
-        return cast(float, self.readonly_quantity_data['qty'])
+        return self.readonly_quantity_data['qty']
 
-    @abc.abstractproperty
-    def quantity_units(self)->str:
-        raise NotImplementedError
+    @property
+    def quantity_units(self) -> str:
+        if not self.quantity_is_defined:
+            raise quantity.exceptions.QuantityUndefinedError
+        return self.readonly_quantity_data['qty_units']
 
     @property
     def quantity_is_defined(self) -> bool:
