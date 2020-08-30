@@ -1,9 +1,6 @@
-from typing import Dict, TYPE_CHECKING
+from typing import Dict
 
 from pyconsoleapp import ConsoleAppComponent, menu_tools
-
-if TYPE_CHECKING:
-    from pydiet.flaggable import Flaggable
 
 _MAIN_TEMPLATE = '''
 Flag Editor:
@@ -20,18 +17,21 @@ Available Flags:
 
 '''
 
+
 class FlagEditorComponent(ConsoleAppComponent):
     def __init__(self, app):
         super().__init__(app)
-        self.subject: 'Flaggable'
-        self.current_flag_num_map:Dict[int, str]
-        self.available_flag_num_map:Dict[int, str]
+        self.subject
+        self.current_flag_num_map: Dict[int, str]
+        self.available_flag_num_map: Dict[int, str]
         self.set_response_function(['-add', '-a'], self.on_add_flag)
         self.set_response_function(['-remove', '-r'], self.on_remove_flag)
 
     def run(self) -> None:
-        self.current_flag_num_map = menu_tools.create_number_name_map(self.subject.flags)
-        self.available_flag_num_map = menu_tools.create_number_name_map(self.subject.available_flags)
+        self.current_flag_num_map = menu_tools.create_number_name_map(
+            self.subject.flags)
+        self.available_flag_num_map = menu_tools.create_number_name_map(
+            self.subject.available_flags)
 
     def print(self, *args, **kwargs) -> str:
         output = _MAIN_TEMPLATE.format(
@@ -44,7 +44,7 @@ class FlagEditorComponent(ConsoleAppComponent):
     def current_flags_menu(self) -> str:
         if len(self.current_flag_num_map) == 0:
             return 'No flags added.'
-        output = ''            
+        output = ''
         for flag_num in self.current_flag_num_map.keys():
             output = output + '{flag_num} -> {flag_name}\n'.format(
                 flag_num=flag_num,
@@ -62,28 +62,28 @@ class FlagEditorComponent(ConsoleAppComponent):
                 flag_num=flag_num,
                 flag_name=self.available_flag_num_map[flag_num]
             )
-        return output        
+        return output
 
-    def on_add_flag(self, args=None)->None:
+    def on_add_flag(self, args=None) -> None:
         # Check the args is a number referring to an available flag;
         try:
             args = int(args)
         except ValueError:
             self.app.error_message = 'Specify a number from the available flags menu.'
-            return             
+            return
         if not args in self.available_flag_num_map.keys():
             self.app.error_message = 'Specify a number from the available flags menu.'
             return
         # Add the flag;
         self.subject.add_flag(self.available_flag_num_map[args])
 
-    def on_remove_flag(self, args=None)->None:
+    def on_remove_flag(self, args=None) -> None:
         # Check the args is a number referring to a current flag;
         try:
             args = int(args)
         except ValueError:
             self.app.error_message = 'Specify a number from the current flags menu.'
-            return            
+            return
         if not args in self.current_flag_num_map.keys():
             self.app.error_message = 'Specify a number from the current flags menu.'
             return

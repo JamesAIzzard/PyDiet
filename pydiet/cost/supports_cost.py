@@ -1,5 +1,6 @@
 import abc
-from typing import TypedDict, Optional, Protocol
+import copy
+from typing import TypedDict, Optional, cast
 
 from pydiet import quantity, cost
 
@@ -9,32 +10,36 @@ class CostData(TypedDict):
     pref_cost_qty_units: Optional[str]
 
 
-cost_data_template: 'CostData' = {
-    "cost_per_g": None,
-    "pref_cost_qty_units": None
-}
+def get_empty_cost_data() -> 'CostData':
+    return CostData(cost_per_g=None,
+                    pref_cost_qty_units=None)
 
 
-class SupportsCost(
-    quantity.supports_density.SupportsDensity,
-    quantity.supports_unit_mass.SupportsUnitMass,
-    Protocol):
+class SupportsCost(quantity.supports_bulk.SupportsBulk):
 
     @abc.abstractproperty
-    def readonly_cost_data(self) -> 'CostData':
+    def _cost_data(self) -> 'CostData':
         raise NotImplementedError
+
+    @property
+    def readonly_cost_data(self) -> 'CostData':
+        return copy.deepcopy(self._cost_data)
+
+    @property
+    def cost_summary(self) -> str:
+        return 'A cost summary.'
 
     @property
     def cost_per_g(self) -> float:
         if not self.cost_is_defined:
             raise cost.exceptions.CostDataUndefinedError
-        return self.readonly_cost_data['cost_per_g']/self.readonly_cost_data['mass_g']
+        return cast(float, self.readonly_cost_data['cost_per_g'])
 
     @property
     def pref_cost_qty_units(self) -> str:
         if not self.cost_is_defined:
             raise cost.exceptions.CostDataUndefinedError
-        return self.readonly_cost_data['pref_qty_units']
+        return cast(str, self.readonly_cost_data['pref_cost_qty_units'])
 
     @property
     def cost_is_defined(self) -> bool:
@@ -44,11 +49,7 @@ class SupportsCost(
         return True
 
 
-class SupportsCostSetting(SupportsCost, Protocol):
-
-    @abc.abstractproperty
-    def cost_data(self) -> 'CostData':
-        raise NotImplementedError
+class SupportsCostSetting(SupportsCost):
 
     def set_cost_per_g(self, cost_per_g: float, pref_cost_qty_units: str) -> None:
         # Validate things;
@@ -56,10 +57,8 @@ class SupportsCostSetting(SupportsCost, Protocol):
             pref_cost_qty_units)
         cost_per_g = float(cost_per_g)
         # Set the data;
-        self.cost_data['cost_per_g'] = cost_per_g
-        self.cost_data['pref_qty_units'] = pref_cost_qty_units
+        self._cost_data['cost_per_g'] = cost_per_g
+        self._cost_data['pref_cost_qty_units'] = pref_cost_qty_units
 
-    def set_cost_any_units(self, cost:float, cost_qty:float, cost_qty_units:str) -> None:
-        # £12.00 per 1kg of tomato
-        # Convert the cost_qty into g;
-        qty_g = quantity.quantity_service.convert_qty_to_g(cost_qty, cost_qty_units, g_per_ml=self.g_per_ml)
+    def set_cost_any_units(self, cost: float, cost_qty: float, cost_qty_units: str) -> None:
+        raise NotImplementedError

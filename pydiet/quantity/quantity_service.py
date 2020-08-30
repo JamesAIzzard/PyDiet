@@ -16,7 +16,7 @@ def get_recognised_qty_units() -> List[str]:
         get_recognised_vol_units()
 
 
-def validate_density(value:Any)->float:
+def validate_quantity(value:Any)->float:
     value = float(value)
     if value<=0:
         raise ValueError('Invalid density')

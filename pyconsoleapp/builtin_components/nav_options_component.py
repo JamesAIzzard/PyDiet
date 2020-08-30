@@ -1,7 +1,7 @@
 from pyconsoleapp.components import ConsoleAppComponent
 
-_template = '''-back, -b -> Navigate back.
--quit, -q -> Quit.
+_template = '''Navigate Back   | -back, -b
+Quit            | -quit, -q
 '''
 
 class NavOptionsComponent(ConsoleAppComponent):

@@ -1,40 +1,33 @@
-import copy
-from pydiet.nutrients import nutrients_service
 from typing import Optional, Dict, List, TypedDict, TYPE_CHECKING
 
 from pydiet import nutrients, defining, quantity, cost, flags, quantity
 
 if TYPE_CHECKING:
     from pydiet.cost.supports_cost import CostData
-    from pydiet.quantity.supports_density import DensityData
-    from pydiet.quantity.supports_unit_mass import UnitMassData
-    from pydiet.nutrients.supports_nutritional_composition import NutrientCompositionData
+    from pydiet.quantity.supports_bulk import BulkData
+    from pydiet.nutrients.supports_nutrients import NutrientData
 
 
 class IngredientData(TypedDict):
     cost: 'CostData'
     flags: Dict[str, Optional[bool]]
     name: Optional[str]
-    nutrients: Dict[str, 'NutrientCompositionData']
-    density: 'DensityData'
-    unit_mass: 'UnitMassData'
+    nutrients: Dict[str, 'NutrientData']
+    bulk: 'BulkData'
 
-ingredient_data_template = {
-    "cost": {},
-    "flags": {},
-    "name": None,
-    "nutrients": {},
-    "density": {},
-    "unit_mass": {}
-}
+def get_empty_ingredient_data() -> 'IngredientData':
+    return IngredientData(cost=cost.supports_cost.get_empty_cost_data(),
+                          flags={},
+                          name=None,
+                          nutrients=nutrients.supports_nutrients.get_empty_nutrients_data(),
+                          bulk=quantity.supports_bulk.get_empty_bulk_data())
 
 
 class Ingredient(defining.supports_definition.SupportsDefinition,
                  cost.supports_cost.SupportsCostSetting,
                  flags.supports_flags.SupportsFlagSetting,
-                 nutrients.supports_nutritional_composition.SupportsNutritionalCompositionSetting,
-                 quantity.supports_density.SupportsDensitySetting,
-                 quantity.supports_unit_mass.SupportsUnitMass):
+                 nutrients.supports_nutrients.SupportsNutrients,
+                 quantity.supports_bulk.SupportsBulk):
 
     def __init__(self, data: IngredientData):
         self._data = data
@@ -59,31 +52,17 @@ class Ingredient(defining.supports_definition.SupportsDefinition,
         return attr_names
 
     @property
-    def readonly_cost_data(self) -> 'CostData':
-        return copy.deepcopy(self.cost_data)
-
-    @property
-    def cost_data(self) -> 'CostData':
+    def _cost_data(self) -> 'CostData':
         return self._data['cost']
 
     @property
-    def flag_data(self) -> Dict[str, Optional[bool]]:
+    def _flags_data(self) -> Dict[str, Optional[bool]]:
         return self._data['flags']
 
     @property
-    def readonly_flag_data(self) -> Dict[str, Optional[bool]]:
-        return copy.deepcopy(self.flag_data)
-
-    @property
-    def nutritional_composition_data(self) -> Dict[str, 'NutrientCompositionData']:
+    def _nutrients_data(self) -> Dict[str, 'NutrientData']:
         return self._data['nutrients']
 
     @property
-    def readonly_nutritional_composition_data(self) -> Dict[str, 'NutrientCompositionData']:
-        return copy.deepcopy(self.nutritional_composition_data) 
-
-    @property
-    def readonly_density_data(self) -> 'DensityData':
-        raise NotImplementedError        
-
-
+    def _bulk_data(self) -> 'BulkData':
+        return self._data['bulk']

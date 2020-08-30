@@ -1,5 +1,5 @@
-import abc
-from typing import TypedDict, Optional, Protocol
+import abc, copy
+from typing import TypedDict, Optional, cast
 
 from pydiet import quantity
 
@@ -9,30 +9,33 @@ class QuantityData(TypedDict):
     pref_qty_units: Optional[str]
 
 
-quantity_data_template = {
-    'qty': None,
+quantity_data_template:'QuantityData' = {
+    'qty_g': None,
     'pref_qty_units': None
 }
 
 
-class SupportsQuantity(quantity.supports_density.SupportsDensity,
-                       Protocol):
+class SupportsQuantity(quantity.supports_bulk.SupportsBulk):
 
     @abc.abstractproperty
-    def readonly_quantity_data(self) -> QuantityData:
+    def _quantity_data(self) -> 'QuantityData':
         raise NotImplementedError
+
+    @property
+    def readonly_quantity_data(self) -> 'QuantityData':
+        return copy.deepcopy(self._quantity_data)
 
     @property
     def quantity_g(self) -> float:
         if not self.quantity_is_defined:
             raise quantity.exceptions.QuantityUndefinedError
-        return self.readonly_quantity_data['qty']
+        return cast(float, self.readonly_quantity_data['qty_g'])
 
     @property
-    def quantity_units(self) -> str:
+    def pref_quantity_units(self) -> str:
         if not self.quantity_is_defined:
             raise quantity.exceptions.QuantityUndefinedError
-        return self.readonly_quantity_data['qty_units']
+        return cast(str, self.readonly_quantity_data['pref_qty_units'])
 
     @property
     def quantity_is_defined(self) -> bool:
@@ -40,3 +43,8 @@ class SupportsQuantity(quantity.supports_density.SupportsDensity,
             if value == None:
                 return False
         return True
+
+class SupportsQuantitySetting(SupportsQuantity):
+    
+    def set_quantity_g(self, qty_g:float, pref_qty_units:str) -> None:
+        raise NotImplementedError

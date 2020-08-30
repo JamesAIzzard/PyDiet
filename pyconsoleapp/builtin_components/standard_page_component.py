@@ -1,5 +1,4 @@
-
-from pyconsoleapp import ConsoleAppComponent
+from pyconsoleapp import ConsoleAppComponent, styles
 
 _template_with_title = '''{header}
 {page_title}
@@ -21,7 +20,7 @@ class StandardPageComponent(ConsoleAppComponent):
             return _template_with_title.format(
                 header=self.app.fetch_component(
                     'header_component').print(),
-                page_title=page_title,
+                page_title=styles.weight(page_title, 'bright'),
                 page_title_underline=len(page_title)*'-',
                 page_content=page_content)
         elif not page_title:

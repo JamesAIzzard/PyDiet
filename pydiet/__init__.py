@@ -1,5 +1,3 @@
-from typing import TYPE_CHECKING
-
 from pyconsoleapp import ConsoleApp
 
 # Expose internal modules

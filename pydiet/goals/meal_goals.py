@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Dict, Optional, List, Tuple
+from typing import TYPE_CHECKING, Dict, Optional, List, Tuple, TypedDict
 
 from pydiet import time, nutrients, flags, tags
 
@@ -15,9 +15,8 @@ data_template = {
 }
 
 
-class MealGoals(flags.i_has_flags.IHasFlags,
-                nutrients.i_has_nutrient_targets.IHasNutrientTargets,
-                tags.i_has_tags.IHasTags):
+class MealGoals(flags.supports_flags.SupportsFlags,
+                nutrients.supports_nutrient_targets.SupportsNutrientTargets):
     def __init__(self, name, parent_day_goals: 'DayGoals'):
         self._name = name
         self._parent_day_goals = parent_day_goals

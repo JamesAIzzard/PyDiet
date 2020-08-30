@@ -1,12 +1,12 @@
 from heapq import nlargest
-from typing import List, TYPE_CHECKING
+from typing import List, Dict, TYPE_CHECKING
 
 from pyconsoleapp import search_tools
 
 from pydiet import nutrients
 
 if TYPE_CHECKING:
-    from pydiet.nutrients.supports_nutritional_composition import NutrientCompositionData
+    from pydiet.nutrients.supports_nutrients import NutrientData
 
 def all_primary_and_alias_nutrient_names() -> List[str]:
     '''Returns a list of every nutrient name and alias registered to the system.
@@ -90,7 +90,7 @@ def get_matching_nutrient_names(search_term: str, num_results: int) -> List[str]
         all_primary_and_alias_nutrient_names(), search_term)
     return nlargest(num_results, results, key=results.get)
 
-def validate_nutritional_composition_data(data:'NutrientCompositionData') -> None:
+def validate_nutritients_data(data:Dict[str, 'NutrientData']) -> None:
     raise NotImplementedError
 
 # def print_nutrient_targets_menu(subject: 'nutrients.i_has_nutrient_targets.IHasNutrientTargets') -> str:

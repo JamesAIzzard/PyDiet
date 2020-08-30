@@ -1,4 +1,3 @@
-from pydiet.ingredients import ingredient
 from typing import TYPE_CHECKING
 
 from pyconsoleapp import ConsoleAppComponent
@@ -10,19 +9,21 @@ if TYPE_CHECKING:
 
 _main_menu_template = '''
 
-Status: {status}
+Status: {status_summary}
 
 Save Changes    | -save, -s
 ---------------------------------------------------
-Ingredient Name:    {name:>10} | -name, -n [name]
-Edit Cost:          {cost:>10} | -cost, -c
-Configure Liquid:   {density_status:>} | -liquid, -l
+Ingredient Name:    {name} | -name, -n [name]
+Edit Cost:          {cost} | -cost, -c
+---------------------------------------------------
+Weight/Density      | -weight, -w
+{bulk_summary}
 ---------------------------------------------------
 Flags:              | -flags, -f
-{flag_summary}
+{flags_summary}
 ---------------------------------------------------
 Nutrients:          | -nutrients, -nut
-{nutrient_summary}
+{nutrients_summary}
 '''
 
 
@@ -34,41 +35,18 @@ class IngredientEditorComponent(ConsoleAppComponent):
         self.configure_printer(self.print_main_menu_view)
 
     def print_main_menu_view(self):
-        # Build the nutrient summary;
-        nutrient_summary = ''  # string for nutrient display
-        # Start with the primary nutrients;
-        primary_nutrients = self.subject.primary_nutrient_amounts
-        for pnn in primary_nutrients.keys():
-            nutrient_summary = nutrient_summary + \
-                '- {}\n'.format(nutrients.nutrients_service.print_nutrient_amount_summary(
-                    primary_nutrients[pnn]))
-        # Now do any defined secondary nutrients;
-        defined_secondary_nutrients = self.subject.defined_secondary_nutrient_amounts
-        for dsnn in defined_secondary_nutrients:
-            nutrient_summary = nutrient_summary + \
-                '- {}\n'.format(nutrients.nutrients_service.print_nutrient_amount_summary(
-                    defined_secondary_nutrients[dsnn]))
-
-        # Build the flag summary;
-        flag_summary = ''
-        for flag_name in self.subject.flags.keys():
-            flag_summary = flag_summary + '- {}\n'.format(flags.flags_service.print_flag_summary(
-                flag_name=flag_name,
-                flag_value=self.subject.get_flag(flag_name)
-            ))
-
-        # Assemble the template
         output = _main_menu_template.format(
-            status=ingredients.ingredient_service.summarise_status(self.subject),
+            status_summary=self.subject.status_summary,
             name=self.subject.name,
-            cost=cost.cost_service.print_cost_summary(self.subject),
-            density_status=quantity.quantity_service.print_density_summary(self.subject),
-            flags=flag_summary,
-            nutrients=nutrient_summary
+            cost=self.subject.cost_summary,
+            bulk_summary=self.subject.bulk_summary,
+            flags_summary=self.subject.flags_summary,
+            nutrients_summary=self.subject.nutrients_summary
         )
-        output = self.app.fetch_component(
-            'standard_page_component').call_print(output)
-        return output
+        return self.app.fetch_component('standard_page_component').print(
+            page_title='Ingredient Editor',
+            page_content=output
+        )
 
     def _check_name_defined(self) -> bool:
         if not self._ies.ingredient.name:

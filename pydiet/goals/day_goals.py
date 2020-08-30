@@ -1,24 +1,35 @@
-from typing import Dict, Optional, List, Tuple, TYPE_CHECKING
+from typing import Dict, Optional, List, Tuple, TypedDict, TYPE_CHECKING
 
 from pydiet import flags, nutrients, goals
 
 
 if TYPE_CHECKING:
-    from pydiet.goals.meal_goals import MealGoals
+    from pydiet.goals.meal_goals import MealGoalsData
 
-DATA_TEMPLATE = {
+
+class DayGoalsData(TypedDict):
+    name: Optional[str]
+    solution_datafile_names: List[str]
+    max_cost_gbp: Optional[float]
+    flags: Dict[str, Optional[bool]]
+    calories: Optional[float]
+    nutrient_mass_g_targets: Dict[str, float]
+    meal_goals: Dict[str, 'MealGoalsData']
+
+
+day_goals_data_template = {
     "name": None,
-    "solution_datafile_names": {},
+    "solution_datafile_names": [],
     "max_cost_gbp": None,
-    "flags": [],
+    "flags": {},
     "calories": None,
     "nutrient_mass_targets": {},
     "meal_goals": {}
 }
 
 
-class DayGoals(flags.i_has_flags.IHasFlags,
-               nutrients.i_has_nutrient_targets.IHasNutrientTargets):
+class DayGoals(flags.supports_flags.SupportsFlags,
+               nutrients.supports_nutrient_targets.SupportsNutrientTargets):
     def __init__(self, data: Dict):
         self._data = data
         # Populate the list of meal goal objects;

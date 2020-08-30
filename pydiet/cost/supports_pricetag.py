@@ -1,10 +1,10 @@
-from pydiet import quantity
+from pydiet.quantity.supports_quantity import SupportsQuantity
+from pydiet import cost, quantity
 
-from pydiet import cost
 
+class SupportsPricetag(cost.supports_cost.SupportsCost,
+                       quantity.supports_quantity.SupportsQuantity):
 
-class SupportsExactCost(cost.supports_general_cost.SupportsGeneralCost,
-                        quantity.supports_quantity.SupportsQuantity):
     @property
-    def cost(self) -> float:
+    def pricetag(self) -> float:
         return self.cost_per_g*self.quantity_g

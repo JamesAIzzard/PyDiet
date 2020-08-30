@@ -1,4 +1,4 @@
-from pydiet.quantity import quantity_service
+import copy
 from typing import TYPE_CHECKING, List, Optional
 from heapq import nlargest
 
@@ -12,21 +12,9 @@ if TYPE_CHECKING:
 
 
 def load_new_ingredient() -> 'Ingredient':
-    # Initialise the data template;
-    data_template = ingredients.ingredient.data_template
-    # Add the costs;
-    data_template['cost_per_mass'] = cost.i_has_cost.data_template
-    # Add the flags;
-    for flag in flags.configs.all_flag_names:
-        data_template['flags'][flag] = None
-    # Add the nutrients;
-    for nutrient_name in nutrients.configs.all_nutrient_names:
-        data_template['nutrients'][nutrient_name] = nutrients.nutrient_amount.data_template
-    # Add the density;
-    data_template['vol_density'] = quantity.i_has_density.data_template
-
     # Init and return the ingredient;
-    return ingredients.ingredient.Ingredient(data_template)
+    return ingredients.ingredient.Ingredient(
+        ingredients.ingredient.get_empty_ingredient_data())
 
 
 def load_ingredient(datafile_name: str) -> 'Ingredient':

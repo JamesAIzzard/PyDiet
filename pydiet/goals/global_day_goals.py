@@ -13,7 +13,7 @@ _DATA_TEMPLATE = {
 }
 
 @singleton
-class GlobalDayGoals(flags.i_has_flags.IHasFlags):
+class GlobalDayGoals():
     def __init__(self):
         self._data = repository.repository_service.read_global_day_goals_data()
 
@@ -73,12 +73,12 @@ class GlobalDayGoals(flags.i_has_flags.IHasFlags):
     def flags(self) -> List[str]:
         return self._data['flags']
 
-    def add_flag(self, flag_name:str)->None:
-        # Check the flag name is a valid flag;
-        if not flag_name in flags.configs.FLAGS:
-            raise ValueError
-        if not flag_name in self._data['flags']:
-            self._data['flags'].append(flag_name)
+    # def add_flag(self, flag_name:str)->None:
+    #     # Check the flag name is a valid flag;
+    #     if not flag_name in flags.configs.FLAGS:
+    #         raise ValueError
+    #     if not flag_name in self._data['flags']:
+    #         self._data['flags'].append(flag_name)
 
     def remove_flag(self, flag_name:str)->None:
         if flag_name in self._data['flags']:
