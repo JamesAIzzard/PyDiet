@@ -2,19 +2,20 @@ from typing import Dict
 
 from pyconsoleapp import ConsoleAppComponent, menu_tools
 
-_MAIN_TEMPLATE = '''
-Flag Editor:
-------------
+_main_menu_template = '''
+----------------|-------------------
+Save Changes    | -save
+----------------|-------------------
+Mark Flag Yes   | -yes [flag number]
+Mark Flag No    | -no  [flag number]
+Unset Flag      | -del [flag number]
+----------------|-------------------
 
-Current Flags:
+Set Flags:
 {current_flags}
 
-Available Flags:
+Unset Flags:
 {available_flags}
-
--add, -a [flag number]    -> Add a flag.
--remove, -r [flag number] -> Remove a flag.
-
 '''
 
 

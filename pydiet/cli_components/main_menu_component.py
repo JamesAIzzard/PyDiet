@@ -1,11 +1,13 @@
 from pyconsoleapp import ConsoleAppComponent
 
 _menu_template = '''
-Manage Ingredients      | -ingredients, -i
-Manage Recipes          | -recipes, -r
-Manage Goals            | -goals, -g
-Generate Meal Plans     | -solve, -s
-View Meal Plans         | -view, -v
+------------------------|-------------------
+Manage Ingredients      | -ingr
+Manage Recipes          | -recp
+Manage Goals            | -goal
+Generate Meal Plans     | -solv
+View Meal Plans         | -view
+------------------------|-------------------
 '''
 
 
@@ -15,15 +17,15 @@ class MainMenuComponent(ConsoleAppComponent):
         super().__init__(app)
         self.configure_printer(self.print_menu_view)
         self.configure_responder(self.on_manage_ingredients, args=[
-            self.configure_valueless_primary_arg('ingredients', ['-ingredients', '-i'])])
+            self.configure_valueless_primary_arg('ingredients', ['-ingr'])])
         self.configure_responder(self.on_manage_recipes, args=[
-            self.configure_valueless_primary_arg('recipes', ['-recipes', '-r'])])         
+            self.configure_valueless_primary_arg('recipes', ['-recp'])])         
         self.configure_responder(self.on_manage_goals, args=[
-            self.configure_valueless_primary_arg('goals', ['-goals', '-g'])])                  
+            self.configure_valueless_primary_arg('goals', ['-goal'])])                  
         self.configure_responder(self.on_run_optimiser, args=[
-            self.configure_valueless_primary_arg('optimiser', ['-optimiser', '-o'])]) 
+            self.configure_valueless_primary_arg('solve', ['-solv'])]) 
         self.configure_responder(self.on_view_meal_plans, args=[
-            self.configure_valueless_primary_arg('view', ['-view', '-v'])])             
+            self.configure_valueless_primary_arg('view', ['-view'])])             
 
     def print_menu_view(self):
         output = _menu_template

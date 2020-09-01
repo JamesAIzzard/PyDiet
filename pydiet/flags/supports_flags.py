@@ -2,6 +2,14 @@ import abc
 import copy
 from typing import Dict, List, Optional
 
+from pydiet import flags
+
+def get_empty_flags_data() -> Dict[str, Optional[bool]]:
+    empty_flags_data = {}
+    for flag_name in flags.configs.all_flag_names:
+        empty_flags_data[flag_name] = None
+    return empty_flags_data
+
 class SupportsFlags(abc.ABC):
 
     @abc.abstractproperty
@@ -44,6 +52,13 @@ class SupportsFlags(abc.ABC):
             return True
         else:
             return False
+
+    @property
+    def any_flag_undefined(self) -> bool:
+        for value in self.readonly_flags_data.values():
+            if value == None:
+                return True
+        return False
 
     def flag_is_defined(self, flag_name:str) -> bool:
         if self.get_flag_value(flag_name) == None:

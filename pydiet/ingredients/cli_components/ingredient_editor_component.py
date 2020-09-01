@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING, cast
 
 from pyconsoleapp import ConsoleAppComponent
 
@@ -8,21 +8,28 @@ if TYPE_CHECKING:
     from pydiet.ingredients.ingredient import Ingredient
 
 _main_menu_template = '''
+----------------|-------------
+Save Changes    | -save
+----------------|-------------
+Edit Name       | -name [name]
+Edit Cost       | -cost
+Edit Flags      | -flag
+Edit Bulk       | -bulk
+Edit Nutrients  | -nuts
+----------------|-------------
 
-Status: {status_summary}
+Ingredient Status: {status_summary}
 
-Save Changes    | -save, -s
----------------------------------------------------
-Ingredient Name:    {name} | -name, -n [name]
-Edit Cost:          {cost} | -cost, -c
----------------------------------------------------
-Weight/Density      | -weight, -w
+Name: {name}
+Cost: {cost}
+
+Bulk (Weight & Density):
 {bulk_summary}
----------------------------------------------------
-Flags:              | -flags, -f
+
+Flags:
 {flags_summary}
----------------------------------------------------
-Nutrients:          | -nutrients, -nut
+
+Nutrients:
 {nutrients_summary}
 '''
 
@@ -31,8 +38,17 @@ class IngredientEditorComponent(ConsoleAppComponent):
     def __init__(self, app):
         super().__init__(app)
         self.subject: 'Ingredient'
+        self.subject_datafile_name: Optional[str] = None
 
         self.configure_printer(self.print_main_menu_view)
+
+        self.configure_responder(self.on_save, args=[
+            self.configure_valueless_primary_arg('save', markers=['-save'])
+        ])
+
+        self.configure_responder(self.on_edit_name, args=[
+            self.configure_std_primary_arg('name', markers=['-name'])
+        ])
 
     def print_main_menu_view(self):
         output = _main_menu_template.format(
@@ -48,41 +64,44 @@ class IngredientEditorComponent(ConsoleAppComponent):
             page_content=output
         )
 
-    def _check_name_defined(self) -> bool:
-        if not self._ies.ingredient.name:
+    def _check_if_name_defined(self) -> bool:
+        if not self.subject.name:
             self.app.error_message = 'Ingredient name must be set first.'
             return False
         else:
             return True
 
     def on_save(self) -> None:
-        # If the ingredient is named;
-        if self._check_name_defined():
-            # Save it;
-            self._ies.save_changes(redirect_to='home.ingredients.edit')
-        # If it is unamed;
+        if not self._check_if_name_defined():
+            return
+        if self.subject_datafile_name == None:
+            self.subject_datafile_name = ingredients.ingredient_service.save_new_ingredient(self.subject)
         else:
-            # Tell the user it needs to be named;
-            self.app.error_message = 'Cannot save an un-named ingredient.'
+            ingredients.ingredient_service.update_existing_ingredient(self.subject, self.subject_datafile_name)
 
-    def on_edit_name(self):
-        self.app.goto('home.ingredients.edit.name')
+    def on_edit_name(self, args):
+        if ingredients.ingredient_service.check_if_name_taken(args['name'],
+                                                              self.subject_datafile_name):
+            self.app.error_message = 'There is already an ingredient called {}.'.format(
+                args['name'])
+            return
+        self.subject.name = args['name']
 
-    def on_edit_cost(self):
-        if self._check_name_defined():
-            self.app.goto('home.ingredients.edit.cost_qty')
+    # def on_edit_cost(self):
+    #     if self._check_name_defined():
+    #         self.app.goto('home.ingredients.edit.cost_qty')
 
-    def on_configure_liquid_measurements(self):
-        if self._check_name_defined():
-            self.app.goto('home.ingredients.edit.density_volume')
+    # def on_configure_liquid_measurements(self):
+    #     if self._check_name_defined():
+    #         self.app.goto('home.ingredients.edit.density_volume')
 
-    def on_edit_flags(self):
-        if self._check_name_defined():
-            if self._ies.ingredient.all_flags_undefined:
-                self.app.goto('home.ingredients.edit.flags.ask_cycle_flags')
-            else:
-                self.app.goto('home.ingredients.edit.flags')
+    # def on_edit_flags(self):
+    #     if self._check_name_defined():
+    #         if self._ies.ingredient.all_flags_undefined:
+    #             self.app.goto('home.ingredients.edit.flags.ask_cycle_flags')
+    #         else:
+    #             self.app.goto('home.ingredients.edit.flags')
 
-    def on_edit_nutrients(self) -> None:
-        if self._check_name_defined():
-            self.app.goto('home.ingredients.edit.nutrients')
+    # def on_edit_nutrients(self) -> None:
+    #     if self._check_name_defined():
+    #         self.app.goto('home.ingredients.edit.nutrients')

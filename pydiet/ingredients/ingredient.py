@@ -17,7 +17,7 @@ class IngredientData(TypedDict):
 
 def get_empty_ingredient_data() -> 'IngredientData':
     return IngredientData(cost=cost.supports_cost.get_empty_cost_data(),
-                          flags={},
+                          flags=flags.supports_flags.get_empty_flags_data(),
                           name=None,
                           nutrients=nutrients.supports_nutrients.get_empty_nutrients_data(),
                           bulk=quantity.supports_bulk.get_empty_bulk_data())
@@ -29,7 +29,7 @@ class Ingredient(defining.supports_definition.SupportsDefinition,
                  nutrients.supports_nutrients.SupportsNutrients,
                  quantity.supports_bulk.SupportsBulk):
 
-    def __init__(self, data: IngredientData):
+    def __init__(self, data: 'IngredientData'):
         self._data = data
 
     @property
@@ -40,6 +40,7 @@ class Ingredient(defining.supports_definition.SupportsDefinition,
     def name(self, value: str) -> None:
         self._data['name'] = value
 
+
     @property
     def missing_mandatory_attrs(self) -> List[str]:
         attr_names = []
@@ -47,6 +48,9 @@ class Ingredient(defining.supports_definition.SupportsDefinition,
         if self.name == None:
             attr_names.append('name')
         # Check flags;
+        if self.any_flag_undefined:
+            for flag_name in self.undefined_flags:
+                attr_names.append('{} flag'.format(flag_name.replace('_', ' ')))
         # Check nutrients;
         # Check density;
         return attr_names

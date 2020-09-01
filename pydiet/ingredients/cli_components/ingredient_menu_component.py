@@ -11,11 +11,12 @@ if TYPE_CHECKING:
 
 _menu_template = '''
 Ingredient Count: {ingredient_count}
-------------------------------------------
-Create a New Ingredient     | -new, -n
-Edit an Ingredient          | -edit, -e
-Delete an Ingredient        | -delete, -d
-View Ingredients            | -view, -v
+----------------------------|-------------
+Create a New Ingredient     | -new
+Edit an Ingredient          | -edit
+Delete an Ingredient        | -del
+View Ingredients            | -view
+----------------------------|-------------
 '''
 
 
