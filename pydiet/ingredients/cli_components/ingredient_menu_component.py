@@ -2,12 +2,10 @@ from typing import TYPE_CHECKING, cast
 
 from pyconsoleapp import ConsoleAppComponent
 
-from pydiet.repository import repository_service
 from pydiet.ingredients import ingredient_service
 
 if TYPE_CHECKING:
     from pydiet.ingredients.cli_components.ingredient_editor_component import IngredientEditorComponent
-    from pydiet.ingredients.cli_components.ingredient_search_component import IngredientSearchComponent
 
 _menu_template = '''
 Ingredient Count: {ingredient_count}
@@ -27,16 +25,16 @@ class IngredientMenuComponent(ConsoleAppComponent):
         self.configure_printer(self.print_menu_view)
         self.configure_responder(self.on_create, args=[
                                  self.configure_valueless_primary_arg('new', ['-new', '-n'])])
-        self.configure_responder(self.on_edit, args=[
-                                 self.configure_valueless_primary_arg('edit', ['-edit', '-e'])])
-        self.configure_responder(self.on_delete, args=[
-                                 self.configure_valueless_primary_arg('delete', ['-delete', '-d'])])
-        self.configure_responder(self.on_view, args=[
-                                 self.configure_valueless_primary_arg('view', ['-view', '-v'])])                                                                                                   
+        # self.configure_responder(self.on_edit, args=[
+        #                          self.configure_valueless_primary_arg('edit', ['-edit', '-e'])])
+        # self.configure_responder(self.on_delete, args=[
+        #                          self.configure_valueless_primary_arg('delete', ['-delete', '-d'])])
+        # self.configure_responder(self.on_view, args=[
+        #                          self.configure_valueless_primary_arg('view', ['-view', '-v'])])                                                                                                   
 
     def print_menu_view(self):
         # Calculate the ingredient count;
-        ingredient_count = len(repository_service.read_ingredient_index())
+        ingredient_count = ingredient_service.get_ingredient_count()
         # Build the template
         output = _menu_template.format(
             ingredient_count=ingredient_count
@@ -62,23 +60,23 @@ class IngredientMenuComponent(ConsoleAppComponent):
         # Go;
         self.app.goto('home.ingredients.edit')
 
-    def on_edit(self):
-        # Configure the ingredient search component to locate
-        # the ingredient to edit and load it into the editor;
-        isc = self.app.fetch_component('ingredient_search_component')
-        isc = cast('IngredientSearchComponent', isc)
-        def on_ingredient_found():
-            # Load the ingredient into the editor and open it;
-            i = ingredient_service.load_ingredient(isc.datafile_name)
-            iec = self.app.fetch_component('ingredient_editor_component')
-            iec = cast('IngredientEditorComponent', iec)
-            iec.subject = i
-        isc.on_ingredient_found = on_ingredient_found 
+    # def on_edit(self):
+    #     # Configure the ingredient search component to locate
+    #     # the ingredient to edit and load it into the editor;
+    #     isc = self.app.fetch_component('ingredient_search_component')
+    #     isc = cast('IngredientSearchComponent', isc)
+    #     def on_ingredient_found():
+    #         # Load the ingredient into the editor and open it;
+    #         i = ingredient_service.load_ingredient(isc.datafile_name)
+    #         iec = self.app.fetch_component('ingredient_editor_component')
+    #         iec = cast('IngredientEditorComponent', iec)
+    #         iec.subject = i
+    #     isc.on_ingredient_found = on_ingredient_found 
 
-        self.app.goto('home.ingredients.search')
+    #     self.app.goto('home.ingredients.search')
 
-    def on_delete(self):
-        self.app.goto('home.ingredients.delete.search')
+    # def on_delete(self):
+    #     self.app.goto('home.ingredients.delete.search')
 
-    def on_view(self):
-        self.app.goto('home.ingredients.ask_search')
+    # def on_view(self):
+    #     self.app.goto('home.ingredients.ask_search')

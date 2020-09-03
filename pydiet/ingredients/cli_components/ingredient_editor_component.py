@@ -2,7 +2,7 @@ from typing import Optional, TYPE_CHECKING, cast
 
 from pyconsoleapp import ConsoleAppComponent
 
-from pydiet import ingredients, nutrients, flags, quantity, cost
+from pydiet import ingredients, nutrients, flags, quantity, cost, persistence
 
 if TYPE_CHECKING:
     from pydiet.ingredients.ingredient import Ingredient
@@ -74,10 +74,7 @@ class IngredientEditorComponent(ConsoleAppComponent):
     def on_save(self) -> None:
         if not self._check_if_name_defined():
             return
-        if self.subject_datafile_name == None:
-            self.subject_datafile_name = ingredients.ingredient_service.save_new_ingredient(self.subject)
-        else:
-            ingredients.ingredient_service.update_existing_ingredient(self.subject, self.subject_datafile_name)
+        persistence.persistence_service.save(self.subject)
 
     def on_edit_name(self, args):
         if ingredients.ingredient_service.check_if_name_taken(args['name'],

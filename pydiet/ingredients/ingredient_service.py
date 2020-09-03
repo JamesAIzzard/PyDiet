@@ -4,7 +4,7 @@ from heapq import nlargest
 
 from pyconsoleapp import ResponseValidationError
 
-from pydiet import ingredients, repository, flags, nutrients, cost, quantity
+from pydiet import ingredients, persistence, flags, nutrients, cost, quantity
 
 
 if TYPE_CHECKING:
@@ -19,15 +19,6 @@ def load_new_ingredient() -> 'Ingredient':
     '''
     return ingredients.ingredient.Ingredient(
         ingredients.ingredient.get_empty_ingredient_data())
-
-def save_new_ingredient(ingredient: 'Ingredient') -> str:
-    return repository.repository_service.create_ingredient_data(ingredient._data)
-
-
-def update_existing_ingredient(ingredient: 'Ingredient', datafile_name: str) -> None:
-    # Update the ingredient;
-    repository.repository_service.update_ingredient_data(
-        ingredient._data, datafile_name)
 
 def check_if_name_taken(name: str, ignore_datafile: Optional[str] = None) -> bool:
     '''Returns True/False to indicate if an ingredient name has
