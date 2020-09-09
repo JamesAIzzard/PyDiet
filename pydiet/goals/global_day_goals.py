@@ -3,7 +3,7 @@ from typing import Optional, List
 from singleton_decorator import singleton
 
 import pydiet
-from pydiet import flags, repository, ingredients, goals
+from pydiet import flags, persistence, ingredients, goals
 
 _DATA_TEMPLATE = {
   "calories": None,

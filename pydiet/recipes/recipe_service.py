@@ -3,7 +3,7 @@ from heapq import nlargest
 
 from pyconsoleapp import search_tools
 
-from pydiet import repository, recipes, ingredients
+from pydiet import persistence, recipes, ingredients
 
 if TYPE_CHECKING:
     from pydiet.recipes.recipe import Recipe

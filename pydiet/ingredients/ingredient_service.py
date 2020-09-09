@@ -20,29 +20,6 @@ def load_new_ingredient() -> 'Ingredient':
     return ingredients.ingredient.Ingredient(
         ingredients.ingredient.get_empty_ingredient_data())
 
-def check_if_name_taken(name: str, ignore_datafile: Optional[str] = None) -> bool:
-    '''Returns True/False to indicate if an ingredient name has
-    already been used.
-
-    Args:
-        name (str): Ingredient name to check on.
-        ignore_datafile (Optional[str], optional): Datafile name to ignore. This
-            is to enable a previously saved ingredient to have its previous name
-            ignored. Defaults to None.
-
-    Returns:
-        bool: True/False to indicate if name has already been taken.
-    '''
-    # Load the index data;
-    index = repository.repository_service.read_ingredient_index()
-    # If we are ignoring a datafile, drop it;
-    if ignore_datafile:
-        index.pop(ignore_datafile)
-    # Return the status;
-    if name in index.values():
-        return True
-    else:
-        return False
 
 # def load_ingredient(datafile_name: str) -> 'Ingredient':
 #     i_data = repository.repository_service.read_ingredient_data(datafile_name)

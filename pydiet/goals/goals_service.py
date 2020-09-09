@@ -1,6 +1,6 @@
 from typing import List, TYPE_CHECKING
 
-from pydiet import repository, goals
+from pydiet import persistence, goals
 
 if TYPE_CHECKING:
     from pydiet.goals.day_goals import DayGoals

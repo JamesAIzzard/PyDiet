@@ -77,11 +77,12 @@ class IngredientEditorComponent(ConsoleAppComponent):
         persistence.persistence_service.save(self.subject)
 
     def on_edit_name(self, args):
-        if ingredients.ingredient_service.check_if_name_taken(args['name'],
-                                                              self.subject_datafile_name):
+        if persistence.persistence_service.check_unique_val_avail(
+                ingredients.ingredient.Ingredient,
+                self.subject.datafile_name,
+                args['name']):
             self.app.error_message = 'There is already an ingredient called {}.'.format(
                 args['name'])
-            return
         self.subject.name = args['name']
 
     # def on_edit_cost(self):

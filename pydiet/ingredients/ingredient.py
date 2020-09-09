@@ -8,6 +8,7 @@ if TYPE_CHECKING:
     from pydiet.quantity.supports_bulk import BulkData
     from pydiet.nutrients.supports_nutrients import NutrientData
     from pydiet.persistence.supports_persistence import PersistenceInfo
+    from pydiet.persistence.supports_persistence import DBInfo
 
 
 class IngredientData(TypedDict):
@@ -76,13 +77,18 @@ class Ingredient(persistence.supports_persistence.SupportsPersistence,
     def _bulk_data(self) -> 'BulkData':
         return self._data['bulk']
 
-    @property
-    def readonly_persistence_data(self) -> 'PersistenceInfo':
-        return persistence.supports_persistence.PersistenceInfo(
-            data=copy.deepcopy(self._data),
-            datafile_name=self._datafile_name,
+    @staticmethod
+    def get_db_info() -> 'DBInfo':
+        return persistence.supports_persistence.DBInfo(
             unique_field_name='name',
             path_into_db=persistence.configs.ingredient_db_path
+        )
+
+    @property
+    def readonly_persistence_info(self) -> 'PersistenceInfo':
+        return persistence.supports_persistence.PersistenceInfo(
+            data=copy.deepcopy(self._data),
+            datafile_name=self._datafile_name
         )
 
     def set_datafile_name(self, datafile_name:str) -> None:

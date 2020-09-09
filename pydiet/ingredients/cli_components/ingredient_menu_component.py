@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING, cast
 
 from pyconsoleapp import ConsoleAppComponent
 
-from pydiet.ingredients import ingredient_service
+from pydiet import ingredients, persistence
 
 if TYPE_CHECKING:
     from pydiet.ingredients.cli_components.ingredient_editor_component import IngredientEditorComponent
@@ -34,7 +34,9 @@ class IngredientMenuComponent(ConsoleAppComponent):
 
     def print_menu_view(self):
         # Calculate the ingredient count;
-        ingredient_count = ingredient_service.get_ingredient_count()
+        ingredient_count = persistence.persistence_service.count_saved_instances(
+            ingredients.ingredient.Ingredient
+        )
         # Build the template
         output = _menu_template.format(
             ingredient_count=ingredient_count
@@ -49,7 +51,7 @@ class IngredientMenuComponent(ConsoleAppComponent):
 
     def on_create(self):
         # Place a new ingredient in the editor component;
-        i = ingredient_service.load_new_ingredient()
+        i = ingredients.ingredient_service.load_new_ingredient()
         iec = self.app.fetch_component('ingredient_editor_component')
         iec = cast('IngredientEditorComponent', iec)
         iec.subject = i
