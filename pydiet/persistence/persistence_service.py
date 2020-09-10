@@ -49,8 +49,8 @@ def count_saved_instances(cls: Type['SupportsPersistence']) -> int:
 def check_unique_val_avail(cls: Type['SupportsPersistence'],
                            ingore_df: Optional[str],
                            proposed_unique_val) -> bool:
-    '''Checks if a proposed unique value clashes with another
-    in the database, for the persistable class type.
+    '''Checks if the proposed unique value is available
+    for the persistable class type.
 
     Args:
         cls (Type['SupportsPersistence']): A class which supports the
@@ -68,7 +68,7 @@ def check_unique_val_avail(cls: Type['SupportsPersistence'],
     if not ingore_df == None:
         index_data.pop(ingore_df)
     # Return answer
-    return proposed_unique_val in index_data.values()
+    return not proposed_unique_val in index_data.values()
 
 
 def read_datafile(filepath: str, data_type: Type['DataType']) -> 'DataType':
@@ -192,7 +192,7 @@ def _update_index_entry(subject: 'SupportsPersistence') -> None:
     if subject.unique_field_value in index_data.values():
         raise persistence.exceptions.UniqueValueDuplicatedError
     # Update the index;
-    index_data[subject.datafile_name] = cast(str, subject.unique_field_value)
+    index_data[cast(str, subject.datafile_name)] = cast(str, subject.unique_field_value)
     with open(subject.__class__.get_index_filepath(), 'w') as fh:
         json.dump(index_data, fh, indent=2, sort_keys=True)
 
@@ -207,6 +207,6 @@ def _delete_index_entry(subject: 'SupportsPersistence') -> None:
     # Read the index;
     index_data = _read_index(subject.__class__)
     # Remove the key/value from the index;
-    del index_data[subject.datafile_name]
+    del index_data[cast(str, subject.datafile_name)]
     with open(subject.__class__.get_index_filepath(), 'w') as fh:
         json.dump(index_data, fh, indent=2, sort_keys=True)

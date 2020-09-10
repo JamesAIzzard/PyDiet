@@ -74,10 +74,15 @@ class IngredientEditorComponent(ConsoleAppComponent):
     def on_save(self) -> None:
         if not self._check_if_name_defined():
             return
-        persistence.persistence_service.save(self.subject)
+        try:
+            persistence.persistence_service.save(self.subject)
+        except (persistence.exceptions.UniqueValueDuplicatedError):
+            self.app.error_message = 'There is already an ingredient called {}.'.format(
+                self.subject.name
+            )
 
     def on_edit_name(self, args):
-        if persistence.persistence_service.check_unique_val_avail(
+        if not persistence.persistence_service.check_unique_val_avail(
                 ingredients.ingredient.Ingredient,
                 self.subject.datafile_name,
                 args['name']):
