@@ -13,7 +13,7 @@ def get_recognised_vol_units() -> List[str]:
 
 def get_recognised_qty_units() -> List[str]:
     return get_recognised_mass_units() + \
-        get_recognised_vol_units()
+        get_recognised_vol_units() + ['piece']
 
 
 def validate_quantity(value:Any)->float:

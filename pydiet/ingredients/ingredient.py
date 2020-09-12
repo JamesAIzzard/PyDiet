@@ -29,6 +29,7 @@ def get_empty_ingredient_data() -> 'IngredientData':
 
 class Ingredient(persistence.supports_persistence.SupportsPersistence,
                  defining.supports_definition.SupportsDefinition,
+                 defining.supports_name.SupportsNameSetting,
                  cost.supports_cost.SupportsCostSetting,
                  flags.supports_flags.SupportsFlagSetting,
                  nutrients.supports_nutrients.SupportsNutrients,
@@ -39,18 +40,17 @@ class Ingredient(persistence.supports_persistence.SupportsPersistence,
         self._datafile_name = datafile_name
 
     @property
-    def name(self) -> Optional[str]:
+    def _name(self) -> Optional[str]:
         return self._data['name']
 
-    @name.setter
-    def name(self, value: str) -> None:
-        self._data['name'] = value
+    def set_name(self, name: str) -> None:
+        self._data['name'] = name
 
     @property
     def missing_mandatory_attrs(self) -> List[str]:
         attr_names = []
         # Check name;
-        if self.name == None:
+        if not self.name_is_defined:
             attr_names.append('name')
         # Check flags;
         if self.any_flag_undefined:

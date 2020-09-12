@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING, cast
 
-from pyconsoleapp import ConsoleAppComponent
+from pyconsoleapp import ConsoleAppComponent, styles
 
 from pydiet import ingredients, persistence
 
@@ -39,7 +39,7 @@ class IngredientMenuComponent(ConsoleAppComponent):
         )
         # Build the template
         output = _menu_template.format(
-            ingredient_count=ingredient_count
+            ingredient_count=styles.fore(ingredient_count, 'blue')
         )
         # Frame and return the template;
         output = self.app.fetch_component(

@@ -7,7 +7,7 @@ class UnknownUnitError(pydiet.exceptions.PyDietException):
 class DensityDataUndefinedError(pydiet.exceptions.PyDietException):
     pass
 
-class UnitMassUndefinedError(pydiet.exceptions.PyDietException):
+class PcMassDataUndefinedError(pydiet.exceptions.PyDietException):
     pass
 
 class QuantityUndefinedError(pydiet.exceptions.PyDietException):

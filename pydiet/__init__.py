@@ -9,6 +9,7 @@ app: 'ConsoleApp' = ConsoleApp('PyDiet')
 # Configure the app framework;
 app.register_component_packages([
     'pydiet.cli_components',
+    'pydiet.cost.cli_components',
     'pydiet.flags.cli_components',
     'pydiet.goals.cli_components',
     'pydiet.ingredients.cli_components',
@@ -21,6 +22,7 @@ app.root_route('home', 'MainMenuComponent')
 app.add_route('home.ingredients', 'IngredientMenuComponent')
 app.add_route('home.ingredients.search', 'IngredientSearchComponent')
 app.add_route('home.ingredients.edit', 'IngredientEditorComponent')
+app.add_route('home.ingredients.edit.cost', 'CostEditorComponent')
 # app.add_route('home.ingredients.search_results',
 #               'IngredientSearchResultsComponent')
 # app.add_route('home.ingredients.ask_search',
