@@ -1,4 +1,4 @@
-from typing import List, Any, cast
+from typing import List, Any, Optional
 
 from pydiet import quantity
 
@@ -13,28 +13,26 @@ def get_recognised_vol_units() -> List[str]:
 
 def get_recognised_qty_units() -> List[str]:
     return get_recognised_mass_units() + \
-        get_recognised_vol_units() + ['piece']
+        get_recognised_vol_units()
 
 
-def validate_quantity(value:Any)->float:
+def unit_is_mass(unit: str) -> bool:
+    return unit in get_recognised_mass_units()
+
+
+def unit_is_volume(unit: str) -> bool:
+    return unit in get_recognised_vol_units()
+
+
+def validate_quantity(value: Any) -> float:
     value = float(value)
-    if value<=0:
-        raise ValueError('Invalid density')
+    if value <= 0:
+        raise quantity.exceptions.InvalidQtyError
     else:
         return value
 
+
 def validate_qty_unit(unit: str) -> str:
-    '''Parses the string into a known unit (either volumetric or mass).
-
-    Args:
-        unit (str): String to parse into a unit.
-
-    Raises:
-        UnknownUnitError: If the string is not recognised as a unit.
-
-    Returns:
-        str: The parsed version of the unit.
-    '''
     for u in get_recognised_qty_units():
         if unit.lower() == u.lower():
             return u
@@ -55,44 +53,57 @@ def validate_vol_unit(unit: str) -> str:
     raise quantity.exceptions.UnknownUnitError
 
 
-def convert_mass_units(mass: float, start_units: str, end_units: str) -> float:
-    # Lowercase all units;
-    start_units = start_units.lower()
-    end_units = end_units.lower()
-    # Convert value to grams first
-    mass_in_g = quantity.configs.G_CONVERSIONS[start_units]*mass
-    return mass_in_g/quantity.configs.G_CONVERSIONS[end_units]
+def convert_qty_unit(qty: float,
+                     start_unit=str,
+                     end_unit=str,
+                     density_g_per_ml: Optional[float] = None) -> float:
+
+    # Validate all units to correct any case issues;
+    start_unit = validate_qty_unit(start_unit)
+    end_unit = validate_qty_unit(end_unit)
+
+    # If we don't need density;
+    if unit_is_mass(start_unit) and unit_is_mass(end_unit) or \
+            unit_is_volume(start_unit) and unit_is_volume(end_unit):
+        # Nuke it;
+        density_g_per_ml = 1
+
+    # u_out = k(rho*unit_in) => k = (rho*u_in)/u_out
+    g_convs = quantity.configs.G_CONVERSIONS
+    ml_convs = quantity.configs.ML_CONVERSIONS
+    if unit_is_mass(start_unit):
+        u_in = g_convs[start_unit]
+    else:  # Start unit is vol.
+        u_in = ml_convs[start_unit]
+    if unit_is_mass(end_unit):
+        u_out = g_convs[end_unit]
+        density_g_per_ml = 1/density_g_per_ml # Flip density when going vol->mass
+    else:  # End unit is vol.
+        u_out = ml_convs[end_unit]
+    k = (density_g_per_ml*u_in)/u_out
+
+    return qty*k
 
 
-def convert_volume_units(volume: float, start_units: str, end_units: str) -> float:
-    # Parse the units to correct any case differences;
-    start_units = validate_qty_unit(start_units)
-    end_units = validate_qty_unit(end_units)
-    vol_in_ml = quantity.configs.ML_CONVERSIONS[start_units]*volume
-    return vol_in_ml/quantity.configs.ML_CONVERSIONS[end_units]
+def convert_density_unit(qty: float,
+                         start_mass_unit: str,
+                         start_vol_unit: str,
+                         end_mass_unit: str,
+                         end_vol_unit: str) -> float:
 
+    # Validate all units to correct any case issues;
+    start_mass_unit = validate_mass_unit(start_mass_unit)
+    start_vol_unit = validate_vol_unit(start_vol_unit)
+    end_mass_unit = validate_mass_unit(end_mass_unit)
+    end_vol_unit = validate_vol_unit(end_vol_unit)
 
-def convert_volume_to_mass(
-        volume: float,
-        vol_units: str,
-        mass_units: str,
-        density_g_per_ml: float) -> float:
-    # First convert the volume to ml;
-    vol_ml = convert_volume_units(volume, vol_units, 'ml')
-    # Calculate mass in g;
-    mass_g = density_g_per_ml*vol_ml
-    # Convert the mass to putput units;
-    mass_output = convert_mass_units(mass_g, 'g', mass_units)
-    # Return result;
-    return mass_output
+    # m_in/v_in = k(m_out/v_out) => k = (m_in*v_out)/(v_in*m_out)
+    g_convs = quantity.configs.G_CONVERSIONS
+    ml_convs = quantity.configs.ML_CONVERSIONS
+    m_in = g_convs[start_mass_unit]
+    m_out = g_convs[end_mass_unit]
+    v_in = ml_convs[start_vol_unit]
+    v_out = ml_convs[end_vol_unit]
+    k = (m_in*v_out)/(m_out*v_in)
 
-def print_density_summary(subject:'quantity.i_has_density.IHasDensity')->str:
-    if subject.density_is_defined:
-        template = '{g_mass}g/{pref_vol_unit}'
-        pref_vol_units = cast(str, subject.pref_vol_units)
-        g_mass = subject.g_per_ml*quantity.configs.ML_CONVERSIONS[pref_vol_units]
-        return template.format(
-            g_mass=g_mass,
-            pref_vol_unit=pref_vol_units)
-    else:
-        return 'Undefined'
+    return qty*k

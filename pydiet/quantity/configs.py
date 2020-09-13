@@ -3,6 +3,7 @@ G_CONVERSIONS = {
     "mg": 1e-3,  # 1 milligram = 0.001 grams
     "g": 1,  # 1 gram = 1 gram! :)
     "kg": 1e3,  # 1 kilogram = 1000 grams
+    "lb": 453.6 # 1lb = 453.6 grams
 }
 
 ML_CONVERSIONS = {

@@ -1,14 +1,21 @@
-from pydiet.exceptions import PyDietException
-import pydiet
+from pydiet import PyDietException
 
-class UnknownUnitError(pydiet.exceptions.PyDietException):
+class UnknownUnitError(PyDietException):
+    '''A unit has been used which is not recognised by the system.'''
     pass
 
-class DensityDataUndefinedError(pydiet.exceptions.PyDietException):
+class UnitNotConfiguredError(PyDietException):
+    '''The data required for this unit is not fully defined.'''
     pass
 
-class PcMassDataUndefinedError(pydiet.exceptions.PyDietException):
+class DensityNotConfiguredError(PyDietException):
+    '''The density data is not fully defined.'''
     pass
 
-class QuantityUndefinedError(pydiet.exceptions.PyDietException):
+class PcMassNotConfiguredError(PyDietException):
+    '''The piece mass data is not fully defined.'''
+    pass
+
+class InvalidQtyError(PyDietException):
+    '''The value is not a valid qty.'''
     pass

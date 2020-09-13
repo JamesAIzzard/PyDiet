@@ -4,7 +4,6 @@ from typing import Optional, Dict, List, TypedDict, TYPE_CHECKING
 from pydiet import nutrients, defining, quantity, cost, flags, quantity, persistence
 
 if TYPE_CHECKING:
-    from pydiet.cost.supports_cost import CostData
     from pydiet.quantity.supports_bulk import BulkData
     from pydiet.nutrients.supports_nutrients import NutrientData
     from pydiet.persistence.supports_persistence import PersistenceInfo
@@ -12,7 +11,7 @@ if TYPE_CHECKING:
 
 
 class IngredientData(TypedDict):
-    cost: 'CostData'
+    cost_per_g: Optional[float]
     flags: Dict[str, Optional[bool]]
     name: Optional[str]
     nutrients: Dict[str, 'NutrientData']
@@ -20,7 +19,7 @@ class IngredientData(TypedDict):
 
 
 def get_empty_ingredient_data() -> 'IngredientData':
-    return IngredientData(cost=cost.supports_cost.get_empty_cost_data(),
+    return IngredientData(cost_per_g=None,
                           flags=flags.supports_flags.get_empty_flags_data(),
                           name=None,
                           nutrients=nutrients.supports_nutrients.get_empty_nutrients_data(),

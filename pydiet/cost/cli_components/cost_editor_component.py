@@ -18,13 +18,8 @@ Set Qty         | -per  [quantity]
 Set Units       | -unit [unit]
 ----------------|------------------
 
-{name} costs £{ref_cost} per {ref_qty}{ref_unit} (£{cost_per_g} per g)
+{def_qty}{def_unit} of {name} costs £{def_amount_cost} (£{cost_per_g} per g)
 '''
-
-# -cost 12.00 -per 100 -unit g
-# -cost 12.00
-# -per 100
-# -unit g
 
 
 class CostEditorComponent(ConsoleAppComponent):
@@ -59,24 +54,33 @@ class CostEditorComponent(ConsoleAppComponent):
             self.configure_valueless_primary_arg('save', markers=['-save'])
         ])
 
+        self.configure_responder(self.on_reset, args=[
+            self.configure_valueless_primary_arg('reset', markers=['-reset'])
+        ])
+
     def print_main_menu_view(self):
-        ref_cost = '#.##'
-        ref_qty = '###'
-        ref_unit = '##'
+        # Init starting values;
+        def_qty = '###'
+        def_unit = '###'
+        def_amount_cost = '#.##'
         cost_per_g = '#.##'
-        if not self._ref_cost == None:
-            ref_cost = format(self._ref_cost, '.2f')
-        if self.subject.cost_ref_qty_defined:
-            ref_qty = format(self.subject.cost_ref_qty, '.2f')
-        if self.subject.cost_ref_units_defined:
-            ref_unit = self.subject.cost_ref_units
-        if self.subject.cost_per_g_defined:
-            cost_per_g = format(self.subject.cost_per_g, '.2f')
+
+        # Update values where possible;
+        if self.subject.cost_def_qty_defined:
+            def_qty = self.subject.cost_def_qty
+        if self.subject.cost_def_unit_defined:
+            def_unit = self.subject.cost_def_unit_defined
+        if not self.def_amount_cost == None:
+            def_amount_cost = self._def_cost
+        if self.subject.cost_fully_defined:
+            cost_per_g = self.subject.cost_per_g
+
+        # Build & return the template;
         output = _main_menu_template.format(
+            def_qty=styles.fore(def_qty, 'blue'),
+            def_unit=styles.fore(def_unit, 'blue'),
             name=self.subject.name,
-            ref_cost=styles.fore(ref_cost, 'blue'),
-            ref_qty=styles.fore(ref_qty, 'blue'),
-            ref_unit=styles.fore(ref_unit, 'blue'),
+            def_amount_cost=styles.fore(def_amount_cost, 'blue'),
             cost_per_g=styles.fore(cost_per_g, 'blue')
         )
         return self.app.fetch_component('standard_page_component').print(
@@ -88,7 +92,8 @@ class CostEditorComponent(ConsoleAppComponent):
         try:
             units = quantity.quantity_service.validate_qty_unit(units)
         except quantity.exceptions.UnknownUnitError:
-            raise pyconsoleapp.ResponseValidationError('The unit is not recognised.')
+            raise pyconsoleapp.ResponseValidationError(
+                'The unit is not recognised.')
         if units in quantity.quantity_service.get_recognised_vol_units() and not self.subject.density_is_defined:
             raise pyconsoleapp.ResponseValidationError(
                 'Density must be defined before volumetric units can be used.')
@@ -97,42 +102,65 @@ class CostEditorComponent(ConsoleAppComponent):
                 'Piece mass must be defined before cost can be set per piece.')
         return units
 
-    def _validate_cost(self, cost_value:float) -> float:
+    def _validate_cost(self, cost_value: float) -> float:
         try:
             cost_value = cost.cost_service.validate_cost(cost_value)
-        except cost.exceptions.InvalidCostValueError:
-            raise pyconsoleapp.ResponseValidationError('The cost must be a positive number')
+        except cost.exceptions.CostValueError:
+            raise pyconsoleapp.ResponseValidationError(
+                'The cost must be a positive number')
         return cost_value
 
-    def _calculate(self) -> None:
+    def _try_calculate_value(self) -> None:
         if not self._ref_cost == None and \
-                self.subject.cost_ref_units_defined and \
-                self.subject.cost_ref_qty_defined:
-            cost_per_pref_unit = self._ref_cost/self.subject.cost_ref_qty
-            k = self.subject.grams_to_other_units_ratio(
-                self.subject.cost_ref_units)
-            cost_per_g = cost_per_pref_unit*k
-            self.subject.set_cost_per_g(cost_per_g)
+                self.subject.cost_def_qty_defined and \
+                self.subject.cost_def_unit_defined:
+            self.subject.set_cost(self._def_cost,
+                                  self.subject.cost_def_qty,
+                                  self.subject.cost_def_unit)
 
     def on_edit_cost(self, args) -> None:
         self._ref_cost = args['cost']
 
         # Set any optional args which went in;
         if not args['units'] == None:
-            self.subject.set_cost_ref_units(args['units'])
+            self.on_edit_units(args)
         if not args['per'] == None:
-            self.subject.set_cost_ref_qty(args['per'])
+            self.on_edit_per(args)
 
-        # Try complete the cost_per_g calc;
-        self._calculate()
+        self._try_calculate_value()
 
     def on_edit_per(self, args) -> None:
-        self.subject.set_cost_ref_qty(args['per'])
-        self._calculate()
+        self.subject.set_cost_reference_qty(args['per'])
+        self._try_calculate_value()
 
     def on_edit_units(self, args) -> None:
-        self.subject.set_cost_ref_units(args['unit'])
-        self._calculate()
+
+        def set_def_units(self, args):
+            self.subject.set_pref_unit(args['unit'])
+            self._try_calculate_value()
+
+        def on_yes():
+            self.subject.set_pref_unit(args['unit'])  # type: ignore
+            set_def_units(self, args['unit'])
+
+        def on_no():
+            set_def_units(self, args['unit'])
+
+        # Offer to update the overall pref unit if doesn't match;
+        if not args['unit'] == self.subject.pref_units and \
+                isinstance(self.subject, quantity.supports_bulk.SupportsBulkSetting):
+            popup = pyconsoleapp.build_popup(
+                message='Do you want to update the preferred bulk units to {}?'.format(
+                    args['unit']),
+                on_yes=on_yes,
+                on_no=on_no
+            )
+            self.app.set_popup(popup)
 
     def on_save(self) -> None:
         self.save_func()
+
+    def on_reset(self) -> None:
+        self.subject.reset_cost_data()
+        self._ref_cost = None
+        self.app.info_message = 'Cost data reset.'

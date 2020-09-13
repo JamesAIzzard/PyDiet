@@ -6,10 +6,11 @@ from pydiet import nutrients
 
 
 class NutrientData(TypedDict):
-    subject_mass_g: Optional[float]
-    subject_qty_pref_units: Optional[str]
-    nutrient_mass_g: Optional[float]
-    nutrient_qty_pref_units: Optional[str]
+    nutrient_g_per_subject_g: Optional[float]
+    subject_definition_qty: Optional[float]
+    subject_definition_units: Optional[str]
+    nutrient_definition_qty: Optional[float]
+    nutrient_pref_units: Optional[str]
 
 def get_empty_nutrients_data() -> Dict[str, 'NutrientData']:
     nutrients_data = {}
@@ -19,6 +20,9 @@ def get_empty_nutrients_data() -> Dict[str, 'NutrientData']:
                                                      nutrient_mass_g=None,
                                                      nutrient_qty_pref_units=None)
     return nutrients_data
+
+# 100g of tomato contains 10ug of potassium
+# 1pc of banana contains 100g of carbohydrate
 
 class SupportsNutrients(abc.ABC):
 

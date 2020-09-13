@@ -188,6 +188,8 @@ def _update_index_entry(subject: 'SupportsPersistence') -> None:
     '''
     # Read the index;
     index_data = _read_index(subject.__class__)
+    # Pop the filename so we don't detect a name clash if it hasn't changed;
+    index_data.pop(cast(str, subject.datafile_name))
     # Check the unique field value isn't used already;
     if subject.unique_field_value in index_data.values():
         raise persistence.exceptions.UniqueValueDuplicatedError

@@ -2,6 +2,7 @@ from pyconsoleapp import ConsoleApp
 
 # Expose internal modules
 from . import exceptions, configs
+from .exceptions import PyDietException
 
 # Create the app instance;
 app: 'ConsoleApp' = ConsoleApp('PyDiet')
