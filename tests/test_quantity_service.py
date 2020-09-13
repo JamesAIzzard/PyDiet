@@ -3,43 +3,81 @@ from unittest import TestCase
 from pydiet import quantity
 
 class TestConvertQtyUnit(TestCase):
-    
+
+    def setUp(self) -> None:
+        self.g_per_ml = 1.2
+        self.piece_mass_g = 100
+
     def test_converts_mass_to_mass_correctly(self):
-        qty_lb = 5
-        qty_g = quantity.quantity_service.convert_qty_unit(qty_lb, 'lb', 'g')
-        self.assertAlmostEqual(2268, qty_g, delta=0.1)
-
-        rho = 1.2
-        qty_lb = 5
-        qty_g = quantity.quantity_service.convert_qty_unit(qty_lb, 'lb', 'g', rho)
-        self.assertAlmostEqual(2268, qty_g, delta=0.1)        
-
-    def test_converts_mass_to_vol_correctly(self):
-        qty_kg = 5
-        rho = 1.2
-        qty_L = quantity.quantity_service.convert_qty_unit(qty_kg, 'kg', 'L', rho)
-        self.assertAlmostEqual(6, qty_L, delta=0.1)     
-
-    def test_converts_vol_to_mass_correctly(self):
-        qty_L = 6
-        rho = 1.2
-        qty_kg = quantity.quantity_service.convert_qty_unit(qty_L, 'L', 'kg', rho)
-        self.assertAlmostEqual(5, qty_kg, delta=0.1)
+        result = quantity.quantity_service.convert_qty_unit(
+            qty=2,
+            start_unit='kg',
+            end_unit='lb' 
+        )
+        self.assertAlmostEqual(result, 4.409, delta=0.001)
 
     def test_converts_vol_to_vol_correctly(self):
-        qty_ml = 5000
-        qty_L = quantity.quantity_service.convert_qty_unit(qty_ml, 'ml', 'L')
-        self.assertAlmostEqual(5, qty_L, delta=0.1)
+        result = quantity.quantity_service.convert_qty_unit(
+            qty=2,
+            start_unit='L',
+            end_unit='pint' 
+        )
+        self.assertAlmostEqual(result, 4.227, delta=0.001)
 
-        rho = 1.2
-        qty_ml = 5000
-        qty_L = quantity.quantity_service.convert_qty_unit(qty_ml, 'ml', 'L', rho)
-        self.assertAlmostEqual(5, qty_L, delta=0.1)        
+    def test_converts_mass_to_vol_correctly(self):
+        result = quantity.quantity_service.convert_qty_unit(
+            qty=2,
+            start_unit='kg',
+            end_unit='L',
+            g_per_ml=self.g_per_ml
+        )
+        self.assertAlmostEqual(result, 2.4, delta=0.001)
 
-    def test_fails_if_rho_missing(self):
-        qty_kg = 5
-        with self.assertRaises(TypeError):
-            quantity.quantity_service.convert_qty_unit(qty_kg, 'kg', 'L')
+    def test_converts_vol_to_mass_correctly(self):
+        result = quantity.quantity_service.convert_qty_unit(
+            qty=2.4,
+            start_unit='L',
+            end_unit='kg',
+            g_per_ml=self.g_per_ml
+        )
+        self.assertAlmostEqual(result, 2, delta=0.001)
+
+    def test_converts_pc_to_mass_correctly(self):
+        result = quantity.quantity_service.convert_qty_unit(
+            qty=1,
+            start_unit='pc',
+            end_unit='kg',
+            piece_mass_g=self.piece_mass_g
+        )
+        self.assertAlmostEqual(result, 0.1, delta=0.001)
+
+    def test_converts_mass_to_pc_correctly(self):
+        result = quantity.quantity_service.convert_qty_unit(
+            qty=1,
+            start_unit='kg',
+            end_unit='pc',
+            piece_mass_g=self.piece_mass_g
+        )
+        self.assertAlmostEqual(result, 10, delta=0.001)
+
+    def test_converts_pc_to_vol_correctly(self):
+        result = quantity.quantity_service.convert_qty_unit(
+            qty=2, # So 200g
+            start_unit='pc',
+            end_unit='L',
+            piece_mass_g=self.piece_mass_g,
+            g_per_ml=self.g_per_ml # So (200/1.2)ml, so ((200/1.2)/1000) L 
+        )
+        self.assertAlmostEqual(result, ((200/1.2)/1000), delta=0.001)
+
+    def test_converts_vol_to_pc_correctly(self):
+        raise NotImplementedError
+
+    def test_error_if_g_per_ml_missing(self):
+        raise NotImplementedError
+
+    def test_error_if_piece_mass_g_missing(self):
+        raise NotImplementedError
 
 class TestConvertDensityUnit(TestCase):
 

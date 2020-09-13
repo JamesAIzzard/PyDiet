@@ -36,6 +36,10 @@ class SupportsBulk(defining.supports_name.SupportsName):
         return self.readonly_bulk_data['pref_unit']
 
     @property
+    def ref_qty(self) -> float:
+        return self.readonly_bulk_data['ref_qty']
+
+    @property
     def g_per_ml(self) -> float:
         if not self.density_is_defined:
             raise quantity.exceptions.DensityNotConfiguredError
@@ -63,7 +67,8 @@ class SupportsBulk(defining.supports_name.SupportsName):
 
     @property
     def piece_mass_in_pref_units(self) -> float:
-        return quantity.quantity_service.convert_qty_units(self.piece_mass_g, 'g', self.pref_unit)
+        return quantity.quantity_service.convert_qty_unit(self.piece_mass_g, 'g',
+                                                          self.pref_unit, self.readonly_bulk_data['g_per_ml'])
 
     def check_unit_configured(self, unit: str) -> bool:
         if quantity.quantity_service.unit_is_mass(unit):
@@ -107,20 +112,21 @@ Density:         {density_summary}
 class SupportsBulkSetting(SupportsBulk):
 
     def set_pref_unit(self, unit: str) -> None:
-        unit = quantity.quantity_service.validate_qty_unit(unit)           
+        unit = quantity.quantity_service.validate_qty_unit(unit)
         if quantity.quantity_service.unit_is_volume(unit):
             if not self.density_is_defined:
                 raise quantity.exceptions.DensityNotConfiguredError
         self._bulk_data['pref_unit'] = unit
 
-    def set_ref_qty(self, qty:float) -> None:
+    def set_ref_qty(self, qty: float) -> None:
         qty = quantity.quantity_service.validate_quantity(qty)
         self._bulk_data['ref_qty']
 
-    def set_g_per_ml(self, g_per_ml:float) -> None:
+    def set_g_per_ml(self, g_per_ml: float) -> None:
         g_per_ml = quantity.quantity_service.validate_quantity(g_per_ml)
         self._bulk_data['g_per_ml']
 
     def set_piece_mass_g(self, piece_mass_g) -> None:
-        piece_mass_g = quantity.quantity_service.validate_quantity(piece_mass_g)
+        piece_mass_g = quantity.quantity_service.validate_quantity(
+            piece_mass_g)
         self._bulk_data['piece_mass_g']

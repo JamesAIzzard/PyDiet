@@ -61,8 +61,11 @@ class Ingredient(persistence.supports_persistence.SupportsPersistence,
         return attr_names
 
     @property
-    def _cost_data(self) -> 'CostData':
-        return self._data['cost']
+    def _cost_per_g(self) -> Optional[float]:
+        return self._data['cost_per_g']
+
+    def _set_cost_per_g(self, validated_cost_per_g: Optional[float]) -> None:
+        self._data['cost_per_g'] = validated_cost_per_g
 
     @property
     def _flags_data(self) -> Dict[str, Optional[bool]]:

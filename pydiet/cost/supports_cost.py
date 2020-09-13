@@ -1,8 +1,8 @@
 import abc
-import copy
-from typing import TypedDict, Optional, cast
+from abc import abstractmethod
+from typing import Optional, cast
 
-from pydiet import quantity, cost, PyDietException
+from pydiet import quantity, cost
 
 
 class SupportsCost(quantity.supports_bulk.SupportsBulk):
@@ -26,30 +26,33 @@ class SupportsCost(quantity.supports_bulk.SupportsBulk):
 
     @property
     def cost_per_pref_unit(self) -> float:
-        
+        return quantity.quantity_service.convert_qty_unit(self.cost_per_g, 'g',
+                                                          self.pref_unit, self.readonly_bulk_data['g_per_ml'])
 
     @property
     def cost_summary(self) -> str:
-        if self.cost_fully_defined:
+        if self.cost_per_g_defined:
             return '£{cost_per_pref_unit:.2f} per {pref_unit}'.format(
                 cost_per_pref_unit=self.cost_per_pref_unit,
-                pref_unit=self.pref_units
+                pref_unit=self.pref_unit)
         else:
             return 'Undefined'
 
+
 class SupportsCostSetting(SupportsCost):
+
+    @abstractmethod
+    def _set_cost_per_g(self, validated_cost_per_g: Optional[float]) -> None:
+        raise NotImplementedError
 
     def set_cost_per_g(self, cost_per_g: float) -> None:
         cost_per_g = cost.cost_service.validate_cost(cost_per_g)
-        self._cost_data['cost_per_g'] = cost_per_g
+        self.set_cost_per_g(cost_per_g)
 
     def set_cost(self, cost: float, qty: float, unit: str) -> None:
-        # Convert the qty into grams;
-        qty_g = self.convert_to_g(qty, unit)
-        # Set the cost_per_g
-        self.set_cost_per_g(qty_g)
+        cost_per_g = quantity.quantity_service.convert_qty_unit(
+            cost, unit, 'g', self.readonly_bulk_data['g_per_ml'])
+        self.set_cost_per_g(cost_per_g)
 
-    def reset_cost_data(self) -> None:
-        self._cost_data['cost_per_g'] = None
-        self._cost_data['cost_def_qty'] = None
-        self._cost_data['cost_def_unit'] = None
+    def reset_cost_per_g(self) -> None:
+        self._set_cost_per_g(None)

@@ -13,5 +13,6 @@ ML_CONVERSIONS = {
     "m3": 1e6,
     "quart": 946.4,
     "tsp": 4.929,
-    "tbsp": 14.79
+    "tbsp": 14.79,
+    "pint": 473.2
 }
