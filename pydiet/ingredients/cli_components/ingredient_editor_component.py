@@ -7,6 +7,7 @@ from pydiet import ingredients, persistence
 if TYPE_CHECKING:
     from pydiet.ingredients.ingredient import Ingredient
     from pydiet.cost.cli_components.cost_editor_component import CostEditorComponent
+    from pydiet.quantity.cli_components.bulk_editor_component import BulkEditorComponent
 
 _main_menu_template = '''
 ----------------|-------------
@@ -54,6 +55,10 @@ class IngredientEditorComponent(ConsoleAppComponent):
             self.configure_valueless_primary_arg('cost', markers=['-cost'])
         ])
 
+        self.configure_responder(self.on_edit_bulk, args=[
+            self.configure_valueless_primary_arg('bulk', markers=['-bulk'])
+        ])        
+
     def print_main_menu_view(self):
         output = _main_menu_template.format(
             status_summary=styles.fore(self.subject.status_summary, 'blue'),
@@ -98,5 +103,14 @@ class IngredientEditorComponent(ConsoleAppComponent):
         if self._check_if_name_defined():
             ced = cast('CostEditorComponent', self.app.fetch_component('cost_editor_component'))
             ced.subject = self.subject
-            ced.save_func = self.on_save
+            ced._unchanged_cost_per_g = self.subject._cost_per_g
+            ced._return_to_route = self.app.route
             self.app.goto('home.ingredients.edit.cost')
+
+    def on_edit_bulk(self):
+        if self._check_if_name_defined():
+            bed = cast('BulkEditorComponent', self.app.fetch_component('bulk_editor_component'))
+            bed.subject = self.subject
+            bed._unchanged_bulk_data = self.subject.readonly_bulk_data
+            bed._return_to_route = self.app.route
+            self.app.goto('home.ingredients.edit.bulk')            

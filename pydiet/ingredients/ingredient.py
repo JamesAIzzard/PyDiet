@@ -32,7 +32,7 @@ class Ingredient(persistence.supports_persistence.SupportsPersistence,
                  cost.supports_cost.SupportsCostSetting,
                  flags.supports_flags.SupportsFlagSetting,
                  nutrients.supports_nutrients.SupportsNutrients,
-                 quantity.supports_bulk.SupportsBulk):
+                 quantity.supports_bulk.SupportsBulkSetting):
 
     def __init__(self, data: 'IngredientData', datafile_name:Optional[str]=None):
         self._data = data

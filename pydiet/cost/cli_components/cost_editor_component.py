@@ -1,7 +1,6 @@
-from typing import Optional, Callable, TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING
 
-import pyconsoleapp
-from pyconsoleapp import ConsoleAppComponent, builtin_validators, styles
+from pyconsoleapp import ConsoleAppComponent, builtin_validators, styles, ResponseValidationError
 
 from pydiet import cost, quantity
 
@@ -10,13 +9,16 @@ if TYPE_CHECKING:
 
 _main_menu_template = '''
 ----------------|------------------------------------------
-Save Changes    | -save
-Reset           | -reset
+OK              | -ok
+Cancel          | -cancel
+Zero Cost       | -reset
 ----------------|------------------------------------------
 Set Cost        | -cost [cost] -per [quantity] -unit [unit]
 ----------------|------------------------------------------
+Example         | -cost 2.50 -per 1.6 -unit kg
+----------------|------------------------------------------
 
-Cost: {cost_summary}
+{cost_summary}
 
 '''
 
@@ -25,7 +27,8 @@ class CostEditorComponent(ConsoleAppComponent):
     def __init__(self, app):
         super().__init__(app)
         self.subject: 'SupportsCostSetting'
-        self.save_func: Callable
+        self._unchanged_cost_per_g: Optional[float]
+        self._return_to_route: str
 
         self.configure_printer(self.print_main_menu_view)
 
@@ -33,21 +36,26 @@ class CostEditorComponent(ConsoleAppComponent):
             self.configure_std_primary_arg(
                 'cost', markers=['-cost'], validators=[self._validate_cost]),
             self.configure_std_primary_arg('per', markers=[
-                                          '-per'], validators=[builtin_validators.validate_positive_nonzero_number]),
-            self.configure_std_primary_arg('units', markers=[
-                                          '-unit'], validators=[self._validate_units])
-        ])
-
-        self.configure_responder(self.on_save, args=[
-            self.configure_valueless_primary_arg('save', markers=['-save'])
+                '-per'], validators=[builtin_validators.validate_positive_nonzero_number]),
+            self.configure_std_primary_arg('unit', markers=[
+                '-unit'], validators=[self._validate_units])
         ])
 
         self.configure_responder(self.on_reset, args=[
             self.configure_valueless_primary_arg('reset', markers=['-reset'])
         ])
 
+        self.configure_responder(self.on_ok, args=[
+            self.configure_valueless_primary_arg('ok', markers=['-ok'])
+        ])
+
+        self.configure_responder(self.on_cancel, args=[
+            self.configure_valueless_primary_arg('cancel', markers=['-cancel'])
+        ])
+
     def print_main_menu_view(self):
-        output = _main_menu_template.format(cost_summary=self.subject.cost_summary)
+        output = _main_menu_template.format(
+            cost_summary=styles.fore(self.subject.cost_summary, 'blue'))
         return self.app.fetch_component('standard_page_component').print(
             page_title='Cost Editor',
             page_content=output
@@ -57,30 +65,33 @@ class CostEditorComponent(ConsoleAppComponent):
         try:
             unit = quantity.quantity_service.validate_qty_unit(unit)
         except quantity.exceptions.UnknownUnitError:
-            raise pyconsoleapp.ResponseValidationError(
+            raise ResponseValidationError(
                 'The unit is not recognised.')
         if quantity.quantity_service.units_are_volumes(unit) and not self.subject.density_is_defined:
-            raise pyconsoleapp.ResponseValidationError('Density must be set before volumetric measurements can be used.')
+            raise ResponseValidationError(
+                'Density must be set before volumetric measurements can be used.')
         elif quantity.quantity_service.units_are_pieces(unit) and not self.subject.piece_mass_defined:
-            raise pyconsoleapp.ResponseValidationError('Piece mass must be set before pieces can be used.')
+            raise ResponseValidationError(
+                'Piece mass must be set before pieces can be used.')
         return unit
 
     def _validate_cost(self, cost_value: float) -> float:
         try:
             cost_value = cost.cost_service.validate_cost(cost_value)
         except cost.exceptions.CostValueError:
-            raise pyconsoleapp.ResponseValidationError(
+            raise ResponseValidationError(
                 'The cost must be a positive number')
         return cost_value
 
     def on_edit_cost(self, args) -> None:
-        cost_per_single_unit = args['cost']/args['quantity']
-        cost_per_g = quantity.quantity_service.convert_qty_unit(cost_per_single_unit, args['unit'], 'g',
-            self.subject.readonly_bulk_data['g_per_ml'], self.subject.readonly_bulk_data['piece_mass_g'])
-        self.subject.set_cost_per_g(cost_per_g)
+        self.subject.set_cost(args['cost'], args['per'], args['unit'])
 
-    def on_save(self) -> None:
-        self.save_func()
+    def on_ok(self, args) -> None:
+        self.app.goto(self._return_to_route)
+
+    def on_cancel(self, args) -> None:
+        self.subject._set_cost_per_g(self._unchanged_cost_per_g)
+        self.app.goto(self._return_to_route)
 
     def on_reset(self) -> None:
         self.subject.reset_cost_per_g()

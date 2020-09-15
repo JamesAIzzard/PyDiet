@@ -1,7 +1,5 @@
 import abc
 import copy
-import enum
-from pydiet import exceptions
 from typing import TypedDict, Optional, cast
 
 from pydiet import quantity, defining
@@ -70,13 +68,15 @@ class SupportsBulk(defining.supports_name.SupportsName):
         return quantity.quantity_service.convert_qty_unit(self.piece_mass_g, 'g',
                                                           self.pref_unit, self.readonly_bulk_data['g_per_ml'])
 
-    def check_unit_configured(self, unit: str) -> bool:
-        if quantity.quantity_service.unit_is_mass(unit):
-            return True
-        elif quantity.quantity_service.unit_is_volume(unit):
-            return self.density_is_defined
-        else:
-            return False
+    def check_units_configured(self, *units: str) -> bool:
+        for unit in units:
+            if quantity.quantity_service.units_are_volumes(unit):
+                if not self.density_is_defined:
+                    return False
+            elif quantity.quantity_service.units_are_pieces(unit):
+                if not self.piece_mass_defined:
+                    return False
+        return True
 
     @property
     def piece_mass_summary(self) -> str:
@@ -98,12 +98,13 @@ class SupportsBulk(defining.supports_name.SupportsName):
 
     @property
     def bulk_summary(self) -> str:
-        template = '''Preferred Units: {pref_unit}
-Piece Mass:      {piece_mass_summary}
-Density:         {density_summary}
+        template = '''Reference Amount: {ref_qty}{pref_unit}
+Piece Mass:       {piece_mass_summary}
+Density:          {density_summary}
         '''
 
         return template.format(
+            ref_qty=self.ref_qty,
             pref_unit=self.pref_unit,
             piece_mass_summary=self.piece_mass_summary,
             density_summary=self.density_summary)
@@ -113,7 +114,7 @@ class SupportsBulkSetting(SupportsBulk):
 
     def set_pref_unit(self, unit: str) -> None:
         unit = quantity.quantity_service.validate_qty_unit(unit)
-        if quantity.quantity_service.unit_is_volume(unit):
+        if quantity.quantity_service.units_are_volumes(unit):
             if not self.density_is_defined:
                 raise quantity.exceptions.DensityNotConfiguredError
         self._bulk_data['pref_unit'] = unit
