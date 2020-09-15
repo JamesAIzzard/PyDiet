@@ -31,11 +31,11 @@ class TestConvertQtyUnit(TestCase):
             end_unit='L',
             g_per_ml=self.g_per_ml
         )
-        self.assertAlmostEqual(result, 2.4, delta=0.001)
+        self.assertAlmostEqual(result, 20/12, delta=0.001)
 
     def test_converts_vol_to_mass_correctly(self):
         result = quantity.quantity_service.convert_qty_unit(
-            qty=2.4,
+            qty=20/12,
             start_unit='L',
             end_unit='kg',
             g_per_ml=self.g_per_ml
@@ -71,13 +71,50 @@ class TestConvertQtyUnit(TestCase):
         self.assertAlmostEqual(result, ((200/1.2)/1000), delta=0.001)
 
     def test_converts_vol_to_pc_correctly(self):
-        raise NotImplementedError
+        result = quantity.quantity_service.convert_qty_unit(
+            qty=(200/1.2)/1000,
+            start_unit='L',
+            end_unit='pc',
+            piece_mass_g=self.piece_mass_g,
+            g_per_ml=self.g_per_ml
+        )
+        self.assertAlmostEqual(result, 2, delta=0.001)
 
     def test_error_if_g_per_ml_missing(self):
-        raise NotImplementedError
+        with self.assertRaises(ValueError):
+            quantity.quantity_service.convert_qty_unit(
+                qty = 2,
+                start_unit='ml',
+                end_unit='g'
+            )
+        with self.assertRaises(ValueError):
+            quantity.quantity_service.convert_qty_unit(
+                qty = 2,
+                start_unit='kg',
+                end_unit='L'
+            )
+        with self.assertRaises(ValueError):
+            quantity.quantity_service.convert_qty_unit(
+                qty = 2,
+                start_unit='L',
+                end_unit='pc',
+                piece_mass_g=self.piece_mass_g
+            )                           
 
     def test_error_if_piece_mass_g_missing(self):
-        raise NotImplementedError
+        with self.assertRaises(ValueError):
+            quantity.quantity_service.convert_qty_unit(
+                qty = 2,
+                start_unit='kg',
+                end_unit='pc'
+            )
+        with self.assertRaises(ValueError):
+            quantity.quantity_service.convert_qty_unit(
+                qty = 2,
+                start_unit='L',
+                end_unit='pc',
+                g_per_ml=self.g_per_ml
+            )            
 
 class TestConvertDensityUnit(TestCase):
 

@@ -8,11 +8,11 @@ class UnitNotConfiguredError(PyDietException):
     '''The data required for this unit is not fully defined.'''
     pass
 
-class DensityNotConfiguredError(PyDietException):
+class DensityNotConfiguredError(UnitNotConfiguredError):
     '''The density data is not fully defined.'''
     pass
 
-class PcMassNotConfiguredError(PyDietException):
+class PcMassNotConfiguredError(UnitNotConfiguredError):
     '''The piece mass data is not fully defined.'''
     pass
 
