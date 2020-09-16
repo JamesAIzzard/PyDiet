@@ -341,7 +341,7 @@ class ConsoleAppComponent(ABC):
             if not state in self.states:
                 raise exceptions.StateNotFoundError
 
-    def change_state(self, state:str)->Callable:
+    def make_state_changer(self, state:str)->Callable:
         # Check the state is real;
         self._validate_states([state])
         # Create the callable;

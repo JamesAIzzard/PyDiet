@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from pyconsoleapp import ConsoleAppComponent, styles
+from pyconsoleapp import ConsoleAppComponent, styles, builtin_validators
 
 from pydiet import quantity
 
@@ -64,11 +64,29 @@ class BulkEditorComponent(ConsoleAppComponent):
 
         self.configure_states(['main', 'density', 'piece'])
 
-        self.configure_printer(self.print_main_editor, ['main'])
-        self.configure_printer(self.print_density_editor, ['density'])
-        self.configure_printer(self.print_piece_mass_editor, ['piece'])
+        self.configure_printer(self._print_main_editor, ['main'])
+        self.configure_responder(self._on_return_to_route, states=['main'], args=[
+            self.configure_valueless_primary_arg('ok', markers=['-ok'])
+        ])
+        self.configure_responder(self._on_set_pref_unit, states=['main'], args=[
+            self.configure_std_primary_arg('pref_unit', markers=['-unit'], validators=[self._validate_unit])
+        ])
+        self.configure_responder(self._on_set_ref_quantity, states=['main'], args=[
+            self.configure_std_primary_arg('ref_qty', markers=['-qty'], validators=[
+                builtin_validators.validate_positive_nonzero_number
+            ])
+        ])
+        self.configure_responder(self.make_state_changer('density'), states=['main'], args=[
+            self.configure_valueless_primary_arg('density', markers=['-density'])
+        ])
+        self.configure_responder(self.make_state_changer('piece'), states=['main'], args=[
+            self.configure_valueless_primary_arg('piece', markers=['-piece'])
+        ])           
 
-    def print_main_editor(self):
+        self.configure_printer(self._print_density_editor, ['density'])
+        self.configure_printer(self._print_piece_mass_editor, ['piece'])        
+
+    def _print_main_editor(self):
         output = _main_editor_template.format(
             bulk_summary=styles.fore(self.subject.bulk_summary, 'blue'))
         return self.app.fetch_component('standard_page_component').print(
@@ -76,7 +94,24 @@ class BulkEditorComponent(ConsoleAppComponent):
             page_content=output
         )
 
-    def print_density_editor(self):
+    def _validate_unit(self, unit):
+        return quantity.cli_components.validators.validate_unit(self.subject, unit)
+
+    def _on_set_pref_unit(self, args):
+        self.subject.set_pref_unit(args['pref_unit'])
+
+    def _on_set_ref_quantity(self, args):
+        self.subject.set_ref_qty(args['ref_qty'])
+
+    def _on_return_to_route(self):
+        self.app.goto(self._return_to_route)
+
+    def _on_cancel_and_return_to_route(self):
+        self.subject.set_bulk_data(self._unchanged_bulk_data)
+        self.app.goto(self._return_to_route)
+
+
+    def _print_density_editor(self):
         output = _density_editor_template.format(
             density_summary=styles.fore(self.subject.density_summary, 'blue'))
         return self.app.fetch_component('standard_page_component').print(
@@ -84,10 +119,10 @@ class BulkEditorComponent(ConsoleAppComponent):
             page_content=output
         )
 
-    def print_piece_mass_editor(self):
+    def _print_piece_mass_editor(self):
         output = _piece_mass_editor_template.format(
             piece_mass_summary=styles.fore(self.subject.piece_mass_summary, 'blue'))
         return self.app.fetch_component('standard_page_component').print(
             page_title='Piece Mass Editor',
             page_content=output
-        )                   
+        )

@@ -112,6 +112,12 @@ Density:          {density_summary}
 
 class SupportsBulkSetting(SupportsBulk):
 
+    def set_bulk_data(self, bulk_data:'BulkData')->None:
+        self.set_pref_unit(bulk_data['pref_unit'])
+        self.set_ref_qty(bulk_data['ref_qty'])
+        self.set_g_per_ml(bulk_data['g_per_ml'])
+        self.set_piece_mass_g(bulk_data['piece_mass_g'])
+
     def set_pref_unit(self, unit: str) -> None:
         unit = quantity.quantity_service.validate_qty_unit(unit)
         if quantity.quantity_service.units_are_volumes(unit):
@@ -121,13 +127,32 @@ class SupportsBulkSetting(SupportsBulk):
 
     def set_ref_qty(self, qty: float) -> None:
         qty = quantity.quantity_service.validate_quantity(qty)
-        self._bulk_data['ref_qty']
+        self._bulk_data['ref_qty'] = qty
 
-    def set_g_per_ml(self, g_per_ml: float) -> None:
+    def set_g_per_ml(self, g_per_ml: Optional[float]) -> None:
         g_per_ml = quantity.quantity_service.validate_quantity(g_per_ml)
-        self._bulk_data['g_per_ml']
+        self._bulk_data['g_per_ml'] = g_per_ml
 
-    def set_piece_mass_g(self, piece_mass_g) -> None:
+    def set_density(self, mass_qty:float, mass_unit:str, vol_qty:float, vol_unit:str) -> None:
+        g_per_ml = quantity.quantity_service.convert_density_unit(
+            qty=mass_qty/vol_qty,
+            start_mass_unit=mass_unit,
+            start_vol_unit=vol_unit,
+            end_mass_unit='g',
+            end_vol_unit='ml'
+        )
+        self.set_g_per_ml(g_per_ml)
+
+    def reset_density(self) -> None:
+        self.set_g_per_ml(None)
+
+    def set_piece_mass_g(self, piece_mass_g:Optional[float]) -> None:
         piece_mass_g = quantity.quantity_service.validate_quantity(
             piece_mass_g)
-        self._bulk_data['piece_mass_g']
+        self._bulk_data['piece_mass_g'] = piece_mass_g
+
+    def set_piece_mass(self, num_pieces:float, qty:float, qty_unit:str) -> None:
+        raise NotImplementedError
+
+    def reset_piece_mass(self):
+        self.set_piece_mass_g(None)

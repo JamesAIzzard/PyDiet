@@ -3,6 +3,7 @@ from typing import Optional, TYPE_CHECKING
 from pyconsoleapp import ConsoleAppComponent, builtin_validators, styles, ResponseValidationError
 
 from pydiet import cost, quantity
+import pydiet
 
 if TYPE_CHECKING:
     from pydiet.cost.supports_cost import SupportsCostSetting
@@ -62,18 +63,7 @@ class CostEditorComponent(ConsoleAppComponent):
         )
 
     def _validate_units(self, unit: str) -> str:
-        try:
-            unit = quantity.quantity_service.validate_qty_unit(unit)
-        except quantity.exceptions.UnknownUnitError:
-            raise ResponseValidationError(
-                'The unit is not recognised.')
-        if quantity.quantity_service.units_are_volumes(unit) and not self.subject.density_is_defined:
-            raise ResponseValidationError(
-                'Density must be set before volumetric measurements can be used.')
-        elif quantity.quantity_service.units_are_pieces(unit) and not self.subject.piece_mass_defined:
-            raise ResponseValidationError(
-                'Piece mass must be set before pieces can be used.')
-        return unit
+        return quantity.cli_components.validators.validate_unit(self.subject, unit)
 
     def _validate_cost(self, cost_value: float) -> float:
         try:
@@ -94,5 +84,5 @@ class CostEditorComponent(ConsoleAppComponent):
         self.app.goto(self._return_to_route)
 
     def on_reset(self) -> None:
-        self.subject.reset_cost_per_g()
+        self.subject.reset_cost()
         self.app.info_message = 'Cost data reset.'

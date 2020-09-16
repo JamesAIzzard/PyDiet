@@ -45,18 +45,19 @@ class SupportsCostSetting(SupportsCost):
     def _set_cost_per_g(self, validated_cost_per_g: Optional[float]) -> None:
         raise NotImplementedError
 
-    def set_cost_per_g(self, cost_per_g: float) -> None:
-        cost_per_g = cost.cost_service.validate_cost(cost_per_g)
+    def set_cost_per_g(self, cost_per_g: Optional[float]) -> None:
+        if not cost_per_g == None:
+            cost_per_g = cost.cost_service.validate_cost(cost_per_g)
         self._set_cost_per_g(cost_per_g)
 
     def set_cost(self, cost: float, qty: float, unit: str) -> None:
         cost_per_unit = cost/qty
         k = quantity.quantity_service.convert_qty_unit(
-            1, 'g', unit, 
-            self.readonly_bulk_data['g_per_ml'], 
+            1, 'g', unit,
+            self.readonly_bulk_data['g_per_ml'],
             self.readonly_bulk_data['piece_mass_g'])
         cost_per_g = cost_per_unit*k
         self.set_cost_per_g(cost_per_g)
 
-    def reset_cost_per_g(self) -> None:
-        self._set_cost_per_g(None)
+    def reset_cost(self) -> None:
+        self.set_cost_per_g(None)

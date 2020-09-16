@@ -15,8 +15,8 @@ def validate_integer(value: Any) -> int:
 def validate_positive_nonzero_number(value: Any) -> float:
     try:
         value = float(value)
-    except TypeError:
-        raise exceptions.ResponseValidationError
+    except ValueError:
+        raise exceptions.ResponseValidationError('Input must be a number.')
     if value <= 0:
         raise exceptions.ResponseValidationError('Input must be a number > 0.')    
     return value
