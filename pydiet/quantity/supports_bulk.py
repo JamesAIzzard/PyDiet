@@ -1,4 +1,5 @@
 import abc
+from abc import abstractmethod
 import copy
 from typing import TypedDict, Optional, cast
 
@@ -112,6 +113,14 @@ Density:          {density_summary}
 
 class SupportsBulkSetting(SupportsBulk):
 
+    @abstractmethod
+    def _density_reset_cleanup(self) -> None:
+        raise NotImplementedError
+
+    @abstractmethod
+    def _piece_mass_reset_cleanup(self) -> None:
+        raise NotImplementedError
+
     def set_bulk_data(self, bulk_data:'BulkData')->None:
         self.set_pref_unit(bulk_data['pref_unit'])
         self.set_ref_qty(bulk_data['ref_qty'])
@@ -123,6 +132,9 @@ class SupportsBulkSetting(SupportsBulk):
         if quantity.quantity_service.units_are_volumes(unit):
             if not self.density_is_defined:
                 raise quantity.exceptions.DensityNotConfiguredError
+        if quantity.quantity_service.units_are_pieces(unit):
+            if not self.density_is_defined:
+                raise quantity.exceptions.PcMassNotConfiguredError
         self._bulk_data['pref_unit'] = unit
 
     def set_ref_qty(self, qty: float) -> None:
@@ -139,11 +151,13 @@ class SupportsBulkSetting(SupportsBulk):
             start_mass_unit=mass_unit,
             start_vol_unit=vol_unit,
             end_mass_unit='g',
-            end_vol_unit='ml'
+            end_vol_unit='ml',
+            piece_mass_g=self.readonly_bulk_data['piece_mass_g']
         )
         self.set_g_per_ml(g_per_ml)
 
     def reset_density(self) -> None:
+        self._density_reset_cleanup()
         self.set_g_per_ml(None)
 
     def set_piece_mass_g(self, piece_mass_g:Optional[float]) -> None:
@@ -151,8 +165,10 @@ class SupportsBulkSetting(SupportsBulk):
             piece_mass_g)
         self._bulk_data['piece_mass_g'] = piece_mass_g
 
-    def set_piece_mass(self, num_pieces:float, qty:float, qty_unit:str) -> None:
-        raise NotImplementedError
+    def set_piece_mass(self, num_pieces:float, mass_qty:float, mass_unit:str) -> None:
+        # TODO - Calculate the piece_mass_g using the convert_unit method.
+        self.set_piece_mass_g(piece_mass_g)
 
     def reset_piece_mass(self):
+        self._piece_mass_reset_cleanup()
         self.set_piece_mass_g(None)

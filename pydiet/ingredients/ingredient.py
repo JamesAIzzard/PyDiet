@@ -79,6 +79,14 @@ class Ingredient(persistence.supports_persistence.SupportsPersistence,
     def _bulk_data(self) -> 'BulkData':
         return self._data['bulk']
 
+    def _density_reset_cleanup(self) -> None:
+        # TODO - Convert anything relying on density back to default.
+        raise NotImplementedError
+
+    def _piece_mass_reset_cleanup(self) -> None:
+        # TODO - Convert anything relying on piece mass back to default.
+        raise NotImplementedError
+
     @staticmethod
     def get_db_info() -> 'DBInfo':
         return persistence.supports_persistence.DBInfo(
