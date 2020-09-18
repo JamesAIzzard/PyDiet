@@ -63,7 +63,7 @@ class CostEditorComponent(ConsoleAppComponent):
         )
 
     def _validate_units(self, unit: str) -> str:
-        return quantity.cli_components.validators.validate_unit(self.subject, unit)
+        return quantity.cli_components.validators.validate_unit(unit)
 
     def _validate_cost(self, cost_value: float) -> float:
         try:

@@ -309,10 +309,12 @@ class ConsoleAppComponent(ABC):
 
     @property
     def current_state(self) -> Union[None, str]:
+        '''Returns the current state of the component.'''
         return self._current_state
 
     @current_state.setter
     def current_state(self, value: Union[None, str]) -> None:
+        '''Used to set the current state of the component.'''
         self._validate_states([value])
         self._current_state = value
 
