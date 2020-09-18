@@ -48,8 +48,8 @@ class ConsoleApp:
         self._route: str = ''
         self._route_history: List[str] = []
         self._route_component_maps: Dict[str, str] = {}
-        self._route_exit_guard_map: Dict[str, 'ConsoleAppGuardComponent'] = {}
-        self._route_entrance_guard_map: Dict[str, 'ConsoleAppGuardComponent'] = {}
+        self.route_exit_guard_map: Dict[str, 'ConsoleAppGuardComponent'] = {}
+        self.route_entrance_guard_map: Dict[str, 'ConsoleAppGuardComponent'] = {}
         self._components: Dict[str, 'ConsoleAppComponent'] = {}
         self._active_components: List['ConsoleAppComponent'] = []
         self._component_packages: List[str] = []
@@ -210,20 +210,20 @@ class ConsoleApp:
         # Place to put matching guard component (if found);
         component = None
         # First check the exit guards;
-        for guarded_route in self._route_exit_guard_map.keys():
+        for guarded_route in self.route_exit_guard_map.keys():
             # If the guarded root does not feature in the submitted route;
             if guarded_route not in route:
                 # The submitted route must have exited, so populate the component;
-                component = self._route_exit_guard_map[guarded_route]
+                component = self.route_exit_guard_map[guarded_route]
                 # And don't look through any more exit guards;
                 break
         # Now check the entrance guards;
-        for guarded_route in self._route_entrance_guard_map.keys():
+        for guarded_route in self.route_entrance_guard_map.keys():
             # If the guarded root is part of the submitted route;
             if guarded_route in route:
                 # Then the submitted route must be beyond the guard, so populate the
                 # component;
-                component = self._route_entrance_guard_map[guarded_route]
+                component = self.route_entrance_guard_map[guarded_route]
                 # And don't look through any more entrance guards;
                 break
         # If the guard component was populated, then use it;
@@ -239,7 +239,7 @@ class ConsoleApp:
             'ConsoleAppGuardComponent',
             self.make_component(guard_component_class_name)
         )
-        self._route_entrance_guard_map[route] = guard_component
+        self.route_entrance_guard_map[route] = guard_component
 
     def guard_exit(self, route: str, guard_component_class_name: str) -> None:
         # Interpret the route;
@@ -249,17 +249,17 @@ class ConsoleApp:
             'ConsoleAppGuardComponent',
             self.make_component(guard_component_class_name)
         )
-        self._route_exit_guard_map[route] = guard_component
+        self.route_exit_guard_map[route] = guard_component
 
     def clear_entrance(self, route: str) -> None:
         route = self.interpret_relative_route(route)
-        if route in self._route_entrance_guard_map.keys():
-            del self._route_entrance_guard_map[route]
+        if route in self.route_entrance_guard_map.keys():
+            del self.route_entrance_guard_map[route]
 
     def clear_exit(self, route: str) -> None:
         route = self.interpret_relative_route(route)
-        if route in self._route_exit_guard_map.keys():
-            del self._route_exit_guard_map[route]
+        if route in self.route_exit_guard_map.keys():
+            del self.route_exit_guard_map[route]
 
     def process_response(self, response: str) -> None:
         """If the response is empty, iterates over active components
