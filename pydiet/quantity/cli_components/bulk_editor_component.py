@@ -213,4 +213,4 @@ class BulkEditorComponent(ConsoleAppComponent):
         self.subject.reset_piece_mass()
 
     def _on_set_piece_mass(self, args):
-        self.subject.set_piece_mass(args['num'], args['mass'], args['munit'])      
+        self.subject.set_piece_mass(args['num'], args['mass'], args['munit'])

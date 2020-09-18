@@ -1,6 +1,5 @@
 from abc import ABC
 from inspect import signature
-from pyconsoleapp.exceptions import PyConsoleAppError
 from typing import Callable, Dict, List, Tuple, Any, Optional, Union, TYPE_CHECKING, cast
 
 from pyconsoleapp import ConsoleApp, exceptions

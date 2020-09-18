@@ -1,7 +1,11 @@
-import os, re, importlib
-from pyconsoleapp.exceptions import ResponseValidationError
+import importlib
+import os
+import re
 from importlib import util
-from typing import Callable, Dict, List, Optional, TYPE_CHECKING, cast
+from typing import Dict, List, Optional, TYPE_CHECKING, cast
+
+from pyconsoleapp.exceptions import ResponseValidationError
+
 if os.name == 'nt':
     from pyautogui import write
 else:
@@ -37,7 +41,7 @@ def rlinput(prompt, prefill=''):
             readline.set_startup_hook()
 
 
-class ConsoleApp():
+class ConsoleApp:
     def __init__(self, name):
         self._response: Optional[str] = None
         self._root_route: str = ''
@@ -49,26 +53,11 @@ class ConsoleApp():
         self._components: Dict[str, 'ConsoleAppComponent'] = {}
         self._active_components: List['ConsoleAppComponent'] = []
         self._component_packages: List[str] = []
-        self._finished_responding: bool = False        
+        self._finished_responding: bool = False
         self._quit: bool = False
         self.name: str = name
         self.error_message: Optional[str] = None
         self.info_message: Optional[str] = None
-
-    @property
-    def _active_response_functions(self) -> Dict[str, Callable]:
-        '''Returns a dict of all currently active option responses.
-
-        Returns:
-            Dict[str, Callable]: A dict of all currently active option
-            responses.
-        '''
-        # Collect the response function map from each active component;
-        response_functions = {}
-        for component in self._active_components:
-            response_functions.update(component._response_functions)
-        # Then return them;
-        return response_functions
 
     @property
     def route(self) -> str:
@@ -96,7 +85,7 @@ class ConsoleApp():
             pascal_to_snake(component_class_name)
 
     def interpret_relative_route(self, route: str) -> str:
-        '''Converts a relative route with point notation
+        """Converts a relative route with point notation
         preceeding it, to an absolute route from the
         root route.
 
@@ -106,7 +95,7 @@ class ConsoleApp():
 
         Returns:
             str -- Absolute route.
-        '''
+        """
         # Figure out how many reverses were in the route;
         back_counter = -1
         while len(route) and route[0] == '.':
@@ -148,9 +137,9 @@ class ConsoleApp():
         return self.fetch_component(component_name)
 
     def make_component(self, component_class_name: str) -> 'ConsoleAppComponent':
-        '''Creates and returns a new instance of the component by finding its 
+        """Creates and returns a new instance of the component by finding its
         constructor in the registered component packages.
-        '''
+        """
         # Convert the class name into its corresponding filename;
         component_filename = pascal_to_snake(component_class_name)
         # Create place to put constructor when found;
@@ -180,9 +169,9 @@ class ConsoleApp():
         return component
 
     def fetch_component(self, component_instance_name: str) -> 'ConsoleAppComponent':
-        '''Looks for the component in the loaded component cache first,
+        """Looks for the component in the loaded component cache first,
         and, if not found there, calls make_component to get a new instance.
-        '''
+        """
         # Convert the instance name into the class name;
         component_class_name = snake_to_pascal(component_instance_name)
         # First look inside initialised components;
@@ -192,38 +181,38 @@ class ConsoleApp():
         return self.make_component(component_class_name)
 
     def register_component_package(self, package_path: str) -> None:
-        '''Registers a dir as containing component files.
+        """Registers a dir as containing component files.
 
         Args:
             package_path (str): Path to dir containing files.
-        '''
+        """
         self._component_packages.append(package_path)
 
     def register_component_packages(self, package_paths: List[str]) -> None:
-        '''Registers a list of dirs as containing component files.
+        """Registers a list of dirs as containing component files.
 
         Args:
             package_paths (List[str]): List of dirs containing component files.
-        '''
+        """
         for path in package_paths:
             self.register_component_package(path)
 
     def activate_component(self, component_instance: 'ConsoleAppComponent') -> None:
-        if not component_instance in self._active_components:
+        if component_instance not in self._active_components:
             self._active_components.append(component_instance)
 
     def _check_guards(self, route: str) -> None:
-        '''Runs and collects response from any applicable guards.
+        """Runs and collects response from any applicable guards.
 
         Args:
             route (List[str]): The current route.
-        '''
+        """
         # Place to put matching guard component (if found);
         component = None
         # First check the exit guards;
         for guarded_route in self._route_exit_guard_map.keys():
             # If the guarded root does not feature in the submitted route;
-            if not guarded_route in route:
+            if guarded_route not in route:
                 # The submitted route must have exited, so populate the component;
                 component = self._route_exit_guard_map[guarded_route]
                 # And don't look through any more exit guards;
@@ -273,14 +262,14 @@ class ConsoleApp():
             del self._route_exit_guard_map[route]
 
     def process_response(self, response: str) -> None:
-        '''If the response is empty, iterates over active components
+        """If the response is empty, iterates over active components
         calling for an available empty-responder. If not empty, first
         iterates over active components looking for a matching marker-responder,
         then iterates over active components looking for a markerless-responder.
 
         Args:
             response (str): The user's response.
-        '''
+        """
         matched_responder = False
         try:
             # If the response is empty, give each active component a chance to respond;
@@ -290,8 +279,9 @@ class ConsoleApp():
                     if argless_responder:
                         argless_responder()
                         matched_responder = True
-                        if self._finished_responding: return
-            
+                        if self._finished_responding:
+                            return
+
             # Otherwise, give any marker-only responders a chance;
             else:
                 for component in self._active_components:
@@ -301,8 +291,9 @@ class ConsoleApp():
                             if responder.check_response_match(response):
                                 responder(response)
                                 matched_responder = True
-                                if self._finished_responding: return
-           
+                                if self._finished_responding:
+                                    return
+
             # Finally give each active component a chance to field a
             # markerless responder;
             for component in self._active_components:
@@ -310,14 +301,16 @@ class ConsoleApp():
                 if markerless_responder:
                     markerless_responder(response)
                     matched_responder = True
-                    if self._finished_responding: return
-        
+                    if self._finished_responding:
+                        return
+
             # If no component has responded, then raise an exception;
-            if not matched_responder and not response.replace(' ', '') == '': 
+            if not matched_responder and not response.replace(' ', '') == '':
                 raise ResponseValidationError('This response isn\'t recognised.')
 
         except pcap.ResponseValidationError as err:
-            if err.message: self.error_message = err.message
+            if err.message:
+                self.error_message = err.message
             return
 
     def continue_responding(self) -> None:
@@ -327,12 +320,11 @@ class ConsoleApp():
         self._finished_responding = True
 
     def run(self) -> None:
-        '''Main run loop for the CLI
-        '''
+        """Main run loop for the CLI"""
         # Enter the main loop;
         while not self._quit:
             # If response has been collected;
-            if not self._response == None:
+            if self._response is not None:
                 self.process_response(self._response)
                 self._finished_responding = False
                 self._response = None
@@ -374,7 +366,8 @@ class ConsoleApp():
     def back(self) -> None:
         self.route = self._route_history.pop()
 
-    def clear_console(self):
+    @staticmethod
+    def clear_console():
         os.system('cls' if os.name == 'nt' else 'clear')
 
     def quit(self):
