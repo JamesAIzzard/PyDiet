@@ -1,25 +1,17 @@
 import abc
-from abc import abstractmethod
-from typing import Optional, cast
+from typing import Optional
 
-from pydiet import defining
 
 class SupportsName(abc.ABC):
 
     @property
     @abc.abstractmethod
-    def _name(self) -> Optional[str]:
+    def name(self) -> Optional[str]:
         raise NotImplementedError
 
     @property
-    def name(self) -> str:
-        if not self.name_is_defined:
-            raise defining.exceptions.NameUndefinedError
-        return cast(str, self._name)
-
-    @property
     def name_is_defined(self) -> bool:
-        if self._name == None:
+        if self.name is None:
             return False
         else:
             return True
@@ -31,8 +23,9 @@ class SupportsName(abc.ABC):
         else:
             return 'Undefined'
 
-class SupportsNameSetting(SupportsName):
 
-    @abstractmethod
-    def set_name(self, name:str) -> None:
+class SupportsNameSetting(SupportsName, abc.ABC):
+
+    @abc.abstractmethod
+    def set_name(self, name: Optional[str]) -> None:
         raise NotImplementedError

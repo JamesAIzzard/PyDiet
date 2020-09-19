@@ -1,6 +1,6 @@
 import abc
-
-from typing import TypedDict, Union, Dict, Optional, cast
+import copy
+from typing import TypedDict, Union, Dict, Optional
 
 from pydiet import persistence
 
@@ -9,9 +9,11 @@ class PersistenceInfo(TypedDict):
     data: Union[TypedDict, Dict]
     datafile_name: Optional[str]
 
+
 class DBInfo(TypedDict):
     unique_field_name: str
     path_into_db: str
+
 
 class SupportsPersistence(abc.ABC):
 
@@ -22,7 +24,7 @@ class SupportsPersistence(abc.ABC):
 
     @property
     @abc.abstractmethod
-    def readonly_persistence_info(self) -> 'PersistenceInfo':
+    def _persistence_info(self) -> PersistenceInfo:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -31,7 +33,14 @@ class SupportsPersistence(abc.ABC):
 
     @property
     def datafile_exists(self) -> bool:
-        if self.readonly_persistence_info['datafile_name'] == None:
+        if self._persistence_info['datafile_name'] is None:
+            return False
+        else:
+            return True
+
+    @property
+    def unique_field_defined(self) -> bool:
+        if self.unique_field_value is None:
             return False
         else:
             return True
@@ -42,8 +51,7 @@ class SupportsPersistence(abc.ABC):
 
     @property
     def unique_field_value(self) -> Optional[str]:
-        return cast(Optional[str], self.readonly_persistence_info['data']
-                    [self.get_unique_field_name()])
+        return self._persistence_info['data'][self.get_unique_field_name()]
 
     @classmethod
     def get_path_into_db(cls) -> str:
@@ -55,7 +63,7 @@ class SupportsPersistence(abc.ABC):
 
     @property
     def datafile_name(self) -> Optional[str]:
-        return cast(Optional[str], self.readonly_persistence_info['datafile_name'])
+        return self._persistence_info['datafile_name']
 
     @property
     def datafile_path(self) -> str:
@@ -67,5 +75,5 @@ class SupportsPersistence(abc.ABC):
                 datafile_name=self.datafile_name)
 
     @property
-    def data(self) -> Union[Dict, TypedDict]:
-        return self.readonly_persistence_info['data']
+    def data_copy(self) -> Union[Dict, TypedDict]:
+        return copy.deepcopy(self._persistence_info['data'])

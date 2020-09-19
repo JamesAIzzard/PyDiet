@@ -1,7 +1,7 @@
 import copy
 from typing import Optional, Dict, List, TypedDict, TYPE_CHECKING
 
-from pydiet import nutrients, defining, quantity, cost, flags, quantity, persistence
+from pydiet import nutrients, defining, cost, flags, quantity, persistence
 
 if TYPE_CHECKING:
     from pydiet.quantity.supports_bulk import BulkData
@@ -34,15 +34,15 @@ class Ingredient(persistence.supports_persistence.SupportsPersistence,
                  nutrients.supports_nutrients.SupportsNutrients,
                  quantity.supports_bulk.SupportsBulkSetting):
 
-    def __init__(self, data: 'IngredientData', datafile_name:Optional[str]=None):
+    def __init__(self, data: 'IngredientData', datafile_name: Optional[str] = None):
         self._data = data
         self._datafile_name = datafile_name
 
     @property
-    def _name(self) -> Optional[str]:
+    def name(self) -> Optional[str]:
         return self._data['name']
 
-    def set_name(self, name: str) -> None:
+    def set_name(self, name: Optional[str]) -> None:
         self._data['name'] = name
 
     @property
@@ -61,7 +61,7 @@ class Ingredient(persistence.supports_persistence.SupportsPersistence,
         return attr_names
 
     @property
-    def _cost_per_g(self) -> Optional[float]:
+    def cost_per_g(self) -> Optional[float]:
         return self._data['cost_per_g']
 
     def _set_cost_per_g(self, validated_cost_per_g: Optional[float]) -> None:
@@ -93,11 +93,11 @@ class Ingredient(persistence.supports_persistence.SupportsPersistence,
         )
 
     @property
-    def readonly_persistence_info(self) -> 'PersistenceInfo':
+    def _persistence_info(self) -> 'PersistenceInfo':
         return persistence.supports_persistence.PersistenceInfo(
-            data=copy.deepcopy(self._data),
+            data=self._data,
             datafile_name=self._datafile_name
         )
 
-    def set_datafile_name(self, datafile_name:str) -> None:
+    def set_datafile_name(self, datafile_name: str) -> None:
         self._datafile_name = datafile_name
