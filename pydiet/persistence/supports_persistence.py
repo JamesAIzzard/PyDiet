@@ -1,12 +1,12 @@
 import abc
 import copy
-from typing import TypedDict, Union, Dict, Optional
+from typing import TypedDict, Union, Dict, Optional, Any
 
 from pydiet import persistence
 
 
 class PersistenceInfo(TypedDict):
-    data: Union[TypedDict, Dict]
+    data: Dict[str, Any]
     datafile_name: Optional[str]
 
 

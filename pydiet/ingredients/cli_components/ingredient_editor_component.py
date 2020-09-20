@@ -111,6 +111,6 @@ class IngredientEditorComponent(ConsoleAppComponent):
         if self._check_if_name_defined():
             bed = cast('BulkEditorComponent', self.app.fetch_component('bulk_editor_component'))
             bed.subject = self.subject
-            bed._unchanged_bulk_data = self.subject.bulk_data
+            bed._unchanged_bulk_data = self.subject._bulk_data
             bed._return_to_route = self.app.route
             self.app.goto('home.ingredients.edit.bulk')            

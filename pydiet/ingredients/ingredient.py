@@ -1,4 +1,3 @@
-import copy
 from typing import Optional, Dict, List, TypedDict, TYPE_CHECKING
 
 from pydiet import nutrients, defining, cost, flags, quantity, persistence
@@ -6,8 +5,7 @@ from pydiet import nutrients, defining, cost, flags, quantity, persistence
 if TYPE_CHECKING:
     from pydiet.quantity.supports_bulk import BulkData
     from pydiet.nutrients.supports_nutrients import NutrientData
-    from pydiet.persistence.supports_persistence import PersistenceInfo
-    from pydiet.persistence.supports_persistence import DBInfo
+    from pydiet.persistence.supports_persistence import DBInfo, PersistenceInfo
 
 
 class IngredientData(TypedDict):
@@ -15,7 +13,7 @@ class IngredientData(TypedDict):
     flags: Dict[str, Optional[bool]]
     name: Optional[str]
     nutrients: Dict[str, 'NutrientData']
-    bulk: 'BulkData'
+    bulk: quantity.supports_bulk.BulkData
 
 
 def get_empty_ingredient_data() -> 'IngredientData':

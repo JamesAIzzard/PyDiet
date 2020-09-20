@@ -36,7 +36,7 @@ Set Density     | -mass  [mass]
                 | -vunit [volume unit]
 ----------------|-----------------------------------
 
-{density_summary}
+Density: {density_summary}
 
 '''
 
@@ -51,7 +51,7 @@ Set Piece Mass  | -num   [num pieces]
                 | -munit [mass unit]
 ----------------|----------------------------------
 
-{piece_mass_summary}
+Piece Mass: {piece_mass_summary}
 
 '''
 

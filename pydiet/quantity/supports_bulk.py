@@ -1,4 +1,5 @@
 import abc
+import copy
 from typing import TypedDict, Optional
 
 from pydiet import quantity, defining
@@ -24,6 +25,10 @@ class SupportsBulk(defining.supports_name.SupportsName):
     @abc.abstractmethod
     def _bulk_data(self) -> BulkData:
         raise NotImplementedError
+
+    @property
+    def bulk_data_copy(self) -> BulkData:
+        return copy.deepcopy(self._bulk_data)
 
     @property
     def pref_unit(self) -> str:
