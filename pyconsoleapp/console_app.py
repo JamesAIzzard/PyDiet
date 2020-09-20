@@ -2,7 +2,7 @@ import importlib
 import os
 import re
 from importlib import util
-from typing import Dict, List, Optional, TYPE_CHECKING, cast
+from typing import Dict, List, Optional, TYPE_CHECKING, cast, Type, TypeVar
 
 from pyconsoleapp.exceptions import ResponseValidationError
 
@@ -19,6 +19,7 @@ if TYPE_CHECKING:
         ConsoleAppGuardComponent
     )
 
+T = TypeVar('T')
 
 def pascal_to_snake(text: str) -> str:
     s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', text)
@@ -167,6 +168,9 @@ class ConsoleApp:
         component.app = self
         # Return the finished component;
         return component
+
+    def get_component(self, component_class: Type[T]) -> T:
+        return self.fetch_component(pascal_to_snake(component_class.__name__))
 
     def fetch_component(self, component_instance_name: str) -> 'ConsoleAppComponent':
         """Looks for the component in the loaded component cache first,
