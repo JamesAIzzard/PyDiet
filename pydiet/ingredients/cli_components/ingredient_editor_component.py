@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING, cast
 
 from pyconsoleapp import ConsoleAppComponent, styles
-from pydiet import ingredients, persistence, cost
+from pydiet import ingredients, persistence, cost, flags
 
 if TYPE_CHECKING:
     from pydiet.ingredients.ingredient import Ingredient
@@ -99,18 +99,13 @@ class IngredientEditorComponent(ConsoleAppComponent):
     def on_edit_cost(self):
         if self._check_if_name_defined():
             ced = self.app.get_component(cost.cli_components.cost_editor_component.CostEditorComponent)
-            ced.subject = self.subject
-            ced._unchanged_cost_per_g = self.subject.cost_per_g
-            ced._return_to_route = self.app.route
+            ced.configure(subject=self.subject, backup_cost_per_g=self.subject.cost_per_g, return_to=self.app.route)
             self.app.goto('home.ingredients.edit.cost')
 
     def on_edit_flags(self):
         if self._check_if_name_defined():
-            # fed = self.app.get_component(flags.cli_components.flag_editor_component.FlagEditorComponent)
-            # fed.configure(subject=self.subject, return_to_route=self.app.route)
-            fed = cast('FlagEditorComponent', self.app.fetch_component('flag_editor_component'))
-            fed.subject = self.subject
-            fed.return_to_route = self.app.route
+            fed = self.app.get_component(flags.cli_components.flag_editor_component.FlagEditorComponent)
+            fed.configure(subject=self.subject, return_to_route=self.app.route)
             self.app.goto('home.ingredients.edit.flags')
 
     def on_edit_bulk(self):

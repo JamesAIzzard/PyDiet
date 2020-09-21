@@ -25,9 +25,9 @@ Cost Summary: {cost_summary}
 class CostEditorComponent(ConsoleAppComponent):
     def __init__(self, app):
         super().__init__(app)
-        self.subject: 'SupportsCostSetting'
-        self._unchanged_cost_per_g: Optional[float]
-        self._return_to_route: str
+        self.subject: Optional['SupportsCostSetting'] = None
+        self._backup_cost_per_g: Optional[float] = None
+        self._return_to_route: Optional[str] = None
 
         # Configure main mode;
         self.configure_printer(self.print_main_editor)
@@ -48,6 +48,11 @@ class CostEditorComponent(ConsoleAppComponent):
         self.configure_responder(self.on_cancel, args=[
             self.configure_valueless_primary_arg('cancel', markers=['-cancel'])
         ])
+
+    def configure(self, subject: 'SupportsCostSetting', backup_cost_per_g: float, return_to: str):
+        self.subject = subject
+        self._backup_cost_per_g = backup_cost_per_g,
+        self._return_to_route = return_to
 
     def print_main_editor(self):
         output = _main_editor_template.format(
