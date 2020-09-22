@@ -1,92 +1,82 @@
-from typing import Dict
+from typing import Dict, Optional, Any, TYPE_CHECKING
 
-from pyconsoleapp import ConsoleAppComponent, menu_tools
+from pyconsoleapp import ConsoleAppComponent, Responder, PrimaryArg, ResponseValidationError, menu_tools, styles
+
+if TYPE_CHECKING:
+    from pydiet.flags.supports_flags import SupportsFlags
 
 _main_menu_template = '''
 ----------------|-------------------
-Save Changes    | -save
+OK              | -ok
+Cancel          | -cancel
 ----------------|-------------------
 Mark Flag Yes   | -yes [flag number]
 Mark Flag No    | -no  [flag number]
 Unset Flag      | -del [flag number]
 ----------------|-------------------
 
-Set Flags:
-{current_flags}
-
-Unset Flags:
-{available_flags}
+Flags:
+{flag_menu}
 '''
 
 
 class FlagEditorComponent(ConsoleAppComponent):
     def __init__(self, app):
         super().__init__(app)
-        self.subject
-        self.current_flag_num_map: Dict[int, str]
-        self.available_flag_num_map: Dict[int, str]
-        self.set_response_function(['-add', '-a'], self.on_add_flag)
-        self.set_response_function(['-remove', '-r'], self.on_remove_flag)
+        self._subject: Optional['SupportsFlags'] = None
+        self._return_to_route: Optional[str] = None
+        self._backup_flag_data: Dict[str, Optional[bool]] = {}
+        self._flag_numbering: Dict[int, str] = {}
 
-    def run(self) -> None:
-        self.current_flag_num_map = menu_tools.create_number_name_map(
-            self.subject.flags)
-        self.available_flag_num_map = menu_tools.create_number_name_map(
-            self.subject.available_flags)
+        self.configure_state('main', responders=[
+            Responder(self.on_ok, args=[PrimaryArg('ok', has_value=False, markers=['-ok'])]),
+            Responder(self.on_cancel, args=[PrimaryArg('cancel', markers=['cancel'])]),
+            Responder(self.on_set_yes, args=[
+                PrimaryArg('flag_num', has_value=True, markers=['-yes'], validators=[self._validate_flag_num])]),
+            Responder(self.on_set_no, args=[
+                PrimaryArg('flag_num', has_value=True, markers='-no', validators=[self._validate_flag_num])]),
+            Responder(self.on_unset, args=[
+                PrimaryArg('flag_num', has_value=True, markers=['-del'], validators=[self._validate_flag_num])
+            ])
+        ])
 
-    def print(self, *args, **kwargs) -> str:
-        output = _MAIN_TEMPLATE.format(
-            current_flags=self.current_flags_menu,
-            available_flags=self.available_flags_menu
+    def before_print(self) -> None:
+        self._flag_numbering = menu_tools.create_number_name_map(self._subject.all_flag_names)
+
+    def configure(self, subject: 'SupportsFlags', return_to: str, backup_flag_data: Dict[str, Optional[bool]])->None:
+        self._subject = subject
+        self._return_to_route = return_to
+        self._backup_flag_data = backup_flag_data
+
+    @property
+    def _flag_menu(self) -> str:
+        output = ''
+        for flag_number in self._flag_numbering:
+            output = output + '{num}. {name}: {value}\n'.format(
+                num=flag_number,
+                name=self._flag_numbering[flag_number],
+                value=self._subject.summarise_flag(self._flag_numbering[flag_number])
+            )
+        return output
+
+    def _print_main_menu(self) -> str:
+        output = _main_menu_template.format(flag_menu=styles.fore(self._flag_menu, 'blue'))
+        return self.app.fetch_component('standard_page_component').print(
+            page_title='Flag Editor',
+            page_content=output
         )
-        return self.app.fetch_component('standard_page_component').call_print(output)
 
-    @property
-    def current_flags_menu(self) -> str:
-        if len(self.current_flag_num_map) == 0:
-            return 'No flags added.'
-        output = ''
-        for flag_num in self.current_flag_num_map.keys():
-            output = output + '{flag_num} -> {flag_name}\n'.format(
-                flag_num=flag_num,
-                flag_name=self.current_flag_num_map[flag_num]
-            )
-        return output
-
-    @property
-    def available_flags_menu(self) -> str:
-        if len(self.available_flag_num_map) == 0:
-            return 'No flags available.'
-        output = ''
-        for flag_num in self.available_flag_num_map.keys():
-            output = output + '{flag_num} -> {flag_name}\n'.format(
-                flag_num=flag_num,
-                flag_name=self.available_flag_num_map[flag_num]
-            )
-        return output
-
-    def on_add_flag(self, args=None) -> None:
-        # Check the args is a number referring to an available flag;
+    def _validate_flag_num(self, value: Any) -> int:
         try:
-            args = int(args)
+            value = int(value)
         except ValueError:
-            self.app.error_message = 'Specify a number from the available flags menu.'
-            return
-        if not args in self.available_flag_num_map.keys():
-            self.app.error_message = 'Specify a number from the available flags menu.'
-            return
-        # Add the flag;
-        self.subject.add_flag(self.available_flag_num_map[args])
+            raise ResponseValidationError('The flag number was not recognised.')
+        if value not in self._flag_numbering.keys():
+            raise ResponseValidationError('{} does not refer to a flag.'.format(value))
+        return value
 
-    def on_remove_flag(self, args=None) -> None:
-        # Check the args is a number referring to a current flag;
-        try:
-            args = int(args)
-        except ValueError:
-            self.app.error_message = 'Specify a number from the current flags menu.'
-            return
-        if not args in self.current_flag_num_map.keys():
-            self.app.error_message = 'Specify a number from the current flags menu.'
-            return
-        # Remove the flag;
-        self.subject.remove_flag(self.current_flag_num_map[args])
+    def _on_ok(self)->None:
+        self.app.goto(self._return_to_route)
+
+    def _on_cancel(self)->None:
+        self._subject.set_flags(self._backup_flag_data)

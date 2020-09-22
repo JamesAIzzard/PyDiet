@@ -51,7 +51,7 @@ class Ingredient(persistence.supports_persistence.SupportsPersistence,
             attr_names.append('name')
         # Check flags;
         if self.any_flag_undefined:
-            for flag_name in self.undefined_flags:
+            for flag_name in self.unset_flags:
                 attr_names.append('{} flag'.format(
                     flag_name.replace('_', ' ')))
         # Check nutrients;

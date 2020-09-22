@@ -24,7 +24,7 @@ def print_numbered_false_flags_menu(subject: 'SupportsFlags') -> str:
 
 
 def print_numbered_undefined_flags_menu(subject: 'SupportsFlags') -> str:
-    return print_numbered_flags_menu(subject.undefined_flags)
+    return print_numbered_flags_menu(subject.unset_flags)
 
 
 def print_flag_summary(flag_name: str, flag_value: Optional[bool]) -> str:
