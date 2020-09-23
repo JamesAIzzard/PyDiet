@@ -3,7 +3,7 @@ from typing import Dict, Optional, Any, TYPE_CHECKING
 from pyconsoleapp import ConsoleAppComponent, Responder, PrimaryArg, ResponseValidationError, menu_tools, styles
 
 if TYPE_CHECKING:
-    from pydiet.flags.supports_flags import SupportsFlags
+    from pydiet.flags.supports_flags import SupportsFlagSetting
 
 _main_menu_template = '''
 ----------------|-------------------
@@ -23,7 +23,7 @@ Flags:
 class FlagEditorComponent(ConsoleAppComponent):
     def __init__(self, app):
         super().__init__(app)
-        self._subject: Optional['SupportsFlags'] = None
+        self._subject: Optional['SupportsFlagSetting'] = None
         self._return_to_route: Optional[str] = None
         self._backup_flag_data: Dict[str, Optional[bool]] = {}
         self._flag_numbering: Dict[int, str] = {}
@@ -34,7 +34,7 @@ class FlagEditorComponent(ConsoleAppComponent):
             Responder(self.on_set_yes, args=[
                 PrimaryArg('flag_num', has_value=True, markers=['-yes'], validators=[self._validate_flag_num])]),
             Responder(self.on_set_no, args=[
-                PrimaryArg('flag_num', has_value=True, markers='-no', validators=[self._validate_flag_num])]),
+                PrimaryArg('flag_num', has_value=True, markers=['-no'], validators=[self._validate_flag_num])]),
             Responder(self.on_unset, args=[
                 PrimaryArg('flag_num', has_value=True, markers=['-del'], validators=[self._validate_flag_num])
             ])
@@ -43,7 +43,8 @@ class FlagEditorComponent(ConsoleAppComponent):
     def before_print(self) -> None:
         self._flag_numbering = menu_tools.create_number_name_map(self._subject.all_flag_names)
 
-    def configure(self, subject: 'SupportsFlags', return_to: str, backup_flag_data: Dict[str, Optional[bool]])->None:
+    def configure(self, subject: 'SupportsFlagSetting', return_to: str,
+                  backup_flag_data: Dict[str, Optional[bool]]) -> None:
         self._subject = subject
         self._return_to_route = return_to
         self._backup_flag_data = backup_flag_data
@@ -75,8 +76,17 @@ class FlagEditorComponent(ConsoleAppComponent):
             raise ResponseValidationError('{} does not refer to a flag.'.format(value))
         return value
 
-    def _on_ok(self)->None:
+    def _on_ok(self) -> None:
         self.app.goto(self._return_to_route)
 
-    def _on_cancel(self)->None:
-        self._subject.set_flags(self._backup_flag_data)
+    def _on_cancel(self) -> None:
+        self._subject.set_flags(self._backup_flag_data)  # TODO - Implement this;
+
+    def _on_yes(self, args):
+        self._subject.set_flag(self._flag_numbering[args['flag_num']], True)
+
+    def _on_no(self, args) -> None:
+        self._subject.set_flag(self._flag_numbering[args['flag_num']], False)
+
+    def _on_unset(self, args) -> None:
+        self._subject.set_flag(self._flag_numbering[args['flag_num']], None)

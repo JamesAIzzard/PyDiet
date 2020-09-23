@@ -1,7 +1,10 @@
 # Expose classes;
 from pyconsoleapp.console_app import ConsoleApp
 from pyconsoleapp.components import (ConsoleAppComponent,
-                                     ConsoleAppGuardComponent)
+                                     ConsoleAppGuardComponent,
+                                     Responder,
+                                     PrimaryArg,
+                                     OptionArg)
 
 from pyconsoleapp.exceptions import ResponseValidationError
 

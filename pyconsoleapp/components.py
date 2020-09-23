@@ -10,12 +10,15 @@ if TYPE_CHECKING:
 
 class Responder:
     def __init__(self,
-                 app: 'ConsoleApp',
+                 app: 'ConsoleApp', # Todo - This is breaking the idea to directly create a Responder().
                  func: Callable,
-                 args: List['ResponderArg']):
+                 args: List['ResponderArg'] = None):
         self._app = app
         self._func = func
         self._args = args
+
+        if args is None:
+            args = []
 
         # Check there are not multiple markerless args within this responder;
         markerless_found = False
@@ -194,6 +197,26 @@ class Responder:
             self._func(args)
         else:
             self._func()
+
+
+def PrimaryArg(arg_name: str, has_value: bool, markers: List[str] = None,
+               validators: List[Callable] = None, default_value=None) -> 'ResponderArg':
+    if markers is None:
+        markers = []
+    if validators is None:
+        validators = []
+    return ResponderArg(primary=True, valueless=not has_value, name=arg_name, markers=markers, validators=validators,
+                        default_value=default_value)
+
+
+def OptionArg(arg_name: str, has_value: bool, markers: List[str] = None,
+              validators: List[Callable] = None, default_value=None) -> 'ResponderArg':
+    if markers is None:
+        markers = []
+    if validators is None:
+        validators = []
+    return ResponderArg(primary=False, valueless=not has_value, name=arg_name, markers=markers, validators=validators,
+                        default_value=default_value)
 
 
 class ResponderArg:
