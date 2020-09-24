@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, cast
+from typing import Optional, TYPE_CHECKING, cast
 
 from pyconsoleapp import ConsoleAppComponent, styles
 from pydiet import ingredients, persistence, cost, flags
@@ -36,7 +36,7 @@ Nutrients:
 class IngredientEditorComponent(ConsoleAppComponent):
     def __init__(self, app):
         super().__init__(app)
-        self.subject: 'Ingredient'
+        self.subject: Optional['Ingredient'] = None
 
         self.configure_printer(self.print_main_menu_view)
 
@@ -50,6 +50,10 @@ class IngredientEditorComponent(ConsoleAppComponent):
 
         self.configure_responder(self.on_edit_cost, args=[
             self.configure_valueless_primary_arg('cost', markers=['-cost'])
+        ])
+
+        self.configure_responder(self.on_edit_flags, args=[
+            self.configure_valueless_primary_arg('flag', markers=['-flag'])
         ])
 
         self.configure_responder(self.on_edit_bulk, args=[
@@ -105,7 +109,8 @@ class IngredientEditorComponent(ConsoleAppComponent):
     def on_edit_flags(self):
         if self._check_if_name_defined():
             fed = self.app.get_component(flags.cli_components.flag_editor_component.FlagEditorComponent)
-            fed.configure(subject=self.subject, return_to_route=self.app.route)
+            fed.configure(subject=self.subject, return_to_route=self.app.route,
+                          backup_flag_data=self.subject.flags_data_copy)
             self.app.goto('home.ingredients.edit.flags')
 
     def on_edit_bulk(self):

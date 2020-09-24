@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 
 class Responder:
     def __init__(self,
-                 app: 'ConsoleApp', # Todo - This is breaking the idea to directly create a Responder().
+                 app: 'ConsoleApp',
                  func: Callable,
                  args: List['ResponderArg'] = None):
         self._app = app
@@ -303,7 +303,7 @@ class ConsoleAppComponent(ABC):
         self._printers: Dict[Union[None, str], Callable] = {}
         # Init state storage;
         self._states: List[Union[None, str]] = [None]
-        self._current_state: Union[None, str] = self._states[0]
+        self._current_state: Union[None, str] = None
 
     def __getattribute__(self, name: str) -> Any:
         """Intercepts the print command and adds the component to
@@ -328,7 +328,11 @@ class ConsoleAppComponent(ABC):
 
     @property
     def current_state(self) -> Union[None, str]:
-        return self._current_state
+        if self._current_state is None:
+            self._current_state = self.states[0]
+            return self._current_state
+        else:
+            return self._current_state
 
     @current_state.setter
     def current_state(self, value: Union[None, str]) -> None:
@@ -395,10 +399,25 @@ class ConsoleAppComponent(ABC):
         for state in states:
             self._printers[state] = func
 
+    def configure_state(self, state_name: str, print_function: Callable, responders: List[Responder]) -> None:
+        # Add the state to the state list, resetting from start value if rqd. Also reset responders list;
+        if self.states == [None]:
+            self._states = []
+            self._responders = {}
+        self._states = self._states + [state_name]
+        # Add the printer;
+        self._printers[state_name] = print_function
+        # Init the state entry on the responders dict;
+        if state_name not in self._responders:
+            self._responders[state_name] = []
+        # Add the responders;
+        for responder in responders:
+            self._responders[state_name].append(responder)
+
     def configure_responder(self,
                             func: Callable,
                             states=None,
-                            args=None) -> None:
+                            args=None) -> 'Responder':
         """Generic responder configuration.
 
         Args:
@@ -433,6 +452,7 @@ class ConsoleAppComponent(ABC):
         r = Responder(self.app, func, args)
         for state in states:
             self._responders[state].append(r)
+        return r
 
     @staticmethod
     def configure_std_primary_arg(name: str,

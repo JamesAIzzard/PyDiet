@@ -1,6 +1,6 @@
 import abc
 import copy
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Any
 
 from pydiet import flags
 
@@ -25,7 +25,13 @@ class SupportsFlags(abc.ABC):
 
     @property
     def flags_summary(self) -> str:
-        return 'A flag summary.'
+        output = ''
+        for fname in self._flags_data:
+            output = output + '{name:<15} {value:<10}\n'.format(
+                name=fname.replace('_', ' ')+':',
+                value=self.summarise_flag(fname)
+            )
+        return output
 
     @property
     def all_flag_names(self) -> List[str]:
@@ -61,10 +67,22 @@ class SupportsFlags(abc.ABC):
     def any_flag_undefined(self) -> bool:
         return None in self._flags_data.values()
 
+    @staticmethod
+    def validate_flag_value(value: Any) -> Optional[bool]:
+        if value not in ['True', 'False', 'None']:
+            raise flags.exceptions.FlagValueError
+        return value
+
+    @staticmethod
+    def validate_flag_name(name: str) -> str:
+        if name.lower() not in flags.configs.all_flag_names:
+            raise flags.exceptions.FlagNameError
+        return name.lower()
+
     def flag_is_defined(self, flag_name: str) -> bool:
         return self._flags_data[flag_name] is not None
 
-    def summarise_flag(self, flag_name:str) -> str:
+    def summarise_flag(self, flag_name: str) -> str:
         val = self.get_flag_value(flag_name)
         if val is None:
             return 'Undefined'
@@ -74,8 +92,14 @@ class SupportsFlags(abc.ABC):
 
 class SupportsFlagSetting(SupportsFlags, abc.ABC):
 
+    def set_flags(self, flag_data: Dict[str, Optional[bool]]):
+        for fname in flag_data:
+            self.set_flag(fname, flag_data[fname])
+
     def set_flag(self, flag_name: str, flag_value: Optional[bool]) -> None:
-        if flag_value is None:
-            self._flags_data[flag_name] = None
-        else:
-            self._flags_data[flag_name] = bool(flag_value)
+        # Validate;
+        flag_name = self.validate_flag_name(flag_name)
+        flag_value = self.validate_flag_value(flag_value)
+        # Set;
+        self._flags_data[flag_name] = flag_value
+
