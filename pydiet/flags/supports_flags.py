@@ -28,7 +28,7 @@ class SupportsFlags(abc.ABC):
         output = ''
         for fname in self._flags_data:
             output = output + '{name:<15} {value:<10}\n'.format(
-                name=fname.replace('_', ' ')+':',
+                name=fname.replace('_', ' ') + ':',
                 value=self.summarise_flag(fname)
             )
         return output
@@ -69,7 +69,7 @@ class SupportsFlags(abc.ABC):
 
     @staticmethod
     def validate_flag_value(value: Any) -> Optional[bool]:
-        if value not in ['True', 'False', 'None']:
+        if value not in [True, False, None]:
             raise flags.exceptions.FlagValueError
         return value
 
@@ -102,4 +102,3 @@ class SupportsFlagSetting(SupportsFlags, abc.ABC):
         flag_value = self.validate_flag_value(flag_value)
         # Set;
         self._flags_data[flag_name] = flag_value
-

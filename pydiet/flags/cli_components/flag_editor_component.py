@@ -56,7 +56,7 @@ class FlagEditorComponent(ConsoleAppComponent):
         for flag_number in self._flag_numbering:
             output = output + '{num}. {name}: {value}\n'.format(
                 num=flag_number,
-                name=self._flag_numbering[flag_number],
+                name=self._flag_numbering[flag_number].replace('_', ' '),
                 value=self._subject.summarise_flag(self._flag_numbering[flag_number])
             )
         return output
