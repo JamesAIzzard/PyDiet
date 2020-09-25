@@ -169,15 +169,19 @@ nutrient_aliases: Dict[str, List[str]] = {
 }
 
 nutrient_group_definitions: Dict[str, List[str]] = {
-    "carbohydrate": ["glucose", "sucrose", "ribose", "amylose", "amylopectin", "maltose", "galactose", "fructose", "lactose"],
+    "carbohydrate": ["glucose", "sucrose", "ribose", "amylose", "amylopectin", "maltose", "galactose", "fructose",
+                     "lactose"],
     "cartenoids": ["a_carotene", "b_carotene", "cryptoxanthin", "lutein", "lycopene", "zeaxanthin"],
     "fat": ["monounsaturated_fat", "polyunsaturated_fat", "saturated_fat", "trans_fats"],
     "fibre": [],
-    "monounsaturated_fat": ["myristol", "pentadecenoic", "palmitoyl", "heptadecenoic", "oleic_acid", "eicosen", "erucic_acid", "nervonic_acid"],
+    "monounsaturated_fat": ["myristol", "pentadecenoic", "palmitoyl", "heptadecenoic", "oleic_acid", "eicosen",
+                            "erucic_acid", "nervonic_acid"],
     "omega_3": [],
     "omega_6": [],
     "polyunsaturated_fat": [],
-    "protein": ["alanine", "arginine", "aspartic_acid", "asparagine", "cysteine", "glutamic_acid", "glutamine", "glycine", "histidine", "isoleucine", "leucine", "lysine", "methionine", "phenylalanine", "proline", "serine", "threonine", "tryptophan", "tyrosine", "valine"],
+    "protein": ["alanine", "arginine", "aspartic_acid", "asparagine", "cysteine", "glutamic_acid", "glutamine",
+                "glycine", "histidine", "isoleucine", "leucine", "lysine", "methionine", "phenylalanine", "proline",
+                "serine", "threonine", "tryptophan", "tyrosine", "valine"],
     "saturated_fat": [],
     "trans_fats": [],
     "vitamin_a": ["retinol", "retinal", "retinoic_acid", "b_carotene"],

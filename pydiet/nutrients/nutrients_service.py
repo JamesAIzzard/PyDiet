@@ -6,7 +6,7 @@ from pyconsoleapp import search_tools
 from pydiet import nutrients
 
 if TYPE_CHECKING:
-    from pydiet.nutrients.supports_nutrients import NutrientData
+    from pydiet.nutrients.supports_nutrient_content import NutrientData
 
 def all_primary_and_alias_nutrient_names() -> List[str]:
     '''Returns a list of every nutrient name and alias registered to the system.
