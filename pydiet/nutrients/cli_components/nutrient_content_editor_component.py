@@ -151,10 +151,10 @@ class NutrientContentEditorComponent(ConsoleAppComponent):
         # Check the unit used has been configured
         if not self._subject.check_units_configured(output['unit']):
             if quantity.quantity_service.units_are_volumes(output['unit']):
-                raise quantity.exceptions.DensityNotConfiguredError(
+                raise ResponseValidationError(
                     'The ingredient density must be configured before fluid measurements can be used.')
             elif quantity.quantity_service.units_are_pieces(output['unit']):
-                raise quantity.exceptions.PcMassNotConfiguredError(
+                raise ResponseValidationError(
                     'The ingredient piece mass must be configured before "pc" can be used as a unit.')
         # All OK, return.
         return output
@@ -200,7 +200,7 @@ class NutrientContentEditorComponent(ConsoleAppComponent):
             page_content=output
         )
 
-    def _get_nutr_name_from_num(self, num:int) -> str:
+    def _get_nutr_name_from_num(self, num: int) -> str:
         if num in self._mandatory_nuts_menu_data:
             return self._mandatory_nuts_menu_data[num]
         else:

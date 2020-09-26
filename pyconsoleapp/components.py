@@ -433,7 +433,11 @@ class ConsoleAppComponent(ABC):
             args = []
         if states is None:
             states = [None]
-        self._validate_states(states)
+
+        # Nasty hack to make the new notation work;
+        if states == [None] and None not in self.states:
+            states = ['_temp']
+            self._responders['_temp'] = []
 
         # If this is an empty responder, check there are no others;
         if len(args) == 0:
@@ -443,15 +447,19 @@ class ConsoleAppComponent(ABC):
 
         # Check the primary markers in this responder don't collide
         # with any that have been configured in this state already;
-        for marker in self.get_primary_markers(states):
-            for arg in args:
-                if marker in arg.markers:
-                    raise exceptions.DuplicatePrimaryMarkerError
+        if not states == ['_temp']:  # More of the same nasty hack to allow the new configuration method;
+            for marker in self.get_primary_markers(states):
+                for arg in args:
+                    if marker in arg.markers:
+                        raise exceptions.DuplicatePrimaryMarkerError
 
         # Create and stash the responder object in the correct states;
         r = Responder(self.app, func, args)
+
+        # Assign the responders to the states;
         for state in states:
             self._responders[state].append(r)
+
         return r
 
     @staticmethod

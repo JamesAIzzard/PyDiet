@@ -55,8 +55,8 @@ class SupportsNutrientContent(quantity.supports_bulk.SupportsBulk, abc.ABC):
         if None in self._nutrients_data[nutrient_name].values():
             return 'Undefined'
         else:
-            return '{:4f}g per g of {}'.format(self._nutrients_data[nutrient_name]['nutrient_g_per_subject_g'],
-                                               self.name)
+            return '{:4f}g per 1g of {}'.format(self._nutrients_data[nutrient_name]['nutrient_g_per_subject_g'],
+                                                self.name)
 
     @property
     def nutrients_summary(self) -> str:

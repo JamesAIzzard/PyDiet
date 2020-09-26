@@ -5,7 +5,7 @@ from typing import Optional
 from pydiet import quantity, cost
 
 
-class SupportsCost(quantity.supports_bulk.SupportsBulk):
+class SupportsCost(quantity.supports_bulk.SupportsBulk, abc.ABC):
 
     @property
     @abc.abstractmethod
