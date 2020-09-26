@@ -1,6 +1,6 @@
-from typing import Optional, Dict, TYPE_CHECKING
+from typing import Optional, Dict, Any, TYPE_CHECKING
 
-from pyconsoleapp import ConsoleAppComponent, PrimaryArg, menu_tools
+from pyconsoleapp import ConsoleAppComponent, PrimaryArg, menu_tools, StandardPageComponent, ResponseValidationError
 from pydiet import nutrients
 
 if TYPE_CHECKING:
@@ -11,7 +11,7 @@ _main_menu_template = '''
 OK                          | -ok
 Cancel                      | -cancel
 ----------------------------|-------------------------------
-Edit Nutrient               | -edit [nutrient number]
+Edit Nutrient               | -edit  [nutrient number]
 Set New Nutrient            | -new
 Reset Nutrient              | -reset [nutrient number]
 ----------------------------|-------------------------------
@@ -29,12 +29,12 @@ Other Nutrients:
 # items from each list.
 
 
-class NutrientContentEditorComponet(ConsoleAppComponent):
+class NutrientContentEditorComponent(ConsoleAppComponent):
     def __init__(self, app):
         super().__init__(app)
         self._subject: Optional['SupportsSettingNutrientContent'] = None
         self._return_to_route: Optional[str] = None
-        self._backup_nutrient_content_data: Dict[str, 'NutrientData'] = {}
+        self._backup_nutrients_data: Dict[str, 'NutrientData'] = {}
         self._mandatory_nuts_menu_data: Dict[int, str] = {}
         self._other_nuts_menu_data: Dict[int, str] = {}
 
@@ -55,20 +55,69 @@ class NutrientContentEditorComponet(ConsoleAppComponent):
         # Create the nutrient menus;
         self._mandatory_nuts_menu_data = menu_tools.create_number_name_map(nutrients.configs.mandatory_nutrient_names,
                                                                            start_num=1)
-        self._other_nuts_menu_data = menu_tools.create_number_name_map(self._subject.defined_optional_nutrient_names,
-                                                                       start_num=len(
-                                                                           nutrients.configs.mandatory_nutrient_names))
+        self._other_nuts_menu_data = menu_tools.create_number_name_map(
+            self._subject.defined_optional_nutrient_names,
+            start_num=len(nutrients.configs.mandatory_nutrient_names) + 1)
 
     def configure(self, subject: 'SupportsSettingNutrientContent', return_to_route: str,
-                  backup_nutrient_content_data: Dict[str, 'NutrientData']) -> None:
+                  backup_nutrients_data: Dict[str, 'NutrientData']) -> None:
         self._subject = subject
         self._return_to_route = return_to_route
-        self._backup_nutrient_content_data = backup_nutrient_content_data
+        self._backup_nutrients_data = backup_nutrients_data
 
     @property
     def _mandatory_nuts_menu(self) -> str:
-        raise NotImplementedError
+        menu = ''
+        for num in self._mandatory_nuts_menu_data:
+            menu = menu + '{num}. {nut_name:<30} {summary:<20}\n'.format(
+                num=num,
+                nut_name=self._mandatory_nuts_menu_data[num].replace('_', ' ')+':',
+                summary=self._subject.summarise_nutrient(self._mandatory_nuts_menu_data[num])
+            )
+        return menu
 
     @property
     def _other_nuts_menu(self) -> str:
+        if len(self._other_nuts_menu_data):
+            menu = ''
+            for num in self._other_nuts_menu_data:
+                menu = menu + '{num}. {nut_name}\n'.format(
+                    num=num, nut_name=self._other_nuts_menu_data[num].replace('_', ' '))
+        else:
+            menu = 'No other nutrients defined yet.'
+        return menu
+
+    def _validate_nut_number(self, nut_num: Any) -> int:
+        try:
+            nut_num = int(nut_num)
+        except TypeError:
+            raise ResponseValidationError('Please enter a valid nutrient number.')
+        if nut_num not in self._mandatory_nuts_menu_data.keys() or nut_num not in self._other_nuts_menu_data.keys():
+            raise ResponseValidationError('Please enter a valid nutrient number.')
+        return nut_num
+
+    def _print_main_menu(self) -> str:
+        output = _main_menu_template.format(
+            mandatory_nuts_menu=self._mandatory_nuts_menu,
+            other_nuts_menu=self._other_nuts_menu
+        )
+        return self.app.get_component(StandardPageComponent).print(
+            page_title="Nutrient Content Editor",
+            page_content=output
+        )
+
+    def _on_ok(self) -> None:
+        self.app.goto(self._return_to_route)
+
+    def _on_cancel(self) -> None:
+        self._subject.set_nutrients_data(self._backup_nutrients_data)
+        self.app.goto(self._return_to_route)
+
+    def _on_edit_nutrient(self) -> None:
+        raise NotImplementedError
+
+    def _on_new_nutrient(self) -> None:
+        raise NotImplementedError
+
+    def _on_reset_nutrient(self) -> None:
         raise NotImplementedError

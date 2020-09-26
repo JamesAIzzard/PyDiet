@@ -6,7 +6,8 @@ from pydiet.nutrients import (configs,
                               nutrient,
                               supports_nutrient_content,
                               supports_nutrient_targets,
-                              nutrients_service)
+                              nutrients_service,
+                              cli_components)
 
 # Init the global nutrient instances;
 global_nutrients: Dict[str, nutrient.Nutrient] = {}

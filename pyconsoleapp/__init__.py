@@ -5,7 +5,7 @@ from pyconsoleapp.components import (ConsoleAppComponent,
                                      Responder,
                                      PrimaryArg,
                                      OptionArg)
-
+from pyconsoleapp.builtin_components.standard_page_component import  StandardPageComponent
 from pyconsoleapp.exceptions import ResponseValidationError
 
 # Expose modules;

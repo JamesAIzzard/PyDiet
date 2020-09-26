@@ -29,7 +29,7 @@ class Ingredient(persistence.supports_persistence.SupportsPersistence,
                  defining.supports_name.SupportsNameSetting,
                  cost.supports_cost.SupportsCostSetting,
                  flags.supports_flags.SupportsFlagSetting,
-                 nutrients.supports_nutrient_content.SupportsNutrientContent,
+                 nutrients.supports_nutrient_content.SupportsSettingNutrientContent,
                  quantity.supports_bulk.SupportsBulkSetting):
 
     def __init__(self, data: 'IngredientData', datafile_name: Optional[str] = None):

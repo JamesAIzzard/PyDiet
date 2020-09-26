@@ -1,7 +1,7 @@
 from typing import Optional, TYPE_CHECKING, cast
 
 from pyconsoleapp import ConsoleAppComponent, styles
-from pydiet import ingredients, persistence, cost, flags
+from pydiet import ingredients, persistence, cost, flags, nutrients
 
 if TYPE_CHECKING:
     from pydiet.ingredients.ingredient import Ingredient
@@ -54,6 +54,10 @@ class IngredientEditorComponent(ConsoleAppComponent):
 
         self.configure_responder(self.on_edit_flags, args=[
             self.configure_valueless_primary_arg('flag', markers=['-flag'])
+        ])
+
+        self.configure_responder(self.on_edit_nutrients, args=[
+            self.configure_valueless_primary_arg('nuts', markers=['-nuts'])
         ])
 
         self.configure_responder(self.on_edit_bulk, args=[
@@ -120,3 +124,11 @@ class IngredientEditorComponent(ConsoleAppComponent):
             bed._unchanged_bulk_data = self.subject.bulk_data_copy
             bed._return_to_route = self.app.route
             self.app.goto('home.ingredients.edit.bulk')
+
+    def on_edit_nutrients(self) -> None:
+        if self._check_if_name_defined():
+            ned = self.app.get_component(
+                nutrients.cli_components.nutrient_content_editor_component.NutrientContentEditorComponent)
+            ned.configure(subject=self.subject, return_to_route=self.app.route,
+                          backup_nutrients_data=self.subject.nutrients_data_copy)
+            self.app.goto('home.ingredients.edit.nutrients')
