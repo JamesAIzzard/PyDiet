@@ -33,7 +33,7 @@ def validate_nutrient_name(name: str) -> str:
         name (str): Name to validate.
 
     Raises:
-        nutrients.exceptions.UnknownNutrientNameError: If name is not
+        nutrients.exceptions.NutrientNameError: If name is not
             recognised.
 
     Returns:
@@ -44,7 +44,7 @@ def validate_nutrient_name(name: str) -> str:
     if name in all_primary_and_alias_nutrient_names():
         return name
     # Wasn't found, so raise an exception;
-    raise nutrients.exceptions.UnknownNutrientNameError
+    raise nutrients.exceptions.NutrientNameError
 
 
 def get_nutrient_primary_name(nutrient_name: str) -> str:
@@ -55,7 +55,7 @@ def get_nutrient_primary_name(nutrient_name: str) -> str:
         alias (str): Name to lookup the primary name for.
 
     Raises:
-        nutrients.exceptions.UnknownNutrientNameError
+        nutrients.exceptions.NutrientNameError
 
     Returns:
         str: Primary nutrient name corresponding to the
@@ -72,7 +72,7 @@ def get_nutrient_primary_name(nutrient_name: str) -> str:
         if nutrient_name in nas[primary_name]:
             return primary_name
     # Nothing found - error;
-    raise nutrients.exceptions.UnknownNutrientNameError
+    raise nutrients.exceptions.NutrientNameError
 
 
 def get_matching_nutrient_names(search_term: str, num_results: int) -> List[str]:

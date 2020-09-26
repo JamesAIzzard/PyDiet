@@ -26,7 +26,7 @@ class Nutrient:
 
     @property
     def parent_nutrients(self) -> Dict[str, 'Nutrient']:
-        if self._parent_nutrients_cache == None:
+        if self._parent_nutrients_cache is None:
             ng_defs = nutrients.configs.nutrient_group_definitions
             glb_nuts = nutrients.global_nutrients
             self._parent_nutrients_cache = {}
@@ -37,7 +37,7 @@ class Nutrient:
 
     @property
     def child_nutrients(self) -> Dict[str, 'Nutrient']:
-        if self._child_nutrients_cache == None:
+        if self._child_nutrients_cache is None:
             ng_defs = nutrients.configs.nutrient_group_definitions
             glb_nuts = nutrients.global_nutrients
             self._child_nutrients_cache = {}

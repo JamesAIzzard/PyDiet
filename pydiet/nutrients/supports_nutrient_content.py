@@ -40,23 +40,18 @@ class SupportsNutrientContent(abc.ABC):
 class SupportsSettingNutrientContent(SupportsNutrientContent, abc.ABC):
 
     def set_nutrient_data(self, nutrient_name: str,
-                          subject_mass_g: Optional[float],
-                          subject_qty_pref_units: Optional[str],
-                          nutrient_mass_g: Optional[float],
-                          nutrient_qty_pref_units: Optional[str]) -> None:
-        def assign_values(data: 'NutrientData') -> None:
-            data['subject_mass_g'] = subject_mass_g
-            data['subject_qty_pref_units'] = subject_qty_pref_units
-            data['nutrient_mass_g'] = nutrient_mass_g
-            data['nutrient_qty_pref_units'] = nutrient_qty_pref_units
+                          nutrient_g_per_subject_g: Optional[float],
+                          nutrient_pref_units: str = 'g') -> None:
 
-        # Take a backup of the dataset, make the change, and validate the dataset;
-        whole_backup = self.readonly_nutrients_data
-        nut_backup = whole_backup[nutrient_name]
-        assign_values(nut_backup)
-        nutrients.nutrients_service.validate_nutritients_data(
-            nut_backup)
+        new_data = NutrientData(nutrient_g_per_subject_g=nutrient_g_per_subject_g,
+                                nutrient_pref_units=nutrient_pref_units)
 
-        # Make the change on the real dataset;
-        nut_data = self._nutrients_data[nutrient_name]
-        assign_values(nut_data)
+        # Make the change on a copy of the data and validate it;
+        nutrients_dataset_copy = self.nutrients_data_copy
+        nutrients_dataset_copy[nutrient_name] = new_data
+        nutrients.supports_nutrient_content.validate_nutrients_data(nutrients_dataset_copy)
+
+        # All OK, so make the change on the real dataset;
+        self._nutrients_data[nutrient_name] = new_data
+
+

@@ -1,6 +1,7 @@
 from typing import Optional, Dict, TYPE_CHECKING
 
-from pyconsoleapp import ConsoleAppComponent, PrimaryArg
+from pyconsoleapp import ConsoleAppComponent, PrimaryArg, menu_tools
+from pydiet import nutrients
 
 if TYPE_CHECKING:
     from pydiet.nutrients.supports_nutrient_content import SupportsSettingNutrientContent, NutrientData
@@ -50,6 +51,14 @@ class NutrientContentEditorComponet(ConsoleAppComponent):
                 PrimaryArg('reset', has_value=True, markers=['-reset'], validators=[self._validate_nut_number])])
         ])
 
+    def before_print(self) -> None:
+        # Create the nutrient menus;
+        self._mandatory_nuts_menu_data = menu_tools.create_number_name_map(nutrients.configs.mandatory_nutrient_names,
+                                                                           start_num=1)
+        self._other_nuts_menu_data = menu_tools.create_number_name_map(self._subject.defined_optional_nutrient_names,
+                                                                       start_num=len(
+                                                                           nutrients.configs.mandatory_nutrient_names))
+
     def configure(self, subject: 'SupportsSettingNutrientContent', return_to_route: str,
                   backup_nutrient_content_data: Dict[str, 'NutrientData']) -> None:
         self._subject = subject
@@ -63,5 +72,3 @@ class NutrientContentEditorComponet(ConsoleAppComponent):
     @property
     def _other_nuts_menu(self) -> str:
         raise NotImplementedError
-
-

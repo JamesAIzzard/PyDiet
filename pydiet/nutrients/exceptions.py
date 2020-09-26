@@ -1,22 +1,21 @@
-from typing import Optional
+from pydiet import PyDietException
 
-import pydiet
 
-class NutrientConfigsError(pydiet.exceptions.PyDietException):
-    def __init__(self, message:Optional[str]):
-        self.message = message
+class NutrientConfigsError(PyDietException):
+    """Indicates a general error with the nutrient configuration file."""
 
-class UnknownNutrientNameError(pydiet.exceptions.PyDietException):
-    pass
 
-class InvalidNutrientAmountsError(pydiet.exceptions.PyDietException):
-    pass
+class NutrientNameError(PyDietException):
+    """Indicates a general error relating to nutrient naming."""
 
-class NutrientQtyExceedsIngredientQtyError(pydiet.exceptions.PyDietException):
-    pass
 
-class NutrientConstituentsExceedGroupError(pydiet.exceptions.PyDietException):
-    pass
+class InvalidNutrientQtyError(PyDietException):
+    """Indicates the nutrient amount is not valid."""
 
-class NutrientAmountUndefinedError(pydiet.exceptions.PyDietException):
-    pass
+
+class NutrientQtyExceedsIngredientQtyError(InvalidNutrientQtyError):
+    """Indicates the nutrient quantity exceeds the ingredient quantity."""
+
+
+class ChildNutrientQtyExceedsParentNutrientQtyError(InvalidNutrientQtyError):
+    """Indicates the child nutrient quantity exceeds the parent nutrient quantity."""

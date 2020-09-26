@@ -1,7 +1,8 @@
-from typing import Dict, List
+from typing import Dict
 
 from pydiet.nutrients import (configs,
                               exceptions,
+                              validation,
                               nutrient,
                               supports_nutrient_content,
                               supports_nutrient_targets,
