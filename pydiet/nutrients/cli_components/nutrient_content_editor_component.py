@@ -1,7 +1,8 @@
 from typing import Optional, Dict, Any, TYPE_CHECKING
 
-from pyconsoleapp import ConsoleAppComponent, PrimaryArg, menu_tools, StandardPageComponent, ResponseValidationError
-from pydiet import nutrients
+from pyconsoleapp import ConsoleAppComponent, PrimaryArg, menu_tools, StandardPageComponent, ResponseValidationError, \
+    styles, builtin_validators
+from pydiet import nutrients, quantity
 
 if TYPE_CHECKING:
     from pydiet.nutrients.supports_nutrient_content import SupportsSettingNutrientContent, NutrientData
@@ -23,6 +24,24 @@ Other Nutrients:
 {other_nuts_menu}
 '''
 
+_edit_menu_template = '''
+----------------------------|-----------------------------------------------------
+OK                          | -ok
+Cancel                      | -cancel
+----------------------------|-----------------------------------------------------
+Set Nutrient Amount         | -ingr  [ingredient quantity]
+                            | -nutr  [nutrient quantity]
+                            |
+                            | Example: 
+                            | >>> -ingr 1.2kg -nutr 25g 
+                            |
+                            | To indicate 1.2kg of the ingredient contains 25g of 
+                            | the nutrient).
+----------------------------|-----------------------------------------------------
+
+{nutrient_name}: {nutrient_summary}
+'''
+
 
 # note We need to organise the numbering of these two menus so as to follow the other nutrients on from the mandatory
 # nutrients. That way, we can use the same validator for both, and we don't need sperate editor functions to edit
@@ -35,20 +54,33 @@ class NutrientContentEditorComponent(ConsoleAppComponent):
         self._subject: Optional['SupportsSettingNutrientContent'] = None
         self._return_to_route: Optional[str] = None
         self._backup_nutrients_data: Dict[str, 'NutrientData'] = {}
+        self._backup_nutrient_data: Optional['NutrientData'] = None
         self._mandatory_nuts_menu_data: Dict[int, str] = {}
         self._other_nuts_menu_data: Dict[int, str] = {}
+        self._current_nutrient_name: Optional[str] = None
 
         self.configure_state('main', self._print_main_menu, responders=[
-            self.configure_responder(self._on_ok, args=[
+            self.configure_responder(self._on_main_ok, args=[
                 PrimaryArg('ok', has_value=False, markers=['-ok'])]),
-            self.configure_responder(self._on_cancel, args=[
+            self.configure_responder(self._on_main_cancel, args=[
                 PrimaryArg('cancel', has_value=False, markers=['-cancel'])]),
             self.configure_responder(self._on_edit_nutrient, args=[
-                PrimaryArg('edit', has_value=True, markers=['-edit'], validators=[self._validate_nut_number])]),
+                PrimaryArg('edit', has_value=True, markers=['-edit'], validators=[self._validate_nutr_number])]),
             self.configure_responder(self._on_new_nutrient, args=[
                 PrimaryArg('new', has_value=False, markers=['-new'])]),
             self.configure_responder(self._on_reset_nutrient, args=[
-                PrimaryArg('reset', has_value=True, markers=['-reset'], validators=[self._validate_nut_number])])
+                PrimaryArg('reset', has_value=True, markers=['-reset'], validators=[self._validate_nutr_number])])
+        ])
+
+        self.configure_state('edit', self._print_edit_menu, responders=[
+            self.configure_responder(self._on_edit_ok, args=[
+                PrimaryArg('ok', has_value=False, markers=['-ok'])]),
+            self.configure_responder(self._on_edit_cancel, args=[
+                PrimaryArg('cancel', has_value=False, markers=['-cancel'])]),
+            self.configure_responder(self._on_set_nutrient_amount, args=[
+                PrimaryArg('ingr', has_value=True, markers=['-ingr'], validators=[self._validate_ingr_input]),
+                PrimaryArg('nutr', has_value=True, markers=['-nutr'], validators=[self._validate_nutr_input])
+            ])
         ])
 
     def before_print(self) -> None:
@@ -71,8 +103,8 @@ class NutrientContentEditorComponent(ConsoleAppComponent):
         for num in self._mandatory_nuts_menu_data:
             menu = menu + '{num}. {nut_name:<30} {summary:<20}\n'.format(
                 num=num,
-                nut_name=self._mandatory_nuts_menu_data[num].replace('_', ' ')+':',
-                summary=self._subject.summarise_nutrient(self._mandatory_nuts_menu_data[num])
+                nut_name=styles.fore(self._mandatory_nuts_menu_data[num].replace('_', ' ') + ':', 'blue'),
+                summary=styles.fore(self._subject.summarise_nutrient(self._mandatory_nuts_menu_data[num]), 'blue')
             )
         return menu
 
@@ -81,20 +113,72 @@ class NutrientContentEditorComponent(ConsoleAppComponent):
         if len(self._other_nuts_menu_data):
             menu = ''
             for num in self._other_nuts_menu_data:
-                menu = menu + '{num}. {nut_name}\n'.format(
-                    num=num, nut_name=self._other_nuts_menu_data[num].replace('_', ' '))
+                menu = menu + '{num}. {nut_name:<30} {summary:<20}\n'.format(
+                    num=num,
+                    nut_name=styles.fore(self._other_nuts_menu_data[num].replace('_', ' ') + ':', 'blue'),
+                    summary=styles.fore(self._subject.summarise_nutrient(self._other_nuts_menu_data[num]), 'blue')
+                )
         else:
-            menu = 'No other nutrients defined yet.'
+            menu = styles.fore('No other nutrients defined yet.', 'blue')
         return menu
 
-    def _validate_nut_number(self, nut_num: Any) -> int:
+    def _validate_nutr_number(self, nut_num: Any) -> int:
         try:
             nut_num = int(nut_num)
         except TypeError:
             raise ResponseValidationError('Please enter a valid nutrient number.')
-        if nut_num not in self._mandatory_nuts_menu_data.keys() or nut_num not in self._other_nuts_menu_data.keys():
+        if nut_num not in self._mandatory_nuts_menu_data.keys() and nut_num not in self._other_nuts_menu_data.keys():
             raise ResponseValidationError('Please enter a valid nutrient number.')
         return nut_num
+
+    def _validate_ingr_input(self, ingr_input: str) -> Dict:
+        # Split the input into number and string;
+        validated_input = builtin_validators.validate_number_and_str(ingr_input)
+        output = {
+            'qty': validated_input[0],
+            'unit': validated_input[1]
+        }
+        # Check the number is a valid qty;
+        try:
+            output['qty'] = quantity.quantity_service.validate_quantity(output['qty'])
+        except quantity.exceptions.InvalidQtyError:
+            raise ResponseValidationError('The ingredient quantity must be a positive number.')
+        # Check the string is a valid unit;
+        try:
+            output['unit'] = quantity.quantity_service.validate_qty_unit(output['unit'])
+        except quantity.exceptions.UnknownUnitError:
+            raise ResponseValidationError('The ingredient unit is not recognised.')
+        # Check the unit used has been configured
+        if not self._subject.check_units_configured(output['unit']):
+            if quantity.quantity_service.units_are_volumes(output['unit']):
+                raise quantity.exceptions.DensityNotConfiguredError(
+                    'The ingredient density must be configured before fluid measurements can be used.')
+            elif quantity.quantity_service.units_are_pieces(output['unit']):
+                raise quantity.exceptions.PcMassNotConfiguredError(
+                    'The ingredient piece mass must be configured before "pc" can be used as a unit.')
+        # All OK, return.
+        return output
+
+    @staticmethod
+    def _validate_nutr_input(nutr_input: str) -> Dict:
+        # Split the input into number and string;
+        validated_input = builtin_validators.validate_number_and_str(nutr_input)
+        output = {
+            'qty': validated_input[0],
+            'unit': validated_input[1]
+        }
+        # Check the number is a valid qty;
+        try:
+            output['qty'] = quantity.quantity_service.validate_quantity(output['qty'])
+        except quantity.exceptions.InvalidQtyError:
+            raise ResponseValidationError('The nutrient quantity must be a positive number.')
+        # Check the unit is a valid mass;
+        try:
+            output['unit'] = quantity.quantity_service.validate_mass_unit(output['unit'])
+        except quantity.exceptions.UnknownUnitError:
+            raise ResponseValidationError('The nutrient unit is not a recognised mass.')
+        # All OK, return;
+        return output
 
     def _print_main_menu(self) -> str:
         output = _main_menu_template.format(
@@ -106,18 +190,65 @@ class NutrientContentEditorComponent(ConsoleAppComponent):
             page_content=output
         )
 
-    def _on_ok(self) -> None:
+    def _print_edit_menu(self) -> str:
+        output = _edit_menu_template.format(
+            nutrient_name=self._current_nutrient_name,
+            nutrient_summary=self._subject.summarise_nutrient(self._current_nutrient_name)
+        )
+        return self.app.get_component(StandardPageComponent).print(
+            page_title="Nutrient Content Editor",
+            page_content=output
+        )
+
+    def _get_nutr_name_from_num(self, num:int) -> str:
+        if num in self._mandatory_nuts_menu_data:
+            return self._mandatory_nuts_menu_data[num]
+        else:
+            return self._other_nuts_menu_data[num]
+
+    def _on_main_ok(self) -> None:
         self.app.goto(self._return_to_route)
 
-    def _on_cancel(self) -> None:
+    def _on_main_cancel(self) -> None:
         self._subject.set_nutrients_data(self._backup_nutrients_data)
         self.app.goto(self._return_to_route)
 
-    def _on_edit_nutrient(self) -> None:
-        raise NotImplementedError
+    def _on_edit_nutrient(self, args) -> None:
+        self._current_nutrient_name = self._get_nutr_name_from_num(args['edit'])
+        self.current_state = 'edit'
 
     def _on_new_nutrient(self) -> None:
         raise NotImplementedError
 
-    def _on_reset_nutrient(self) -> None:
+    def _on_reset_nutrient(self, args) -> None:
         raise NotImplementedError
+
+    def _on_edit_ok(self) -> None:
+        self.current_state = 'main'
+
+    def _on_edit_cancel(self) -> None:
+        self._subject.set_nutrient_data(self._current_nutrient_name, self._backup_nutrient_data)
+        self.current_state = 'main'
+
+    def _on_set_nutrient_amount(self, args) -> None:
+        # Convert the args into g per g
+        nutrient_qty_g = quantity.quantity_service.convert_qty_unit(
+            args['nutr']['qty'],
+            args['nutr']['unit'],
+            'g'
+        )
+        ingredient_qty_g = quantity.quantity_service.convert_qty_unit(
+            args['ingr']['qty'],
+            args['ingr']['unit'],
+            'g',
+            self._subject.g_per_ml,
+            self._subject.piece_mass_g
+        )
+        nutrient_g_per_subject_g = nutrient_qty_g / ingredient_qty_g
+        # Build the correct data object;
+        nutrient_data = nutrients.supports_nutrient_content.NutrientData(
+            nutrient_g_per_subject_g=nutrient_g_per_subject_g,
+            nutrient_pref_units=args['nutr']['unit']
+        )
+        # Set the data;
+        self._subject.set_nutrient_data(self._current_nutrient_name, nutrient_data)

@@ -2,7 +2,7 @@ import abc
 import copy
 from typing import Dict, List, Optional, TypedDict
 
-from pydiet import nutrients
+from pydiet import nutrients, quantity
 
 
 class NutrientData(TypedDict):
@@ -18,7 +18,7 @@ def get_empty_nutrients_data() -> Dict[str, 'NutrientData']:
     return nutrients_data
 
 
-class SupportsNutrientContent(abc.ABC):
+class SupportsNutrientContent(quantity.supports_bulk.SupportsBulk, abc.ABC):
 
     @property
     @abc.abstractmethod
@@ -50,34 +50,41 @@ class SupportsNutrientContent(abc.ABC):
                 defined_nutrient_names.append(nutrient_name)
         return defined_nutrient_names
 
-    def summarise_nutrient(self, nutrient_name:str) -> str:
+    def summarise_nutrient(self, nutrient_name: str) -> str:
         nutrient_name = nutrients.nutrients_service.get_nutrient_primary_name(nutrient_name)
         if None in self._nutrients_data[nutrient_name].values():
             return 'Undefined'
         else:
-            return '{}g per g of ingredient'.format(self._nutrients_data[nutrient_name]['nutrient_g_per_subject_g'])
+            return '{:4f}g per g of {}'.format(self._nutrients_data[nutrient_name]['nutrient_g_per_subject_g'],
+                                               self.name)
 
     @property
     def nutrients_summary(self) -> str:
-        return 'A nutrients summary.'
+        output = ''
+        for nutrient_name in nutrients.configs.mandatory_nutrient_names + self.defined_optional_nutrient_names:
+            output = output + '{name:<30} {summary:<30}\n'.format(
+                name=nutrient_name.replace('_', ' ') + ':',
+                summary=self.summarise_nutrient(nutrient_name)
+            )
+        return output
 
 
 class SupportsSettingNutrientContent(SupportsNutrientContent, abc.ABC):
 
-    def set_nutrient_data(self, nutrient_name: str,
-                          nutrient_g_per_subject_g: Optional[float],
-                          nutrient_pref_units: str = 'g') -> None:
-        # Instantiate data as correct type;
-        new_data = NutrientData(nutrient_g_per_subject_g=nutrient_g_per_subject_g,
-                                nutrient_pref_units=nutrient_pref_units)
+    def set_nutrient_data(self, nutrient_name: str, nutrient_data: 'NutrientData') -> None:
+        # Check the qty is valid and check the units are a recognised mass;
+        nutrient_data['nutrient_g_per_subject_g'] = quantity.quantity_service.validate_quantity(
+            nutrient_data['nutrient_g_per_subject_g'])
+        nutrient_data['nutrient_pref_units'] = quantity.quantity_service.validate_mass_unit(
+            nutrient_data['nutrient_pref_units'])
 
         # Make the change on a copy of the data and validate it;
         nutrients_data_copy = self.nutrients_data_copy
-        nutrients_data_copy[nutrient_name] = new_data
+        nutrients_data_copy[nutrient_name] = nutrient_data
         nutrients.validation.validate_nutrients_data(nutrients_data_copy)
 
         # All OK, so make the change on the real dataset;
-        self._nutrients_data[nutrient_name] = new_data
+        self._nutrients_data[nutrient_name] = nutrient_data
 
     def set_nutrients_data(self, nutrients_data: Dict[str, 'NutrientData']) -> None:
         validated_nutrients_data = nutrients.validation.validate_nutrients_data(nutrients_data)
