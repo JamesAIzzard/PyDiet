@@ -14,7 +14,7 @@ Edit Name       | -name [name]
 Edit Cost       | -cost
 Edit Flags      | -flag
 Edit Bulk       | -bulk
-Edit Nutrients  | -nuts
+Edit Nutrients  | -nutr
 ----------------|-------------
 
 Ingredient Status: {status_summary}
@@ -57,7 +57,7 @@ class IngredientEditorComponent(ConsoleAppComponent):
         ])
 
         self.configure_responder(self.on_edit_nutrients, args=[
-            self.configure_valueless_primary_arg('nuts', markers=['-nuts'])
+            self.configure_valueless_primary_arg('nutr', markers=['-nutr'])
         ])
 
         self.configure_responder(self.on_edit_bulk, args=[

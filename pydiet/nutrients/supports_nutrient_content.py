@@ -52,11 +52,23 @@ class SupportsNutrientContent(quantity.supports_bulk.SupportsBulk, abc.ABC):
 
     def summarise_nutrient(self, nutrient_name: str) -> str:
         nutrient_name = nutrients.nutrients_service.get_nutrient_primary_name(nutrient_name)
-        if None in self._nutrients_data[nutrient_name].values():
+        nutrient_data = self._nutrients_data[nutrient_name]
+        nutrient_g_per_subject_g = nutrient_data['nutrient_g_per_subject_g']
+        nutrient_pref_unit = nutrient_data['nutrient_pref_units']
+        if None in nutrient_data.values():
             return 'Undefined'
         else:
-            return '{:4f}g per 1g of {}'.format(self._nutrients_data[nutrient_name]['nutrient_g_per_subject_g'],
-                                                self.name)
+            nutr_ref_qty_g = nutrient_g_per_subject_g*self.ref_qty_in_g
+            nutr_ref_qty = quantity.quantity_service.convert_qty_unit(qty=nutr_ref_qty_g,
+                                                                      start_unit='g',
+                                                                      end_unit=nutrient_pref_unit)
+            return '{nutr_qty:.3f}{nutr_unit} per {subj_qty}{subj_unit} of {subject_name}'.format(
+                nutr_qty=nutr_ref_qty,
+                nutr_unit=nutrient_pref_unit,
+                subj_qty=self.ref_qty,
+                subj_unit=self.pref_unit,
+                subject_name=self.name
+            )
 
     @property
     def nutrients_summary(self) -> str:

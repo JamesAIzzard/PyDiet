@@ -1,8 +1,6 @@
-from pyconsoleapp.builtin_validators import validate_positive_nonzero_number
 from typing import Optional, TYPE_CHECKING
 
 from pyconsoleapp import ConsoleAppComponent, styles, builtin_validators
-
 from pydiet import quantity
 
 if TYPE_CHECKING:
@@ -14,8 +12,8 @@ OK              | -ok
 Cancel          | -cancel
 Zero Bulk       | -reset
 ----------------|-----------------------------------
-Set Pref Unit   | -unit
-Set Ref Qty     | -qty
+Set Pref Unit   | -unit [preferred unit]
+Set Ref Qty     | -qty  [reference quantity]
 Set Density     | -density 
 Set Piece Mass  | -piece
 ----------------|-----------------------------------
@@ -109,11 +107,11 @@ class BulkEditorComponent(ConsoleAppComponent):
         ])
         self.configure_responder(self._on_set_density, states=['density'], args=[
             self.configure_std_primary_arg('mass', markers=[
-                                           '-mass'], validators=[builtin_validators.validate_positive_nonzero_number]),
+                '-mass'], validators=[builtin_validators.validate_positive_nonzero_number]),
             self.configure_std_primary_arg(
                 'munit', markers=['-munit'], validators=[quantity.cli_components.validators.validate_mass_unit]),
             self.configure_std_primary_arg('vol', markers=[
-                                           '-vol'], validators=[builtin_validators.validate_positive_nonzero_number]),
+                '-vol'], validators=[builtin_validators.validate_positive_nonzero_number]),
             self.configure_std_primary_arg(
                 'vunit', markers=['-vunit'], validators=[quantity.cli_components.validators.validate_vol_unit])
         ])
@@ -125,17 +123,21 @@ class BulkEditorComponent(ConsoleAppComponent):
         ])
         self.configure_responder(self._on_cancel_piece_and_return_to_main, states=['piece'], args=[
             self.configure_valueless_primary_arg('cancel', markers=['-cancel'])
-        ])        
+        ])
         self.configure_responder(self._on_reset_piece, states=['piece'], args=[
             self.configure_valueless_primary_arg('reset', markers=['-reset'])
         ])
         self.configure_responder(self._on_set_piece_mass, states=['piece'], args=[
-            self.configure_std_primary_arg('num', markers=['-num'], validators=[builtin_validators.validate_positive_nonzero_number]),
-            self.configure_std_primary_arg('mass', markers=['-mass'], validators=[builtin_validators.validate_positive_nonzero_number]),
-            self.configure_std_primary_arg('munit', markers=['-munit'], validators=[quantity.cli_components.validators.validate_mass_unit])
-        ])                
+            self.configure_std_primary_arg('num', markers=['-num'],
+                                           validators=[builtin_validators.validate_positive_nonzero_number]),
+            self.configure_std_primary_arg('mass', markers=['-mass'],
+                                           validators=[builtin_validators.validate_positive_nonzero_number]),
+            self.configure_std_primary_arg('munit', markers=['-munit'],
+                                           validators=[quantity.cli_components.validators.validate_mass_unit])
+        ])
 
-    # Shared methods;
+        # Shared methods;
+
     def _validate_configured_unit(self, unit):
         return quantity.cli_components.validators.validate_configured_unit(self.subject, unit)
 
@@ -206,6 +208,7 @@ class BulkEditorComponent(ConsoleAppComponent):
             page_title='Piece Mass Editor',
             page_content=output
         )
+
     def _on_cancel_piece_and_return_to_main(self):
         self.subject.set_piece_mass_g(self._unchanged_piece_mass_g)
 

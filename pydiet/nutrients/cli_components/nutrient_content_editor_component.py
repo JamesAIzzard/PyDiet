@@ -103,8 +103,8 @@ class NutrientContentEditorComponent(ConsoleAppComponent):
         for num in self._mandatory_nuts_menu_data:
             menu = menu + '{num}. {nut_name:<30} {summary:<20}\n'.format(
                 num=num,
-                nut_name=styles.fore(self._mandatory_nuts_menu_data[num].replace('_', ' ') + ':', 'blue'),
-                summary=styles.fore(self._subject.summarise_nutrient(self._mandatory_nuts_menu_data[num]), 'blue')
+                nut_name=self._mandatory_nuts_menu_data[num].replace('_', ' ') + ':',
+                summary=self._subject.summarise_nutrient(self._mandatory_nuts_menu_data[num])
             )
         return menu
 
@@ -115,8 +115,8 @@ class NutrientContentEditorComponent(ConsoleAppComponent):
             for num in self._other_nuts_menu_data:
                 menu = menu + '{num}. {nut_name:<30} {summary:<20}\n'.format(
                     num=num,
-                    nut_name=styles.fore(self._other_nuts_menu_data[num].replace('_', ' ') + ':', 'blue'),
-                    summary=styles.fore(self._subject.summarise_nutrient(self._other_nuts_menu_data[num]), 'blue')
+                    nut_name=self._other_nuts_menu_data[num].replace('_', ' ') + ':',
+                    summary=self._subject.summarise_nutrient(self._other_nuts_menu_data[num])
                 )
         else:
             menu = styles.fore('No other nutrients defined yet.', 'blue')
@@ -182,8 +182,8 @@ class NutrientContentEditorComponent(ConsoleAppComponent):
 
     def _print_main_menu(self) -> str:
         output = _main_menu_template.format(
-            mandatory_nuts_menu=self._mandatory_nuts_menu,
-            other_nuts_menu=self._other_nuts_menu
+            mandatory_nuts_menu=styles.fore(self._mandatory_nuts_menu, 'blue'),
+            other_nuts_menu=styles.fore(self._other_nuts_menu, 'blue')
         )
         return self.app.get_component(StandardPageComponent).print(
             page_title="Nutrient Content Editor",
@@ -192,8 +192,8 @@ class NutrientContentEditorComponent(ConsoleAppComponent):
 
     def _print_edit_menu(self) -> str:
         output = _edit_menu_template.format(
-            nutrient_name=self._current_nutrient_name,
-            nutrient_summary=self._subject.summarise_nutrient(self._current_nutrient_name)
+            nutrient_name=styles.fore(self._current_nutrient_name, 'blue'),
+            nutrient_summary=styles.fore(self._subject.summarise_nutrient(self._current_nutrient_name), 'blue')
         )
         return self.app.get_component(StandardPageComponent).print(
             page_title="Nutrient Content Editor",

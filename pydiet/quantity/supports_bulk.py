@@ -35,8 +35,18 @@ class SupportsBulk(defining.supports_name.SupportsName):
         return self._bulk_data['pref_unit']
 
     @property
+    def ref_unit(self) -> str:
+        """Alias for pref_unit"""
+        return self.pref_unit
+
+    @property
     def ref_qty(self) -> float:
         return self._bulk_data['ref_qty']
+
+    @property
+    def ref_qty_in_g(self) -> float:
+        return quantity.quantity_service.convert_qty_unit(self.ref_qty, self.pref_unit, 'g', self.g_per_ml,
+                                                          self.piece_mass_g)
 
     @property
     def g_per_ml(self) -> Optional[float]:
@@ -62,7 +72,8 @@ class SupportsBulk(defining.supports_name.SupportsName):
 
     @property
     def piece_mass_in_pref_units(self) -> float:
-        return quantity.quantity_service.convert_qty_unit(self.piece_mass_g, 'g', self.pref_unit, self.g_per_ml)
+        return quantity.quantity_service.convert_qty_unit(self.piece_mass_g, 'g', self.pref_unit, self.g_per_ml,
+                                                          self.piece_mass_g)
 
     def check_units_configured(self, *units: str) -> bool:
         for unit in units:
@@ -77,9 +88,9 @@ class SupportsBulk(defining.supports_name.SupportsName):
     @property
     def piece_mass_summary(self) -> str:
         if self.piece_mass_defined:
-            return 'One {name} is {mass:.4f}{unit}'.format(
+            return 'One {name} is {mass:.2f}g'.format(
                 name=self.name,
-                mass=self.piece_mass_in_pref_units,
+                mass=self.piece_mass_g,
                 unit=self.pref_unit
             )
         else:
@@ -88,7 +99,7 @@ class SupportsBulk(defining.supports_name.SupportsName):
     @property
     def density_summary(self) -> str:
         if self.density_is_defined:
-            return '{g_per_ml:.4f}g/ml'.format(g_per_ml=self.g_per_ml)
+            return '{g_per_ml:.2f}g/ml'.format(g_per_ml=self.g_per_ml)
         else:
             return 'Undefined'
 
@@ -130,9 +141,13 @@ class SupportsBulkSetting(SupportsBulk):
             if not self.density_is_defined:
                 raise quantity.exceptions.DensityNotConfiguredError
         if quantity.quantity_service.units_are_pieces(unit):
-            if not self.density_is_defined:
+            if not self.piece_mass_defined:
                 raise quantity.exceptions.PcMassNotConfiguredError
         self._bulk_data['pref_unit'] = unit
+
+    def set_ref_unit(self, unit: str) -> None:
+        """Alias for set_pref_unit"""
+        self.set_pref_unit(unit)
 
     def set_ref_qty(self, qty: float) -> None:
         qty = quantity.quantity_service.validate_quantity(qty)
@@ -145,7 +160,7 @@ class SupportsBulkSetting(SupportsBulk):
 
     def set_density(self, mass_qty: float, mass_unit: str, vol_qty: float, vol_unit: str) -> None:
         g_per_ml = quantity.quantity_service.convert_density_unit(
-            qty=mass_qty/vol_qty,
+            qty=mass_qty / vol_qty,
             start_mass_unit=mass_unit,
             start_vol_unit=vol_unit,
             end_mass_unit='g',
@@ -168,7 +183,7 @@ class SupportsBulkSetting(SupportsBulk):
         mass_qty = quantity.quantity_service.validate_quantity(mass_qty)
         num_pieces = quantity.quantity_service.validate_quantity(num_pieces)
         # Calc the mass of a single piece;
-        single_pc_mass = mass_qty/num_pieces
+        single_pc_mass = mass_qty / num_pieces
         # Convert single piece mass to g;
         piece_mass_g = quantity.quantity_service.convert_qty_unit(
             single_pc_mass, mass_unit, 'g')
