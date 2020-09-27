@@ -1,1 +1,1 @@
-from . import nutrient_content_editor_component
+from . import nutrient_content_editor_component, nutrient_search_component

@@ -199,10 +199,10 @@ class Responder:
             self._func()
 
 
-def PrimaryArg(arg_name: str, has_value: bool, markers: List[str] = None,
+def PrimaryArg(arg_name: str, has_value: bool, markers: Optional[List[str]] = None,
                validators: List[Callable] = None, default_value=None) -> 'ResponderArg':
     if markers is None:
-        markers = []
+        markers = [None]
     if validators is None:
         validators = []
     return ResponderArg(primary=True, valueless=not has_value, name=arg_name, markers=markers, validators=validators,
@@ -338,6 +338,11 @@ class ConsoleAppComponent(ABC):
     def current_state(self, value: Union[None, str]) -> None:
         self._validate_states([value])
         self._current_state = value
+
+    def change_state(self, state_name: str) -> None:
+        """Changes the component's current state."""
+        self._validate_states([state_name])
+        self._current_state = state_name
 
     @property
     def states(self) -> List[Union[None, str]]:

@@ -131,4 +131,5 @@ class IngredientEditorComponent(ConsoleAppComponent):
                 nutrients.cli_components.nutrient_content_editor_component.NutrientContentEditorComponent)
             ned.configure(subject=self.subject, return_to_route=self.app.route,
                           backup_nutrients_data=self.subject.nutrients_data_copy)
+            ned.change_state('main')
             self.app.goto('home.ingredients.edit.nutrients')

@@ -9,12 +9,12 @@ if TYPE_CHECKING:
 
 _main_menu_template = '''
 ----------------------------|-------------------------------
-OK                          | -ok
-Cancel                      | -cancel
+OK                  ->      | -ok
+Cancel              ->      | -cancel
 ----------------------------|-------------------------------
-Edit Nutrient               | -edit  [nutrient number]
-Set New Nutrient            | -new
-Reset Nutrient              | -reset [nutrient number]
+Edit Nutrient       ->      | -edit  [nutrient number]
+Set New Nutrient    ->      | -new
+Reset Nutrient      ->      | -reset [nutrient number]
 ----------------------------|-------------------------------
 
 Mandatory Nutrients:
@@ -26,10 +26,10 @@ Other Nutrients:
 
 _edit_menu_template = '''
 ----------------------------|-----------------------------------------------------
-OK                          | -ok
-Cancel                      | -cancel
+OK                  ->      | -ok
+Cancel              ->      | -cancel
 ----------------------------|-----------------------------------------------------
-Set Nutrient Amount         | -ingr  [ingredient quantity]
+Set Nutrient Amount ->      | -ingr  [ingredient quantity]
                             | -nutr  [nutrient quantity]
                             |
                             | Example: 
@@ -41,11 +41,6 @@ Set Nutrient Amount         | -ingr  [ingredient quantity]
 
 {nutrient_name}: {nutrient_summary}
 '''
-
-
-# note We need to organise the numbering of these two menus so as to follow the other nutrients on from the mandatory
-# nutrients. That way, we can use the same validator for both, and we don't need sperate editor functions to edit
-# items from each list.
 
 
 class NutrientContentEditorComponent(ConsoleAppComponent):
@@ -69,7 +64,7 @@ class NutrientContentEditorComponent(ConsoleAppComponent):
             self.configure_responder(self._on_new_nutrient, args=[
                 PrimaryArg('new', has_value=False, markers=['-new'])]),
             self.configure_responder(self._on_reset_nutrient, args=[
-                PrimaryArg('reset', has_value=True, markers=['-reset'], validators=[self._validate_nutr_number])])
+                PrimaryArg('nutr_num', has_value=True, markers=['-reset'], validators=[self._validate_nutr_number])])
         ])
 
         self.configure_state('edit', self._print_edit_menu, responders=[
@@ -192,7 +187,7 @@ class NutrientContentEditorComponent(ConsoleAppComponent):
 
     def _print_edit_menu(self) -> str:
         output = _edit_menu_template.format(
-            nutrient_name=styles.fore(self._current_nutrient_name, 'blue'),
+            nutrient_name=styles.fore(self._current_nutrient_name.replace('_', ' '), 'blue'),
             nutrient_summary=styles.fore(self._subject.summarise_nutrient(self._current_nutrient_name), 'blue')
         )
         return self.app.get_component(StandardPageComponent).print(
@@ -218,10 +213,20 @@ class NutrientContentEditorComponent(ConsoleAppComponent):
         self.current_state = 'edit'
 
     def _on_new_nutrient(self) -> None:
-        raise NotImplementedError
+        nsc = self.app.get_component(nutrients.cli_components.nutrient_search_component.NutrientSearchComponent)
+
+        def on_nutrient_selected(nutrient_name: str) -> None:
+            self._current_nutrient_name = nutrient_name
+            self.change_state('edit')
+            self.app.goto('home.ingredients.edit.nutrients')
+
+        nsc.configure(on_nutrient_selected=on_nutrient_selected)
+        nsc.clear_results()
+        nsc.change_state('search')
+        self.app.goto('home.ingredients.edit.nutrients.search')
 
     def _on_reset_nutrient(self, args) -> None:
-        raise NotImplementedError
+        self._subject.reset_nutrient(self._get_nutr_name_from_num(args['nutr_num']))
 
     def _on_edit_ok(self) -> None:
         self.current_state = 'main'

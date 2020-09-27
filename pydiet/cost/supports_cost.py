@@ -28,9 +28,13 @@ class SupportsCost(quantity.supports_bulk.SupportsBulk, abc.ABC):
     @property
     def cost_summary(self) -> str:
         if self.cost_per_g_defined:
-            return '£{cost_per_pref_unit:.4f} per {pref_unit}'.format(
-                cost_per_pref_unit=self.cost_per_pref_unit,
-                pref_unit=self.pref_unit)
+            cost_per_ref_qty = self.ref_qty_in_g * self.cost_per_g
+            return '£{cost:.2f} per {ref_qty}{ref_unit} of {name}'.format(
+                cost=cost_per_ref_qty,
+                ref_qty=self.ref_qty,
+                ref_unit=self.ref_unit,
+                name=self.name
+            )
         else:
             return 'Undefined'
 
