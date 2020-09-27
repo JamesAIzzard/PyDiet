@@ -133,3 +133,6 @@ class IngredientEditorComponent(ConsoleAppComponent):
                           backup_nutrients_data=self.subject.nutrients_data_copy)
             ned.change_state('main')
             self.app.goto('home.ingredients.edit.nutrients')
+
+    def configure(self, ingredient: 'Ingredient') -> None:
+        self.subject = ingredient

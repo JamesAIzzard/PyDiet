@@ -1,7 +1,6 @@
 from typing import TYPE_CHECKING, cast
 
 from pyconsoleapp import ConsoleAppComponent, styles
-
 from pydiet import ingredients, persistence
 
 if TYPE_CHECKING:
@@ -24,9 +23,9 @@ class IngredientMenuComponent(ConsoleAppComponent):
         super().__init__(app)
         self.configure_printer(self.print_menu_view)
         self.configure_responder(self.on_create, args=[
-                                 self.configure_valueless_primary_arg('new', ['-new', '-n'])])
-        # self.configure_responder(self.on_edit, args=[
-        #                          self.configure_valueless_primary_arg('edit', ['-edit', '-e'])])
+            self.configure_valueless_primary_arg('new', ['-new'])])
+        self.configure_responder(self._on_edit, args=[
+            self.configure_valueless_primary_arg('edit', ['-edit'])])
         # self.configure_responder(self.on_delete, args=[
         #                          self.configure_valueless_primary_arg('delete', ['-delete', '-d'])])
         # self.configure_responder(self.on_view, args=[
@@ -44,9 +43,9 @@ class IngredientMenuComponent(ConsoleAppComponent):
         # Frame and return the template;
         output = self.app.fetch_component(
             'standard_page_component').print(
-                page_content=output,
-                page_title='Ingredient Menu'
-            )
+            page_content=output,
+            page_title='Ingredient Menu'
+        )
         return output
 
     def on_create(self):
@@ -62,23 +61,16 @@ class IngredientMenuComponent(ConsoleAppComponent):
         # Go;
         self.app.goto('home.ingredients.edit')
 
-    # def on_edit(self):
-    #     # Configure the ingredient search component to locate
-    #     # the ingredient to edit and load it into the editor;
-    #     isc = self.app.fetch_component('ingredient_search_component')
-    #     isc = cast('IngredientSearchComponent', isc)
-    #     def on_ingredient_found():
-    #         # Load the ingredient into the editor and open it;
-    #         i = ingredient_service.load_ingredient(isc.datafile_name)
-    #         iec = self.app.fetch_component('ingredient_editor_component')
-    #         iec = cast('IngredientEditorComponent', iec)
-    #         iec.subject = i
-    #     isc.on_ingredient_found = on_ingredient_found 
+    def _on_edit(self) -> None:
+        isc = self.app.get_component(ingredients.cli_components.ingredient_search_component.IngredientSearchComponent)
 
-    #     self.app.goto('home.ingredients.search')
+        def on_result_selected(ingredient_name: str):
+            iec = self.app.get_component(
+                ingredients.cli_components.ingredient_editor_component.IngredientEditorComponent)
+            selected_ingredient = persistence.persistence_service.load(
+                ingredients.ingredient.Ingredient, ingredient_name)
+            iec.configure(ingredient=selected_ingredient)
+            self.app.goto('home.ingredients.edit')
 
-    # def on_delete(self):
-    #     self.app.goto('home.ingredients.delete.search')
-
-    # def on_view(self):
-    #     self.app.goto('home.ingredients.ask_search')
+        isc.configure(subject_name='Ingredient', on_result_selected=on_result_selected)
+        self.app.goto('home.ingredients.search')

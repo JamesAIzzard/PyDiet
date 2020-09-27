@@ -1,4 +1,5 @@
 from . import (
+    base_search_component,
     double_hr_component,
     header_component,
     message_bar_component,

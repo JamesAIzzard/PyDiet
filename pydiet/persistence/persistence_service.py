@@ -1,7 +1,7 @@
 import json
 import os
 import uuid
-from typing import Dict, TypeVar, TYPE_CHECKING, cast, Type, Optional
+from typing import Dict, TypeVar, TYPE_CHECKING, cast, Type, Optional, List
 
 from pydiet import persistence
 
@@ -12,12 +12,7 @@ T = TypeVar('T')
 
 
 def save(subject: 'SupportsPersistence') -> None:
-    """Saves the subject.
-    Args:
-        subject: An instance of SupportsPersistence.
-    Raises:
-        persistence.exceptions.UniqueFieldUndefinedError
-    """
+    """Saves the subject."""
     # Check the unique field is filled in;
     if not subject.unique_field_defined:
         raise persistence.exceptions.UniqueFieldUndefinedError
@@ -28,26 +23,36 @@ def save(subject: 'SupportsPersistence') -> None:
         _create_datafile(subject)
 
 
+def load(cls: Type[T], unique_field_value: str) -> T:
+    """Loads and returns an instance of the specified type, corresponding to the
+    unique field name provided."""
+    index = _read_index(cls)
+    datafile_name = None
+    for df_name in index:
+        if index[df_name] == unique_field_value:
+            datafile_name = df_name
+    df_path = cls.get_path_into_db() + datafile_name + '.json'
+    datafile = read_datafile(df_path, Dict)
+    cls = cast(T, cls)
+    instance = cls(datafile)
+    return instance
+
+
 def count_saved_instances(cls: Type['SupportsPersistence']) -> int:
-    """Counts the number of saved instances of the class in the database (by counting entries in the index).
-    Args:
-        cls: A subclass of SupportsPersistence
-    Returns:
-        The number of saved instances of the class.
-    """
+    """Counts the number of saved instances of the class in the database (by counting entries in the index)."""
     index_data = _read_index(cls)
     return len(index_data)
 
 
+def get_saved_unique_vals(cls: Type['SupportsPersistence']) -> List[str]:
+    """Returns a list of all unique saved values for this class. For example: If the class
+    is Ingredient, this would return all saved ingredient names."""
+    index = _read_index(cls)
+    return list(index.values())
+
+
 def check_unique_val_avail(cls: Type['SupportsPersistence'], ingore_df: Optional[str], proposed_unique_val) -> bool:
-    """Checks if the proposed unique value is available for the persistable class type.
-    Args:
-        cls: A subclass of SupportsPersistence
-        ingore_df: Datafile name to be excluded when searching for collisions.
-        proposed_unique_val: Propsed unique value.
-    Returns:
-        True/False to indicate the value's availablilty.
-    """
+    """Checks if the proposed unique value is available for the persistable class type."""
     # Read the index for the persistable class;
     index_data = _read_index(cls)
     # Pop current file if saved;
