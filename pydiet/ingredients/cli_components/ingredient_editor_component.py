@@ -1,34 +1,26 @@
 from typing import Optional, TYPE_CHECKING, cast
 
-from pyconsoleapp import ConsoleAppComponent, styles
-from pydiet import ingredients, persistence, cost, flags, nutrients
+from pyconsoleapp import ConsoleAppComponent, styles, PrimaryArg, builtin_validators
+from pydiet import ingredients, persistence, cost, flags, nutrients, quantity
 
 if TYPE_CHECKING:
     from pydiet.ingredients.ingredient import Ingredient
 
-_main_menu_template = '''
-----------------|-------------
-Save Changes    | -save
-----------------|-------------
-Edit Name       | -name [name]
-Edit Cost       | -cost
-Edit Flags      | -flag
-Edit Bulk       | -bulk
-Edit Nutrients  | -nutr
-----------------|-------------
+_menu_screen_template = '''Save | -save
 
 Ingredient Status: {status_summary}
 
-Name: {name}
-Cost: {cost}
+Name       | -name [new name]         -> {name}
 
-Bulk (Weight & Density):
+Cost       | -cost [cost] -per [qty]  -> {cost}
+
+Bulk (Weight & Density) | -bulk ->
 {bulk_summary}
 
-Flags:
+Flags | -flags ->
 {flags_summary}
 
-Nutrients:
+Nutrients | -nutr ->      
 {nutrients_summary}
 '''
 
@@ -36,103 +28,99 @@ Nutrients:
 class IngredientEditorComponent(ConsoleAppComponent):
     def __init__(self, app):
         super().__init__(app)
-        self.subject: Optional['Ingredient'] = None
+        self._subject: Optional['Ingredient'] = None
 
-        self.configure_printer(self.print_main_menu_view)
-
-        self.configure_responder(self.on_save, args=[
-            self.configure_valueless_primary_arg('save', markers=['-save'])
+        self.configure_state('menu', self._print_menu_screen, responders=[
+            self.configure_responder(self._on_save, args=[
+                PrimaryArg('save', has_value=False, markers=['-save'])]),
+            self.configure_responder(self._on_edit_name, args=[
+                PrimaryArg('name', has_value=True, markers=['-name'])]),
+            self.configure_responder(self._on_edit_cost, args=[
+                PrimaryArg('cost', has_value=True, markers=['-cost'], validators=[
+                    builtin_validators.validate_positive_nonzero_number]),
+                PrimaryArg('per', has_value=True, markers=['-per'], validators=[
+                    self._validate_cost_per_input])]),
+            self.configure_responder(self._on_edit_flags, args=[
+                PrimaryArg('flags', has_value=False, markers=['-flags'])]),
+            self.configure_responder(self._on_edit_bulk, args=[
+                PrimaryArg('bulk', has_value=False, markers=['-bulk'])]),
+            self.configure_responder(self._on_edit_nutrients, args=[
+                PrimaryArg('nutr', has_value=False, markers=['-nutr'])])
         ])
 
-        self.configure_responder(self.on_edit_name, args=[
-            self.configure_std_primary_arg('name', markers=['-name'])
-        ])
-
-        self.configure_responder(self.on_edit_cost, args=[
-            self.configure_valueless_primary_arg('cost', markers=['-cost'])
-        ])
-
-        self.configure_responder(self.on_edit_flags, args=[
-            self.configure_valueless_primary_arg('flag', markers=['-flag'])
-        ])
-
-        self.configure_responder(self.on_edit_nutrients, args=[
-            self.configure_valueless_primary_arg('nutr', markers=['-nutr'])
-        ])
-
-        self.configure_responder(self.on_edit_bulk, args=[
-            self.configure_valueless_primary_arg('bulk', markers=['-bulk'])
-        ])
-
-    def print_main_menu_view(self):
-        output = _main_menu_template.format(
-            status_summary=styles.fore(self.subject.status_summary, 'blue'),
-            name=styles.fore(str(self.subject.name_summary), 'blue'),
-            cost=styles.fore(self.subject.cost_summary, 'blue'),
-            bulk_summary=styles.fore(self.subject.bulk_summary, 'blue'),
-            flags_summary=styles.fore(self.subject.flags_summary, 'blue'),
-            nutrients_summary=styles.fore(self.subject.nutrients_summary, 'blue'))
+    def _print_menu_screen(self):
+        output = _menu_screen_template.format(
+            status_summary=styles.fore(self._subject.status_summary, 'blue'),
+            name=styles.fore(str(self._subject.name_summary), 'blue'),
+            cost=styles.fore(self._subject.cost_summary, 'blue'),
+            bulk_summary=styles.fore(self._subject.bulk_summary, 'blue'),
+            flags_summary=styles.fore(self._subject.flags_summary, 'blue'),
+            nutrients_summary=styles.fore(self._subject.nutrients_summary, 'blue'))
         return self.app.fetch_component('standard_page_component').print(
             page_title='Ingredient Editor',
             page_content=output
         )
 
     def _check_if_name_defined(self) -> bool:
-        if not self.subject.name_is_defined:
+        if not self._subject.name_is_defined:
             self.app.error_message = 'Ingredient name must be set first.'
             return False
         else:
             return True
 
-    def on_save(self) -> None:
+    def _validate_cost_per_input(self, value):
+        qty, unit = builtin_validators.validate_number_and_str(value)
+        qty = builtin_validators.validate_positive_nonzero_number(qty)
+        unit = quantity.cli_components.validators.validate_configured_unit(self._subject, unit)
+        return {'qty': qty, 'unit': unit}
+
+    def _on_save(self) -> None:
         if not self._check_if_name_defined():
             return
         try:
-            persistence.persistence_service.save(self.subject)
+            persistence.persistence_service.save(self._subject)
             self.app.info_message = 'Ingredient saved.'
         except persistence.exceptions.UniqueValueDuplicatedError:
             self.app.error_message = 'There is already an ingredient called {}.'.format(
-                self.subject.name
+                self._subject.name
             )
 
-    def on_edit_name(self, args):
+    def _on_edit_name(self, args):
         if not persistence.persistence_service.check_unique_val_avail(
                 ingredients.ingredient.Ingredient,
-                self.subject.datafile_name,
+                self._subject.datafile_name,
                 args['name']):
             self.app.error_message = 'There is already an ingredient called {}.'.format(
                 args['name'])
-        self.subject.set_name(args['name'])
+        self._subject.set_name(args['name'])
 
-    def on_edit_cost(self):
+    def _on_edit_cost(self, args):
         if self._check_if_name_defined():
-            ced = self.app.get_component(cost.cli_components.cost_editor_component.CostEditorComponent)
-            ced.configure(subject=self.subject, backup_cost_per_g=self.subject.cost_per_g, return_to=self.app.route)
-            self.app.goto('home.ingredients.edit.cost')
+            self._subject.set_cost(args['cost'], args['per']['qty'], args['per']['unit'])
 
-    def on_edit_flags(self):
+    def _on_edit_flags(self):
         if self._check_if_name_defined():
             fed = self.app.get_component(flags.cli_components.flag_editor_component.FlagEditorComponent)
-            fed.configure(subject=self.subject, return_to_route=self.app.route,
-                          backup_flag_data=self.subject.flags_data_copy)
+            fed.configure(subject=self._subject, return_to_route=self.app.route,
+                          backup_flag_data=self._subject.flags_data_copy)
             self.app.goto('home.ingredients.edit.flags')
 
-    def on_edit_bulk(self):
+    def _on_edit_bulk(self):
         if self._check_if_name_defined():
             bed = cast('BulkEditorComponent', self.app.fetch_component('bulk_editor_component'))
-            bed.subject = self.subject
-            bed._unchanged_bulk_data = self.subject.bulk_data_copy
+            bed._subject = self._subject
+            bed._unchanged_bulk_data = self._subject.bulk_data_copy
             bed._return_to_route = self.app.route
             self.app.goto('home.ingredients.edit.bulk')
 
-    def on_edit_nutrients(self) -> None:
+    def _on_edit_nutrients(self) -> None:
         if self._check_if_name_defined():
             ned = self.app.get_component(
                 nutrients.cli_components.nutrient_content_editor_component.NutrientContentEditorComponent)
-            ned.configure(subject=self.subject, return_to_route=self.app.route,
-                          backup_nutrients_data=self.subject.nutrients_data_copy)
+            ned.configure(subject=self._subject, return_to_route=self.app.route,
+                          backup_nutrients_data=self._subject.nutrients_data_copy)
             ned.change_state('main')
             self.app.goto('home.ingredients.edit.nutrients')
 
     def configure(self, ingredient: 'Ingredient') -> None:
-        self.subject = ingredient
+        self._subject = ingredient

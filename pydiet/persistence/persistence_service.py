@@ -12,7 +12,7 @@ T = TypeVar('T')
 
 
 def save(subject: 'SupportsPersistence') -> None:
-    """Saves the subject."""
+    """Saves the _subject."""
     # Check the unique field is filled in;
     if not subject.unique_field_defined:
         raise persistence.exceptions.UniqueFieldUndefinedError
@@ -34,8 +34,9 @@ def load(cls: Type[T], unique_field_value: str) -> T:
     df_path = cls.get_path_into_db() + datafile_name + '.json'
     datafile = read_datafile(df_path, Dict)
     cls = cast(T, cls)
-    instance = cls(datafile)
-    return instance
+    loaded_instance = cls(datafile)
+    loaded_instance.set_datafile_name(datafile_name)
+    return loaded_instance
 
 
 def count_saved_instances(cls: Type['SupportsPersistence']) -> int:
@@ -63,10 +64,7 @@ def check_unique_val_avail(cls: Type['SupportsPersistence'], ingore_df: Optional
 
 
 def read_datafile(filepath: str, data_type: Type[T]) -> T:
-    """Reads the data from the specified path and returns it as data of the specified type.
-    Returns:
-        Data of the specified type (e.g 'IngredientData' etc.)
-    """
+    """Reads the data from the specified path and returns it as data of the specified type."""
     # Read the datafile contents;
     with open(filepath, 'r') as fh:
         raw_data = fh.read()
@@ -77,23 +75,15 @@ def read_datafile(filepath: str, data_type: Type[T]) -> T:
 
 
 def delete_datafile(subject: 'SupportsPersistence') -> None:
-    """Deletes the subject's entry from its index file and then deletes its datafile from disk.
-    Args:
-        subject: An instance of SupportsPersistance.
-    """
-    # Delete the subject's entry from its index;
+    """Deletes the _subject's entry from its index file and then deletes its datafile from disk."""
+    # Delete the _subject's entry from its index;
     _delete_index_entry(subject)
     # Delete the datafile from disk;
     os.remove(subject.datafile_path)
 
 
 def _create_index_entry(subject: 'SupportsPersistence') -> None:
-    """Adds an index entry for the subject. Raises an exception if the unique value is not unique in the index.
-    Args:
-        subject: An instance of SupportsPersistance.
-    Raises:
-        persistence.exceptions.UniqueValueDuplicatedError
-    """
+    """Adds an index entry for the _subject. Raises an exception if the unique value is not unique in the index."""
     # Read the index;
     index_data = _read_index(subject.__class__)
     # Check the unique field value isn't used already;
@@ -109,11 +99,7 @@ def _create_index_entry(subject: 'SupportsPersistence') -> None:
 
 
 def _create_datafile(subject: 'SupportsPersistence') -> None:
-    """Inserts the subjects unique field into the index against a new datafile name, and then writes the objects data
-    in a new datafile on the disk.
-    Args:
-        subject: An instance of SupportsPersistance.
-    """
+    """Inserts the subjects unique field into the index against a new datafile name, and then writes the objects data"""
     # Create the index entry;
     _create_index_entry(subject)
     # Create the datafile;
@@ -122,23 +108,15 @@ def _create_datafile(subject: 'SupportsPersistence') -> None:
 
 
 def _read_index(cls: Type['SupportsPersistence']) -> Dict[str, str]:
-    """Returns the index corresponding to the subject.
-    Args:
-        cls: A subclass of SupportsPersistance.
-    Returns:
-        The index associated with cls.
-    """
+    """Returns the index corresponding to the _subject."""
     with open(cls.get_index_filepath(), 'r') as fh:
         raw_data = fh.read()
         return json.loads(raw_data)
 
 
 def _update_datafile(subject: 'SupportsPersistence') -> None:
-    """Updates the subject's index (to catch any changes to the unique field value), and overwrites the old datafile on
-    disk with the current data.
-    Args:
-        subject: An instance of SupportsPersistence.
-    """
+    """Updates the _subject's index (to catch any changes to the unique field value), and overwrites the old datafile on
+    disk with the current data."""
     # Update the index;
     _update_index_entry(subject)
     # Update the datafile;
@@ -148,12 +126,7 @@ def _update_datafile(subject: 'SupportsPersistence') -> None:
 
 def _update_index_entry(subject: 'SupportsPersistence') -> None:
     """Updates the index saved to disk with the latestingr unique field value on the object. Raises an exception if the
-    unique value is not unique in the index.
-    Args:
-        subject: An instance of SupportsPersistence.
-    Raises:
-        persistence.exceptions.UniqueFieldDuplicatedError
-    """
+    unique value is not unique in the index."""
     # Read the index;
     index_data = _read_index(subject.__class__)
     # Pop the filename so we don't detect a name clash if it hasn't changed;
@@ -168,10 +141,7 @@ def _update_index_entry(subject: 'SupportsPersistence') -> None:
 
 
 def _delete_index_entry(subject: 'SupportsPersistence') -> None:
-    """Deletes the subject's entry from its index.
-    Args:
-        subject: An instance of SupportsPersistence.
-    """
+    """Deletes the _subject's entry from its index."""
     # Read the index;
     index_data = _read_index(subject.__class__)
     # Remove the key/value from the index;

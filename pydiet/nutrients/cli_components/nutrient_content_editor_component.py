@@ -9,12 +9,12 @@ if TYPE_CHECKING:
 
 _main_menu_template = '''
 ----------------------------|-------------------------------
-OK                  ->      | -ok
-Cancel              ->      | -cancel
+OK                          | -ok
+Cancel                      | -cancel
 ----------------------------|-------------------------------
-Edit Nutrient       ->      | -edit  [nutrient number]
-Set New Nutrient    ->      | -new
-Reset Nutrient      ->      | -reset [nutrient number]
+Edit Nutrient               | -edit  [nutrient number]
+Set New Nutrient            | -new
+Reset Nutrient              | -reset [nutrient number]
 ----------------------------|-------------------------------
 
 Mandatory Nutrients:
@@ -26,8 +26,8 @@ Other Nutrients:
 
 _edit_menu_template = '''
 ----------------------------|-----------------------------------------------------
-OK                  ->      | -ok
-Cancel              ->      | -cancel
+OK                          | -ok
+Cancel                      | -cancel
 ----------------------------|-----------------------------------------------------
 Set Nutrient Amount ->      | -ingr  [ingredient quantity]
                             | -nutr  [nutrient quantity]

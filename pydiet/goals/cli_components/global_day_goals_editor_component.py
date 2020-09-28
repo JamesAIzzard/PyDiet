@@ -81,13 +81,13 @@ class GlobalDayGoalsEditorComponent(ConsoleAppComponent):
 
     def on_edit_flags(self):
         # Place the day goals object on the flag editor;
-        cast('FlagEditorComponent', self.app.fetch_component('flag_editor_component')).subject = self._gdg
+        cast('FlagEditorComponent', self.app.fetch_component('flag_editor_component'))._subject = self._gdg
         # Redirect to the flag editor;
         self.app.goto('home.goals.edit_globals.edit_flags')
 
     def on_edit_nutrient_targets(self):
         # Place the day goals object on the nutrient target editor;
-        cast('NutrientTargetEditorComponent', self.app.fetch_component('nutrient_target_editor_component')).subject = self._gdg
+        cast('NutrientTargetEditorComponent', self.app.fetch_component('nutrient_target_editor_component'))._subject = self._gdg
         # Redirect to the nutrient target editor;
         self.app.goto('home.goals.edit_globals.edit_nutrient_targets')
 
