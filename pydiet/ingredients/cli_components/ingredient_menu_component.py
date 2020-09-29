@@ -25,7 +25,9 @@ class IngredientMenuComponent(ConsoleAppComponent):
             self.configure_responder(self._on_create, args=[
                 PrimaryArg('new', has_value=False, markers=['-new'])]),
             self.configure_responder(self._on_edit, args=[
-                PrimaryArg('edit', has_value=False, markers=['-edit'])])
+                PrimaryArg('edit', has_value=False, markers=['-edit'])]),
+            self.configure_responder(self._on_view, args=[
+                PrimaryArg('view', has_value=False, markers=['-view'])])
         ])
 
     def _print_menu_screen(self):
@@ -71,3 +73,6 @@ class IngredientMenuComponent(ConsoleAppComponent):
 
         isc.configure(subject_name='Ingredient', on_result_selected=on_result_selected)
         self.app.goto('home.ingredients.search')
+
+    def _on_view(self) -> None:
+        self.app.goto('home.ingredients.view')

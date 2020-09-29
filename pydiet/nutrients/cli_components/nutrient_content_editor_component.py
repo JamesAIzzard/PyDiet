@@ -8,14 +8,12 @@ if TYPE_CHECKING:
     from pydiet.nutrients.supports_nutrient_content import SupportsSettingNutrientContent, NutrientData
 
 _main_menu_template = '''
-----------------------------|-------------------------------
-OK                          | -ok
-Cancel                      | -cancel
-----------------------------|-------------------------------
-Edit Nutrient               | -edit  [nutrient number]
-Set New Nutrient            | -new
-Reset Nutrient              | -reset [nutrient number]
-----------------------------|-------------------------------
+OK | -ok
+Cancel | -cancel
+
+Edit Nutrient | -edit  [nutrient number]
+Set New Nutrient | -new
+Reset Nutrient | -reset [nutrient number]
 
 Mandatory Nutrients:
 {mandatory_nuts_menu}
@@ -25,19 +23,16 @@ Other Nutrients:
 '''
 
 _edit_menu_template = '''
-----------------------------|-----------------------------------------------------
-OK                          | -ok
-Cancel                      | -cancel
-----------------------------|-----------------------------------------------------
-Set Nutrient Amount ->      | -ingr  [ingredient quantity]
-                            | -nutr  [nutrient quantity]
-                            |
-                            | Example: 
-                            | >>> -ingr 1.2kg -nutr 25g 
-                            |
-                            | To indicate 1.2kg of the ingredient contains 25g of 
-                            | the nutrient).
-----------------------------|-----------------------------------------------------
+OK | -ok
+Cancel | -cancel
+
+Set Nutrient Amount | 
+-ingr  [ingredient quantity] -nutr  [nutrient quantity]
+
+Example: 
+>>> -ingr 1.2kg -nutr 25g 
+(To indicate 1.2kg of the ingredient contains 25g of 
+the nutrient).
 
 {nutrient_name}: {nutrient_summary}
 '''
@@ -220,9 +215,7 @@ class NutrientContentEditorComponent(ConsoleAppComponent):
             self.change_state('edit')
             self.app.goto('home.ingredients.edit.nutrients')
 
-        nsc.configure(on_nutrient_selected=on_nutrient_selected)
-        nsc.clear_results()
-        nsc.change_state('search')
+        nsc.configure(subject_name='Nutrient', on_result_selected=on_nutrient_selected)
         self.app.goto('home.ingredients.edit.nutrients.search')
 
     def _on_reset_nutrient(self, args) -> None:

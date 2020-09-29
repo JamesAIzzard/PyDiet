@@ -5,16 +5,12 @@ import pyconsoleapp
 from pyconsoleapp import ConsoleAppComponent
 
 _search_screen_template = '''
-------------------------|----------------------------
-Search ->               | (enter)
-------------------------|----------------------------
+Search | (enter)
 
 Enter {subject_name} name:'''
 
 _results_screen_template = '''
-------------------------|----------------------------
-Select ->               | [result number]
-------------------------|----------------------------
+Select | [result number]
 
 Results:
 {search_results}
@@ -87,6 +83,8 @@ class BaseSearchComponent(ConsoleAppComponent, abc.ABC):
     def configure(self, subject_name: str, on_result_selected: Callable) -> None:
         self._subject_name = subject_name
         self._on_result_selected = on_result_selected
+        self.clear_results()
+        self.change_state('search')
 
     def clear_results(self) -> None:
         self._results_num_map = {}

@@ -1,9 +1,9 @@
 from pyconsoleapp import search_tools, menu_tools
-from pyconsoleapp.builtin_components import base_search_component
+from pyconsoleapp.builtin_components.base_search_component import BaseSearchComponent
 from pydiet import persistence, ingredients
 
 
-class IngredientSearchComponent(base_search_component.BaseSearchComponent):
+class IngredientSearchComponent(BaseSearchComponent):
 
     def __init__(self, app):
         super().__init__(app)

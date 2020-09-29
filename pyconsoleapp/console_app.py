@@ -21,6 +21,7 @@ if TYPE_CHECKING:
 
 T = TypeVar('T')
 
+
 def pascal_to_snake(text: str) -> str:
     s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', text)
     return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
@@ -343,6 +344,7 @@ class ConsoleApp:
                     component = self._fetch_component_for_route(self.route)
                     # Call before print function;
                     component.before_print()
+                    component._before_print()
                     # Grab component again, in case before_print changed the route;
                     component = self._fetch_component_for_route(self.route)
                     # Clear the screen;

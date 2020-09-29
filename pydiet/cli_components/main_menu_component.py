@@ -1,13 +1,11 @@
 from pyconsoleapp import ConsoleAppComponent
 
 _menu_template = '''
-------------------------|-------------------
 Manage Ingredients      | -ingr
 Manage Recipes          | -recp
 Manage Goals            | -goal
 Generate Meal Plans     | -solv
 View Meal Plans         | -view
-------------------------|-------------------
 '''
 
 

@@ -1,7 +1,7 @@
 from typing import Optional, TYPE_CHECKING, cast
 
 from pyconsoleapp import ConsoleAppComponent, styles, PrimaryArg, builtin_validators
-from pydiet import ingredients, persistence, cost, flags, nutrients, quantity
+from pydiet import ingredients, persistence, flags, nutrients, quantity
 
 if TYPE_CHECKING:
     from pydiet.ingredients.ingredient import Ingredient
@@ -10,9 +10,9 @@ _menu_screen_template = '''Save | -save
 
 Ingredient Status: {status_summary}
 
-Name       | -name [new name]         -> {name}
+Name | -name [new name] -> {name}
 
-Cost       | -cost [cost] -per [qty]  -> {cost}
+Cost | -cost [cost] -per [qty] -> {cost}
 
 Bulk (Weight & Density) | -bulk ->
 {bulk_summary}

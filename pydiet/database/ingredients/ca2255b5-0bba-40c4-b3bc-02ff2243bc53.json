@@ -26,7 +26,7 @@
       "nutrient_pref_units": "g"
     },
     "alanine": {
-      "nutrient_g_per_subject_g": null,
+      "nutrient_g_per_subject_g": 0.03,
       "nutrient_pref_units": "g"
     },
     "alcohol": {
