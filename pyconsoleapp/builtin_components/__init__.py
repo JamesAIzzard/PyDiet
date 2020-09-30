@@ -4,6 +4,7 @@ from . import (
     header_component,
     message_bar_component,
     nav_options_component,
+    save_check_guard_component,
     single_hr_component,
     standard_page_component,
     title_bar_component,

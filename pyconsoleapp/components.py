@@ -396,6 +396,9 @@ class ConsoleAppComponent(ABC):
     def _before_print(self) -> None:
         pass
 
+    def _on_load(self) -> None:
+        pass
+
     def configure_printer(self,
                           func: Callable,
                           states=None) -> None:

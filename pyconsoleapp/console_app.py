@@ -2,7 +2,7 @@ import importlib
 import os
 import re
 from importlib import util
-from typing import Dict, List, Optional, TYPE_CHECKING, cast, Type, TypeVar
+from typing import Dict, List, Optional, TYPE_CHECKING, Type, TypeVar
 
 from pyconsoleapp.exceptions import ResponseValidationError
 
@@ -232,29 +232,19 @@ class ConsoleApp:
                 # And don't look through any more entrance guards;
                 break
         # If the guard component was populated, then use it;
-        if component:
+        # TODO - Need to somehow only show the guard it's show condition is True.
+        # TODO - Also need to think about whether to cancel the guard if show condition is False.
+        if component: # is not None and component.activated:
             self.clear_console()
-            self._response = input(component.call_print())
+            self._response = input(component.print())
 
-    def guard_entrance(self, route: str, guard_component_class_name: str) -> None:
-        # Interpret the route;
-        route = self.interpret_relative_route(route)
-        # Make a new guard instance;
-        guard_component = cast(
-            'ConsoleAppGuardComponent',
-            self.make_component(guard_component_class_name)
-        )
-        self.route_entrance_guard_map[route] = guard_component
+    def guard_entrance(self, route_to_stay_outside: str, guard_instance: 'ConsoleAppGuardComponent'):
+        route = self.interpret_relative_route(route_to_stay_outside)
+        self.route_entrance_guard_map[route] = guard_instance
 
-    def guard_exit(self, route: str, guard_component_class_name: str) -> None:
-        # Interpret the route;
-        route = self.interpret_relative_route(route)
-        # Make a new guard instance;
-        guard_component = cast(
-            'ConsoleAppGuardComponent',
-            self.make_component(guard_component_class_name)
-        )
-        self.route_exit_guard_map[route] = guard_component
+    def guard_exit(self, route_to_stay_within: str, guard_instance: 'ConsoleAppGuardComponent'):
+        route = self.interpret_relative_route(route_to_stay_within)
+        self.route_exit_guard_map[route] = guard_instance
 
     def clear_entrance(self, route: str) -> None:
         route = self.interpret_relative_route(route)
@@ -342,9 +332,11 @@ class ConsoleApp:
                 if not self._response:
                     # Grab the matching component;
                     component = self._fetch_component_for_route(self.route)
-                    # Call before print function;
+                    # Call before print function (These are all aliases for backward
+                    # compatibility).
                     component.before_print()
                     component._before_print()
+                    component._on_load()
                     # Grab component again, in case before_print changed the route;
                     component = self._fetch_component_for_route(self.route)
                     # Clear the screen;

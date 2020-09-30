@@ -3,7 +3,7 @@ from typing import Dict
 from pyconsoleapp import ConsoleAppComponent, PrimaryArg, StandardPageComponent, menu_tools, ResponseValidationError
 from pydiet import persistence, ingredients
 
-_main_view_component = '''
+_main_view_template = '''
 Edit Ingredient | -edit [ingredient number]
 
 Ingredients:
@@ -45,15 +45,15 @@ class IngredientViewerComponent(ConsoleAppComponent):
             raise ResponseValidationError('Please enter a valid ingredient number.')
         return num
 
-    def _before_print(self) -> None:
+    def _on_load(self) -> None:
         ingr_names = persistence.persistence_service.get_saved_unique_vals(ingredients.ingredient.Ingredient)
         self._ingredient_num_map = menu_tools.create_number_name_map(ingr_names)
 
     def _print_main_view(self) -> str:
         return self.app.get_component(StandardPageComponent).print(
             page_title='Ingredient Viewer',
-            page_content=_main_view_component.format(
-                ingredient_list=self._ingredient_menu
+            page_content=_main_view_template.format(
+                ingredient_menu=self._ingredient_menu
             )
         )
 

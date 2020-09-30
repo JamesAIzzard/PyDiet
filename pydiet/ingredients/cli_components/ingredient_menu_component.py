@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING, cast
 
-from pyconsoleapp import ConsoleAppComponent, styles, PrimaryArg
+from pyconsoleapp import ConsoleAppComponent, styles, PrimaryArg, builtin_components
 from pydiet import ingredients, persistence
 
 if TYPE_CHECKING:
@@ -50,13 +50,8 @@ class IngredientMenuComponent(ConsoleAppComponent):
     def _on_create(self):
         # Place a new ingredient in the editor component;
         i = ingredients.ingredient_service.load_new_ingredient()
-        iec = self.app.fetch_component('ingredient_editor_component')
-        iec = cast('IngredientEditorComponent', iec)
-        iec._subject = i
-
-        # Configure the save reminder;
-        self.app.guard_exit('home.ingredients.edit',
-                            'IngredientSaveCheckComponent')
+        iec = self.app.get_component(ingredients.cli_components.ingredient_editor_component.IngredientEditorComponent)
+        iec.configure(ingredient=i, save_reminder=True)
         # Go;
         self.app.goto('home.ingredients.edit')
 
