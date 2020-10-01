@@ -232,9 +232,7 @@ class ConsoleApp:
                 # And don't look through any more entrance guards;
                 break
         # If the guard component was populated, then use it;
-        # TODO - Need to somehow only show the guard it's show condition is True.
-        # TODO - Also need to think about whether to cancel the guard if show condition is False.
-        if component: # is not None and component.activated:
+        if component is not None and component.should_show:
             self.clear_console()
             self._response = input(component.print())
 

@@ -134,7 +134,8 @@ class IngredientEditorComponent(ConsoleAppComponent):
                 self.app.clear_exit('home.ingredients.edit')
 
             isc = self.app.get_component(builtin_components.save_check_guard_component.SaveCheckGuardComponent)
-            isc.configure(subject_name=self._subject.name, show_only_if=self._check_if_name_defined,
+            isc.configure(get_subject_name=lambda: ingredient.name,
+                          show_condition=lambda: self._subject.name_is_defined,
                           on_save_changes=on_guard_save,
                           on_cancel_changes=on_guard_no_save)
             self.app.guard_exit('home.ingredients.edit', isc)

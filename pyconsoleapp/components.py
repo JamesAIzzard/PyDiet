@@ -647,9 +647,17 @@ class ConsoleAppComponent(ABC):
         return all_markers
 
 
-class ConsoleAppGuardComponent(ConsoleAppComponent):
+class ConsoleAppGuardComponent(ConsoleAppComponent, ABC):
     def __init__(self, app: 'ConsoleApp'):
         super().__init__(app)
+        self._show_condition = None
+
+    @property
+    def should_show(self) -> bool:
+        return self._show_condition()
+
+    def configure(self, show_condition: Callable[[], bool], *args, **kwargs):
+        self._show_condition = show_condition
 
     def clear_self(self):
         def search_and_clear_guard_map(guard_map):
