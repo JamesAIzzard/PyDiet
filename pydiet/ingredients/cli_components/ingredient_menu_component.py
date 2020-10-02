@@ -1,6 +1,6 @@
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING
 
-from pyconsoleapp import ConsoleAppComponent, styles, PrimaryArg, builtin_components
+from pyconsoleapp import ConsoleAppComponent, styles, PrimaryArg
 from pydiet import ingredients, persistence
 
 if TYPE_CHECKING:
@@ -10,8 +10,8 @@ _menu_screen_template = '''
 Ingredient Count: {ingredient_count}
 
 Create a New Ingredient | -new
-Edit an Ingredient      | -edit
-Delete an Ingredient    | -del
+Edit an Ingredient      | -edit [ingredient name]
+Delete an Ingredient    | -del  [ingredient name]
 View Ingredients        | -view
 
 '''
@@ -25,7 +25,7 @@ class IngredientMenuComponent(ConsoleAppComponent):
             self.configure_responder(self._on_create, args=[
                 PrimaryArg('new', has_value=False, markers=['-new'])]),
             self.configure_responder(self._on_edit, args=[
-                PrimaryArg('edit', has_value=False, markers=['-edit'])]),
+                PrimaryArg('ingr_name', has_value=True, markers=['-edit'])]),
             self.configure_responder(self._on_view, args=[
                 PrimaryArg('view', has_value=False, markers=['-view'])])
         ])
@@ -55,9 +55,11 @@ class IngredientMenuComponent(ConsoleAppComponent):
         # Go;
         self.app.goto('home.ingredients.edit')
 
-    def _on_edit(self) -> None:
+    def _on_edit(self, args) -> None:
+        # Load the ingredient search component up;
         isc = self.app.get_component(ingredients.cli_components.ingredient_search_component.IngredientSearchComponent)
 
+        # Define the function to call when a result is selected;
         def on_result_selected(ingredient_name: str):
             iec = self.app.get_component(
                 ingredients.cli_components.ingredient_editor_component.IngredientEditorComponent)
@@ -66,7 +68,12 @@ class IngredientMenuComponent(ConsoleAppComponent):
             iec.configure(ingredient=selected_ingredient)
             self.app.goto('home.ingredients.edit')
 
+        # Configure the component;
         isc.configure(subject_name='Ingredient', on_result_selected=on_result_selected)
+        # Run the search through the component and load the results;
+        results = isc.search_for(args['ingr_name'])
+        isc.load_results(results)
+        isc.change_state('results')
         self.app.goto('home.ingredients.search')
 
     def _on_view(self) -> None:

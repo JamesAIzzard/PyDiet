@@ -1,4 +1,6 @@
-from pyconsoleapp import search_tools, menu_tools, builtin_components
+from typing import List
+
+from pyconsoleapp import builtin_components
 from pydiet import nutrients
 
 
@@ -22,9 +24,6 @@ class NutrientSearchComponent(builtin_components.base_search_component.BaseSearc
             )
         return results_menu
 
-    def _on_search(self, args) -> None:
-        results = search_tools.search_n_best_matches(
-            nutrients.nutrients_service.all_primary_and_alias_nutrient_names(),
-            args['search_term'], 5)
-        self._results_num_map = menu_tools.create_number_name_map(results)
-        self.change_state('results')
+    @property
+    def _data_to_search(self) -> List[str]:
+        return nutrients.nutrients_service.all_primary_and_alias_nutrient_names()

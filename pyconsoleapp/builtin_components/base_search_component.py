@@ -1,8 +1,8 @@
 import abc
-from typing import Callable, Any, Dict, Optional
+from typing import Callable, Any, Dict, Optional, List
 
 import pyconsoleapp
-from pyconsoleapp import ConsoleAppComponent
+from pyconsoleapp import ConsoleAppComponent, search_tools, menu_tools
 
 _search_screen_template = '''
 Search | (enter)
@@ -35,6 +35,11 @@ class BaseSearchComponent(ConsoleAppComponent, abc.ABC):
                 pyconsoleapp.PrimaryArg('result_num', has_value=True, markers=None, validators=[
                     self._validate_result_num])])
         ])
+
+    @property
+    @abc.abstractmethod
+    def _data_to_search(self) -> List[str]:
+        raise NotImplementedError
 
     @property
     def _results_menu(self) -> str:
@@ -73,9 +78,10 @@ class BaseSearchComponent(ConsoleAppComponent, abc.ABC):
             raise pyconsoleapp.ResponseValidationError('{} does not refer to a result number.'.format(result_num))
         return result_num
 
-    @abc.abstractmethod
     def _on_search(self, args) -> None:
-        raise NotImplementedError
+        results = self.search_for(args['search_term'])
+        self.load_results(results)
+        self.change_state('results')
 
     def _on_select_result(self, args) -> None:
         self._on_result_selected(self._result_name_from_num(args['result_num']))
@@ -85,6 +91,12 @@ class BaseSearchComponent(ConsoleAppComponent, abc.ABC):
         self._on_result_selected = on_result_selected
         self.clear_results()
         self.change_state('search')
+
+    def search_for(self, search_term: str) -> List[str]:
+        return search_tools.get_n_best_matches(self._data_to_search, search_term, 5)
+
+    def load_results(self, results: List[str]) -> None:
+        self._results_num_map = menu_tools.create_number_name_map(results)
 
     def clear_results(self) -> None:
         self._results_num_map = {}
