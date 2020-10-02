@@ -25,7 +25,9 @@ class IngredientMenuComponent(ConsoleAppComponent):
             self.configure_responder(self._on_create, args=[
                 PrimaryArg('new', has_value=False, markers=['-new'])]),
             self.configure_responder(self._on_edit, args=[
-                PrimaryArg('ingr_name', has_value=True, markers=['-edit'])]),
+                PrimaryArg('ingredient_name', has_value=True, markers=['-edit'])]),
+            self.configure_responder(self._on_delete, args=[
+                PrimaryArg('ingredient_name', has_value=True, markers=['-del'])]),
             self.configure_responder(self._on_view, args=[
                 PrimaryArg('view', has_value=False, markers=['-view'])])
         ])
@@ -71,7 +73,25 @@ class IngredientMenuComponent(ConsoleAppComponent):
         # Configure the component;
         isc.configure(subject_name='Ingredient', on_result_selected=on_result_selected)
         # Run the search through the component and load the results;
-        results = isc.search_for(args['ingr_name'])
+        results = isc.search_for(args['ingredient_name'])
+        isc.load_results(results)
+        isc.change_state('results')
+        self.app.goto('home.ingredients.search')
+
+    def _on_delete(self, args) -> None:
+        # Load the ingredient search app.
+        isc = self.app.get_component(ingredients.cli_components.ingredient_search_component.IngredientSearchComponent)
+
+        # Define the function to call when a result is selected;
+        def on_result_selected(ingredient_name: str):
+            persistence.persistence_service.delete(ingredients.ingredient.Ingredient, ingredient_name)
+            self.app.info_message = '{} was deleted.'.format(ingredient_name)
+            self.app.goto('home.ingredients')
+
+        # Configure the component;
+        isc.configure(subject_name='Ingredient', on_result_selected=on_result_selected)
+        # Run the search and load results;
+        results = isc.search_for(args['ingredient_name'])
         isc.load_results(results)
         isc.change_state('results')
         self.app.goto('home.ingredients.search')

@@ -5,7 +5,7 @@
     "pref_unit": "g",
     "ref_qty": 100
   },
-  "cost_per_g": 0.0025,
+  "cost_per_g": 0.023333333333333334,
   "flags": {
     "alcohol_free": null,
     "caffiene_free": null,
@@ -15,7 +15,7 @@
     "vegan": null,
     "vegetarian": null
   },
-  "name": "Tomato",
+  "name": "Brown Rice",
   "nutrients": {
     "a_carotene": {
       "nutrient_g_per_subject_g": null,
@@ -218,8 +218,8 @@
       "nutrient_pref_units": "g"
     },
     "lauric_acid": {
-      "nutrient_g_per_subject_g": 2e-05,
-      "nutrient_pref_units": "mg"
+      "nutrient_g_per_subject_g": null,
+      "nutrient_pref_units": "g"
     },
     "leucine": {
       "nutrient_g_per_subject_g": null,

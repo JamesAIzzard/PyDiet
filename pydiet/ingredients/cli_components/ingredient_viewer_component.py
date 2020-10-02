@@ -4,7 +4,8 @@ from pyconsoleapp import ConsoleAppComponent, PrimaryArg, StandardPageComponent,
 from pydiet import persistence, ingredients
 
 _main_view_template = '''
-Edit Ingredient | -edit [ingredient number]
+Edit Ingredient   | -edit [ingredient number]
+Delete Ingredient | -del  [ingredient number]
 
 Ingredients:
 {ingredient_menu}
@@ -19,9 +20,11 @@ class IngredientViewerComponent(ConsoleAppComponent):
 
         self.configure_state('main', self._print_main_view, responders=[
             self.configure_responder(self._on_edit_ingredient, args=[
-                PrimaryArg('ingr_num', has_value=True, markers=['-edit'], validators=[
-                    self._validate_ingredient_number])
-            ])
+                PrimaryArg('ingredient_num', has_value=True, markers=['-edit'], validators=[
+                    self._validate_ingredient_number])]),
+            self.configure_responder(self._on_delete_ingredient, args=[
+                PrimaryArg('ingredient_num', has_value=True, markers=['-del'], validators=[
+                    self._validate_ingredient_number])])
         ])
 
     @property
@@ -59,7 +62,12 @@ class IngredientViewerComponent(ConsoleAppComponent):
 
     def _on_edit_ingredient(self, args) -> None:
         iec = self.app.get_component(ingredients.cli_components.ingredient_editor_component.IngredientEditorComponent)
-        ingr_name = self._ingr_name_from_num(args['ingr_num'])
+        ingr_name = self._ingr_name_from_num(args['ingredient_num'])
         i = persistence.persistence_service.load(ingredients.ingredient.Ingredient, ingr_name)
         iec.configure(ingredient=i)
         self.app.goto('home.ingredients.edit')
+
+    def _on_delete_ingredient(self, args) -> None:
+        ingredient_name = self._ingr_name_from_num(args['ingredient_num'])
+        persistence.persistence_service.delete(ingredients.ingredient.Ingredient, ingredient_name)
+        self.app.info_message = '{} was deleted.'.format(ingredient_name)

@@ -39,6 +39,16 @@ def load(cls: Type[T], unique_field_value: str) -> T:
     return loaded_instance
 
 
+def delete(cls: Type['SupportsPersistence'], unique_field_value: str) -> None:
+    """Deletes the instance of the specified type, with the specified unique value, from the database."""
+    index = _read_index(cls)
+    for df_name in index:
+        if index[df_name] == unique_field_value:
+            _delete_index_entry(cls, df_name)
+            _delete_datafile(cls, df_name)
+            break
+
+
 def count_saved_instances(cls: Type['SupportsPersistence']) -> int:
     """Counts the number of saved instances of the class in the database (by counting entries in the index)."""
     index_data = _read_index(cls)
@@ -74,12 +84,9 @@ def read_datafile(filepath: str, data_type: Type[T]) -> T:
         return cast(data_type, data)
 
 
-def delete_datafile(subject: 'SupportsPersistence') -> None:
-    """Deletes the _subject's entry from its index file and then deletes its datafile from disk."""
-    # Delete the _subject's entry from its index;
-    _delete_index_entry(subject)
-    # Delete the datafile from disk;
-    os.remove(subject.datafile_path)
+def _delete_datafile(cls: Type['SupportsPersistence'], datafile_name: str) -> None:
+    """Deletes the specified datafile from the specified type's database."""
+    os.remove(cls.get_path_into_db() + datafile_name + '.json')
 
 
 def _create_index_entry(subject: 'SupportsPersistence') -> None:
@@ -140,11 +147,11 @@ def _update_index_entry(subject: 'SupportsPersistence') -> None:
         json.dump(index_data, fh, indent=2, sort_keys=True)
 
 
-def _delete_index_entry(subject: 'SupportsPersistence') -> None:
+def _delete_index_entry(cls: Type['SupportsPersistence'], datafile_name: str) -> None:
     """Deletes the _subject's entry from its index."""
     # Read the index;
-    index_data = _read_index(subject.__class__)
+    index_data = _read_index(cls)
     # Remove the key/value from the index;
-    del index_data[cast(str, subject.datafile_name)]
-    with open(subject.__class__.get_index_filepath(), 'w') as fh:
+    del index_data[datafile_name]
+    with open(cls.get_index_filepath(), 'w') as fh:
         json.dump(index_data, fh, indent=2, sort_keys=True)
