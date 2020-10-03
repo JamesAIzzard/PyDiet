@@ -2,7 +2,7 @@ import abc
 import copy
 from typing import Dict, List, Optional, Any
 
-from pydiet import flags
+from pydiet import flags, nutrients
 
 
 def get_empty_flags_data() -> Dict[str, Optional[bool]]:
@@ -12,7 +12,7 @@ def get_empty_flags_data() -> Dict[str, Optional[bool]]:
     return empty_flags_data
 
 
-class SupportsFlags(abc.ABC):
+class SupportsFlags(nutrients.supports_nutrient_content.SupportsSettingNutrientContent, abc.ABC):
 
     @property
     @abc.abstractmethod
@@ -100,6 +100,20 @@ class SupportsFlagSetting(SupportsFlags, abc.ABC):
         # Validate;
         flag_name = self.validate_flag_name(flag_name)
         flag_value = self.validate_flag_value(flag_value)
+
+        # If the flag is true, zero any nutrients related to it;
+        zero_data = nutrients.supports_nutrient_content.NutrientData(
+            nutrient_g_per_subject_g=0,
+            nutrient_pref_units='g'
+        )
+        if flag_name in nutrients.configs.nutrient_flag_rels:
+            for related_nutrient in nutrients.configs.nutrient_flag_rels[flag_name]:
+                if flag_value is True:
+                    self.set_nutrient_data(related_nutrient, zero_data)
+                else:
+                    if self.get_nutrient_data_copy(related_nutrient)['nutrient_g_per_subject_g'] == 0:
+                        self.reset_nutrient(related_nutrient)
+
         # Set;
         self._flags_data[flag_name] = flag_value
 

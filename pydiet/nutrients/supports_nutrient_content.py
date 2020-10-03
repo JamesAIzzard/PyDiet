@@ -1,6 +1,6 @@
 import abc
 import copy
-from typing import Dict, List, Optional, TypedDict
+from typing import Dict, List, Optional, cast, TypedDict
 
 from pydiet import nutrients, quantity
 
@@ -58,7 +58,7 @@ class SupportsNutrientContent(quantity.supports_bulk.SupportsBulk, abc.ABC):
         if None in nutrient_data.values():
             return 'Undefined'
         else:
-            nutr_ref_qty_g = nutrient_g_per_subject_g*self.ref_qty_in_g
+            nutr_ref_qty_g = nutrient_g_per_subject_g * self.ref_qty_in_g
             nutr_ref_qty = quantity.quantity_service.convert_qty_unit(qty=nutr_ref_qty_g,
                                                                       start_unit='g',
                                                                       end_unit=nutrient_pref_unit)
@@ -100,12 +100,21 @@ class SupportsSettingNutrientContent(SupportsNutrientContent, abc.ABC):
         # All OK, so make the change on the real dataset;
         self._nutrients_data[nutrient_name] = nutrient_data
 
+        # If there is a flag related, set it;
+        nself = cast('flags.supports_flags.SupportsFlagSetting', self)  # nasty hack to avoid circular import;
+        for flag_name in nutrients.configs.nutrient_flag_rels:
+            if nutrient_name in nutrients.configs.nutrient_flag_rels[flag_name]:
+                if nutrient_data['nutrient_g_per_subject_g'] == 0:
+                    nself._flags_data[flag_name] = True
+                else:
+                    nself._flags_data[flag_name] = False
+
     def set_nutrients_data(self, nutrients_data: Dict[str, 'NutrientData']) -> None:
         validated_nutrients_data = nutrients.validation.validate_nutrients_data(nutrients_data)
         for nutrient_name in self._nutrients_data:
             self._nutrients_data[nutrient_name] = validated_nutrients_data[nutrient_name]
 
-    def reset_nutrient(self, nutrient_name:str) -> None:
+    def reset_nutrient(self, nutrient_name: str) -> None:
         nutrient_name = nutrients.nutrients_service.get_nutrient_primary_name(nutrient_name)
         self._nutrients_data[nutrient_name] = NutrientData(
             nutrient_g_per_subject_g=None,

@@ -166,7 +166,7 @@ def convert_density_unit(qty: float,
 
 def validate_quantity(value: Any) -> float:
     value = float(value)
-    if value <= 0:
+    if value < 0:
         raise quantity.exceptions.InvalidQtyError
     else:
         return value

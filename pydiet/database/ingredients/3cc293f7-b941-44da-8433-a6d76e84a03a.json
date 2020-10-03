@@ -7,13 +7,13 @@
   },
   "cost_per_g": null,
   "flags": {
-    "alcohol_free": null,
-    "caffiene_free": null,
-    "dairy_free": null,
-    "gluten_free": null,
-    "nut_free": null,
-    "vegan": null,
-    "vegetarian": null
+    "alcohol_free": false,
+    "caffiene_free": true,
+    "dairy_free": true,
+    "gluten_free": true,
+    "nut_free": true,
+    "vegan": true,
+    "vegetarian": true
   },
   "name": "Tomato",
   "nutrients": {
@@ -30,7 +30,7 @@
       "nutrient_pref_units": "g"
     },
     "alcohol": {
-      "nutrient_g_per_subject_g": null,
+      "nutrient_g_per_subject_g": 0.0,
       "nutrient_pref_units": "g"
     },
     "amylopectin": {
