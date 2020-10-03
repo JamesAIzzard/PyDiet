@@ -101,12 +101,16 @@ class SupportsSettingNutrientContent(SupportsNutrientContent, abc.ABC):
         self._nutrients_data[nutrient_name] = nutrient_data
 
         # If there is a flag related, set it;
-        nself = cast('flags.supports_flags.SupportsFlagSetting', self)  # nasty hack to avoid circular import;
+        # Nasty hack to avoid circular import; A better way to do this would be to have a base class which mixes
+        # nutrients, flags, bulk, etc, which ingredient and recipe would then inherit.
+        nself = cast('flags.supports_flags.SupportsFlagSetting', self)
         for flag_name in nutrients.configs.nutrient_flag_rels:
             if nutrient_name in nutrients.configs.nutrient_flag_rels[flag_name]:
                 if nutrient_data['nutrient_g_per_subject_g'] == 0:
+                    # noinspection PyProtectedMember
                     nself._flags_data[flag_name] = True
                 else:
+                    # noinspection PyProtectedMember
                     nself._flags_data[flag_name] = False
 
     def set_nutrients_data(self, nutrients_data: Dict[str, 'NutrientData']) -> None:

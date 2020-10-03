@@ -50,6 +50,7 @@ class IngredientViewerComponent(ConsoleAppComponent):
 
     def _on_load(self) -> None:
         ingr_names = persistence.persistence_service.get_saved_unique_vals(ingredients.ingredient.Ingredient)
+        ingr_names.sort()
         self._ingredient_num_map = menu_tools.create_number_name_map(ingr_names)
 
     def _print_main_view(self) -> str:
