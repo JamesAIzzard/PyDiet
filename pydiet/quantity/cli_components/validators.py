@@ -1,10 +1,15 @@
-from typing import TYPE_CHECKING
+from typing import TypedDict, TYPE_CHECKING
 
-from pyconsoleapp import ResponseValidationError
+from pyconsoleapp import ResponseValidationError, builtin_validators
 from pydiet import quantity
 
 if TYPE_CHECKING:
     from pydiet.quantity.supports_bulk import SupportsBulk
+
+
+class QtyAndUnit(TypedDict):
+    qty: float
+    unit: str
 
 
 def validate_mass_unit(unit: str) -> str:
@@ -46,3 +51,17 @@ def validate_configured_unit(subject: 'SupportsBulk', unit: str) -> str:
         raise ResponseValidationError(
             'Piece mass must be set before pieces can be used.')
     return unit
+
+
+def validate_volume_qty_and_unit(value: str) -> QtyAndUnit:
+    qty, unit = builtin_validators.validate_number_and_str(value)
+    qty = builtin_validators.validate_positive_nonzero_number(qty)
+    unit = validate_vol_unit(unit)
+    return QtyAndUnit(qty=qty, unit=unit)
+
+
+def validate_mass_qty_and_unit(value: str) -> QtyAndUnit:
+    qty, unit = builtin_validators.validate_number_and_str(value)
+    qty = builtin_validators.validate_positive_nonzero_number(qty)
+    unit = validate_mass_unit(unit)
+    return QtyAndUnit(qty=qty, unit=unit)

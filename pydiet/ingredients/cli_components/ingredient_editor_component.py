@@ -107,10 +107,8 @@ class IngredientEditorComponent(ConsoleAppComponent):
 
     def _on_edit_bulk(self):
         if self._check_if_name_defined():
-            bed = cast('BulkEditorComponent', self.app.fetch_component('bulk_editor_component'))
-            bed._subject = self._subject
-            bed._unchanged_bulk_data = self._subject.bulk_data_copy
-            bed._return_to_route = self.app.route
+            bed = self.app.get_component(quantity.cli_components.bulk_editor_component.BulkEditorComponent)
+            bed.configure(self._subject, self._subject.bulk_data_copy)
             self.app.goto('home.ingredients.edit.bulk')
 
     def _on_edit_nutrients(self) -> None:

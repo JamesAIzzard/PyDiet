@@ -1,219 +1,102 @@
-from typing import Optional, TYPE_CHECKING
+from typing import Optional, Dict, TYPE_CHECKING
 
-from pyconsoleapp import ConsoleAppComponent, styles, builtin_validators
+from pyconsoleapp import ConsoleAppComponent, PrimaryArg, builtin_validators, StandardPageComponent
 from pydiet import quantity
 
 if TYPE_CHECKING:
     from pydiet.quantity.supports_bulk import SupportsBulkSetting, BulkData
+    from pydiet.quantity.cli_components.validators import QtyAndUnit
 
-_main_editor_template = '''
-----------------|-----------------------------------
-OK              | -ok
-Cancel          | -cancel
-Zero Bulk       | -reset
-----------------|-----------------------------------
-Set Pref Unit   | -unit [preferred unit]
-Set Ref Qty     | -qty  [reference quantity]
-Set Density     | -density 
-Set Piece Mass  | -piece
-----------------|-----------------------------------
+_main_screen_template = '''
+OK                  | -ok
+Cancel              | -cancel
 
-{bulk_summary}
+Set Ref Amount      | -ref [ref_amount] -> {ref_amount_summary}
 
-'''
+Clear Density       | -clrd
+Set Density         | -vol [volume] -weighs [weight_of_volume] ->
+{density_summary}
 
-_density_editor_template = '''
-----------------|-----------------------------------
-OK              | -ok
-Cancel          | -cancel
-Zero Density    | -reset
-----------------|-----------------------------------
-Set Density     | -mass  [mass]
-                | -munit [mass unit]
-                | -vol   [volume]
-                | -vunit [volume unit]
-----------------|-----------------------------------
-
-Density: {density_summary}
-
-'''
-
-_piece_mass_editor_template = '''
-----------------|----------------------------------
-OK              | -ok
-Cancel          | -cancel
-Zero Piece Mass | -reset
-----------------|----------------------------------
-Set Piece Mass  | -num   [num pieces]
-                | -mass  [mass]
-                | -munit [mass unit]
-----------------|----------------------------------
-
-Piece Mass: {piece_mass_summary}
-
+Clear Piece Mass    | -clrp
+Set Piece Mass      | -pieces [num_pieces] -weighs [weight_of_pieces] ->
+{pc_mass_summary}
 '''
 
 
 class BulkEditorComponent(ConsoleAppComponent):
     def __init__(self, app):
         super().__init__(app)
-        self.subject: 'SupportsBulkSetting'
-        self._unchanged_bulk_data: 'BulkData'
-        self._unchanged_g_per_ml: Optional[float]
-        self._unchanged_piece_mass_g: Optional[float]
-        self._return_to_route: str
+        self._subject: Optional['SupportsBulkSetting'] = None
+        self._backup_bulk_data: Optional['BulkData'] = None
 
-        self.configure_states(['main', 'density', 'piece'])
-
-        # Configure main mode;
-        self.configure_printer(self._print_main_editor, ['main'])
-        self.configure_responder(self._on_return_to_route, states=['main'], args=[
-            self.configure_valueless_primary_arg('ok', markers=['-ok'])
-        ])
-        self.configure_responder(self._on_cancel_and_return_to_route, states=['main'], args=[
-            self.configure_valueless_primary_arg('cancel', markers=['-cancel'])
-        ])
-        self.configure_responder(self._on_set_pref_unit, states=['main'], args=[
-            self.configure_std_primary_arg(
-                'pref_unit', markers=['-unit'], validators=[self._validate_configured_unit])
-        ])
-        self.configure_responder(self._on_set_ref_quantity, states=['main'], args=[
-            self.configure_std_primary_arg('ref_qty', markers=['-qty'], validators=[
-                builtin_validators.validate_positive_nonzero_number
+        self.configure_state('main', self._print_main_screen, responders=[
+            self.configure_responder(self._on_ok, args=[
+                PrimaryArg('ok', has_value=False, markers=['-ok'])]),
+            self.configure_responder(self._on_cancel, args=[
+                PrimaryArg('cancel', has_value=False, markers=['-cancel'])]),
+            self.configure_responder(self._on_set_ref_amount, args=[
+                PrimaryArg('ref_amount', has_value=True, markers=['-ref'], validators=[self._validate_ref_amount])]),
+            self.configure_responder(self._on_clear_density, args=[
+                PrimaryArg('clear_density', has_value=False, markers=['-clrd'])]),
+            self.configure_responder(self._on_set_density, args=[
+                PrimaryArg('volume', has_value=True, markers=['-vol'],
+                           validators=[quantity.cli_components.validators.validate_volume_qty_and_unit]),
+                PrimaryArg('weight_of_volume', has_value=True, markers=['-weighs'],
+                           validators=[quantity.cli_components.validators.validate_mass_qty_and_unit])]),
+            self.configure_responder(self._on_clear_piece_mass, args=[
+                PrimaryArg('clear_pc_mass', has_value=True, markers=['-clrp'])]),
+            self.configure_responder(self._on_set_piece_mass, args=[
+                PrimaryArg('num_pieces', has_value=True, markers=['-pieces'],
+                           validators=[builtin_validators.validate_positive_nonzero_number]),
+                PrimaryArg('weight_of_pieces', has_value=True, markers=['-weighs'],
+                           validators=[quantity.cli_components.validators.validate_mass_qty_and_unit])
             ])
         ])
-        self.configure_responder(self._on_reset_bulk, states=['main'], args=[
-            self.configure_valueless_primary_arg('reset', markers=['-reset'])
-        ])
-        self.configure_responder(self._on_goto_density_editor, states=['main'], args=[
-            self.configure_valueless_primary_arg(
-                'density', markers=['-density'])
-        ])
-        self.configure_responder(self._on_goto_piece_editor, states=['main'], args=[
-            self.configure_valueless_primary_arg(
-                'piece', markers=['-piece'])
-        ])
 
-        # Configure density mode;
-        self.configure_printer(self._print_density_editor, ['density'])
-        self.configure_responder(self.make_state_changer('main'), states=['density'], args=[
-            self.configure_valueless_primary_arg('ok', markers=['-ok'])
-        ])
-        self.configure_responder(self._on_reset_density, states=['density'], args=[
-            self.configure_valueless_primary_arg('reset', markers=['-reset'])
-        ])
-        self.configure_responder(self._on_cancel_density_and_return_to_main, states=['density'], args=[
-            self.configure_valueless_primary_arg('cancel', markers=['-cancel'])
-        ])
-        self.configure_responder(self._on_set_density, states=['density'], args=[
-            self.configure_std_primary_arg('mass', markers=[
-                '-mass'], validators=[builtin_validators.validate_positive_nonzero_number]),
-            self.configure_std_primary_arg(
-                'munit', markers=['-munit'], validators=[quantity.cli_components.validators.validate_mass_unit]),
-            self.configure_std_primary_arg('vol', markers=[
-                '-vol'], validators=[builtin_validators.validate_positive_nonzero_number]),
-            self.configure_std_primary_arg(
-                'vunit', markers=['-vunit'], validators=[quantity.cli_components.validators.validate_vol_unit])
-        ])
-
-        # Configure piece mass mode;
-        self.configure_printer(self._print_piece_mass_editor, ['piece'])
-        self.configure_responder(self.make_state_changer('main'), states=['piece'], args=[
-            self.configure_valueless_primary_arg('ok', markers=['-ok'])
-        ])
-        self.configure_responder(self._on_cancel_piece_and_return_to_main, states=['piece'], args=[
-            self.configure_valueless_primary_arg('cancel', markers=['-cancel'])
-        ])
-        self.configure_responder(self._on_reset_piece, states=['piece'], args=[
-            self.configure_valueless_primary_arg('reset', markers=['-reset'])
-        ])
-        self.configure_responder(self._on_set_piece_mass, states=['piece'], args=[
-            self.configure_std_primary_arg('num', markers=['-num'],
-                                           validators=[builtin_validators.validate_positive_nonzero_number]),
-            self.configure_std_primary_arg('mass', markers=['-mass'],
-                                           validators=[builtin_validators.validate_positive_nonzero_number]),
-            self.configure_std_primary_arg('munit', markers=['-munit'],
-                                           validators=[quantity.cli_components.validators.validate_mass_unit])
-        ])
-
-        # Shared methods;
-
-    def _validate_configured_unit(self, unit):
-        return quantity.cli_components.validators.validate_configured_unit(self.subject, unit)
-
-    # Main editor methods;
-    def _print_main_editor(self):
-        output = _main_editor_template.format(
-            bulk_summary=styles.fore(self.subject.bulk_summary, 'blue'))
-        return self.app.fetch_component('standard_page_component').print(
+    def _print_main_screen(self) -> str:
+        return self.app.get_component(StandardPageComponent).print_view(
             page_title='Bulk Editor',
-            page_content=output
+            page_content=_main_screen_template.format(
+                ref_amount_summary=self._subject.ref_amount_summary,
+                density_summary=self._subject.density_summary,
+                pc_mass_summary=self._subject.piece_mass_summary
+            )
         )
 
-    def _on_set_pref_unit(self, args):
-        self.subject.set_pref_unit(args['pref_unit'])
+    def _validate_ref_amount(self, value: str) -> Dict:
+        ref_amount = builtin_validators.validate_number_and_str(value)
+        qty = builtin_validators.validate_positive_nonzero_number(ref_amount[0])
+        unit = quantity.cli_components.validators.validate_configured_unit(self._subject, ref_amount[1])
+        return {'qty': qty, 'unit': unit}
 
-    def _on_set_ref_quantity(self, args):
-        self.subject.set_ref_qty(args['ref_qty'])
+    def _on_ok(self) -> None:
+        self.app.goto('home.ingredients.edit')
 
-    def _on_return_to_route(self):
-        self.app.goto(self._return_to_route)
+    def _on_cancel(self) -> None:
+        self._subject.set_bulk_data(self._backup_bulk_data)
+        self.app.goto('home.ingredients.edit')
 
-    def _on_cancel_and_return_to_route(self):
-        self.subject.set_bulk_data(self._unchanged_bulk_data)
-        self.app.goto(self._return_to_route)
+    def _on_set_ref_amount(self, args) -> None:
+        self._subject.set_ref_qty(args['ref_amount']['qty'])
+        self._subject.set_ref_unit(args['ref_amount']['unit'])
 
-    def _on_reset_bulk(self):
-        self.subject.reset_bulk()
+    def _on_clear_density(self) -> None:
+        self._subject.reset_density()
 
-    def _on_goto_density_editor(self):
-        if self.subject.density_is_defined:
-            self._unchanged_g_per_ml = self.subject.g_per_ml
-        else:
-            self._unchanged_g_per_ml = None
-        self.current_state = 'density'
+    def _on_set_density(self, args: Dict[str, 'QtyAndUnit']) -> None:
+        self._subject.set_density(args['weight_of_volume']['qty'],
+                                  args['weight_of_volume']['unit'],
+                                  args['volume']['qty'],
+                                  args['volume']['unit'])
 
-    def _on_goto_piece_editor(self):
-        if self.subject.piece_mass_defined:
-            self._unchanged_piece_mass_g = self.subject.piece_mass_g
-        else:
-            self._unchanged_piece_mass_g = None
-        self._unchanged_piece_mass_g = self.subject.piece_mass_g
-        self.current_state = 'piece'
+    def _on_clear_piece_mass(self) -> None:
+        self._subject.reset_piece_mass()
 
-    # Density editor methods;
-    def _print_density_editor(self):
-        output = _density_editor_template.format(
-            density_summary=styles.fore(self.subject.density_summary, 'blue'))
-        return self.app.fetch_component('standard_page_component').print(
-            page_title='Density Editor',
-            page_content=output
-        )
+    def _on_set_piece_mass(self, args) -> None:
+        self._subject.set_piece_mass(args['num_pieces'],
+                                     args['weight_of_pieces']['qty'],
+                                     args['weight_of_pieces']['unit'])
 
-    def _on_cancel_density_and_return_to_main(self):
-        self.subject.set_g_per_ml(self._unchanged_g_per_ml)
-
-    def _on_reset_density(self):
-        self.subject.reset_density()
-
-    def _on_set_density(self, args):
-        self.subject.set_density(
-            args['mass'], args['munit'], args['vol'], args['vunit'])
-
-    # Piece mass editor methods;
-    def _print_piece_mass_editor(self):
-        output = _piece_mass_editor_template.format(
-            piece_mass_summary=styles.fore(self.subject.piece_mass_summary, 'blue'))
-        return self.app.fetch_component('standard_page_component').print(
-            page_title='Piece Mass Editor',
-            page_content=output
-        )
-
-    def _on_cancel_piece_and_return_to_main(self):
-        self.subject.set_piece_mass_g(self._unchanged_piece_mass_g)
-
-    def _on_reset_piece(self):
-        self.subject.reset_piece_mass()
-
-    def _on_set_piece_mass(self, args):
-        self.subject.set_piece_mass(args['num'], args['mass'], args['munit'])
+    def configure(self, subject: 'SupportsBulkSetting', backup_data: 'BulkData') -> None:
+        self._subject = subject
+        self._backup_bulk_data = backup_data

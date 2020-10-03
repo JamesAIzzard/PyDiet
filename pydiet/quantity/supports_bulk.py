@@ -104,15 +104,20 @@ class SupportsBulk(defining.supports_name.SupportsName):
             return 'Undefined'
 
     @property
+    def ref_amount_summary(self) -> str:
+        return '{ref_qty}{ref_unit}'.format(
+            ref_qty=self.ref_qty,
+            ref_unit=self.ref_unit)
+
+    @property
     def bulk_summary(self) -> str:
-        template = '''Reference Amount: {ref_qty}{pref_unit}
+        template = '''Reference Amount: {ref_amount_summary}
 Piece Mass:       {piece_mass_summary}
 Density:          {density_summary}
         '''
 
         return template.format(
-            ref_qty=self.ref_qty,
-            pref_unit=self.pref_unit,
+            ref_amount_summary=self.ref_amount_summary,
             piece_mass_summary=self.piece_mass_summary,
             density_summary=self.density_summary)
 
