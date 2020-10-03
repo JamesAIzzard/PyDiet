@@ -5,17 +5,17 @@
     "pref_unit": "g",
     "ref_qty": 100
   },
-  "cost_per_g": 0.00462962962962963,
+  "cost_per_g": 0.02,
   "flags": {
-    "alcohol_free": null,
-    "caffiene_free": null,
-    "dairy_free": null,
-    "gluten_free": null,
-    "nut_free": null,
-    "vegan": null,
-    "vegetarian": null
+    "alcohol_free": true,
+    "caffiene_free": true,
+    "dairy_free": true,
+    "gluten_free": true,
+    "nut_free": true,
+    "vegan": false,
+    "vegetarian": true
   },
-  "name": "Huel V3.1",
+  "name": "Goat Cheese",
   "nutrients": {
     "a_carotene": {
       "nutrient_g_per_subject_g": null,
@@ -26,11 +26,11 @@
       "nutrient_pref_units": "g"
     },
     "alanine": {
-      "nutrient_g_per_subject_g": 0.03,
+      "nutrient_g_per_subject_g": null,
       "nutrient_pref_units": "g"
     },
     "alcohol": {
-      "nutrient_g_per_subject_g": null,
+      "nutrient_g_per_subject_g": 0.0,
       "nutrient_pref_units": "g"
     },
     "amylopectin": {
@@ -94,7 +94,7 @@
       "nutrient_pref_units": "g"
     },
     "carbohydrate": {
-      "nutrient_g_per_subject_g": null,
+      "nutrient_g_per_subject_g": 0.001,
       "nutrient_pref_units": "g"
     },
     "cartenoids": {
@@ -158,7 +158,7 @@
       "nutrient_pref_units": "g"
     },
     "fat": {
-      "nutrient_g_per_subject_g": null,
+      "nutrient_g_per_subject_g": 0.3,
       "nutrient_pref_units": "g"
     },
     "fibre": {
@@ -270,7 +270,7 @@
       "nutrient_pref_units": "g"
     },
     "monounsaturated_fat": {
-      "nutrient_g_per_subject_g": null,
+      "nutrient_g_per_subject_g": 0.07,
       "nutrient_pref_units": "g"
     },
     "myristic_acid": {
@@ -330,7 +330,7 @@
       "nutrient_pref_units": "g"
     },
     "polyunsaturated_fat": {
-      "nutrient_g_per_subject_g": null,
+      "nutrient_g_per_subject_g": 0.006999999999999999,
       "nutrient_pref_units": "g"
     },
     "potassium": {
@@ -342,7 +342,7 @@
       "nutrient_pref_units": "g"
     },
     "protein": {
-      "nutrient_g_per_subject_g": null,
+      "nutrient_g_per_subject_g": 0.22,
       "nutrient_pref_units": "g"
     },
     "pyridoxal_5_phosphate": {
@@ -378,7 +378,7 @@
       "nutrient_pref_units": "g"
     },
     "saturated_fat": {
-      "nutrient_g_per_subject_g": null,
+      "nutrient_g_per_subject_g": 0.21,
       "nutrient_pref_units": "g"
     },
     "selenium": {
@@ -390,8 +390,8 @@
       "nutrient_pref_units": "g"
     },
     "sodium": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
+      "nutrient_g_per_subject_g": 0.00515,
+      "nutrient_pref_units": "mg"
     },
     "stearic_acid": {
       "nutrient_g_per_subject_g": null,

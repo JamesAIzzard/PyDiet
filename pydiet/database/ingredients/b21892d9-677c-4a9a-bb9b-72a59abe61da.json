@@ -5,17 +5,17 @@
     "pref_unit": "g",
     "ref_qty": 100
   },
-  "cost_per_g": null,
+  "cost_per_g": 0.006500000000000001,
   "flags": {
-    "alcohol_free": false,
+    "alcohol_free": true,
     "caffiene_free": true,
     "dairy_free": true,
     "gluten_free": true,
     "nut_free": true,
-    "vegan": true,
-    "vegetarian": true
+    "vegan": false,
+    "vegetarian": false
   },
-  "name": "Tomato",
+  "name": "Beef Mince",
   "nutrients": {
     "a_carotene": {
       "nutrient_g_per_subject_g": null,
@@ -94,7 +94,7 @@
       "nutrient_pref_units": "g"
     },
     "carbohydrate": {
-      "nutrient_g_per_subject_g": null,
+      "nutrient_g_per_subject_g": 0.0,
       "nutrient_pref_units": "g"
     },
     "cartenoids": {
@@ -158,7 +158,7 @@
       "nutrient_pref_units": "g"
     },
     "fat": {
-      "nutrient_g_per_subject_g": null,
+      "nutrient_g_per_subject_g": 0.3,
       "nutrient_pref_units": "g"
     },
     "fibre": {
@@ -270,7 +270,7 @@
       "nutrient_pref_units": "g"
     },
     "monounsaturated_fat": {
-      "nutrient_g_per_subject_g": null,
+      "nutrient_g_per_subject_g": 0.132,
       "nutrient_pref_units": "g"
     },
     "myristic_acid": {
@@ -330,7 +330,7 @@
       "nutrient_pref_units": "g"
     },
     "polyunsaturated_fat": {
-      "nutrient_g_per_subject_g": null,
+      "nutrient_g_per_subject_g": 0.006999999999999999,
       "nutrient_pref_units": "g"
     },
     "potassium": {
@@ -342,7 +342,7 @@
       "nutrient_pref_units": "g"
     },
     "protein": {
-      "nutrient_g_per_subject_g": null,
+      "nutrient_g_per_subject_g": 0.14300000000000002,
       "nutrient_pref_units": "g"
     },
     "pyridoxal_5_phosphate": {
@@ -378,7 +378,7 @@
       "nutrient_pref_units": "g"
     },
     "saturated_fat": {
-      "nutrient_g_per_subject_g": null,
+      "nutrient_g_per_subject_g": 0.113,
       "nutrient_pref_units": "g"
     },
     "selenium": {
@@ -390,8 +390,8 @@
       "nutrient_pref_units": "g"
     },
     "sodium": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
+      "nutrient_g_per_subject_g": 0.00067,
+      "nutrient_pref_units": "mg"
     },
     "stearic_acid": {
       "nutrient_g_per_subject_g": null,
