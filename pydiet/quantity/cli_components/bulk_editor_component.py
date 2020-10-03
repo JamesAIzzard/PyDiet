@@ -1,6 +1,6 @@
 from typing import Optional, Dict, TYPE_CHECKING
 
-from pyconsoleapp import ConsoleAppComponent, PrimaryArg, builtin_validators, StandardPageComponent
+from pyconsoleapp import ConsoleAppComponent, PrimaryArg, builtin_validators, StandardPageComponent, styles
 from pydiet import quantity
 
 if TYPE_CHECKING:
@@ -44,7 +44,7 @@ class BulkEditorComponent(ConsoleAppComponent):
                 PrimaryArg('weight_of_volume', has_value=True, markers=['-weighs'],
                            validators=[quantity.cli_components.validators.validate_mass_qty_and_unit])]),
             self.configure_responder(self._on_clear_piece_mass, args=[
-                PrimaryArg('clear_pc_mass', has_value=True, markers=['-clrp'])]),
+                PrimaryArg('clear_pc_mass', has_value=False, markers=['-clrp'])]),
             self.configure_responder(self._on_set_piece_mass, args=[
                 PrimaryArg('num_pieces', has_value=True, markers=['-pieces'],
                            validators=[builtin_validators.validate_positive_nonzero_number]),
@@ -57,9 +57,9 @@ class BulkEditorComponent(ConsoleAppComponent):
         return self.app.get_component(StandardPageComponent).print_view(
             page_title='Bulk Editor',
             page_content=_main_screen_template.format(
-                ref_amount_summary=self._subject.ref_amount_summary,
-                density_summary=self._subject.density_summary,
-                pc_mass_summary=self._subject.piece_mass_summary
+                ref_amount_summary=styles.fore(self._subject.ref_amount_summary, 'blue'),
+                density_summary=styles.fore(self._subject.density_summary, 'blue'),
+                pc_mass_summary=styles.fore(self._subject.piece_mass_summary, 'blue')
             )
         )
 
