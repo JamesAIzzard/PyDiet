@@ -6,16 +6,14 @@ if TYPE_CHECKING:
     from pydiet.flags.supports_flags import SupportsFlagSetting
 
 _main_menu_template = '''
-----------------|-------------------
+
 OK              | -ok
 Cancel          | -cancel
-----------------|-------------------
+
 Mark Flag Yes   | -yes [flag number]
 Mark Flag No    | -no  [flag number]
 Unset Flag      | -del [flag number]
-----------------|-------------------
 
-Flags:
 {flag_menu}
 '''
 
