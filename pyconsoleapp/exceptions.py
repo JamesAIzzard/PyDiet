@@ -13,7 +13,7 @@ class StateNotFoundError(PyConsoleAppError):
 class NoPrimaryArgError(PyConsoleAppError):
     pass
 
-class DuplicatePrimaryMarkerError(PyConsoleAppError):
+class IdenticalPrimaryMarkersError(PyConsoleAppError):
     pass
 
 class DuplicateMarkerlessArgError(PyConsoleAppError):

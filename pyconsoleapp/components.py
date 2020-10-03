@@ -43,7 +43,7 @@ class Responder:
             if arg.primary:
                 for marker in arg.markers:
                     if marker in primary_markers:
-                        raise exceptions.DuplicatePrimaryMarkerError
+                        raise exceptions.IdenticalPrimaryMarkersError
                     primary_markers.append(marker)
 
     @property
@@ -456,13 +456,20 @@ class ConsoleAppComponent(ABC):
                 if responder.is_argless_responder:
                     raise exceptions.DuplicateEmptyResponderError
 
-        # Check the primary markers in this responder don't collide
-        # with any that have been configured in this state already;
+        # Check the primary markers in this responder aren't identical to another set in this state;
+        new_primary_markers = []
+        for arg in args:
+            if arg.primary:
+                for marker in arg.markers:
+                    new_primary_markers.append(marker)
         if not states == ['_temp']:  # More of the same nasty hack to allow the new configuration method;
-            for marker in self.get_primary_markers(states):
-                for arg in args:
-                    if marker in arg.markers:
-                        raise exceptions.DuplicatePrimaryMarkerError
+            for s in states:
+                respdrs = self._responders[s]
+                for respdr in respdrs:
+                    p_args = respdr.primary_markers
+                    if new_primary_markers == p_args:
+                        raise exceptions.IdenticalPrimaryMarkersError(str(p_args))
+
 
         # Create and stash the responder object in the correct states;
         r = Responder(self.app, func, args)
