@@ -8,12 +8,12 @@ if TYPE_CHECKING:
     from pydiet.nutrients.supports_nutrient_content import SupportsSettingNutrientContent, NutrientData
 
 _main_menu_template = '''
-OK | -ok
+OK     | -ok
 Cancel | -cancel
 
-Edit Nutrient | -edit  [nutrient number]
 Set New Nutrient | -new
-Reset Nutrient | -reset [nutrient number]
+Edit Nutrient    | -edit  [nutrient number]
+Reset Nutrient   | -reset [nutrient number]
 
 Mandatory Nutrients:
 {mandatory_nuts_menu}
@@ -26,13 +26,7 @@ _edit_menu_template = '''
 OK | -ok
 Cancel | -cancel
 
-Set Nutrient Amount | 
--ingr  [ingredient quantity] -nutr  [nutrient quantity]
-
-Example: 
->>> -ingr 1.2kg -nutr 25g 
-(To indicate 1.2kg of the ingredient contains 25g of 
-the nutrient).
+Set Nutrient Amount | [nutrient quantity] -in [ingredient quantity]
 
 {nutrient_name}: {nutrient_summary}
 '''
@@ -68,8 +62,8 @@ class NutrientContentEditorComponent(ConsoleAppComponent):
             self.configure_responder(self._on_edit_cancel, args=[
                 PrimaryArg('cancel', has_value=False, markers=['-cancel'])]),
             self.configure_responder(self._on_set_nutrient_amount, args=[
-                PrimaryArg('ingr', has_value=True, markers=['-ingr'], validators=[self._validate_ingr_input]),
-                PrimaryArg('nutr', has_value=True, markers=['-nutr'], validators=[self._validate_nutr_input])
+                PrimaryArg('ingredient_quantity', has_value=True, markers=['-in'], validators=[self._validate_ingr_input]),
+                PrimaryArg('nutrient_weight', has_value=True, validators=[self._validate_nutr_input])
             ])
         ])
 
@@ -231,13 +225,13 @@ class NutrientContentEditorComponent(ConsoleAppComponent):
     def _on_set_nutrient_amount(self, args) -> None:
         # Convert the args into g per g
         nutrient_qty_g = quantity.quantity_service.convert_qty_unit(
-            args['nutr']['qty'],
-            args['nutr']['unit'],
+            args['nutrient_weight']['qty'],
+            args['nutrient_weight']['unit'],
             'g'
         )
         ingredient_qty_g = quantity.quantity_service.convert_qty_unit(
-            args['ingr']['qty'],
-            args['ingr']['unit'],
+            args['ingredient_quantity']['qty'],
+            args['ingredient_quantity']['unit'],
             'g',
             self._subject.g_per_ml,
             self._subject.piece_mass_g
@@ -246,7 +240,7 @@ class NutrientContentEditorComponent(ConsoleAppComponent):
         # Build the correct data object;
         nutrient_data = nutrients.supports_nutrient_content.NutrientData(
             nutrient_g_per_subject_g=nutrient_g_per_subject_g,
-            nutrient_pref_units=args['nutr']['unit']
+            nutrient_pref_units=args['nutrient_weight']['unit']
         )
         # Set the data;
         self._subject.set_nutrient_data(self._current_nutrient_name, nutrient_data)

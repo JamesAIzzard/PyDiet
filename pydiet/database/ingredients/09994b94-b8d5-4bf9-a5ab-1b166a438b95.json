@@ -5,15 +5,15 @@
     "pref_unit": "g",
     "ref_qty": 100
   },
-  "cost_per_g": null,
+  "cost_per_g": 0.03611111111111111,
   "flags": {
-    "alcohol_free": null,
-    "caffiene_free": null,
-    "dairy_free": null,
-    "gluten_free": null,
-    "nut_free": null,
-    "vegan": null,
-    "vegetarian": null
+    "alcohol_free": true,
+    "caffiene_free": true,
+    "dairy_free": true,
+    "gluten_free": true,
+    "nut_free": true,
+    "vegan": true,
+    "vegetarian": true
   },
   "name": "Avocado",
   "nutrients": {
@@ -30,7 +30,7 @@
       "nutrient_pref_units": "g"
     },
     "alcohol": {
-      "nutrient_g_per_subject_g": null,
+      "nutrient_g_per_subject_g": 0.0,
       "nutrient_pref_units": "g"
     },
     "amylopectin": {
@@ -94,7 +94,7 @@
       "nutrient_pref_units": "g"
     },
     "carbohydrate": {
-      "nutrient_g_per_subject_g": null,
+      "nutrient_g_per_subject_g": 0.1388888888888889,
       "nutrient_pref_units": "g"
     },
     "cartenoids": {
@@ -158,7 +158,7 @@
       "nutrient_pref_units": "g"
     },
     "fat": {
-      "nutrient_g_per_subject_g": null,
+      "nutrient_g_per_subject_g": 0.2647058823529412,
       "nutrient_pref_units": "g"
     },
     "fibre": {

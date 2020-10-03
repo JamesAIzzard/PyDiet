@@ -49,13 +49,18 @@ class Ingredient(persistence.supports_persistence.SupportsPersistence,
         # Check name;
         if not self.name_is_defined:
             attr_names.append('name')
+        # Check cost;
+        if not self.cost_per_g_defined:
+            attr_names.append('cost')
         # Check flags;
         if self.any_flag_undefined:
             for flag_name in self.unset_flags:
                 attr_names.append('{} flag'.format(
                     flag_name.replace('_', ' ')))
         # Check nutrients;
-        # Check density;
+        for nutrient_name in nutrients.configs.mandatory_nutrient_names:
+            if not self.nutrient_is_defined(nutrient_name):
+                attr_names.append(nutrient_name)
         return attr_names
 
     @property

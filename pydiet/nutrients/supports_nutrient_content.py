@@ -62,12 +62,11 @@ class SupportsNutrientContent(quantity.supports_bulk.SupportsBulk, abc.ABC):
             nutr_ref_qty = quantity.quantity_service.convert_qty_unit(qty=nutr_ref_qty_g,
                                                                       start_unit='g',
                                                                       end_unit=nutrient_pref_unit)
-            return '{nutr_qty:.3f}{nutr_unit} per {subj_qty}{subj_unit} of {subject_name}'.format(
+            return '{nutr_qty:.3f}{nutr_unit} per {subj_qty}{subj_unit}'.format(
                 nutr_qty=nutr_ref_qty,
                 nutr_unit=nutrient_pref_unit,
                 subj_qty=self.ref_qty,
-                subj_unit=self.pref_unit,
-                subject_name=self.name
+                subj_unit=self.pref_unit
             )
 
     @property
