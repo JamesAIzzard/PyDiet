@@ -102,3 +102,11 @@ class SupportsFlagSetting(SupportsFlags, abc.ABC):
         flag_value = self.validate_flag_value(flag_value)
         # Set;
         self._flags_data[flag_name] = flag_value
+
+    def set_all_flags_yes(self) -> None:
+        for flag_name in self._flags_data:
+            self.set_flag(flag_name, True)
+
+    def set_all_flags_no(self) -> None:
+        for flag_name in self._flags_data:
+            self.set_flag(flag_name, False)

@@ -7,12 +7,14 @@ if TYPE_CHECKING:
 
 _main_menu_template = '''
 
-OK              | -ok
-Cancel          | -cancel
+OK                  | -ok
+Cancel              | -cancel
 
-Mark Flag Yes   | -yes [flag number]
-Mark Flag No    | -no  [flag number]
-Unset Flag      | -del [flag number]
+Mark Flag Yes       | -yes [flag number]
+Mark All Flags Yes  | -allyes
+Mark Flag No        | -no  [flag number]
+Mark All Flags No   | -allno
+Unset Flag          | -del [flag number]
 
 {flag_menu}
 '''
@@ -33,8 +35,12 @@ class FlagEditorComponent(ConsoleAppComponent):
                 PrimaryArg('cancel', has_value=False, markers=['cancel'])]),
             self.configure_responder(self._on_set_yes, args=[
                 PrimaryArg('flag_num', has_value=True, markers=['-yes'], validators=[self._validate_flag_num])]),
+            self.configure_responder(self._on_set_all_yes, args=[
+                PrimaryArg('set_all_yes', has_value=False, markers=['-allyes'])]),
             self.configure_responder(self._on_set_no, args=[
                 PrimaryArg('flag_num', has_value=True, markers=['-no'], validators=[self._validate_flag_num])]),
+            self.configure_responder(self._on_set_all_no, args=[
+                PrimaryArg('set_all_no', has_value=False, markers=['-allno'])]),
             self.configure_responder(self._on_unset, args=[
                 PrimaryArg('flag_num', has_value=True, markers=['-del'], validators=[self._validate_flag_num])])
         ])
@@ -81,11 +87,17 @@ class FlagEditorComponent(ConsoleAppComponent):
     def _on_cancel(self) -> None:
         self._subject.set_flags(self._backup_flag_data)
 
-    def _on_set_yes(self, args):
+    def _on_set_yes(self, args) -> None:
         self._subject.set_flag(self._flag_numbering[args['flag_num']], True)
+
+    def _on_set_all_yes(self) -> None:
+        self._subject.set_all_flags_yes()
 
     def _on_set_no(self, args) -> None:
         self._subject.set_flag(self._flag_numbering[args['flag_num']], False)
+
+    def _on_set_all_no(self) -> None:
+        self._subject.set_all_flags_no()
 
     def _on_unset(self, args) -> None:
         self._subject.set_flag(self._flag_numbering[args['flag_num']], None)
