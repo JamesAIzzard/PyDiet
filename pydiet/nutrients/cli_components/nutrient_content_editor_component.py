@@ -77,7 +77,7 @@ class NutrientContentEditorComponent(ConsoleAppComponent):
             start_num=len(nutrients.configs.mandatory_nutrient_names) + 1)
 
     def configure(self, subject: 'SupportsSettingNutrientContent', return_to_route: str,
-                  backup_nutrients_data: 'NutrientData') -> None:
+                  backup_nutrients_data: Dict[str, 'NutrientData']) -> None:
         self._subject = subject
         self._return_to_route = return_to_route
         self._backup_nutrients_data = backup_nutrients_data

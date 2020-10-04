@@ -1,4 +1,4 @@
-from typing import Optional, TYPE_CHECKING, cast
+from typing import Optional, TYPE_CHECKING
 
 from pyconsoleapp import ConsoleAppComponent, styles, PrimaryArg, builtin_validators, builtin_components
 from pydiet import ingredients, persistence, flags, nutrients, quantity
