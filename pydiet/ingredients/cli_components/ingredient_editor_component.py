@@ -120,8 +120,8 @@ class IngredientEditorComponent(ConsoleAppComponent):
             ned.change_state('main')
             self.app.goto('home.ingredients.edit.nutrients')
 
-    def configure(self, ingredient: 'Ingredient', save_reminder: bool = False) -> None:
-        self._subject = ingredient
+    def configure(self, subject: 'Ingredient', save_reminder: bool = False) -> None:
+        self._subject = subject
 
         if save_reminder:
             def on_guard_save():
@@ -132,7 +132,7 @@ class IngredientEditorComponent(ConsoleAppComponent):
                 self.app.clear_exit('home.ingredients.edit')
 
             isc = self.app.get_component(builtin_components.save_check_guard_component.SaveCheckGuardComponent)
-            isc.configure(get_subject_name=lambda: ingredient.name,
+            isc.configure(get_subject_name=lambda: self._subject.name,
                           show_condition=lambda: self._subject.name_is_defined,
                           on_save_changes=on_guard_save,
                           on_cancel_changes=on_guard_no_save)

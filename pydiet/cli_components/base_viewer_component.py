@@ -4,8 +4,8 @@ from pyconsoleapp import ConsoleAppComponent, PrimaryArg, StandardPageComponent,
 from pydiet import persistence, ingredients
 
 _main_view_template = '''
-Edit Ingredient   | -edit [ingredient number]
-Delete Ingredient | -del  [ingredient number]
+Edit {subject_type_u_name}   | -edit [{subject_type_l_name} number]
+Delete {subject_type_u_name} | -del  [{subject_type_l_name} number]
 
 Ingredients:
 {ingredient_menu}

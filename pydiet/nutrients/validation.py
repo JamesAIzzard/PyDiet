@@ -6,7 +6,7 @@ if TYPE_CHECKING:
     from pydiet.nutrients.supports_nutrient_content import NutrientData
 
 
-def _validate_nutrient_data(nutrient_data: 'NutrientData') -> 'NutrientData':
+def validate_nutrient_data(nutrient_data: 'NutrientData') -> 'NutrientData':
     # Check the nutrient qty does not exceed the parent ingredient qty;
     if nutrient_data['nutrient_g_per_subject_g'] is not None and nutrient_data['nutrient_g_per_subject_g'] > 1:
         raise nutrients.exceptions.NutrientQtyExceedsIngredientQtyError
@@ -26,7 +26,7 @@ def validate_nutrients_data(nutrients_data: Dict[str, 'NutrientData']) -> Dict[s
             raise nutrients.exceptions.NutrientNameError('{} is not a primary nutrient name.'.format(nutrient_name))
 
         # Validate the nutrient data in isolation;
-        nutrients_data[nutrient_name] = _validate_nutrient_data(nutrients_data[nutrient_name])
+        nutrients_data[nutrient_name] = validate_nutrient_data(nutrients_data[nutrient_name])
 
     for nutrient_name in nutrients_data:
         # Check the child nutrient does not exceed it's parent's quantity;

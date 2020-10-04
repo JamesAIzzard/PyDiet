@@ -24,6 +24,11 @@ def get_empty_ingredient_data() -> 'IngredientData':
                           bulk=quantity.supports_bulk.get_empty_bulk_data())
 
 
+def load_new_ingredient() -> 'Ingredient':
+    """Creates and returns a fresh ingredient instance with no data filled in."""
+    return Ingredient(get_empty_ingredient_data())
+
+
 class Ingredient(persistence.supports_persistence.SupportsPersistence,
                  defining.supports_definition.SupportsDefinition,
                  defining.supports_name.SupportsNameSetting,

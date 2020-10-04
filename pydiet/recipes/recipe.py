@@ -1,6 +1,5 @@
 from typing import TYPE_CHECKING, Dict, List
 
-from pydiet.ingredients import ingredient_service as igs
 from pydiet.ingredients import ingredient_amount
 from pydiet.recipes import recipe_service as rcs
 from pydiet import time, configs, tags

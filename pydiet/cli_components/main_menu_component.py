@@ -39,7 +39,7 @@ class MainMenuComponent(ConsoleAppComponent):
         self.app.goto('home.recipes')
 
     def on_manage_goals(self):
-        self.app.goto('home.goals')
+        pass
 
     def on_run_optimiser(self):
         pass

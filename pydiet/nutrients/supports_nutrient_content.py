@@ -85,11 +85,7 @@ class SupportsSettingNutrientContent(SupportsNutrientContent, abc.ABC):
     def set_nutrient_data(self, nutrient_name: str, nutrient_data: 'NutrientData') -> None:
         nutrient_name = nutrients.nutrients_service.get_nutrient_primary_name(nutrient_name)
 
-        # Check the qty is valid and check the units are a recognised mass;
-        nutrient_data['nutrient_g_per_subject_g'] = quantity.quantity_service.validate_quantity(
-            nutrient_data['nutrient_g_per_subject_g'])
-        nutrient_data['nutrient_pref_units'] = quantity.quantity_service.validate_mass_unit(
-            nutrient_data['nutrient_pref_units'])
+        nutrient_data = nutrients.validation.validate_nutrient_data(nutrient_data)
 
         # Make the change on a copy of the data and validate it;
         nutrients_data_copy = self.nutrients_data_copy

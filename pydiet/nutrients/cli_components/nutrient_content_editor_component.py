@@ -62,7 +62,8 @@ class NutrientContentEditorComponent(ConsoleAppComponent):
             self.configure_responder(self._on_edit_cancel, args=[
                 PrimaryArg('cancel', has_value=False, markers=['-cancel'])]),
             self.configure_responder(self._on_set_nutrient_amount, args=[
-                PrimaryArg('ingredient_quantity', has_value=True, markers=['-in'], validators=[self._validate_ingr_input]),
+                PrimaryArg('ingredient_quantity', has_value=True, markers=['-in'],
+                           validators=[self._validate_ingr_input]),
                 PrimaryArg('nutrient_weight', has_value=True, validators=[self._validate_nutr_input])
             ])
         ])
@@ -76,7 +77,7 @@ class NutrientContentEditorComponent(ConsoleAppComponent):
             start_num=len(nutrients.configs.mandatory_nutrient_names) + 1)
 
     def configure(self, subject: 'SupportsSettingNutrientContent', return_to_route: str,
-                  backup_nutrients_data: Dict[str, 'NutrientData']) -> None:
+                  backup_nutrients_data: 'NutrientData') -> None:
         self._subject = subject
         self._return_to_route = return_to_route
         self._backup_nutrients_data = backup_nutrients_data
@@ -199,6 +200,7 @@ class NutrientContentEditorComponent(ConsoleAppComponent):
 
     def _on_edit_nutrient(self, args) -> None:
         self._current_nutrient_name = self._get_nutr_name_from_num(args['edit'])
+        self._backup_nutrient_data = self._subject.get_nutrient_data_copy(self._current_nutrient_name)
         self.current_state = 'edit'
 
     def _on_new_nutrient(self) -> None:
@@ -243,4 +245,9 @@ class NutrientContentEditorComponent(ConsoleAppComponent):
             nutrient_pref_units=args['nutrient_weight']['unit']
         )
         # Set the data;
-        self._subject.set_nutrient_data(self._current_nutrient_name, nutrient_data)
+        try:
+            self._subject.set_nutrient_data(self._current_nutrient_name, nutrient_data)
+        except nutrients.exceptions.ChildNutrientQtyExceedsParentNutrientQtyError:
+            raise ResponseValidationError(
+                'The quantity of child nutrients of {} exceed its own mass.'.format(
+                    self._current_nutrient_name.replace('_', ' ')))
