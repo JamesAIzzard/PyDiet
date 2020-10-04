@@ -47,7 +47,7 @@ def validate_nutrients_data(nutrients_data: Dict[str, 'NutrientData']) -> Dict[s
                 if child_nutrient_g is not None:
                     child_g_sum = child_g_sum + child_nutrient_g
             # ..Raise an exception of the child mass sum exceeds the parent's mass;
-            if child_g_sum > parent_g:
+            if child_g_sum > parent_g * 1.01:  # *101% to prevent rounding error issues.
                 raise nutrients.exceptions.ChildNutrientQtyExceedsParentNutrientQtyError(
                     'The qty of child nutrients of {} exceed its own mass'.format(parent_nutrient_name))
 
