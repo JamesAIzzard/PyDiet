@@ -77,3 +77,7 @@ class SupportsPersistence(abc.ABC):
     @property
     def data_copy(self) -> Union[Dict, TypedDict]:
         return copy.deepcopy(self._persistence_info['data'])
+
+    def set_unique_field(self, value: str) -> None:
+        if persistence.persistence_service.check_unique_val_avail(self.__class__, self.datafile_name, value):
+            self._persistence_info['data'][self.get_unique_field_name()] = value

@@ -50,7 +50,7 @@ class IngredientEditorComponent(ConsoleAppComponent):
 
     def _print_menu_screen(self):
         output = _menu_screen_template.format(
-            status_summary=styles.fore(self._subject.status_summary, 'blue'),
+            status_summary=styles.fore(self._subject.completion_status_summary, 'blue'),
             name=styles.fore(str(self._subject.name_summary), 'blue'),
             cost=styles.fore(self._subject.cost_summary, 'blue'),
             bulk_summary=styles.fore(self._subject.bulk_summary, 'blue'),

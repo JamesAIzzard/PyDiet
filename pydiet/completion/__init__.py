@@ -1,5 +1,5 @@
 from . import (
-    supports_definition,
+    supports_completion,
     supports_name,
     exceptions
 )

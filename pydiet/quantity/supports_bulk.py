@@ -2,7 +2,7 @@ import abc
 import copy
 from typing import TypedDict, Optional
 
-from pydiet import quantity, defining
+from pydiet import quantity
 
 
 class BulkData(TypedDict):
@@ -19,7 +19,7 @@ def get_empty_bulk_data() -> BulkData:
                     piece_mass_g=None)
 
 
-class SupportsBulk(defining.supports_name.SupportsName):
+class SupportsBulk:
 
     @property
     @abc.abstractmethod

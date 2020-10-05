@@ -1,6 +1,6 @@
 from typing import Optional, Dict, List, TypedDict, TYPE_CHECKING
 
-from pydiet import nutrients, defining, cost, flags, quantity, persistence
+from pydiet import nutrients, completion, cost, flags, quantity, persistence
 
 if TYPE_CHECKING:
     from pydiet.quantity.supports_bulk import BulkData
@@ -30,8 +30,8 @@ def load_new_ingredient() -> 'Ingredient':
 
 
 class Ingredient(persistence.supports_persistence.SupportsPersistence,
-                 defining.supports_definition.SupportsDefinition,
-                 defining.supports_name.SupportsNameSetting,
+                 completion.supports_completion.SupportsCompletion,
+                 completion.supports_name.SupportsNameSetting,
                  cost.supports_cost.SupportsCostSetting,
                  flags.supports_flags.SupportsFlagSetting,
                  nutrients.supports_nutrient_content.SupportsSettingNutrientContent,
@@ -46,7 +46,7 @@ class Ingredient(persistence.supports_persistence.SupportsPersistence,
         return self._data['name']
 
     def set_name(self, name: Optional[str]) -> None:
-        self._data['name'] = name
+        self.set_unique_field(name)
 
     @property
     def missing_mandatory_attrs(self) -> List[str]:

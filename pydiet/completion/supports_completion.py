@@ -1,9 +1,11 @@
 import abc
 from typing import List, Optional
 
-class SupportsDefinition(abc.ABC):
 
-    @abc.abstractproperty
+class SupportsCompletion(abc.ABC):
+
+    @property
+    @abc.abstractmethod
     def missing_mandatory_attrs(self) -> List[str]:
         raise NotImplementedError
 
@@ -15,7 +17,7 @@ class SupportsDefinition(abc.ABC):
             return True
 
     @property
-    def status_summary(self) -> str:
+    def completion_status_summary(self) -> str:
         if self.defined:
             return 'Complete'
         else:
@@ -27,6 +29,3 @@ class SupportsDefinition(abc.ABC):
             return self.missing_mandatory_attrs[0]
         else:
             return None
-
-    
-

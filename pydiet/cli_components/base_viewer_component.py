@@ -34,7 +34,7 @@ class IngredientViewerComponent(ConsoleAppComponent):
             subject_name = self._ingr_name_from_num(num)
             sub_inst = persistence.persistence_service.load(ingredients.ingredient.Ingredient, subject_name)
             menu = menu + '{name_and_num:<40} {subject_status}\n'.format(
-                name_and_num=str(num) + '. ' + sub_inst.name + ':', subject_status=sub_inst.status_summary
+                name_and_num=str(num) + '. ' + sub_inst.name + ':', subject_status=sub_inst.completion_status_summary
             )
         return menu
 
