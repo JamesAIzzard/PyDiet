@@ -1,5 +1,5 @@
 from . import (
     exceptions,
-    recipe,
+    old_recipe,
     recipe_service
 )

@@ -17,6 +17,14 @@ class DBInfo(TypedDict):
 
 class SupportsPersistence(abc.ABC):
 
+    @property
+    def has_unsaved_changes(self) -> bool:
+        saved_data = persistence.persistence_service.read_datafile(self.datafile_path, Dict)
+        if self._persistence_info['data'] == saved_data:
+            return False
+        else:
+            return True
+
     @staticmethod
     @abc.abstractmethod
     def get_db_info() -> 'DBInfo':

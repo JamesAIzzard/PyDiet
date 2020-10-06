@@ -1,10 +1,11 @@
 import abc
-from typing import Optional, Type, Callable, TYPE_CHECKING
+from typing import Type, Callable, TYPE_CHECKING
 
 from pyconsoleapp import ConsoleAppComponent, PrimaryArg, StandardPageComponent
 from pydiet import persistence
 
 if TYPE_CHECKING:
+    from pyconsoleapp import ConsoleApp
     from pyconsoleapp.builtin_components.base_search_component import BaseSearchComponent
     from pydiet.persistence.supports_persistence import SupportsPersistence
 
@@ -19,18 +20,22 @@ View {u_type_name}s        | -view
 
 
 class CRUDMenuComponent(ConsoleAppComponent, abc.ABC):
-    def __init__(self, app):
+    def __init__(self, subject_type_name: str, subject_type: Type['SupportsPersistence'],
+                 new_subject_factory: Callable[[], 'SupportsPersistence'],
+                 subject_editor_component: Type[ConsoleAppComponent],
+                 subject_search_component: Type['BaseSearchComponent'], subject_base_route: str, app: 'ConsoleApp'):
         super().__init__(app)
 
-        self._subject_type_name: Optional[str] = None
-        self._subject_type: Optional[Type['SupportsPersistence']] = None
-        self._new_subject_factory: Optional[Callable[[], 'SupportsPersistence']] = None
-        self._subject_editor_component: Optional[Type[ConsoleAppComponent]] = None
-        self._subject_search_component: Optional[Type['BaseSearchComponent']] = None
-        self._subject_base_route: Optional[str] = None
-        self._subject_editor_route: Optional[str] = None
-        self._subject_search_route: Optional[str] = None
-        self._subject_viewer_route: Optional[str] = None
+        self._subject_type_name = subject_type_name
+        self._subject_type = subject_type
+        self._new_subject_factory = new_subject_factory
+        self._subject_editor_component = subject_editor_component
+        self._subject_search_component = subject_search_component
+        self._subject_base_route = subject_base_route
+
+        self._subject_editor_route = self._subject_base_route + '.edit'
+        self._subject_search_route = self._subject_base_route + '.search'
+        self._subject_viewer_route = self._subject_base_route + '.view'
 
         self.configure_state('menu', self._print_main_view, responders=[
             self.configure_responder(self._on_create, args=[
@@ -57,7 +62,7 @@ class CRUDMenuComponent(ConsoleAppComponent, abc.ABC):
     def _on_create(self):
         new_sub = self._new_subject_factory()
         ec = self.app.get_component(self._subject_editor_component)
-        ec.configure(subject=new_sub, save_reminder=True)
+        ec.configure(subject=new_sub)
         self.app.goto(self._subject_editor_route)
 
     def _on_search_and_action(self, on_result_selected: Callable, args):
@@ -89,18 +94,3 @@ class CRUDMenuComponent(ConsoleAppComponent, abc.ABC):
 
     def _on_view(self) -> None:
         self.app.goto(self._subject_viewer_route)
-
-    def configure(self, subject_type_name: str, subject_type: Type['SupportsPersistence'],
-                  new_subject_factory: Callable[[], 'SupportsPersistence'],
-                  subject_editor_component: Type[ConsoleAppComponent],
-                  subject_search_component: Type['BaseSearchComponent'], subject_base_route: str):
-        self._subject_type_name = subject_type_name
-        self._subject_type = subject_type
-        self._new_subject_factory = new_subject_factory
-        self._subject_editor_component = subject_editor_component
-        self._subject_search_component = subject_search_component
-        self._subject_base_route = subject_base_route
-
-        self._subject_editor_route = self._subject_base_route + '.edit'
-        self._subject_search_route = self._subject_base_route + '.search'
-        self._subject_viewer_route = self._subject_base_route + '.view'

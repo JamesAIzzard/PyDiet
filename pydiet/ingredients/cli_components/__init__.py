@@ -1,1 +1,3 @@
-from . import ingredient_search_component, ingredient_editor_component
+from .ingredient_search_component import IngredientSearchComponent
+from .ingredient_editor_component import IngredientEditorComponent
+from .ingredient_save_check_guard_component import IngredientSaveCheckGuardComponent

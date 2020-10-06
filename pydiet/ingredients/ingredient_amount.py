@@ -4,7 +4,7 @@ from pydiet import ingredients, quantity, recipes
 
 if TYPE_CHECKING:
     from pydiet.ingredients.ingredient import Ingredient
-    from pydiet.recipes.recipe import Recipe
+    from pydiet.recipes.old_recipe import Recipe
 
 data_template = {
     "quantity": None,

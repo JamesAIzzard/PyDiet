@@ -470,7 +470,6 @@ class ConsoleAppComponent(ABC):
                     if new_primary_markers == p_args:
                         raise exceptions.IdenticalPrimaryMarkersError(str(p_args))
 
-
         # Create and stash the responder object in the correct states;
         r = Responder(self.app, func, args)
 
@@ -660,10 +659,14 @@ class ConsoleAppGuardComponent(ConsoleAppComponent, ABC):
         self._show_condition = None
 
     @property
+    def show_condition(self) -> Optional[Callable[[], bool]]:
+        return self._show_condition
+
+    @property
     def should_show(self) -> bool:
         return self._show_condition()
 
-    def configure(self, show_condition: Callable[[], bool], *args, **kwargs):
+    def _configure(self, show_condition: Callable[[], bool]):
         self._show_condition = show_condition
 
     def clear_self(self):

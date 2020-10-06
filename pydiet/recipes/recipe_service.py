@@ -6,7 +6,7 @@ from pyconsoleapp import search_tools
 from pydiet import persistence, recipes, ingredients
 
 if TYPE_CHECKING:
-    from pydiet.recipes.recipe import Recipe
+    from pydiet.recipes.old_recipe import Recipe
     from pydiet.ingredients.ingredient_amount import IngredientAmount
 
 

@@ -8,7 +8,7 @@ from pydiet.recipes import recipe_service as rcs
 from pydiet import configs
 
 if TYPE_CHECKING:
-    from pydiet.recipes.recipe import Recipe
+    from pydiet.recipes.old_recipe import Recipe
     from pydiet.ingredients.ingredient_amount import IngredientAmount
 
 @singleton

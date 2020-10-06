@@ -1,6 +1,7 @@
-from typing import Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
-from pyconsoleapp import ConsoleAppComponent, styles, PrimaryArg, builtin_validators, builtin_components
+import pydiet
+from pyconsoleapp import styles, PrimaryArg, builtin_validators
 from pydiet import ingredients, persistence, flags, nutrients, quantity
 
 if TYPE_CHECKING:
@@ -10,7 +11,7 @@ _menu_screen_template = '''Save | -save
 
 Ingredient Status: {status_summary}
 
-Name | -name [new name] -> {name}
+Name | -name [name] -> {name}
 
 Cost | -cost [cost] -per [qty] -> {cost}
 
@@ -25,10 +26,9 @@ Nutrients | -nutr ->
 '''
 
 
-class IngredientEditorComponent(ConsoleAppComponent):
+class IngredientEditorComponent(pydiet.cli_components.BaseEditorComponent):
     def __init__(self, app):
         super().__init__(app)
-        self._subject: Optional['Ingredient'] = None
 
         self.configure_state('menu', self._print_menu_screen, responders=[
             self.configure_responder(self._on_save, args=[
@@ -120,20 +120,9 @@ class IngredientEditorComponent(ConsoleAppComponent):
             ned.change_state('main')
             self.app.goto('home.ingredients.edit.nutrients')
 
-    def configure(self, subject: 'Ingredient', save_reminder: bool = False) -> None:
-        self._subject = subject
+    def configure(self, subject: 'Ingredient') -> None:
+        exit_route = 'home.ingredients'
+        guard = self.app.get_component(pydiet.ingredients.cli_components.IngredientSaveCheckGuardComponent)
+        guard.configure(subject=subject)
+        super()._configure(subject, exit_route=exit_route, show_guard_condition=guard.show_condition, guard=guard)
 
-        if save_reminder:
-            def on_guard_save():
-                persistence.persistence_service.save(self._subject)
-                self.app.clear_exit('home.ingredients.edit')
-
-            def on_guard_no_save():
-                self.app.clear_exit('home.ingredients.edit')
-
-            isc = self.app.get_component(builtin_components.save_check_guard_component.SaveCheckGuardComponent)
-            isc.configure(get_subject_name=lambda: self._subject.name,
-                          show_condition=lambda: self._subject.name_is_defined,
-                          on_save_changes=on_guard_save,
-                          on_cancel_changes=on_guard_no_save)
-            self.app.guard_exit('home.ingredients.edit', isc)

@@ -1,7 +1,7 @@
 from pyconsoleapp import ConsoleApp
 
 # Expose internal modules
-from . import exceptions, configs
+from . import exceptions, configs, cli_components
 from .exceptions import PyDietException
 
 # Create the app instance;
