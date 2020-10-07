@@ -1,2 +1,3 @@
 from .base_save_check_guard_component import BaseSaveCheckGuardComponent
 from .base_editor_component import BaseEditorComponent
+from .crud_menu_component import CRUDMenuComponent

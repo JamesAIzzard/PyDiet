@@ -1,5 +1,7 @@
 from typing import TYPE_CHECKING
 
+from pydiet.cli_components import BaseEditorComponent
+
 if TYPE_CHECKING:
     from pydiet.recipes.recipe import Recipe
 
@@ -21,13 +23,9 @@ Edit Instructions | -inst ->
 '''
 
 
-class RecipeEditorComponent(EditorBaseComponent):
+class RecipeEditorComponent(BaseEditorComponent):
     def __init__(self, app):
         super().__init__(app)
 
     def configure(self, subject: 'Recipe'):
-        exit_route = 'home.recipes'
-        show_guard_condition = lambda: subject.name_is_defined and subject.has_unsaved_changes
-        guard =
-        super().configure(subject=subject, exit_route=exit_route, show_guard_condition=show_guard_condition,
-                          guard=guard)
+        pass

@@ -6,7 +6,6 @@ from pydiet.ingredients import cli_components as icli
 class IngredientMenuComponent(CRUDMenuComponent):
 
     def __init__(self, app):
-        s = super()
         super().__init__(subject_type_name='ingredient',
                          subject_type=ingredients.ingredient.Ingredient,
                          new_subject_factory=ingredients.ingredient.load_new_ingredient,
