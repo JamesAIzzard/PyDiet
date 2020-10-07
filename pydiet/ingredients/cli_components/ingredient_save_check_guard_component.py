@@ -12,6 +12,3 @@ class IngredientSaveCheckGuardComponent(pydiet.cli_components.BaseSaveCheckGuard
         message = 'Save changes to this ingredient?'
         super().__init__(message=message, app=app)
         self._subject: Optional['Ingredient'] = None
-
-    def configure(self, subject: 'Ingredient') -> None:
-        super()._configure(subject=subject)

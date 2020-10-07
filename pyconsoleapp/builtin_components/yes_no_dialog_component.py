@@ -1,10 +1,17 @@
 import abc
 from typing import TYPE_CHECKING
 
+import pyconsoleapp as pcap
 from pyconsoleapp import ConsoleAppComponent, PrimaryArg
 
 if TYPE_CHECKING:
     from pyconsoleapp import ConsoleApp
+
+_view_template = '''
+{message}
+Yes | -y, -yes
+No  | -n, -no
+'''
 
 
 class YesNoDialogComponent(ConsoleAppComponent, abc.ABC):
@@ -24,20 +31,9 @@ class YesNoDialogComponent(ConsoleAppComponent, abc.ABC):
         return self._message
 
     def _print_dialog(self) -> str:
-        # Define the template;
-        template = '''
-        {message}
-        Yes | -y, -yes
-        No  | -n, -no
-        '''
-
-        # Fill the template and return;
-        output = template.format(
-            message=self.message
+        return self.app.get_component(pcap.StandardPageComponent).print_view(
+            page_content=_view_template.format(message=self.message)
         )
-        output = self.app.fetch_component(
-            'standard_page_component').print(content=output)
-        return output
 
     @abc.abstractmethod
     def _on_yes(self) -> None:

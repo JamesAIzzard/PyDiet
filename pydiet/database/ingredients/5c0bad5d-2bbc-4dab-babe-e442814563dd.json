@@ -5,7 +5,7 @@
     "pref_unit": "g",
     "ref_qty": 100
   },
-  "cost_per_g": null,
+  "cost_per_g": 0.12300000000000001,
   "flags": {
     "alcohol_free": null,
     "caffiene_free": null,
@@ -15,7 +15,7 @@
     "vegan": null,
     "vegetarian": null
   },
-  "name": "Cheese",
+  "name": "Test",
   "nutrients": {
     "a_carotene": {
       "nutrient_g_per_subject_g": null,

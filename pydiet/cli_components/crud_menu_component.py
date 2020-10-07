@@ -13,8 +13,8 @@ _main_view_template = '''
 {u_type_name} Count: {saved_count}
 
 Create a New {u_type_name} | -new
-Edit an {u_type_name}      | -edit [{l_type_name}]
-Delete an {u_type_name}    | -del  [{l_type_name}]
+Edit an {u_type_name}      | -edit [{l_type_name} name]
+Delete an {u_type_name}    | -del  [{l_type_name} name]
 View {u_type_name}s        | -view
 '''
 
@@ -87,7 +87,7 @@ class CRUDMenuComponent(ConsoleAppComponent, abc.ABC):
         def on_result_selected(subject_name: str):
             ec = self.app.get_component(self._subject_editor_component)
             selected_subject = persistence.persistence_service.load(self._subject_type, subject_name)
-            ec.configure(subject=selected_subject)
+            ec.configure(subject=selected_subject, guard_exit_of=self._subject_editor_route)
             self.app.goto(self._subject_editor_route)
 
         self._on_search_and_action(on_result_selected, args)

@@ -15,7 +15,7 @@ class BaseSaveCheckGuardComponent(builtin_components.yes_no_dialog_component.Yes
         super().__init__(message=message, app=app)
         self._subject: Optional['SupportsPersistence'] = None
 
-    def _configure(self, subject: 'SupportsPersistence') -> None:
+    def configure(self, subject: 'SupportsPersistence') -> None:
         super()._configure(show_condition=lambda: subject.unique_field_defined and subject.has_unsaved_changes)
         self._subject = subject
 

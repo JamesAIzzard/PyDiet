@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING
 
 import pydiet
 from pyconsoleapp import styles, PrimaryArg, builtin_validators
@@ -121,8 +121,7 @@ class IngredientEditorComponent(pydiet.cli_components.BaseEditorComponent):
             self.app.goto('home.ingredients.edit.nutrients')
 
     def configure(self, subject: 'Ingredient') -> None:
-        exit_route = 'home.ingredients'
+        guard_exit_route = 'home.ingredients.edit'
         guard = self.app.get_component(pydiet.ingredients.cli_components.IngredientSaveCheckGuardComponent)
         guard.configure(subject=subject)
-        super()._configure(subject, exit_route=exit_route, show_guard_condition=guard.show_condition, guard=guard)
-
+        super()._configure(subject, guard_exit_route=guard_exit_route, guard=guard)

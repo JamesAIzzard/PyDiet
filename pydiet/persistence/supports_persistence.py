@@ -19,6 +19,8 @@ class SupportsPersistence(abc.ABC):
 
     @property
     def has_unsaved_changes(self) -> bool:
+        if not self.datafile_exists:
+            return True
         saved_data = persistence.persistence_service.read_datafile(self.datafile_path, Dict)
         if self._persistence_info['data'] == saved_data:
             return False
