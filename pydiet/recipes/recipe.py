@@ -1,6 +1,6 @@
 from typing import Dict, List, Optional, TypedDict, TYPE_CHECKING
 
-from pydiet import persistence, completion, flags, nutrients, quantity, ingredients, tags, time, steps
+from pydiet import persistence, completion, flags, nutrients, quantity, ingredients, tags, time, steps, recipes
 
 if TYPE_CHECKING:
     from pydiet.persistence.supports_persistence import DBInfo, PersistenceInfo
@@ -57,7 +57,7 @@ class Recipe(persistence.supports_persistence.SupportsPersistence,
         return flags_data
 
     @property
-    def _ingredient_composition(self) -> Dict[str, 'IngredientPercentageData']:
+    def _ingredient_composition_data(self) -> Dict[str, 'IngredientPercentageData']:
         ...
 
     @property
@@ -69,7 +69,7 @@ class Recipe(persistence.supports_persistence.SupportsPersistence,
         attr_names = []
         if not self.name_is_defined:
             attr_names.append('name')
-        if len(self.ingredients) == 0:
+        if len(self._ingredient_composition_data) == 0:
             attr_names.append('ingredients')
         if len(self.tags) == 0:
             attr_names.append('tags')
@@ -80,6 +80,13 @@ class Recipe(persistence.supports_persistence.SupportsPersistence,
     @property
     def name(self) -> Optional[str]:
         return self._name
+
+    @name.setter
+    def name(self, value: str) -> None:
+        if persistence.persistence_service.check_unique_val_avail(recipes.Recipe, self.datafile_name, value):
+            self._name = value
+        else:
+            raise persistence.exceptions.UniqueValueDuplicatedError('There is already a recipe called {}'.format(value))
 
     @property
     def name_is_defined(self) -> bool:

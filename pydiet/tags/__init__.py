@@ -1,1 +1,1 @@
-from . import configs, exceptions, i_has_tags, tags_service
+from . import configs, exceptions, supports_tags

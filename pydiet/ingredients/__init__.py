@@ -1,4 +1,6 @@
 from . import (exceptions,
                configs,
                ingredient,
-               ingredient_amount)
+               supports_ingredient_composition)
+
+from .ingredient import Ingredient, IngredientData

@@ -138,6 +138,9 @@ class ConsoleApp:
         component_name = self._route_component_maps[route]
         return self.fetch_component(component_name)
 
+    def get_component_for_route(self, route:str) -> 'ConsoleAppComponent':
+        return self._fetch_component_for_route(route)
+
     def make_component(self, component_class_name: str) -> 'ConsoleAppComponent':
         """Creates and returns a new instance of the component by finding its
         constructor in the registered component packages.

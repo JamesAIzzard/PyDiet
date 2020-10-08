@@ -1,1 +1,1 @@
-from . import configs, exceptions, time_service
+from . import configs, exceptions, time_service, supports_serve_times

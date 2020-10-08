@@ -18,8 +18,12 @@ def save(subject: 'SupportsPersistence') -> None:
         raise persistence.exceptions.UniqueFieldUndefinedError
     # Update or create;
     if subject.datafile_exists:
+        if not check_unique_val_avail(subject.__class__, subject.datafile_name, subject.unique_field_value):
+            raise persistence.exceptions.UniqueValueDuplicatedError
         _update_datafile(subject)
     elif not subject.datafile_exists:
+        if not check_unique_val_avail(subject.__class__, None, subject.unique_field_value):
+            raise persistence.exceptions.UniqueValueDuplicatedError
         _create_datafile(subject)
 
 

@@ -122,6 +122,6 @@ class IngredientEditorComponent(pydiet.cli_components.BaseEditorComponent):
 
     def configure(self, subject: 'Ingredient') -> None:
         guard_exit_route = 'home.ingredients.edit'
-        guard = self.app.get_component(pydiet.ingredients.cli_components.IngredientSaveCheckGuardComponent)
+        guard = self.app.get_component(ingredients.cli_components.IngredientSaveCheckGuardComponent)
         guard.configure(subject=subject)
         super()._configure(subject, guard_exit_route=guard_exit_route, guard=guard)
