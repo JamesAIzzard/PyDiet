@@ -8,10 +8,10 @@ if TYPE_CHECKING:
     from pydiet.persistence import SupportsPersistence
 
 _main_view_template = '''
-Edit {item_u_name}   | -edit [{item_l_name} number]
-Delete {item_u_name} | -del  [{item_l_name} number]
+Edit {item_type_u_name}   | -edit [{item_type_l_name} number]
+Delete {item_type_u_name} | -del  [{item_type_l_name} number]
 
-{item_u_name}:
+{item_type_u_name}:
 {item_menu}
 '''
 
@@ -22,6 +22,8 @@ class BaseViewerComponent(ConsoleAppComponent, abc.ABC):
         super().__init__(app)
         self._item_editor_route: str = item_editor_route
         self._item_type: Type['SupportsPersistence'] = item_type
+        self._item_type_u_name = self._item_type.__name__.join(i.capitalize() for i in item_type.__name__.split('. '))
+        self._item_type_l_name = self._item_type.__name__.lower()
         self._unique_val_num_map: Dict[int, str] = {}
 
         self.configure_state('main', self._print_main_view, responders=[
@@ -55,7 +57,8 @@ class BaseViewerComponent(ConsoleAppComponent, abc.ABC):
     def _unique_val_from_num(self, num: int) -> str:
         return self._unique_val_num_map[num]
 
-    def _load_item(self, unique_val:str) -> #todo Figure out how to express this return type as the type in self._item_type:
+    def _load_item(self, unique_val: str) -> 'SupportsPersistence':
+        return persistence.persistence_service.load(self._item_type, unique_val)
 
     def _validate_item_number(self, value) -> int:
         try:
@@ -75,18 +78,20 @@ class BaseViewerComponent(ConsoleAppComponent, abc.ABC):
         return self.app.get_component(StandardPageComponent).print(
             page_title='{self._item_u_name} Viewer',
             page_content=_main_view_template.format(
-                ingredient_menu=self._item_menu
+                item_type_u_name=self._item_type_u_name,
+                item_type_l_name=self._item_type_l_name,
+                item_menu=self._item_menu
             )
         )
 
     def _on_edit_item(self, args) -> None:
-        item_name = self._item_name_from_num(args['item_num'])
+        item_name = self._unique_val_from_num(args['item_num'])
         item = persistence.persistence_service.load(self._item_type, item_name)
         item_editor = self.app.get_component_for_route(self._item_editor_route)
         item_editor.configure(subject=item)
         self.app.goto(self._item_editor_route)
 
     def _on_delete_item(self, args) -> None:
-        item_name = self._item_name_from_num(args['item_num'])
+        item_name = self._unique_val_from_num(args['item_num'])
         persistence.persistence_service.delete(self._item_type, item_name)
         self.app.info_message = '{} was deleted.'.format(item_name)
