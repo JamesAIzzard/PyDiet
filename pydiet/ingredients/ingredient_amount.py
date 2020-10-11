@@ -1,137 +1,108 @@
 import abc
-from typing import List, Dict, Optional, TypedDict, TYPE_CHECKING
+import copy
+from typing import Dict, TypedDict, Optional
 
 import pydiet
-from pydiet import quantity
-from pydiet.ingredients import Ingredient, IngredientData
-
-if TYPE_CHECKING:
-    from pydiet.ingredients import IngredientData
+from pydiet import quantity, persistence
+from pydiet.ingredients import Ingredient
 
 
 class IngredientAmountData(TypedDict):
     quantity: Optional[float]
-    quantity_unit: Optional[str]
-    perc_increase: Optional[float]
-    perc_decrease: Optional[float]
+    quantity_unit: str
+    perc_increase: float
+    perc_decrease: float
 
 
-class IngredientAmount(Ingredient):
-    """Models an ingredient with immutable quantity and tolerance associated with it."""
-
-    def __init__(self, ingredient_data: 'IngredientData',
-                 ingredient_datafile_name: str,
-                 ingredient_amount_data: 'IngredientAmountData'):
-        super().__init__(data=ingredient_data, datafile_name=ingredient_datafile_name)
-        self._data = ingredient_amount_data
-
-    @property
-    def missing_mandatory_attrs(self) -> List[str]:
-        missing_attrs = super().missing_mandatory_attrs
-        if not self.quantity_is_defined:
-            missing_attrs.append('quantity')
-        if not self.quantity_tolerance_is_defined:
-            missing_attrs.append('quantity tolerance')
-        return missing_attrs
-
-    @property
-    def quantity(self) -> Optional[float]:
-        return self._data['quantity']
-
-    @property
-    def quantity_unit(self) -> Optional[str]:
-        return self._data['quantity_unit']
-
-    @property
-    def quantity_is_defined(self) -> bool:
-        if self.quantity is None or self.quantity_unit is None:
-            return False
-        else:
-            return True
-
-    @property
-    def perc_increase(self) -> Optional[float]:
-        return self._data['perc_increase']
-
-    @property
-    def perc_decrease(self) -> Optional[float]:
-        return self._data['perc_decrease']
-
-    @property
-    def quantity_tolerance_is_defined(self) -> bool:
-        if self.perc_increase is None or self.perc_decrease is None:
-            return False
-        else:
-            return True
-
-    @property
-    def summary(self) -> str:
-        summary = 'Undefined'
-        if self.quantity_is_defined and self.quantity_tolerance_is_defined:
-            summary = '{qty} (+{perc_inc:.1f}%/-{perc_dec:.1f}%)'.format(
-                qty=str(self.quantity) + str(self.quantity_unit),
-                perc_inc=self.perc_increase,
-                perc_dec=self.perc_decrease
-            )
-        return summary
-
-
-class SettableIngredientAmount(IngredientAmount):
-    """Models and ingredient amount with mutable properties."""
-    def __init__(self, ingredient_data: 'IngredientData',
-                 ingredient_datafile_name: str,
-                 ingredient_amount_data: 'IngredientAmountData'):
-        super().__init__(ingredient_data, ingredient_datafile_name, ingredient_amount_data)
-
-    @IngredientAmount.quantity.setter
-    def quantity(self, value: Optional[float]) -> None:
-        if value is not None:
-            value = quantity.validate_quantity(value)
-        self._data['quantity'] = value
-
-    @IngredientAmount.quantity_unit.setter
-    def quantity_unit(self, unit: Optional[str]) -> None:
-        if unit is not None:
-            self.check_units_configured(unit)
-        self._data['quantity_unit'] = unit
-
-    @IngredientAmount.perc_increase.setter
-    def perc_increase(self, value: Optional[float]) -> None:
-        if value is not None:
-            pydiet.validation.validate_positive_percentage(value)
-        self._data['perc_increase'] = value
-
-    @IngredientAmount.perc_decrease.setter
-    def perc_decrease(self, value: Optional[float]) -> None:
-        if value is not None:
-            pydiet.validation.validate_positive_percentage(value)
-        self._data['perc_decrease'] = value
+def get_new_ingredient_amount_data() -> 'IngredientAmountData':
+    return IngredientAmountData(quantity=None,
+                                quantity_unit='g',
+                                perc_increase=0,
+                                perc_decrease=0)
 
 
 class HasIngredientAmounts(abc.ABC):
     """Models an object which has readonly ingredient amounts."""
+
     @property
     @abc.abstractmethod
-    def ingredient_amounts(self) -> Dict[str, 'IngredientAmount']:
+    def _ingredient_amounts_data(self) -> Dict[str, 'IngredientAmountData']:
         raise NotImplementedError
+
+    @property
+    def ingredient_amounts_data(self) -> Dict[str, 'IngredientAmountData']:
+        return copy.deepcopy(self._ingredient_amounts_data)
 
     @property
     def ingredient_amounts_summary(self) -> str:
         summary = ''
-        if len(self.ingredient_amounts):
-            for ia in self.ingredient_amounts.values():
-                summary = summary + '{ingredient_name}: {ci_summary}\n'.format(
-                    ingredient_name=ia.name,
-                    ci_summary=ia.summary
-                )
+        if len(self.ingredient_amounts_data):
+            for df_name, data in self.ingredient_amounts_data.items():
+                summary = summary + '\n' + self.summarise_ingredient_amount(df_name)
         else:
             summary = 'No ingredients to show yet.'
         return summary
 
+    def get_ingredient_amount_data(self, df_name: str) -> 'IngredientAmountData':
+        return self.ingredient_amounts_data[df_name]
+
+    def get_ingredient_amount_qty(self, df_name: str) -> Optional[float]:
+        iad = self.get_ingredient_amount_data(df_name)
+        return iad['quantity']
+
+    def get_ingredient_amount_unit(self, df_name: str) -> str:
+        iad = self.get_ingredient_amount_data(df_name)
+        return iad['quantity_unit']
+
+    def get_ingredient_amount_perc_incr(self, df_name: str) -> float:
+        iad = self.get_ingredient_amount_data(df_name)
+        return iad['perc_increase']
+
+    def get_ingredient_amount_perc_decr(self, df_name: str) -> float:
+        iad = self.get_ingredient_amount_data(df_name)
+        return iad['perc_increase']
+
+    def ingredient_amount_defined(self, df_name: str) -> float:
+        iad = self.get_ingredient_amount_data(df_name)
+        return iad['quantity'] is None
+
+    def summarise_ingredient_amount(self, df_name) -> str:
+        if self.ingredient_amount_defined(df_name):
+            return '{qty}{unit} (+{inc}%/-{dec}%)'.format(
+                qty=self.get_ingredient_amount_data(df_name),
+                unit=self.get_ingredient_amount_unit(df_name),
+                inc=self.get_ingredient_amount_perc_incr(df_name),
+                dec=self.get_ingredient_amount_perc_decr(df_name)
+            )
+        else:
+            return 'Undefined'
+
 
 class HasSettableIngredientAmounts(HasIngredientAmounts, abc.ABC):
     """Models an object which has settable ingredient amounts."""
+
     @property
-    @abc.abstractmethod
-    def ingredient_amounts(self) -> Dict[str, 'SettableIngredientAmount']:
-        raise NotImplementedError
+    def ingredient_amounts_data(self) -> Dict[str, 'IngredientAmountData']:
+        return self._ingredient_amounts_data
+
+    def set_ingredient_amount_qty(self, df_name: str, amount: Optional[float]) -> None:
+        amount = quantity.validate_quantity(amount)
+        self.get_ingredient_amount_data(df_name)['quantity'] = amount
+
+    def set_ingredient_amount_unit(self, df_name: str, unit: str) -> None:
+        i_name = persistence.get_unique_val_from_df_name(Ingredient, df_name)
+        i = persistence.load(Ingredient, i_name)
+        if i.check_units_configured(unit):
+            self.get_ingredient_amount_data(df_name)['quantity_unit'] = unit
+        else:
+            raise quantity.exceptions.UnitNotConfiguredError
+
+    def set_ingredient_amount_perc_incr(self, df_name: str, perc_incr: float) -> None:
+        if perc_incr < 0:
+            raise pydiet.exceptions.InvalidPositivePercentageError
+        self.get_ingredient_amount_data(df_name)['perc_increase'] = perc_incr
+
+    def set_ingredient_amount_perc_inrc(self, df_name: str, perc_decr: float) -> None:
+        if perc_decr < 0:
+            raise pydiet.exceptions.InvalidPositivePercentageError
+        self.get_ingredient_amount_data(df_name)['perc_increase'] = perc_decr

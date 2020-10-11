@@ -1,4 +1,5 @@
-from typing import TYPE_CHECKING
+import copy
+from typing import Optional, TYPE_CHECKING
 
 import pydiet
 from pyconsoleapp import styles, PrimaryArg, builtin_validators
@@ -30,6 +31,7 @@ Nutrients | -nutr ->
 class IngredientEditorComponent(pydiet.cli_components.BaseEditorComponent):
     def __init__(self, app):
         super().__init__(app)
+        self._subject: Optional['Ingredient'] = None
 
         self.configure_state('menu', self._print_menu_screen, responders=[
             self.configure_responder(self._on_ok_and_save, args=[
@@ -92,13 +94,13 @@ class IngredientEditorComponent(pydiet.cli_components.BaseEditorComponent):
         if self._check_if_name_defined():
             fed = self.app.get_component(flags.cli_components.flag_editor_component.FlagEditorComponent)
             fed.configure(subject=self._subject, return_to_route=self.app.route,
-                          backup_flag_data=self._subject.flags_data_copy)
+                          backup_flag_data=self._subject.flags_data)
             self.app.goto('home.ingredients.edit.flags')
 
     def _on_edit_bulk(self):
         if self._check_if_name_defined():
             bed = self.app.get_component(quantity.cli_components.bulk_editor_component.BulkEditorComponent)
-            bed.configure(self._subject, self._subject.bulk_data_copy)
+            bed.configure(self._subject, copy.deepcopy(self._subject.bulk_data))
             self.app.goto('home.ingredients.edit.bulk')
 
     def _on_edit_nutrients(self) -> None:

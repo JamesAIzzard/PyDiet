@@ -20,7 +20,7 @@ class SupportsFlags(nutrients.supports_nutrient_content.SupportsSettingNutrientC
         raise NotImplementedError
 
     @property
-    def flags_data_copy(self) -> Dict[str, Optional[bool]]:
+    def flags_data(self) -> Dict[str, Optional[bool]]:
         return copy.deepcopy(self._flags_data)
 
     @property
@@ -35,15 +35,15 @@ class SupportsFlags(nutrients.supports_nutrient_content.SupportsSettingNutrientC
 
     @property
     def all_flag_names(self) -> List[str]:
-        return list(self._flags_data.keys())
+        return list(self.flags_data.keys())
 
     def get_flag_value(self, flag_name: str) -> Optional[bool]:
-        return self.flags_data_copy[flag_name]
+        return self.flags_data[flag_name]
 
     def _filter_flags(self, filter_value: Optional[bool]) -> List[str]:
         return_flag_names = []
-        for flag_name in self.flags_data_copy.keys():
-            if self.flags_data_copy[flag_name] == filter_value:
+        for flag_name in self.flags_data.keys():
+            if self.flags_data[flag_name] == filter_value:
                 return_flag_names.append(flag_name)
         return return_flag_names
 
@@ -61,11 +61,11 @@ class SupportsFlags(nutrients.supports_nutrient_content.SupportsSettingNutrientC
 
     @property
     def all_flags_undefined(self) -> bool:
-        return True in self._flags_data.values() or False in self._flags_data.values()
+        return True in self.flags_data.values() or False in self._flags_data.values()
 
     @property
     def any_flag_undefined(self) -> bool:
-        return None in self._flags_data.values()
+        return None in self.flags_data.values()
 
     @staticmethod
     def validate_flag_value(value: Any) -> Optional[bool]:
@@ -80,7 +80,7 @@ class SupportsFlags(nutrients.supports_nutrient_content.SupportsSettingNutrientC
         return name.lower()
 
     def flag_is_defined(self, flag_name: str) -> bool:
-        return self._flags_data[flag_name] is not None
+        return self.flags_data[flag_name] is not None
 
     def summarise_flag(self, flag_name: str) -> str:
         val = self.get_flag_value(flag_name)
@@ -91,6 +91,10 @@ class SupportsFlags(nutrients.supports_nutrient_content.SupportsSettingNutrientC
 
 
 class SupportsFlagSetting(SupportsFlags, abc.ABC):
+
+    @property
+    def flags_data(self) -> Dict[str, Optional[bool]]:
+        return self._flags_data
 
     def set_flags(self, flag_data: Dict[str, Optional[bool]]):
         for fname in flag_data:
@@ -115,7 +119,7 @@ class SupportsFlagSetting(SupportsFlags, abc.ABC):
                         self.reset_nutrient(related_nutrient)
 
         # Set;
-        self._flags_data[flag_name] = flag_value
+        self.flags_data[flag_name] = flag_value
 
     def set_all_flags_yes(self) -> None:
         for flag_name in self._flags_data:

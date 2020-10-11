@@ -10,7 +10,6 @@ if TYPE_CHECKING:
 
 T = TypeVar('T')
 
-
 def save(subject: 'SupportsPersistence') -> None:
     """Saves the _subject."""
     # Check the unique field is filled in;
@@ -41,7 +40,6 @@ def load(cls: Type[T], unique_field_value: str) -> T:
     loaded_instance = cls(datafile)
     loaded_instance.set_datafile_name(datafile_name)
     return loaded_instance
-
 
 def delete(cls: Type['SupportsPersistence'], unique_field_value: str) -> None:
     """Deletes the instance of the specified type, with the specified unique value, from the database."""

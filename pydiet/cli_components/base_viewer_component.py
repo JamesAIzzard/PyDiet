@@ -51,7 +51,7 @@ class BaseViewerComponent(ConsoleAppComponent, abc.ABC):
                     item_status = item.completion_status_summary
                 else:
                     item_status = ''
-                menu = menu + '{name_and_num:<40} {subject_status}\n'.format(
+                menu = menu + '{name_and_num:<30} {subject_status}\n'.format(
                     name_and_num=str(num) + '. ' + unique_val + ':', subject_status=item_status)
         else:
             menu = 'No {}s to show yet.'.format(self._item_type_l_name)
