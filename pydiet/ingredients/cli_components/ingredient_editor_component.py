@@ -1,4 +1,4 @@
-from typing import Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 import pydiet
 from pyconsoleapp import styles, PrimaryArg, builtin_validators
@@ -7,7 +7,8 @@ from pydiet import ingredients, persistence, flags, nutrients, quantity
 if TYPE_CHECKING:
     from pydiet.ingredients.ingredient import Ingredient
 
-_menu_screen_template = '''Save | -save
+_menu_screen_template = '''OK & Save   | -ok
+Cancel      | -cancel
 
 Ingredient Status: {status_summary}
 
@@ -31,8 +32,8 @@ class IngredientEditorComponent(pydiet.cli_components.BaseEditorComponent):
         super().__init__(app)
 
         self.configure_state('menu', self._print_menu_screen, responders=[
-            self.configure_responder(self._on_save, args=[
-                PrimaryArg('save', has_value=False, markers=['-save'])]),
+            self.configure_responder(self._on_ok_and_save, args=[
+                PrimaryArg('save', has_value=False, markers=['-ok'])]),
             self.configure_responder(self._on_edit_name, args=[
                 PrimaryArg('name', has_value=True, markers=['-name'])]),
             self.configure_responder(self._on_edit_cost, args=[
@@ -74,17 +75,6 @@ class IngredientEditorComponent(pydiet.cli_components.BaseEditorComponent):
         unit = quantity.cli_components.validators.validate_configured_unit(self._subject, unit)
         return {'qty': qty, 'unit': unit}
 
-    def _on_save(self) -> None:
-        if not self._check_if_name_defined():
-            return
-        try:
-            persistence.persistence_service.save(self._subject)
-            self.app.info_message = 'Ingredient saved.'
-        except persistence.exceptions.UniqueValueDuplicatedError:
-            self.app.error_message = 'There is already an ingredient called {}.'.format(
-                self._subject.name
-            )
-
     def _on_edit_name(self, args):
         if not persistence.persistence_service.check_unique_val_avail(
                 ingredients.ingredient.Ingredient,
@@ -124,4 +114,5 @@ class IngredientEditorComponent(pydiet.cli_components.BaseEditorComponent):
         guard_exit_route = 'home.ingredients.edit'
         guard = self.app.get_component(ingredients.cli_components.IngredientSaveCheckGuardComponent)
         guard.configure(subject=subject)
-        super()._configure(subject, guard_exit_route=guard_exit_route, guard=guard)
+        super()._configure(subject, guard_exit_route=guard_exit_route, guard=guard,
+                           return_to_route='home.ingredients')

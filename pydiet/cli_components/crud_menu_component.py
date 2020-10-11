@@ -3,6 +3,7 @@ from typing import Type, Callable, TYPE_CHECKING
 
 from pyconsoleapp import ConsoleAppComponent, PrimaryArg, StandardPageComponent
 from pydiet import persistence
+from pydiet.cli_components import BaseEditorComponent
 
 if TYPE_CHECKING:
     from pyconsoleapp import ConsoleApp
@@ -22,7 +23,7 @@ View {u_type_name}s        | -view
 class CRUDMenuComponent(ConsoleAppComponent, abc.ABC):
     def __init__(self, subject_type_name: str, subject_type: Type['SupportsPersistence'],
                  new_subject_factory: Callable[[], 'SupportsPersistence'],
-                 subject_editor_component: Type[ConsoleAppComponent],
+                 subject_editor_component: Type['BaseEditorComponent'],
                  subject_search_component: Type['BaseSearchComponent'], subject_base_route: str, app: 'ConsoleApp'):
         super().__init__(app)
 
@@ -85,10 +86,8 @@ class CRUDMenuComponent(ConsoleAppComponent, abc.ABC):
 
     def _on_delete(self, args) -> None:
         def on_result_selected(subject_name: str):
-            ec = self.app.get_component(self._subject_editor_component)
-            selected_subject = persistence.persistence_service.load(self._subject_type, subject_name)
-            ec.configure(subject=selected_subject, guard_exit_of=self._subject_editor_route)
-            self.app.goto(self._subject_editor_route)
+            persistence.delete(self._subject_type, subject_name)
+            self.app.goto(self._subject_base_route)
 
         self._on_search_and_action(on_result_selected, args)
 

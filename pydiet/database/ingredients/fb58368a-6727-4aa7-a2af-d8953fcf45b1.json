@@ -1,21 +1,21 @@
 {
   "bulk": {
-    "g_per_ml": null,
-    "piece_mass_g": 90.0,
-    "pref_unit": "pc",
-    "ref_qty": 1.0
+    "g_per_ml": 0.972,
+    "piece_mass_g": null,
+    "pref_unit": "g",
+    "ref_qty": 100
   },
-  "cost_per_g": 0.002125,
+  "cost_per_g": 0.002263374485596708,
   "flags": {
     "alcohol_free": true,
     "caffiene_free": true,
     "dairy_free": true,
     "gluten_free": true,
     "nut_free": true,
-    "vegan": true,
-    "vegetarian": true
+    "vegan": false,
+    "vegetarian": false
   },
-  "name": "Apple",
+  "name": "Mayonnaise",
   "nutrients": {
     "a_carotene": {
       "nutrient_g_per_subject_g": null,
@@ -94,7 +94,7 @@
       "nutrient_pref_units": "g"
     },
     "carbohydrate": {
-      "nutrient_g_per_subject_g": 0.14,
+      "nutrient_g_per_subject_g": 0.0071428571428571435,
       "nutrient_pref_units": "g"
     },
     "cartenoids": {
@@ -158,7 +158,7 @@
       "nutrient_pref_units": "g"
     },
     "fat": {
-      "nutrient_g_per_subject_g": 0.002,
+      "nutrient_g_per_subject_g": 0.7142857142857143,
       "nutrient_pref_units": "g"
     },
     "fibre": {
@@ -270,7 +270,7 @@
       "nutrient_pref_units": "g"
     },
     "monounsaturated_fat": {
-      "nutrient_g_per_subject_g": 0.0,
+      "nutrient_g_per_subject_g": 0.16428571428571428,
       "nutrient_pref_units": "g"
     },
     "myristic_acid": {
@@ -330,7 +330,7 @@
       "nutrient_pref_units": "g"
     },
     "polyunsaturated_fat": {
-      "nutrient_g_per_subject_g": 0.001,
+      "nutrient_g_per_subject_g": 0.43571428571428567,
       "nutrient_pref_units": "g"
     },
     "potassium": {
@@ -342,7 +342,7 @@
       "nutrient_pref_units": "g"
     },
     "protein": {
-      "nutrient_g_per_subject_g": 0.003,
+      "nutrient_g_per_subject_g": 0.0071428571428571435,
       "nutrient_pref_units": "g"
     },
     "pyridoxal_5_phosphate": {
@@ -378,7 +378,7 @@
       "nutrient_pref_units": "g"
     },
     "saturated_fat": {
-      "nutrient_g_per_subject_g": 0.0,
+      "nutrient_g_per_subject_g": 0.1142857142857143,
       "nutrient_pref_units": "g"
     },
     "selenium": {
@@ -390,7 +390,7 @@
       "nutrient_pref_units": "g"
     },
     "sodium": {
-      "nutrient_g_per_subject_g": 1e-05,
+      "nutrient_g_per_subject_g": 0.006285714285714285,
       "nutrient_pref_units": "mg"
     },
     "stearic_acid": {

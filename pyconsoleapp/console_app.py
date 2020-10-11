@@ -234,10 +234,12 @@ class ConsoleApp:
                 component = self.route_entrance_guard_map[guarded_route]
                 # And don't look through any more entrance guards;
                 break
-        # If the guard component was populated, then use it;
+        # Show or clear the component as you pass through it;
         if component is not None and component.should_show:
             self.clear_console()
             self._response = input(component.print())
+        elif component is not None and not component.should_show:
+            component.clear_self()
 
     def guard_entrance(self, route_to_stay_outside: str, guard_instance: 'ConsoleAppGuardComponent'):
         route = self.interpret_relative_route(route_to_stay_outside)

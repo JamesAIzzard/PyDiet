@@ -50,6 +50,14 @@ class SupportsNutrientContent(quantity.supports_bulk.SupportsBulk, abc.ABC):
                 defined_nutrient_names.append(nutrient_name)
         return defined_nutrient_names
 
+    def nutrient_g_per_subject_g(self, nutrient_name: str) -> Optional[float]:
+        nutrient_name = nutrients.get_nutrient_primary_name(nutrient_name)
+        return self._nutrients_data[nutrient_name]['nutrient_g_per_subject_g']
+
+    def nutrient_pref_unit(self, nutrient_name: str) -> str:
+        nutrient_name = nutrients.get_nutrient_primary_name(nutrient_name)
+        return self._nutrients_data[nutrient_name]['nutrient_pref_units']
+
     def summarise_nutrient(self, nutrient_name: str) -> str:
         nutrient_name = nutrients.nutrients_service.get_nutrient_primary_name(nutrient_name)
         nutrient_data = self._nutrients_data[nutrient_name]

@@ -59,6 +59,12 @@ def count_saved_instances(cls: Type['SupportsPersistence']) -> int:
     return len(index_data)
 
 
+def get_unique_val_from_df_name(cls: Type['SupportsPersistence'], datafile_name: str) -> str:
+    """Returns the unique value associated with the datafile name for the given class."""
+    index = _read_index(cls)
+    return index[datafile_name]
+
+
 def get_saved_unique_vals(cls: Type['SupportsPersistence']) -> List[str]:
     """Returns a list of all unique saved values for this class. For example: If the class
     is Ingredient, this would return all saved ingredient names."""

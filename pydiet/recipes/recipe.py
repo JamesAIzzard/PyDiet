@@ -4,11 +4,13 @@ from pydiet import persistence, completion, flags, nutrients, quantity, ingredie
 
 if TYPE_CHECKING:
     from pydiet.persistence.supports_persistence import DBInfo, PersistenceInfo
+    from pydiet.ingredients import IngredientAmountData, SettableIngredientAmount
+    from pydiet.nutrients import NutrientData
 
 
 class RecipeData(TypedDict):
     name: Optional[str]
-    ingredient_composition: Dict[str, 'IngredientCompositionData']
+    ingredient_amounts: Dict[str, 'IngredientAmountData']
     serve_intervals: List[str]
     steps: Dict[int, str]
     tags: List[str]
@@ -17,7 +19,7 @@ class RecipeData(TypedDict):
 def get_empty_recipe_data() -> RecipeData:
     return RecipeData(
         name=None,
-        ingredient_composition={},
+        ingredient_amounts={},
         serve_intervals=[],
         steps={},
         tags=[]
@@ -33,7 +35,7 @@ class Recipe(persistence.supports_persistence.SupportsPersistence,
              flags.supports_flags.SupportsFlags,
              nutrients.supports_nutrient_content.SupportsNutrientContent,
              quantity.supports_bulk.SupportsBulk,
-             ingredients.supports_ingredient_composition.SupportsSettingIngredientComposition,
+             ingredients.HasSettableIngredientAmounts,
              tags.supports_tags.SupportsSettingTags,
              time.supports_serve_times.SupportsSettingServeTimes,
              steps.supports_steps.SupportsSettingSteps):
@@ -41,52 +43,76 @@ class Recipe(persistence.supports_persistence.SupportsPersistence,
     def __init__(self, data: 'RecipeData', datafile_name: Optional[str] = None):
         self._data = data
         self._datafile_name = datafile_name
-        self._name: Optional[str] = None
+
+    @property
+    def ingredient_amounts(self) -> Dict[str, 'SettableIngredientAmount']:
+        ingredient_amounts = {}
+        for ingredient_df_name in self._data['ingredient_amounts']:
+            data = self._data['ingredient_amounts'][ingredient_df_name]
+            ingredient_amounts[ingredient_df_name] = SettableIngredientAmount(ingredient_df_name, data)
+        return ingredient_amounts
 
     @property
     def _flags_data(self) -> Dict[str, Optional[bool]]:
         flags_data = flags.supports_flags.get_empty_flags_data()
         for flag_name in flags_data:
             flags_data[flag_name] = True
-            for ic in self._ingredient_composition:
-                if ic.ingredient.get_flag_value(flag_name) is False:
+            for ia in self.ingredient_amounts.values():
+                if ia.get_flag_value(flag_name) is False:
                     flags_data[flag_name] = False
                     continue
-                elif ic.ingredient.get_flag_value(flag_name) is None:
+                elif ia.get_flag_value(flag_name) is None:
                     flags_data[flag_name] = None
         return flags_data
 
     @property
-    def _ingredient_composition_data(self) -> Dict[str, 'IngredientPercentageData']:
-        ...
+    def _nutrients_data(self) -> Dict[str, 'NutrientData']:
+        # Initialise the Dict for returning;
+        nutrients_data: Dict[str, 'NutrientData'] = {}
+
+        for nutrient_name in nutrients.all_primary_nutrient_names:
+            # Initialise the nutrient;
+            nutrients_data[nutrient_name] = NutrientData(
+                nutrient_g_per_subject_g=None,
+                nutrient_pref_units='g'
+            )
+            # Loop through all ingredient amounts, compiling qty. If any ingredient amounts have None against
+            # this nutrient, the whole nutrient is reset to None, and we move onto the next nutrient;
+            for ia in self.ingredient_amounts.values():
+                g_current = ia.nutrient_g_per_subject_g(nutrient_name)
+                g_total = nutrients_data[nutrient_name]['nutrient_g_per_subject_g']
+                if g_current is not None and g_total is None:
+                    nutrients_data[nutrient_name]['nutrient_g_per_subject_g'] = g_current
+                elif g_current is not None:
+                    nutrients_data[nutrient_name]['nutrient_g_per_subject_g'] = g_current + g_total
+                elif g_current is None:
+                    nutrients_data[nutrient_name]['nutrient_g_per_subject_g'] = None
+                    break
+        return nutrients_data
 
     @property
-    def _nutrients_data(self) -> Dict[str, 'NutrientData']:
-        ...
+    def name(self) -> Optional[str]:
+        return self._data['name']
+
+    @name.setter
+    def name(self, value: str) -> None:
+        if persistence.persistence_service.check_unique_val_avail(recipes.Recipe, self.datafile_name, value):
+            self._data['name'] = value
+        else:
+            raise persistence.exceptions.UniqueValueDuplicatedError('There is already a recipe called {}'.format(value))
 
     @property
     def missing_mandatory_attrs(self) -> List[str]:
         attr_names = []
         if not self.name_is_defined:
             attr_names.append('name')
-        if len(self._ingredient_composition_data) == 0:
+        if len(self.constituent_ingredients) == 0:
             attr_names.append('ingredients')
         if len(self.tags) == 0:
             attr_names.append('tags')
         if len(self.serve_times) == 0:
             attr_names.append('serve_times')
         return attr_names
-
-    @property
-    def name(self) -> Optional[str]:
-        return self._name
-
-    @name.setter
-    def name(self, value: str) -> None:
-        if persistence.persistence_service.check_unique_val_avail(recipes.Recipe, self.datafile_name, value):
-            self._name = value
-        else:
-            raise persistence.exceptions.UniqueValueDuplicatedError('There is already a recipe called {}'.format(value))
 
     @property
     def name_is_defined(self) -> bool:

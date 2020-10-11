@@ -1,3 +1,4 @@
+import copy
 from typing import Optional, TYPE_CHECKING
 
 from pyconsoleapp import PrimaryArg, StandardPageComponent, ResponseValidationError
@@ -7,20 +8,22 @@ from pydiet.cli_components import BaseEditorComponent
 if TYPE_CHECKING:
     from pydiet.recipes.recipe import Recipe
 
-_main_view_template = '''Save | -save
+_main_view_template = '''
+OK & Save           | -ok
+Cancel              | -cancel
 
-Name | -name [name] -> {name}
+Name                | -name [name] -> {name}
 
-Edit Ingredients | -ingr ->
+Edit Ingredients    | -ingr ->
 {ingredient_composition_summary}
 
-Edit Serve Times | -time ->
+Edit Serve Times    | -time ->
 {serve_time_summary}
 
-Edit Tags | -tags ->
+Edit Tags           | -tags ->
 {tag_summary}
 
-Edit Instructions | -inst ->
+Edit Instructions   | -inst ->
 {step_summary}
 '''
 
@@ -31,8 +34,8 @@ class RecipeEditorComponent(BaseEditorComponent):
         self._subject: Optional['Recipe'] = None
 
         self.configure_state('main', self._print_main_view, responders=[
-            self.configure_responder(self._on_save, args=[
-                PrimaryArg('save', has_value=False, markers=['-save'])]),
+            self.configure_responder(self._on_ok_and_save, args=[
+                PrimaryArg('save', has_value=False, markers=['-ok'])]),
             self.configure_responder(self._on_edit_name, args=[
                 PrimaryArg('name', has_value=True, markers=['-name'], validators=[self._validate_name])]),
             self.configure_responder(self._on_edit_ingredients, args=[
@@ -45,7 +48,17 @@ class RecipeEditorComponent(BaseEditorComponent):
         ])
 
     def _on_edit_ingredients(self) -> None:
-        ...
+        self.check_name_defined()
+        backup = copy.deepcopy(self._subject.constituent_ingredients_data)
+
+        def revert_data():
+            self._subject.set_constituent_ingredients_data(backup)
+
+        editor = self.app.get_component(recipes.ConstituentIngredientEditorComponent)
+        editor.configure(subject=self._subject,
+                         return_to_route=self.app.route,
+                         revert_data=revert_data)
+        self.app.goto('home.recipes.edit.ingredients')
 
     def _on_edit_instructions(self) -> None:
         ...
@@ -56,18 +69,12 @@ class RecipeEditorComponent(BaseEditorComponent):
     def _on_edit_tags(self) -> None:
         ...
 
-    def _on_save(self) -> None:
-        try:
-            persistence.persistence_service.save(self._subject)
-        except persistence.exceptions.UniqueFieldUndefinedError:
-            self.app.error_message = 'The recipe name must be set before the recipe can be saved.'
-
     def _print_main_view(self) -> str:
         return self.app.get_component(StandardPageComponent).print_view(
             page_title='Recipe Editor',
             page_content=_main_view_template.format(
                 name=self._subject.name,
-                ingredient_composition_summary=self._subject.ingredient_composition_summary,
+                ingredient_composition_summary=self._subject.ingredient_amounts_summary,
                 serve_time_summary=self._subject.serve_times_summary,
                 tag_summary=self._subject.tag_summary,
                 step_summary=self._subject.step_summary
@@ -80,9 +87,8 @@ class RecipeEditorComponent(BaseEditorComponent):
             raise ResponseValidationError('There is already a recipe called {}'.format(value))
         return value
 
-
-    def configure(self, subject: 'Recipe'):
+    def configure(self, subject: 'Recipe') -> None:
         guard_exit_route = 'home.recipes.edit'
         guard = self.app.get_component(recipes.cli_components.RecipeSaveCheckGuardComponent)
         guard.configure(subject=subject)
-        super()._configure(subject, guard_exit_route=guard_exit_route, guard=guard)
+        super()._configure(subject, guard_exit_route=guard_exit_route, guard=guard, return_to_route='home.recipes')

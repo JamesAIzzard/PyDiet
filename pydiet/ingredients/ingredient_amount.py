@@ -1,116 +1,137 @@
-from typing import TYPE_CHECKING, Optional
+import abc
+from typing import List, Dict, Optional, TypedDict, TYPE_CHECKING
 
-from pydiet import ingredients, quantity, recipes
+import pydiet
+from pydiet import quantity
+from pydiet.ingredients import Ingredient, IngredientData
 
 if TYPE_CHECKING:
-    from pydiet.ingredients.ingredient import Ingredient
-    from pydiet.recipes.old_recipe import Recipe
-
-data_template = {
-    "quantity": None,
-    "quantity_units": None,
-    "perc_increase": 0,
-    "perc_decrease": 0
-}
+    from pydiet.ingredients import IngredientData
 
 
-class IngredientAmount():
+class IngredientAmountData(TypedDict):
+    quantity: Optional[float]
+    quantity_unit: Optional[str]
+    perc_increase: Optional[float]
+    perc_decrease: Optional[float]
 
-    def __init__(self, parent_recipe: 'Recipe', ingredient: 'Ingredient'):
-        self.ingredient = ingredient
-        self.parent_recipe = parent_recipe
 
-    @property
-    def name(self) -> Optional[str]:
-        return self.ingredient.name
+class IngredientAmount(Ingredient):
+    """Models an ingredient with immutable quantity and tolerance associated with it."""
+
+    def __init__(self, ingredient_data: 'IngredientData',
+                 ingredient_datafile_name: str,
+                 ingredient_amount_data: 'IngredientAmountData'):
+        super().__init__(data=ingredient_data, datafile_name=ingredient_datafile_name)
+        self._data = ingredient_amount_data
 
     @property
-    def ingredient_datafile_name(self) -> str:
-        if self.name == None:
-            raise ingredients.exceptions.IngredientNameUndefinedError
-        return ingredients.ingredient_service.convert_ingredient_name_to_datafile_name(self.name)
+    def missing_mandatory_attrs(self) -> List[str]:
+        missing_attrs = super().missing_mandatory_attrs
+        if not self.quantity_is_defined:
+            missing_attrs.append('quantity')
+        if not self.quantity_tolerance_is_defined:
+            missing_attrs.append('quantity tolerance')
+        return missing_attrs
 
     @property
-    def quantity(self) -> float:
-        return self.parent_recipe._data['ingredients'][self.ingredient_datafile_name]['quantity']
+    def quantity(self) -> Optional[float]:
+        return self._data['quantity']
 
     @property
-    def quantity_units(self) -> str:
-        return self.parent_recipe._data['ingredients'][self.ingredient_datafile_name]['quantity_units']
-
-    def set_quantity_and_units(self, quant: float, units: str) -> None:
-        '''Set the quantity and units of the named ingredient amount.
-
-        Args:
-            quantity (float): Nominal quantity of the ingredient required.
-            units (str): Units of the quantity provided.
-
-        Raises:
-            ValueError: The quantity value provided is not suitable.
-            IngredientDensityUndefinedError: The units are volumetric and
-                volumentrics are not configured on the ingredient.
-        '''
-        # Check the quantity value;
-        quant = float(quant)
-        if quant <= 0:
-            raise ValueError
-        # Check the units;
-        units = quantity.quantity_service.validate_qty_unit(units)
-        # If the unit is volumetric, check the ingredient has density configured;
-        if units in quantity.quantity_service.get_recognised_vol_units() and not self.ingredient.density_is_defined:
-            raise ingredients.exceptions.IngredientDensityUndefinedError
-        # All is OK, go ahead and set;
-        self.parent_recipe._data['ingredients'][self.ingredient_datafile_name]['quantity'] = quant
-        self.parent_recipe._data['ingredients'][self.ingredient_datafile_name]['quantity_units'] = units
+    def quantity_unit(self) -> Optional[str]:
+        return self._data['quantity_unit']
 
     @property
-    def perc_increase(self) -> float:
-        return self.parent_recipe._data['ingredients'][self.ingredient_datafile_name]['perc_increase']
-
-    @perc_increase.setter
-    def perc_increase(self, value: float) -> None:
-        '''Sets the allowable percentage increase.
-
-        Args:
-            value (float): The allowable % increase.
-
-        Raises:
-            ValueError: The value provided is not suitable.
-        '''
-        # Check the value is OK;
-        perc_increase = float(value)
-        if perc_increase < 0:
-            raise ValueError
-        # Write the value;
-        self.parent_recipe._data['ingredients'][self.ingredient_datafile_name]['perc_increase'] = perc_increase
+    def quantity_is_defined(self) -> bool:
+        if self.quantity is None or self.quantity_unit is None:
+            return False
+        else:
+            return True
 
     @property
-    def perc_decrease(self) -> float:
-        return self.parent_recipe._data['ingredients'][self.ingredient_datafile_name]['perc_decrease']
-
-    @perc_decrease.setter
-    def perc_decrease(self, value: float) -> None:
-        '''Sets the allowable percentage decrease.
-
-        Args:
-            value (float): The allowable % decrease.
-
-        Raises:
-            ValueError: The value provided is not suitable.
-        '''
-        # Check the value is OK;
-        perc_decrease = float(value)
-        if perc_decrease < 0:
-            raise ValueError
-        if perc_decrease > 100:
-            raise recipes.exceptions.SaturatedPercDecreaseError
-        # Write the value;
-        self.parent_recipe._data['ingredients'][self.ingredient_datafile_name]['perc_decrease'] = perc_decrease
+    def perc_increase(self) -> Optional[float]:
+        return self._data['perc_increase']
 
     @property
-    def max_quantity(self) -> float:
-        return self.quantity*(1+(self.perc_increase/100))
+    def perc_decrease(self) -> Optional[float]:
+        return self._data['perc_decrease']
 
     @property
-    def min_quantity(self) -> float:
-        return self.quantity*(1-(self.perc_decrease/100))
+    def quantity_tolerance_is_defined(self) -> bool:
+        if self.perc_increase is None or self.perc_decrease is None:
+            return False
+        else:
+            return True
+
+    @property
+    def summary(self) -> str:
+        summary = 'Undefined'
+        if self.quantity_is_defined and self.quantity_tolerance_is_defined:
+            summary = '{qty} (+{perc_inc:.1f}%/-{perc_dec:.1f}%)'.format(
+                qty=str(self.quantity) + str(self.quantity_unit),
+                perc_inc=self.perc_increase,
+                perc_dec=self.perc_decrease
+            )
+        return summary
+
+
+class SettableIngredientAmount(IngredientAmount):
+    """Models and ingredient amount with mutable properties."""
+    def __init__(self, ingredient_data: 'IngredientData',
+                 ingredient_datafile_name: str,
+                 ingredient_amount_data: 'IngredientAmountData'):
+        super().__init__(ingredient_data, ingredient_datafile_name, ingredient_amount_data)
+
+    @IngredientAmount.quantity.setter
+    def quantity(self, value: Optional[float]) -> None:
+        if value is not None:
+            value = quantity.validate_quantity(value)
+        self._data['quantity'] = value
+
+    @IngredientAmount.quantity_unit.setter
+    def quantity_unit(self, unit: Optional[str]) -> None:
+        if unit is not None:
+            self.check_units_configured(unit)
+        self._data['quantity_unit'] = unit
+
+    @IngredientAmount.perc_increase.setter
+    def perc_increase(self, value: Optional[float]) -> None:
+        if value is not None:
+            pydiet.validation.validate_positive_percentage(value)
+        self._data['perc_increase'] = value
+
+    @IngredientAmount.perc_decrease.setter
+    def perc_decrease(self, value: Optional[float]) -> None:
+        if value is not None:
+            pydiet.validation.validate_positive_percentage(value)
+        self._data['perc_decrease'] = value
+
+
+class HasIngredientAmounts(abc.ABC):
+    """Models an object which has readonly ingredient amounts."""
+    @property
+    @abc.abstractmethod
+    def ingredient_amounts(self) -> Dict[str, 'IngredientAmount']:
+        raise NotImplementedError
+
+    @property
+    def ingredient_amounts_summary(self) -> str:
+        summary = ''
+        if len(self.ingredient_amounts):
+            for ia in self.ingredient_amounts.values():
+                summary = summary + '{ingredient_name}: {ci_summary}\n'.format(
+                    ingredient_name=ia.name,
+                    ci_summary=ia.summary
+                )
+        else:
+            summary = 'No ingredients to show yet.'
+        return summary
+
+
+class HasSettableIngredientAmounts(HasIngredientAmounts, abc.ABC):
+    """Models an object which has settable ingredient amounts."""
+    @property
+    @abc.abstractmethod
+    def ingredient_amounts(self) -> Dict[str, 'SettableIngredientAmount']:
+        raise NotImplementedError

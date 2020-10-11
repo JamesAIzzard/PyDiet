@@ -1,7 +1,7 @@
 from pyconsoleapp import ConsoleApp
 
 # Expose internal modules
-from . import exceptions, configs, cli_components
+from . import exceptions, configs, cli_components, validation
 from .exceptions import PyDietException
 
 # Create the app instance;
@@ -31,3 +31,5 @@ app.add_route('home.ingredients.edit.nutrients.search', 'NutrientSearchComponent
 app.add_route('home.ingredients.view', 'IngredientViewerComponent')
 app.add_route('home.recipes', 'RecipeMenuComponent')
 app.add_route('home.recipes.edit', 'RecipeEditorComponent')
+app.add_route('home.recipes.edit.ingredients', 'ConstituentIngredientEditorComponent')
+app.add_route('home.recipes.view', 'RecipeViewerComponent')

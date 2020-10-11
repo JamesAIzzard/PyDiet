@@ -29,6 +29,11 @@ def load_new_ingredient() -> 'Ingredient':
     return Ingredient(get_empty_ingredient_data())
 
 
+def get_ingredient_name(datafile_name: str) -> str:
+    """Returns the ingredient name corresponding to the datafile name."""
+    return persistence.get_unique_val_from_df_name(cls=Ingredient, datafile_name=datafile_name)
+
+
 class Ingredient(persistence.supports_persistence.SupportsPersistence,
                  completion.supports_completion.SupportsCompletion,
                  completion.supports_name.SupportsNameSetting,
