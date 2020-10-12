@@ -134,12 +134,14 @@ class ConsoleApp:
             else:
                 return self._root_route + route
 
-    def _fetch_component_for_route(self, route: str) -> 'ConsoleAppComponent':
+    def _fetch_component_for_route_state(self, route: str) -> 'ConsoleAppComponent':
         component_name = self._route_component_maps[route]
-        return self.fetch_component(component_name)
+        component = self.fetch_component(component_name)
+        component = component.state_component
+        return component
 
-    def get_component_for_route(self, route:str) -> 'ConsoleAppComponent':
-        return self._fetch_component_for_route(route)
+    def get_component_for_route(self, route: str) -> 'ConsoleAppComponent':
+        return self._fetch_component_for_route_state(route)
 
     def make_component(self, component_class_name: str) -> 'ConsoleAppComponent':
         """Creates and returns a new instance of the component by finding its
@@ -334,14 +336,14 @@ class ConsoleApp:
                 # If no guards collected a response;
                 if not self._response:
                     # Grab the matching component;
-                    component = self._fetch_component_for_route(self.route)
+                    component = self._fetch_component_for_route_state(self.route)
                     # Call before print function (These are all aliases for backward
                     # compatibility).
                     component.before_print()
                     component._before_print()
                     component._on_load()
                     # Grab component again, in case before_print changed the route;
-                    component = self._fetch_component_for_route(self.route)
+                    component = self._fetch_component_for_route_state(self.route)
                     # Clear the screen;
                     self.clear_console()
                     # Collect the output from the component's print response;

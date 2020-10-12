@@ -10,6 +10,7 @@ if TYPE_CHECKING:
 
 T = TypeVar('T')
 
+
 def save(subject: 'SupportsPersistence') -> None:
     """Saves the _subject."""
     # Check the unique field is filled in;
@@ -41,6 +42,7 @@ def load(cls: Type[T], unique_field_value: str) -> T:
     loaded_instance.set_datafile_name(datafile_name)
     return loaded_instance
 
+
 def delete(cls: Type['SupportsPersistence'], unique_field_value: str) -> None:
     """Deletes the instance of the specified type, with the specified unique value, from the database."""
     index = _read_index(cls)
@@ -61,6 +63,15 @@ def get_unique_val_from_df_name(cls: Type['SupportsPersistence'], datafile_name:
     """Returns the unique value associated with the datafile name for the given class."""
     index = _read_index(cls)
     return index[datafile_name]
+
+
+def get_df_name_from_unique_val(cls: Type['SupportsPersistence'], unique_val: str) -> str:
+    """Returns the df name associated with the unique value for the given class."""
+    index = _read_index(cls)
+    for df_name, u_name in index.items():
+        if u_name == unique_val:
+            return df_name
+    raise KeyError('Unique value was not found.')
 
 
 def get_saved_unique_vals(cls: Type['SupportsPersistence']) -> List[str]:

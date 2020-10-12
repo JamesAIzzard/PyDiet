@@ -48,11 +48,11 @@ class RecipeEditorComponent(BaseEditorComponent):
         ])
 
     def _on_edit_ingredients(self) -> None:
-        self.check_name_defined()
-        backup = copy.deepcopy(self._subject.constituent_ingredients_data)
+        self._check_name_defined()
+        backup = copy.deepcopy(self._subject.ingredient_amounts_data)
 
         def revert_data():
-            self._subject.set_constituent_ingredients_data(backup)
+            self._subject.set_ingredient_amounts_data(backup)
 
         editor = self.app.get_component(recipes.ConstituentIngredientEditorComponent)
         editor.configure(subject=self._subject,
@@ -80,6 +80,10 @@ class RecipeEditorComponent(BaseEditorComponent):
                 step_summary=self._subject.step_summary
             )
         )
+
+    def _check_name_defined(self):
+        if not self._subject.name_is_defined:
+            raise ResponseValidationError('Recipe name must be defined first.')
 
     def _validate_name(self, value) -> str:
         if not persistence.persistence_service.check_unique_val_avail(

@@ -1,11 +1,13 @@
 from abc import ABC
 from inspect import signature
-from typing import Callable, Dict, List, Tuple, Any, Optional, Union, TYPE_CHECKING
+from typing import Callable, Dict, List, Tuple, Any, Optional, Union, TYPE_CHECKING, TypeVar
 
 from pyconsoleapp import ConsoleApp, exceptions
 
 if TYPE_CHECKING:
     from pyconsoleapp import ConsoleApp
+
+T = TypeVar('T')
 
 
 class Responder:
@@ -304,6 +306,7 @@ class ConsoleAppComponent(ABC):
         # Init state storage;
         self._states: List[Union[None, str]] = [None]
         self._current_state: Union[None, str] = None
+        self._state_component_map: Dict[str, 'ConsoleAppComponent'] = {}
 
     def __getattribute__(self, name: str) -> Any:
         """Intercepts the print command and adds the component to
@@ -347,6 +350,20 @@ class ConsoleAppComponent(ABC):
     @property
     def states(self) -> List[Union[None, str]]:
         return self._states
+
+    def _use_component(self, states: List[str], component: T) -> T:
+        for state in states:
+            if not isinstance(component, ConsoleAppComponent):
+                raise ValueError('Not a component!')
+            self._state_component_map[state] = component
+        return component
+
+    @property
+    def state_component(self) -> 'ConsoleAppComponent':
+        if self.current_state not in self._state_component_map:
+            return self
+        else:
+            return self._state_component_map[self.current_state]
 
     def configure_states(self, states: List[Union[None, str]]) -> None:
         # Prevent default being overwritten by no states;
