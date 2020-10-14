@@ -54,7 +54,7 @@ class RecipeEditorComponent(BaseEditorComponent):
         def revert_data():
             self._subject.set_ingredient_amounts_data(backup)
 
-        editor = self.app.get_component(recipes.ConstituentIngredientEditorComponent)
+        editor = self.app.get_component(recipes.IngredientAmountEditorComponent)
         editor.configure(subject=self._subject,
                          return_to_route=self.app.route,
                          revert_data=revert_data)

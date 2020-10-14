@@ -3,8 +3,8 @@ import copy
 from typing import Dict, List, TypedDict, Optional
 
 import pydiet
-from pydiet import quantity, persistence
 from pydiet import ingredients
+from pydiet import quantity, persistence
 
 
 class IngredientAmountData(TypedDict):
@@ -51,7 +51,11 @@ class HasIngredientAmounts(abc.ABC):
             names.append(name)
         return names
 
-    def get_ingredient_amount_data(self, df_name: str) -> 'IngredientAmountData':
+    def get_ingredient_amount_data(self,
+                                   df_name: Optional[str] = None,
+                                   ingredient_name: Optional[str] = None) -> 'IngredientAmountData':
+        if ingredient_name is not None:
+            df_name = persistence.get_unique_val_from_df_name(ingredients.Ingredient, df_name)
         return self.ingredient_amounts_data[df_name]
 
     def get_ingredient_amount_qty(self, df_name: str) -> Optional[float]:
@@ -74,7 +78,14 @@ class HasIngredientAmounts(abc.ABC):
         iad = self.get_ingredient_amount_data(df_name)
         return iad['quantity'] is None
 
-    def summarise_ingredient_amount(self, df_name) -> str:
+    def summarise_ingredient_amount(self,
+                                    df_name:Optional[str] = None,
+                                    data:Optional['IngredientAmountData']=None) -> str:
+        if df_name is None and data is None:
+            ValueError('df_name OR data must be specified.')
+        # Todo - Need to think about this. No point adding static method functinality to instance method.
+        template = '{qty}{unit} (+{inc}%/-{dec}%)'
+        if data is None:
         if self.ingredient_amount_defined(df_name):
             return '{qty}{unit} (+{inc}%/-{dec}%)'.format(
                 qty=self.get_ingredient_amount_data(df_name),

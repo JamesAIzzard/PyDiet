@@ -21,6 +21,16 @@ def validate_positive_nonzero_number(value: Any) -> float:
     return value
 
 
+def validate_positive_or_zero_number(value: Any) -> float:
+    try:
+        value = float(value)
+    except ValueError:
+        raise ResponseValidationError('Input must be a number.')
+    if value < 0:
+        raise ResponseValidationError('Input must be a number > 0.')
+    return value
+
+
 def validate_number_and_str(value: str) -> Tuple[float, str]:
     text = value.strip('0123456789.')
     num = value.strip(text)

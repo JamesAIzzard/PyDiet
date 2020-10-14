@@ -31,5 +31,5 @@ app.add_route('home.ingredients.edit.nutrients.search', 'NutrientSearchComponent
 app.add_route('home.ingredients.view', 'IngredientViewerComponent')
 app.add_route('home.recipes', 'RecipeMenuComponent')
 app.add_route('home.recipes.edit', 'RecipeEditorComponent')
-app.add_route('home.recipes.edit.ingredients', 'ConstituentIngredientEditorComponent')
+app.add_route('home.recipes.edit.ingredients', 'IngredientAmountEditorComponent')
 app.add_route('home.recipes.view', 'RecipeViewerComponent')

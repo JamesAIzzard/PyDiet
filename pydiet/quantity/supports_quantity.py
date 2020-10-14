@@ -16,30 +16,26 @@ quantity_data_template:'QuantityData' = {
 
 
 class SupportsQuantity(quantity.supports_bulk.SupportsBulk):
-
-    @abc.abstractproperty
+    @property
+    @abc.abstractmethod
     def _quantity_data(self) -> 'QuantityData':
         raise NotImplementedError
 
     @property
-    def readonly_quantity_data(self) -> 'QuantityData':
+    def quantity_data(self) -> 'QuantityData':
         return copy.deepcopy(self._quantity_data)
 
     @property
-    def quantity_g(self) -> float:
-        if not self.quantity_is_defined:
-            raise quantity.exceptions.QuantityUndefinedError
-        return cast(float, self.readonly_quantity_data['qty_g'])
+    def quantity_g(self) -> Optional[float]:
+        return self.quantity_data['qty_g']
 
     @property
     def pref_quantity_units(self) -> str:
-        if not self.quantity_is_defined:
-            raise quantity.exceptions.QuantityUndefinedError
-        return cast(str, self.readonly_quantity_data['pref_qty_units'])
+        return self.quantity_data['pref_qty_units']
 
     @property
     def quantity_is_defined(self) -> bool:
-        for value in self.readonly_quantity_data.values():
+        for value in self.quantity_data.values():
             if value == None:
                 return False
         return True

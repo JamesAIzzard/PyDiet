@@ -351,11 +351,13 @@ class ConsoleAppComponent(ABC):
     def states(self) -> List[Union[None, str]]:
         return self._states
 
-    def _use_component(self, states: List[str], component: T) -> T:
+    def _assign_state_to_component(self, states: List[str], component: T) -> T:
         for state in states:
             if not isinstance(component, ConsoleAppComponent):
                 raise ValueError('Not a component!')
             self._state_component_map[state] = component
+            if state not in self._states:
+                self._states.append(state)
         return component
 
     @property
@@ -400,7 +402,7 @@ class ConsoleAppComponent(ABC):
     def _current_print_function(self) -> Callable:
         # Error if there isn't a print function stored against the current state;
         if self.current_state not in self._printers.keys():
-            raise exceptions.NoPrintFunctionError
+            raise exceptions.NoPrintFunctionError('{} has no print function.'.format(self.__class__.__name__))
         # Return the relevant function;
         return self._printers[self.current_state]
 
