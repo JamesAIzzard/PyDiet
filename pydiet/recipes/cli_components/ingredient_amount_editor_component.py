@@ -1,9 +1,11 @@
-from typing import Dict, Tuple, Callable, Optional
+from typing import Dict, Tuple, Callable, Optional, TYPE_CHECKING
 
 import pydiet
 from pyconsoleapp import PrimaryArg, StandardPageComponent, menu_tools, ResponseValidationError, builtin_validators
-from pydiet import persistence, quantity
-from pydiet.ingredients import HasSettableIngredientAmounts, IngredientSearchComponent, Ingredient, IngredientAmountData
+from pydiet import persistence, quantity, ingredients
+
+if TYPE_CHECKING:
+    from pydiet.ingredients import HasSettableIngredientAmounts, IngredientAmountData
 
 _main_view_template = '''
 OK & Save           | -ok
@@ -36,7 +38,8 @@ class IngredientAmountEditorComponent(pydiet.cli_components.BaseEditorComponent)
 
         self._detail_editor_component = self._assign_state_to_component(['edit_detail'],
                                                                         IngredientAmountDetailEditor(app))
-        self._search_component = self._assign_state_to_component(['search_results'], IngredientSearchComponent(app))
+        self._search_component = self._assign_state_to_component(['search_results'],
+                                                                 ingredients.IngredientSearchComponent(app))
 
     def _on_load(self) -> None:
         self._ingredient_num_map = menu_tools.create_number_name_map(self._subject.ingredient_names)
@@ -71,11 +74,12 @@ class IngredientAmountEditorComponent(pydiet.cli_components.BaseEditorComponent)
 
     def _on_add_ingredient(self, args) -> None:
         def on_result_selected(ingredient_name: str):
-            i = persistence.load(Ingredient, ingredient_name)
+            i = persistence.load(ingredients.Ingredient, ingredient_name)
+            self._subject.add_new_ingredient_amount(i.datafile_name)
             ingredient_amount_data = self._subject.get_ingredient_amount_data(ingredient_name=ingredient_name)
             self._detail_editor_component.configure(
-                ingredient_amount_data=ingredient_amount_data,
-                ingredient_name=ingredient_name,
+                subject=self._subject,
+                ingredient_df_name=i.datafile_name,
                 revert_data=lambda: self._subject.set_ingredient_amount_data(
                     data=ingredient_amount_data,
                     ingredient_name=ingredient_name
@@ -110,14 +114,15 @@ Set Quantity        | -qty  [quantity and unit]
 Set Allowable +     | -inc [quantity and unit (or %)]
 Set Allowable -     | -dec [quantity and unit (or %)]
 
-{ingredient_summary}
+{ingredient_name}: {ingredient_summary}
 '''
 
 
 class IngredientAmountDetailEditor(pydiet.cli_components.BaseEditorComponent):
     def __init__(self, app):
         super().__init__(app)
-        self._ingredient_amount_data: Optional['IngredientAmountData'] = None
+        self._subject: Optional['HasSettableIngredientAmounts'] = None
+        self._ingredient_df_name: Optional[str] = None
         self._ingredient_name: Optional[str] = None
 
         self.configure_state('main', self._print_main_view, responders=[
@@ -125,39 +130,58 @@ class IngredientAmountDetailEditor(pydiet.cli_components.BaseEditorComponent):
                 PrimaryArg('save', has_value=False, markers=['-ok'])]),
             self.configure_responder(self._on_cancel, args=[
                 PrimaryArg('cancel', has_value=False, markers=['-cancel'])]),
-            self.configure_responder(self._on_set_qty, args=[
+            self.configure_responder(self._on_set_quantity, args=[
                 PrimaryArg('quantity', has_value=True, markers=['-qty'], validators=[self._validate_qty_and_unit])]),
             self.configure_responder(self._on_set_perc_inc, args=[
-                PrimaryArg('perc_incr', has_value=True, markers=['-inc'], validators=[
-                    builtin_validators.validate_positive_or_zero_number])]),
+                PrimaryArg('perc_incr', has_value=True, markers=['-inc'], validators=[self._validate_perc_tol])]),
             self.configure_responder(self._on_set_perc_dec, args=[
-                PrimaryArg('perc_decr', has_value=True, markers=['-dec'], validators=[
-                    builtin_validators.validate_positive_or_zero_number])])
+                PrimaryArg('perc_decr', has_value=True, markers=['-dec'], validators=[self._validate_perc_tol])])
         ])
 
     def _print_main_view(self) -> str:
         return self.app.get_component(StandardPageComponent).print_view(
             page_title='Ingredient Amount Editor',
             page_content=_ingredient_add_view_template.format(
-                ingredient_summary=
+                ingredient_name=self._subject.name,
+                ingredient_summary=self._subject.summarise_ingredient_amount(self._ingredient_df_name)
             )
         )
 
-    def _validate_qty_and_unit(self, value: str) -> Tuple[float, str]:
+    def _validate_qty_and_unit(self, value: str) -> Dict:
         qty, unit = builtin_validators.validate_number_and_str(value)
         qty = builtin_validators.validate_positive_or_zero_number(qty)
         unit = quantity.quantity_service.validate_qty_unit(unit)
-        i = persistence.load(Ingredient, self._ingredient_name)
+        i = persistence.load(ingredients.Ingredient, self._ingredient_name)
         if quantity.quantity_service.units_are_volumes(unit) and not i.check_units_configured(unit):
             raise ResponseValidationError('Volumetric units are not yet configured for {}'.format(i.name))
         elif quantity.quantity_service.units_are_pieces(unit) and not i.check_units_configured(unit):
             raise ResponseValidationError('Piece mass has not yet been configured on {}.'.format(i.name))
-        return qty, unit
+        return {"qty": qty, "unit": unit}
 
-    def configure(self, ingredient_amount_data: IngredientAmountData,
-                  ingredient_name: str,
+    def _validate_perc_tol(self, value: str) -> Dict:
+        if '%' in value:
+            value = value.replace('%', '')
+            value = builtin_validators.validate_positive_or_zero_number(value)
+            return {"perc": value}
+        else:
+            return self._validate_qty_and_unit(value)
+
+    def _on_set_quantity(self, args) -> None:
+        self._subject.set_ingredient_amount_qty(self._ingredient_df_name, args['quantity']['qty'])
+        self._subject.set_ingredient_amount_unit(self._ingredient_df_name, args['quantity']['unit'])
+
+    def _on_set_perc_inc(self, args) -> None:
+
+        self._subject.set_ingredient_amount_perc_incr(self._ingredient_df_name, args['perc_incr'])
+
+    def _on_set_perc_dec(self, args) -> None:
+        self._subject.set_ingredient_amount_perc_decr(self._ingredient_df_name, args['perc_decr'])
+
+    def configure(self, subject: 'HasSettableIngredientAmounts',
+                  ingredient_df_name: str,
                   revert_data: Callable,  # Func to revert data on cancel;
                   to_exit: Callable):  # Func to leave the conponent when done;
-        super()._configure(subject=None, revert_data=revert_data, to_exit=to_exit)
-        self._ingredient_amount_data = ingredient_amount_data
-        self._ingredient_name = ingredient_name
+        super()._configure(subject=subject, revert_data=revert_data, to_exit=to_exit)
+        self._ingredient_df_name = ingredient_df_name
+        self._ingredient_name = persistence.get_unique_val_from_df_name(ingredients.Ingredient,
+                                                                        self._ingredient_df_name)

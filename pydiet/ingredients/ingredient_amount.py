@@ -1,28 +1,60 @@
 import abc
 import copy
-from typing import Dict, List, TypedDict, Optional
+from typing import Dict, List, TypedDict, Optional, TYPE_CHECKING
 
 import pydiet
-from pydiet import ingredients
-from pydiet import quantity, persistence
+from pydiet import ingredients, quantity, persistence
+
+if TYPE_CHECKING:
+    from pydiet.ingredients import Ingredient
 
 
 class IngredientAmountData(TypedDict):
-    quantity: Optional[float]
-    quantity_unit: str
+    quantity_g: Optional[float]
+    pref_quantity_unit: str
     perc_increase: float
     perc_decrease: float
 
 
 def get_new_ingredient_amount_data() -> 'IngredientAmountData':
-    return IngredientAmountData(quantity=None,
-                                quantity_unit='g',
+    """Returns a new instance of IngredientAmountData."""
+    return IngredientAmountData(quantity_g=None,
+                                pref_quantity_unit='g',
                                 perc_increase=0,
                                 perc_decrease=0)
 
 
+def ingredient_amount_data_defined(ingredient_amount_data: 'IngredientAmountData') -> bool:
+    """Inspects an instance of IngredientAmountData and returns True/False to indicate if
+    it is fully defined."""
+    return None not in ingredient_amount_data.values()
+
+
+def summarise_ingredient_amount_data(ingredient_amount_data: 'IngredientAmountData', ingredient: 'Ingredient') -> str:
+    if not ingredient_amount_data_defined(ingredient_amount_data):
+        return 'Undefined'
+    template = '{qty}{unit} (+{inc}%/-{dec}%)'
+    return template.format(
+        qty=quantity.quantity_service.convert_qty_unit(
+            qty=ingredient_amount_data['quantity_g'],
+            start_unit='g',
+            end_unit=ingredient_amount_data['pref_quantity_unit'],
+            g_per_ml=ingredient_g_per_ml,
+            piece_mass_g=ingredient_piece_mass_g
+        ),
+        unit=ingredient_amount_data['pref_quantity_unit'],
+        inc=ingredient_amount_data['perc_increase'],
+        dec=ingredient_amount_data['perc_decrease']
+    )
+
+
 class HasIngredientAmounts(abc.ABC):
     """Models an object which has readonly ingredient amounts."""
+
+    @property
+    @abc.abstractmethod
+    def name(self) -> str:
+        raise NotImplementedError
 
     @property
     @abc.abstractmethod
@@ -55,16 +87,28 @@ class HasIngredientAmounts(abc.ABC):
                                    df_name: Optional[str] = None,
                                    ingredient_name: Optional[str] = None) -> 'IngredientAmountData':
         if ingredient_name is not None:
-            df_name = persistence.get_unique_val_from_df_name(ingredients.Ingredient, df_name)
+            df_name = persistence.get_df_name_from_unique_val(ingredients.Ingredient, ingredient_name)
         return self.ingredient_amounts_data[df_name]
 
-    def get_ingredient_amount_qty(self, df_name: str) -> Optional[float]:
+    def get_ingredient_amount_qty_g(self, df_name: str) -> Optional[float]:
         iad = self.get_ingredient_amount_data(df_name)
-        return iad['quantity']
+        return iad['quantity_g']
 
-    def get_ingredient_amount_unit(self, df_name: str) -> str:
+    def get_ingredient_amount_pref_unit(self, df_name: str) -> str:
         iad = self.get_ingredient_amount_data(df_name)
-        return iad['quantity_unit']
+        return iad['pref_quantity_unit']
+
+    def get_ingredient_amount_in_pref_units(self, df_name: str) -> float:
+        iad = self.get_ingredient_amount_data(df_name)
+        i_name = persistence.get_unique_val_from_df_name(df_name)
+        i = persistence.load(ingredients.Ingredient, i_name)
+        return quantity.quantity_service.convert_qty_unit(
+            qty=iad['quantity_g'],
+            start_unit='g',
+            end_unit=iad['pref_quantity_unit'],
+            g_per_ml=i.g_per_ml,
+            piece_mass_g=i.piece_mass_g
+        )
 
     def get_ingredient_amount_perc_incr(self, df_name: str) -> float:
         iad = self.get_ingredient_amount_data(df_name)
@@ -72,29 +116,16 @@ class HasIngredientAmounts(abc.ABC):
 
     def get_ingredient_amount_perc_decr(self, df_name: str) -> float:
         iad = self.get_ingredient_amount_data(df_name)
-        return iad['perc_increase']
+        return iad['perc_decrease']
 
-    def ingredient_amount_defined(self, df_name: str) -> float:
+    def ingredient_amount_defined(self, df_name: str) -> bool:
         iad = self.get_ingredient_amount_data(df_name)
-        return iad['quantity'] is None
+        return ingredient_amount_data_defined(iad)
 
-    def summarise_ingredient_amount(self,
-                                    df_name:Optional[str] = None,
-                                    data:Optional['IngredientAmountData']=None) -> str:
-        if df_name is None and data is None:
-            ValueError('df_name OR data must be specified.')
-        # Todo - Need to think about this. No point adding static method functinality to instance method.
-        template = '{qty}{unit} (+{inc}%/-{dec}%)'
-        if data is None:
-        if self.ingredient_amount_defined(df_name):
-            return '{qty}{unit} (+{inc}%/-{dec}%)'.format(
-                qty=self.get_ingredient_amount_data(df_name),
-                unit=self.get_ingredient_amount_unit(df_name),
-                inc=self.get_ingredient_amount_perc_incr(df_name),
-                dec=self.get_ingredient_amount_perc_decr(df_name)
-            )
-        else:
-            return 'Undefined'
+    def summarise_ingredient_amount(self, df_name: str) -> str:
+        ingredient_name = persistence.get_unique_val_from_df_name(ingredients.Ingredient, df_name)
+        i = persistence.load(ingredients.Ingredient, ingredient_name)
+        return summarise_ingredient_amount(self.get_ingredient_amount_data(df_name=df_name))
 
 
 class HasSettableIngredientAmounts(HasIngredientAmounts, abc.ABC):
@@ -103,6 +134,9 @@ class HasSettableIngredientAmounts(HasIngredientAmounts, abc.ABC):
     @property
     def ingredient_amounts_data(self) -> Dict[str, 'IngredientAmountData']:
         return self._ingredient_amounts_data
+
+    def add_new_ingredient_amount(self, ingredient_df_name: str) -> None:
+        self.ingredient_amounts_data[ingredient_df_name] = get_new_ingredient_amount_data()
 
     def set_ingredient_amount_qty(self, df_name: str, amount: Optional[float]) -> None:
         amount = quantity.validate_quantity(amount)
