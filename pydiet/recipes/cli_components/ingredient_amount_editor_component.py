@@ -150,11 +150,11 @@ class IngredientAmountDetailEditor(pydiet.cli_components.BaseEditorComponent):
     def _validate_qty_and_unit(self, value: str) -> Dict:
         qty, unit = builtin_validators.validate_number_and_str(value)
         qty = builtin_validators.validate_positive_or_zero_number(qty)
-        unit = quantity.quantity_service.validate_qty_unit(unit)
+        unit = quantity.services.validate_qty_unit(unit)
         i = persistence.load(ingredients.Ingredient, self._ingredient_name)
-        if quantity.quantity_service.units_are_volumes(unit) and not i.check_units_configured(unit):
+        if quantity.services.units_are_volumes(unit) and not i.check_units_configured(unit):
             raise ResponseValidationError('Volumetric units are not yet configured for {}'.format(i.name))
-        elif quantity.quantity_service.units_are_pieces(unit) and not i.check_units_configured(unit):
+        elif quantity.services.units_are_pieces(unit) and not i.check_units_configured(unit):
             raise ResponseValidationError('Piece mass has not yet been configured on {}.'.format(i.name))
         return {"qty": qty, "unit": unit}
 

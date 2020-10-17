@@ -22,8 +22,8 @@ class SupportsCost(quantity.supports_bulk.SupportsBulk, abc.ABC):
     @property
     def cost_per_pref_unit(self) -> float:
         """Returns the cost of one of the instance's preferred units."""
-        return quantity.quantity_service.convert_qty_unit(self.cost_per_g, 'g',
-                                                          self.pref_unit, self._bulk_data['g_per_ml'])
+        return quantity.services.convert_qty_unit(self.cost_per_g, 'g',
+                                                  self.pref_unit, self._bulk_data['g_per_ml'])
 
     @property
     def cost_summary(self) -> str:
@@ -54,7 +54,7 @@ class SupportsCostSetting(SupportsCost):
     def set_cost(self, cost_gbp: float, qty: float, unit: str) -> None:
         """Sets the cost in gbp of any quanitity of any unit."""
         cost_per_unit = cost_gbp / qty
-        k = quantity.quantity_service.convert_qty_unit(
+        k = quantity.services.convert_qty_unit(
             1, 'g', unit,
             self._bulk_data['g_per_ml'],
             self._bulk_data['piece_mass_g'])

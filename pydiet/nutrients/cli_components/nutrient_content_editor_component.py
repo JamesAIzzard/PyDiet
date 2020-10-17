@@ -125,20 +125,20 @@ class NutrientContentEditorComponent(ConsoleAppComponent):
         }
         # Check the number is a valid qty;
         try:
-            output['qty'] = quantity.quantity_service.validate_quantity(output['qty'])
+            output['qty'] = quantity.services.validate_quantity(output['qty'])
         except quantity.exceptions.InvalidQtyError:
             raise ResponseValidationError('The ingredient quantity must be a positive number.')
         # Check the string is a valid unit;
         try:
-            output['unit'] = quantity.quantity_service.validate_qty_unit(output['unit'])
+            output['unit'] = quantity.services.validate_qty_unit(output['unit'])
         except quantity.exceptions.UnknownUnitError:
             raise ResponseValidationError('The ingredient unit is not recognised.')
         # Check the unit used has been configured
         if not self._subject.check_units_configured(output['unit']):
-            if quantity.quantity_service.units_are_volumes(output['unit']):
+            if quantity.services.units_are_volumes(output['unit']):
                 raise ResponseValidationError(
                     'The ingredient density must be configured before fluid measurements can be used.')
-            elif quantity.quantity_service.units_are_pieces(output['unit']):
+            elif quantity.services.units_are_pieces(output['unit']):
                 raise ResponseValidationError(
                     'The ingredient piece mass must be configured before "pc" can be used as a unit.')
         # All OK, return.
@@ -154,12 +154,12 @@ class NutrientContentEditorComponent(ConsoleAppComponent):
         }
         # Check the number is a valid qty;
         try:
-            output['qty'] = quantity.quantity_service.validate_quantity(output['qty'])
+            output['qty'] = quantity.services.validate_quantity(output['qty'])
         except quantity.exceptions.InvalidQtyError:
             raise ResponseValidationError('The nutrient quantity must be a positive number.')
         # Check the unit is a valid mass;
         try:
-            output['unit'] = quantity.quantity_service.validate_mass_unit(output['unit'])
+            output['unit'] = quantity.services.validate_mass_unit(output['unit'])
         except quantity.exceptions.UnknownUnitError:
             raise ResponseValidationError('The nutrient unit is not a recognised mass.')
         # All OK, return;
@@ -226,12 +226,12 @@ class NutrientContentEditorComponent(ConsoleAppComponent):
 
     def _on_set_nutrient_amount(self, args) -> None:
         # Convert the args into g per g
-        nutrient_qty_g = quantity.quantity_service.convert_qty_unit(
+        nutrient_qty_g = quantity.services.convert_qty_unit(
             args['nutrient_weight']['qty'],
             args['nutrient_weight']['unit'],
             'g'
         )
-        ingredient_qty_g = quantity.quantity_service.convert_qty_unit(
+        ingredient_qty_g = quantity.services.convert_qty_unit(
             args['ingredient_quantity']['qty'],
             args['ingredient_quantity']['unit'],
             'g',

@@ -30,12 +30,15 @@ def ingredient_amount_data_defined(ingredient_amount_data: 'IngredientAmountData
     return None not in ingredient_amount_data.values()
 
 
-def summarise_ingredient_amount_data(ingredient_amount_data: 'IngredientAmountData', ingredient: 'Ingredient') -> str:
+def summarise_ingredient_amount_data(ingredient_amount_data: 'IngredientAmountData',
+                                     ingredient_g_per_ml: Optional[float] = None,
+                                     ingredient_piece_mass_g: Optional[float] = None) -> str:
+    """Returns a readable string summary of the ingredient amount data submitted."""
     if not ingredient_amount_data_defined(ingredient_amount_data):
         return 'Undefined'
     template = '{qty}{unit} (+{inc}%/-{dec}%)'
     return template.format(
-        qty=quantity.quantity_service.convert_qty_unit(
+        qty=quantity.services.convert_qty_unit(
             qty=ingredient_amount_data['quantity_g'],
             start_unit='g',
             end_unit=ingredient_amount_data['pref_quantity_unit'],
@@ -48,7 +51,7 @@ def summarise_ingredient_amount_data(ingredient_amount_data: 'IngredientAmountDa
     )
 
 
-class HasIngredientAmounts(abc.ABC):
+class HasIngredientAmounts(quantity.SupportsBulk, abc.ABC):
     """Models an object which has readonly ingredient amounts."""
 
     @property
@@ -84,30 +87,28 @@ class HasIngredientAmounts(abc.ABC):
         return names
 
     def get_ingredient_amount_data(self,
-                                   df_name: Optional[str] = None,
+                                   ingredient_df_name: Optional[str] = None,
                                    ingredient_name: Optional[str] = None) -> 'IngredientAmountData':
         if ingredient_name is not None:
             df_name = persistence.get_df_name_from_unique_val(ingredients.Ingredient, ingredient_name)
-        return self.ingredient_amounts_data[df_name]
+        return self.ingredient_amounts_data[ingredient_df_name]
 
-    def get_ingredient_amount_qty_g(self, df_name: str) -> Optional[float]:
-        iad = self.get_ingredient_amount_data(df_name)
+    def get_ingredient_amount_qty_g(self, ingredient_df_name: str) -> Optional[float]:
+        iad = self.get_ingredient_amount_data(ingredient_df_name)
         return iad['quantity_g']
 
-    def get_ingredient_amount_pref_unit(self, df_name: str) -> str:
-        iad = self.get_ingredient_amount_data(df_name)
+    def get_ingredient_amount_pref_unit(self, ingredient_df_name: str) -> str:
+        iad = self.get_ingredient_amount_data(ingredient_df_name)
         return iad['pref_quantity_unit']
 
-    def get_ingredient_amount_in_pref_units(self, df_name: str) -> float:
-        iad = self.get_ingredient_amount_data(df_name)
-        i_name = persistence.get_unique_val_from_df_name(df_name)
-        i = persistence.load(ingredients.Ingredient, i_name)
-        return quantity.quantity_service.convert_qty_unit(
+    def get_ingredient_amount_in_pref_units(self, ingredient_df_name: str) -> float:
+        iad = self.get_ingredient_amount_data(ingredient_df_name)
+        return quantity.services.convert_qty_unit(
             qty=iad['quantity_g'],
             start_unit='g',
             end_unit=iad['pref_quantity_unit'],
-            g_per_ml=i.g_per_ml,
-            piece_mass_g=i.piece_mass_g
+            g_per_ml=self.g_per_ml,
+            piece_mass_g=self.piece_mass_g
         )
 
     def get_ingredient_amount_perc_incr(self, df_name: str) -> float:
@@ -122,9 +123,9 @@ class HasIngredientAmounts(abc.ABC):
         iad = self.get_ingredient_amount_data(df_name)
         return ingredient_amount_data_defined(iad)
 
-    def summarise_ingredient_amount(self, df_name: str) -> str:
-        ingredient_name = persistence.get_unique_val_from_df_name(ingredients.Ingredient, df_name)
-        i = persistence.load(ingredients.Ingredient, ingredient_name)
+    def summarise_ingredient_amount(self, ingredient_df_name: Optional[str], ingredient_name: Optional[str]) -> str:
+        if ingredient_name is not None:
+            ingredient_df_name = persistence.get_df_name_from_unique_val(ingredients.Ingredient, ingredient_name)
         return summarise_ingredient_amount(self.get_ingredient_amount_data(df_name=df_name))
 
 
