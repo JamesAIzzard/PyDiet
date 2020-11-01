@@ -1,14 +1,15 @@
-from pyconsoleapp import styles, ConsoleAppComponent
+from pyconsoleapp import styles, Component
 
 
-class TitleBarComponent(ConsoleAppComponent):
-    def __init__(self, app):
-        super().__init__(app)
-        self.configure_printer(self.print_view)
+class TitleBarComponent(Component):
+    _template = '''{app_name} | {route}'''
 
-    def print_view(self):
-        output = '{app_name} | {route}\n'.format(
+    def __init__(self, **kwds):
+        super().__init__(**kwds)
+
+    def printer(self, **kwds) -> str:
+        """Returns title bar component view as string."""
+        return self._template.format(
             app_name=styles.weight(self.app.name, 'bright'),
-            route=styles.fore(self.app.route.replace('.', '>'), 'blue')
+            route=styles.fore(self.app.current_route.replace('.', '>'), 'blue')
         )
-        return output

@@ -1,27 +1,28 @@
-from textwrap import fill
-
-from pyconsoleapp import ConsoleAppComponent, configs, styles
+from pyconsoleapp import Component, styles
 
 
-class MessageBarComponent(ConsoleAppComponent):
+class MessageBarComponent(Component):
+    """Component to display the info and error messages stored on the component."""
+    _main_template = '''{content}
+{hr}\n'''
+    _info_template = '[i] Info: {message}'
+    _error_template = '/!\\ Error: {message}'
+
     def __init__(self, app):
         super().__init__(app)
-        self.configure_printer(self.print_view)
 
-    def print_view(self):
-        output = ''
-        if self.app.error_message:
-            output = output+'/!\\ Error:\n{}\n'.format(
-                fill(self.app.error_message, configs.terminal_width_chars)
+    def printer(self, **kwds) -> str:
+        if self.app.error_message is not None:
+            if self.app.error_message.replace(' ', '') == '':
+                self.app.error_message = "An error occurred."
+            return self._main_template.format(
+                content=styles.fore(self._error_template.format(message=self.app.error_message), 'red'),
+                hr=self.single_hr
             )
-            output = styles.fore(output, 'red')
-            output = output+('-'*configs.terminal_width_chars)+'\n'
-            self.app.error_message = None
-        if self.app.info_message:
-            output = output+'[i] Info:\n{}\n'.format(
-                fill(self.app.info_message, configs.terminal_width_chars)
+        elif self.app.info_message is not None and not self.app.info_message.replace(' ', '') == '':
+            return self._main_template.format(
+                content=styles.fore(self._info_template.format(message=self.app.info_message), 'blue'),
+                hr=self.single_hr
             )
-            output = styles.fore(output, 'blue')
-            output = output+('-'*configs.terminal_width_chars)+'\n'
-            self.app.info_message = None
-        return output
+        else:
+            return ''
