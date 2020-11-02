@@ -81,7 +81,8 @@ def get_saved_unique_vals(cls: Type['SupportsPersistence']) -> List[str]:
     return list(index.values())
 
 
-def check_unique_val_avail(cls: Type['SupportsPersistence'], ingore_df: Optional[str], proposed_unique_val) -> bool:
+def check_unique_val_avail(cls: Type['SupportsPersistence'], ingore_df: Optional[str],
+                           proposed_unique_val: str) -> bool:
     """Checks if the proposed unique value is available for the persistable class type."""
     # Read the index for the persistable class;
     index_data = _read_index(cls)

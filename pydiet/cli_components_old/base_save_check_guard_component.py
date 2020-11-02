@@ -20,7 +20,7 @@ class BaseSaveCheckGuardComponent(builtin_components.yes_no_dialog_component.Yes
         self._subject = subject
 
     def _on_yes(self) -> None:
-        persistence.persistence_service.save(self._subject)
+        persistence.core.save(self._subject)
         self.clear_self()
 
     def _on_no(self) -> None:

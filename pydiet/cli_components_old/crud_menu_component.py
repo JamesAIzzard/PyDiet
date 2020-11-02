@@ -50,7 +50,7 @@ class CRUDMenuComponent(ConsoleAppComponent, abc.ABC):
         ])
 
     def _print_main_view(self) -> str:
-        saved_count = persistence.persistence_service.count_saved_instances(self._subject_type)
+        saved_count = persistence.core.count_saved_instances(self._subject_type)
         return self.app.get_component(StandardPageComponent).print_view(
             page_title='{type_name} Menu'.format(type_name=self._subject_type_name.capitalize()),
             page_content=_main_view_template.format(
@@ -78,7 +78,7 @@ class CRUDMenuComponent(ConsoleAppComponent, abc.ABC):
     def _on_edit(self, args) -> None:
         def on_result_selected(subject_name: str):
             ec = self.app.get_component(self._subject_editor_component)
-            selected_subject = persistence.persistence_service.load(self._subject_type, subject_name)
+            selected_subject = persistence.core.load(self._subject_type, subject_name)
             ec.configure(subject=selected_subject)
             self.app.goto(self._subject_editor_route)
 

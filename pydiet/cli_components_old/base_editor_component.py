@@ -27,7 +27,7 @@ class BaseEditorComponent(ConsoleAppComponent, abc.ABC):
 
     def _on_ok_and_save(self) -> None:
         try:
-            persistence.persistence_service.save(self._subject)
+            persistence.core.save(self._subject)
         except persistence.exceptions.UniqueFieldUndefinedError:
             self.app.error_message = 'The {subject_type} name must be set before the recipe can be saved.'.format(
                 subject_type=self._subject_type

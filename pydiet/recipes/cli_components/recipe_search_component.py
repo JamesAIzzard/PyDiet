@@ -11,4 +11,4 @@ class RecipeSearchComponent(BaseSearchComponent):
 
     @property
     def _data_to_search(self) -> List[str]:
-        return persistence.persistence_service.get_saved_unique_vals(recipes.Recipe)
+        return persistence.core.get_saved_unique_vals(recipes.Recipe)

@@ -8,34 +8,10 @@ app.configure(routes={
     "home": cli.MainMenuComponent,
     "home.ingredients": cli.IngredientMenuComponent,
     "home.ingredients.edit": cli.IngredientEditorComponent,
-    "home.ingredients.view": cli.IngredientViewerComponent
+    "home.ingredients.view": cli.IngredientViewerComponent,
+    "home.recipes": cli.RecipeMenuComponent,
+    "home.recipes.edit": cli.RecipeEditorComponent,
+    "home.recipes.view": cli.RecipeViewerComponent
 })
 
 app.current_route = 'home'
-
-# # Configure the app framework;
-# app.register_component_packages([
-#     'pydiet.cli_components',
-#     'pydiet.cost.cli_components',
-#     'pydiet.flags.cli_components',
-#     'pydiet.goals.cli_components',
-#     'pydiet.ingredients.cli_components',
-#     'pydiet.nutrients.cli_components',
-#     'pydiet.quantity.cli_components',
-#     'pydiet.recipes.cli_components',
-#     'pydiet.tags.cli_components',
-#     'pydiet.time.cli_components',
-# ])
-# app.root_route('home', 'MainMenuComponent')
-# app.add_route('home.ingredients', 'IngredientMenuComponent')
-# app.add_route('home.ingredients.search', 'IngredientSearchComponent')
-# app.add_route('home.ingredients.edit', 'IngredientEditorComponent')
-# app.add_route('home.ingredients.edit.flags', 'FlagEditorComponent')
-# app.add_route('home.ingredients.edit.bulk', 'BulkEditorComponent')
-# app.add_route('home.ingredients.edit.nutrients', 'NutrientContentEditorComponent')
-# app.add_route('home.ingredients.edit.nutrients.search', 'NutrientSearchComponent')
-# app.add_route('home.ingredients.view', 'IngredientViewerComponent')
-# app.add_route('home.recipes', 'RecipeMenuComponent')
-# app.add_route('home.recipes.edit', 'RecipeEditorComponent')
-# app.add_route('home.recipes.edit.ingredients', 'IngredientAmountEditorComponent')
-# app.add_route('home.recipes.view', 'RecipeViewerComponent')

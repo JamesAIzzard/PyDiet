@@ -63,4 +63,4 @@ for df_name in old_index:
 
     i._datafile_name = None
 
-    persistence.persistence_service.save(i)
+    persistence.core.save(i)

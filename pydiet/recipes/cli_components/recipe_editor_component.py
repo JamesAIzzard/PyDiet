@@ -86,7 +86,7 @@ class RecipeEditorComponent(BaseEditorComponent):
             raise ResponseValidationError('Recipe name must be defined first.')
 
     def _validate_name(self, value) -> str:
-        if not persistence.persistence_service.check_unique_val_avail(
+        if not persistence.core.check_unique_val_avail(
                 recipes.Recipe, self._subject.datafile_name, value):
             raise ResponseValidationError('There is already a recipe called {}'.format(value))
         return value

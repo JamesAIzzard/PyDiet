@@ -61,7 +61,7 @@ class BaseViewerComponent(ConsoleAppComponent, abc.ABC):
         return self._unique_val_num_map[num]
 
     def _load_item(self, unique_val: str) -> 'SupportsPersistence':
-        return persistence.persistence_service.load(self._item_type, unique_val)
+        return persistence.core.load(self._item_type, unique_val)
 
     def _validate_item_number(self, value) -> int:
         try:
@@ -89,12 +89,12 @@ class BaseViewerComponent(ConsoleAppComponent, abc.ABC):
 
     def _on_edit_item(self, args) -> None:
         item_name = self._unique_val_from_num(args['item_num'])
-        item = persistence.persistence_service.load(self._item_type, item_name)
+        item = persistence.core.load(self._item_type, item_name)
         item_editor = self.app.get_component_for_route(self._item_editor_route)
         item_editor.configure(subject=item)
         self.app.goto(self._item_editor_route)
 
     def _on_delete_item(self, args) -> None:
         item_name = self._unique_val_from_num(args['item_num'])
-        persistence.persistence_service.delete(self._item_type, item_name)
+        persistence.core.delete(self._item_type, item_name)
         self.app.info_message = '{} was deleted.'.format(item_name)

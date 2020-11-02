@@ -11,4 +11,4 @@ class IngredientSearchComponent(BaseSearchComponent):
 
     @property
     def _data_to_search(self) -> List[str]:
-        return persistence.persistence_service.get_saved_unique_vals(ingredients.ingredient.Ingredient)
+        return persistence.core.get_saved_unique_vals(ingredients.ingredient.Ingredient)

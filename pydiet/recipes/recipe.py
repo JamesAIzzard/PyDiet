@@ -67,7 +67,7 @@ class Recipe(persistence.supports_persistence.SupportsPersistence,
 
     @name.setter
     def name(self, value: str) -> None:
-        if persistence.persistence_service.check_unique_val_avail(recipes.Recipe, self.datafile_name, value):
+        if persistence.core.check_unique_val_avail(recipes.Recipe, self.datafile_name, value):
             self._data['name'] = value
         else:
             raise persistence.exceptions.UniqueValueDuplicatedError('There is already a recipe called {}'.format(value))
