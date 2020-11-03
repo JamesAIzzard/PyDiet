@@ -1,9 +1,9 @@
 import json
 import os
 import uuid
-from typing import Dict, TypeVar, TYPE_CHECKING, cast, Type, Optional, List
+from typing import Dict, List, TypeVar, Type, Optional, Union, TYPE_CHECKING
 
-from pydiet import persistence
+from . import exceptions
 
 if TYPE_CHECKING:
     from pydiet.persistence.supports_persistence import SupportsPersistence
@@ -12,39 +12,43 @@ T = TypeVar('T')
 
 
 def save(subject: 'SupportsPersistence') -> None:
-    """Saves the _subject."""
+    """Saves the subject."""
+
     # Check the unique field is filled in;
-    if not subject.unique_field_defined:
-        raise persistence.exceptions.UniqueFieldUndefinedError
-    # Update or create;
+    if not subject.name_is_defined:
+        raise exceptions.NameUndefinedError
+
+    # If exists already, we are updating;
     if subject.datafile_exists:
-        if not check_unique_val_avail(subject.__class__, subject.datafile_name, subject.unique_field_value):
-            raise persistence.exceptions.UniqueValueDuplicatedError
+        if not check_unique_val_avail(subject.__class__, subject.datafile_name, subject.name):
+            raise exceptions.NameDuplicatedError
         _update_datafile(subject)
-    elif not subject.datafile_exists:
-        if not check_unique_val_avail(subject.__class__, None, subject.unique_field_value):
-            raise persistence.exceptions.UniqueValueDuplicatedError
+    # Otherwise, save in a new datafile;
+    else:
+        if not check_unique_val_avail(subject.__class__, None, subject.name):
+            raise exceptions.NameDuplicatedError
         _create_datafile(subject)
 
 
-def load(cls: Type[T], unique_field_value: str) -> T:
+def load(cls: Union[Type[T], 'SupportsPersistence'], name: Optional[str] = None,
+         datafile_name: Optional[str] = None) -> T:
     """Loads and returns an instance of the specified type, corresponding to the
     unique field name provided."""
-    index = _read_index(cls)
-    datafile_name = None
-    for df_name in index:
-        if index[df_name] == unique_field_value:
-            datafile_name = df_name
+
+    if name is not None:
+        datafile_name = get_datafile_name_for_name(cls, name)
+    elif datafile_name is None:
+        raise ValueError('Either name or df_name must be provided.')
+
     df_path = cls.get_path_into_db() + datafile_name + '.json'
     datafile = read_datafile(df_path, Dict)
-    cls = cast(T, cls)
-    loaded_instance = cls(datafile)
-    loaded_instance.set_datafile_name(datafile_name)
+    loaded_instance = cls(name=name, datafile_name=datafile_name, datafile=datafile)
     return loaded_instance
 
 
-def delete(cls: Type['SupportsPersistence'], unique_field_value: str) -> None:
+def delete(cls: Type['SupportsPersistence'], name: Optional[str], datafile_name: Optional[str]) -> None:
     """Deletes the instance of the specified type, with the specified unique value, from the database."""
+    # Todo - Got to here. Finish updating the implmentation to use either name or datafile name.
     index = _read_index(cls)
     for df_name in index:
         if index[df_name] == unique_field_value:
@@ -65,13 +69,13 @@ def get_unique_val_from_df_name(cls: Type['SupportsPersistence'], datafile_name:
     return index[datafile_name]
 
 
-def get_df_name_from_unique_val(cls: Type['SupportsPersistence'], unique_val: str) -> str:
+def get_datafile_name_for_name(cls: Type['SupportsPersistence'], name: str) -> str:
     """Returns the df name associated with the unique value for the given class."""
     index = _read_index(cls)
     for df_name, u_name in index.items():
-        if u_name == unique_val:
+        if u_name == name:
             return df_name
-    raise KeyError('Unique value was not found.')
+    raise exceptions.NoDatafileError
 
 
 def get_saved_unique_vals(cls: Type['SupportsPersistence']) -> List[str]:
@@ -115,7 +119,7 @@ def _create_index_entry(subject: 'SupportsPersistence') -> None:
     index_data = _read_index(subject.__class__)
     # Check the unique field value isn't used already;
     if not check_unique_val_avail(subject.__class__, subject.datafile_name, subject.unique_field_value):
-        raise persistence.exceptions.UniqueValueDuplicatedError
+        raise persistence.exceptions.NameDuplicatedError
     # Generate and set the UID on object and index;
     subject.set_datafile_name(str(uuid.uuid4()))
     index_data[cast(str, subject.datafile_name)] = cast(
@@ -160,7 +164,7 @@ def _update_index_entry(subject: 'SupportsPersistence') -> None:
     index_data.pop(cast(str, subject.datafile_name))
     # Check the unique field value isn't used already;
     if subject.unique_field_value in index_data.values():
-        raise persistence.exceptions.UniqueValueDuplicatedError
+        raise persistence.exceptions.NameDuplicatedError
     # Update the index;
     index_data[cast(str, subject.datafile_name)] = cast(str, subject.unique_field_value)
     with open(subject.__class__.get_index_filepath(), 'w') as fh:

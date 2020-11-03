@@ -70,7 +70,7 @@ class Recipe(persistence.supports_persistence.SupportsPersistence,
         if persistence.core.check_unique_val_avail(recipes.Recipe, self.datafile_name, value):
             self._data['name'] = value
         else:
-            raise persistence.exceptions.UniqueValueDuplicatedError('There is already a recipe called {}'.format(value))
+            raise persistence.exceptions.NameDuplicatedError('There is already a recipe called {}'.format(value))
 
     @property
     def name_is_defined(self) -> bool:

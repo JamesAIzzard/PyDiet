@@ -28,11 +28,11 @@ class BaseEditorComponent(ConsoleAppComponent, abc.ABC):
     def _on_ok_and_save(self) -> None:
         try:
             persistence.core.save(self._subject)
-        except persistence.exceptions.UniqueFieldUndefinedError:
+        except persistence.exceptions.NameUndefinedError:
             self.app.error_message = 'The {subject_type} name must be set before the recipe can be saved.'.format(
                 subject_type=self._subject_type
             )
-        except persistence.exceptions.UniqueValueDuplicatedError:
+        except persistence.exceptions.NameDuplicatedError:
             self.app.error_message = 'There is already an {subject_type} called {unique_val}.'.format(
                 unique_val=self._subject.name,
                 subject_type=self._subject_type

@@ -1,6 +1,7 @@
 from pyconsoleapp import ConsoleApp
 
 from pydiet import cli
+from pydiet.name import HasName, HasSettableName
 
 app: 'ConsoleApp' = ConsoleApp('PyDiet')
 

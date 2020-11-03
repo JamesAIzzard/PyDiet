@@ -1,10 +1,13 @@
-import pydiet
+from pydiet.exceptions import PyDietException
 
-class UniqueFieldUndefinedError(pydiet.exceptions.PyDietException):
+
+class NameUndefinedError(PyDietException):
     pass
 
-class UniqueValueDuplicatedError(pydiet.exceptions.PyDietException):
+
+class NameDuplicatedError(PyDietException):
     pass
 
-class NoDatafileError(pydiet.exceptions.PyDietException):
+
+class NoDatafileError(PyDietException):
     pass
