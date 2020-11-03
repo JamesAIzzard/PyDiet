@@ -20,15 +20,14 @@ class SupportsPersistence(HasSettableName, abc.ABC):
 
     @property
     @abc.abstractmethod
-    def datafile_name(self) -> Optional[str]:
-        """Returns the datafile name for the instance."""
-        raise NotImplementedError
-
-    @property
-    @abc.abstractmethod
     def persistable_data(self) -> 'Dict':
         """Returns the persistable data for this instance."""
         raise NotImplementedError
+
+    @property
+    def datafile_name(self) -> Optional[str]:
+        """Returns the datafile name for the instance."""
+        return self._datafile_name
 
     def _set_name(self, name: str) -> None:
         """Modifies the name setter to ensure the name being set is unique to that class.
