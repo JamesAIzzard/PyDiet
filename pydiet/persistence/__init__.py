@@ -1,4 +1,2 @@
-from .core import check_unique_val_avail
-from .core import save
-from . import configs
+from .core import save, load, delete, check_name_available, count_saved_instances
 from .supports_persistence import SupportsPersistence

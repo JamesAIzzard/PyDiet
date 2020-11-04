@@ -35,7 +35,7 @@ class SupportsPersistence(HasSettableName, abc.ABC):
             NameDuplicatedError: To indicate there is another saved instance of this class
                 with the same name.
         """
-        if persistence.check_unique_val_avail(self.__class__, ingore_df=self.datafile_name, proposed_unique_val=name):
+        if persistence.check_name_available(self.__class__, name, self.name):
             self._name = name
         else:
             raise exceptions.NameDuplicatedError
@@ -47,8 +47,8 @@ class SupportsPersistence(HasSettableName, abc.ABC):
         if not self.datafile_exists:
             return True
         # Otherwise, compare the current data with the saved data.
-        saved_data = persistence.core.read_datafile(self.datafile_path, Dict)
-        return self.persistable_data == saved_data
+        saved_version = persistence.load(self.__class__, self.datafile_name)
+        return self.persistable_data == saved_version.persistable_data
 
     @property
     def datafile_exists(self) -> bool:
@@ -58,7 +58,7 @@ class SupportsPersistence(HasSettableName, abc.ABC):
     @classmethod
     def get_index_filepath(cls) -> str:
         """Returns the class' index filepath."""
-        return '{}{}.json'.format(cls.get_path_into_db(), persistence.configs.indexes_filename)
+        return '{}index.json'.format(cls.get_path_into_db())
 
     @property
     def datafile_path(self) -> str:
@@ -66,6 +66,4 @@ class SupportsPersistence(HasSettableName, abc.ABC):
         if not self.datafile_exists:
             raise persistence.exceptions.NoDatafileError
         else:
-            return '{path_to_db_dir}{datafile_name}.json'.format(
-                path_to_db_dir=self.get_path_into_db(),
-                datafile_name=self.datafile_name)
+            return self.get_path_into_db() + self.datafile_name + '.json'

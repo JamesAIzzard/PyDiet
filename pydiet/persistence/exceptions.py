@@ -2,12 +2,12 @@ from pydiet.exceptions import PyDietException
 
 
 class NameUndefinedError(PyDietException):
-    pass
+    """Indicates the unique name is not defined on the instance."""
 
 
 class NameDuplicatedError(PyDietException):
-    pass
+    """Indicates the name on the instance is not unique."""
 
 
 class NoDatafileError(PyDietException):
-    pass
+    """Indicates the datafile was not found."""

@@ -1,7 +1,7 @@
 import json
 import os
 import uuid
-from typing import Dict, List, TypeVar, Type, Optional, Union, TYPE_CHECKING
+from typing import Dict, List, Any, TypeVar, Type, Optional, Union, TYPE_CHECKING
 
 from . import exceptions
 
@@ -14,19 +14,17 @@ T = TypeVar('T')
 def save(subject: 'SupportsPersistence') -> None:
     """Saves the subject."""
 
-    # Check the unique field is filled in;
+    # Check the name is filled in and available;
     if not subject.name_is_defined:
         raise exceptions.NameUndefinedError
+    if check_name_available(subject.__class__, subject.name, subject.datafile_name) is False:
+        raise exceptions.NameDuplicatedError
 
     # If exists already, we are updating;
     if subject.datafile_exists:
-        if not check_unique_val_avail(subject.__class__, subject.datafile_name, subject.name):
-            raise exceptions.NameDuplicatedError
         _update_datafile(subject)
     # Otherwise, save in a new datafile;
     else:
-        if not check_unique_val_avail(subject.__class__, None, subject.name):
-            raise exceptions.NameDuplicatedError
         _create_datafile(subject)
 
 
@@ -35,26 +33,31 @@ def load(cls: Union[Type[T], 'SupportsPersistence'], name: Optional[str] = None,
     """Loads and returns an instance of the specified type, corresponding to the
     unique field name provided."""
 
+    # Check the params are OK and get the datafile name if required;
+    if name is None and datafile_name is None:
+        raise ValueError('Either name or datafile name must be provided.')
     if name is not None:
-        datafile_name = get_datafile_name_for_name(cls, name)
-    elif datafile_name is None:
-        raise ValueError('Either name or df_name must be provided.')
+        datafile_name = _get_datafile_name_for_name(cls, name)
 
-    df_path = cls.get_path_into_db() + datafile_name + '.json'
-    datafile = read_datafile(df_path, Dict)
+    # Load & return;
+    datafile = _read_datafile(cls.get_path_into_db() + datafile_name + '.json')
     loaded_instance = cls(name=name, datafile_name=datafile_name, datafile=datafile)
     return loaded_instance
 
 
-def delete(cls: Type['SupportsPersistence'], name: Optional[str], datafile_name: Optional[str]) -> None:
+def delete(cls: Type['SupportsPersistence'], name: Optional[str] = None,
+           datafile_name: Optional[str] = None) -> None:
     """Deletes the instance of the specified type, with the specified unique value, from the database."""
-    # Todo - Got to here. Finish updating the implmentation to use either name or datafile name.
-    index = _read_index(cls)
-    for df_name in index:
-        if index[df_name] == unique_field_value:
-            _delete_index_entry(cls, df_name)
-            _delete_datafile(cls, df_name)
-            break
+
+    # Check the params are OK and get the datafile name if required;
+    if name is None and datafile_name is None:
+        raise ValueError('Either name or datafile name must be provided.')
+    if name is not None:
+        datafile_name = _get_datafile_name_for_name(cls, name)
+
+    # Delete;
+    _delete_index_entry(cls, datafile_name)
+    _delete_datafile(cls, datafile_name)
 
 
 def count_saved_instances(cls: Type['SupportsPersistence']) -> int:
@@ -63,14 +66,8 @@ def count_saved_instances(cls: Type['SupportsPersistence']) -> int:
     return len(index_data)
 
 
-def get_unique_val_from_df_name(cls: Type['SupportsPersistence'], datafile_name: str) -> str:
-    """Returns the unique value associated with the datafile name for the given class."""
-    index = _read_index(cls)
-    return index[datafile_name]
-
-
-def get_datafile_name_for_name(cls: Type['SupportsPersistence'], name: str) -> str:
-    """Returns the df name associated with the unique value for the given class."""
+def _get_datafile_name_for_name(cls: Type['SupportsPersistence'], name: str) -> str:
+    """Returns the datafile name associated with the unique name."""
     index = _read_index(cls)
     for df_name, u_name in index.items():
         if u_name == name:
@@ -78,34 +75,36 @@ def get_datafile_name_for_name(cls: Type['SupportsPersistence'], name: str) -> s
     raise exceptions.NoDatafileError
 
 
-def get_saved_unique_vals(cls: Type['SupportsPersistence']) -> List[str]:
-    """Returns a list of all unique saved values for this class. For example: If the class
+def get_saved_names(cls: Type['SupportsPersistence']) -> List[str]:
+    """Returns a list of all persisted unique names. For example: If the class
     is Ingredient, this would return all saved ingredient names."""
     index = _read_index(cls)
     return list(index.values())
 
 
-def check_unique_val_avail(cls: Type['SupportsPersistence'], ingore_df: Optional[str],
-                           proposed_unique_val: str) -> bool:
+# Todo - Up to here with final check-through. Need to work back and check the functions are grouped sensibly.
+
+
+def check_name_available(cls: Type['SupportsPersistence'], proposed_name: str,
+                         ingore_datafile: Optional[str] = None) -> bool:
     """Checks if the proposed unique value is available for the persistable class type."""
-    # Read the index for the persistable class;
+
+    if proposed_name is None:
+        raise exceptions.NameUndefinedError
+
     index_data = _read_index(cls)
-    # Pop current file if saved;
-    if ingore_df is not None:
-        index_data.pop(ingore_df)
-    # Return answer
-    return proposed_unique_val not in index_data.values()
+
+    if ingore_datafile is not None:
+        index_data.pop(ingore_datafile)
+
+    return proposed_name not in index_data.values()
 
 
-def read_datafile(filepath: str, data_type: Type[T]) -> T:
-    """Reads the data from the specified path and returns it as data of the specified type."""
-    # Read the datafile contents;
+def _read_datafile(filepath: str) -> Dict[str, Any]:
+    """Returns the data in the specified file as json."""
     with open(filepath, 'r') as fh:
         raw_data = fh.read()
-        # Parse into dict;
-        data = json.loads(raw_data)
-        # Return it;
-        return cast(data_type, data)
+        return json.loads(raw_data)
 
 
 def _delete_datafile(cls: Type['SupportsPersistence'], datafile_name: str) -> None:
@@ -115,27 +114,28 @@ def _delete_datafile(cls: Type['SupportsPersistence'], datafile_name: str) -> No
 
 def _create_index_entry(subject: 'SupportsPersistence') -> None:
     """Adds an index entry for the _subject. Raises an exception if the unique value is not unique in the index."""
-    # Read the index;
     index_data = _read_index(subject.__class__)
-    # Check the unique field value isn't used already;
-    if not check_unique_val_avail(subject.__class__, subject.datafile_name, subject.unique_field_value):
-        raise persistence.exceptions.NameDuplicatedError
+
+    # Check the unique field value isn't used already, also checks name is not None;
+    if not check_name_available(subject.__class__, subject.datafile_name, subject.name):
+        raise exceptions.NameDuplicatedError
+
     # Generate and set the UID on object and index;
-    subject.set_datafile_name(str(uuid.uuid4()))
-    index_data[cast(str, subject.datafile_name)] = cast(
-        str, subject.unique_field_value)
+    subject._datafile_name = str(uuid.uuid4())
+    index_data[subject.datafile_name] = subject.name
+
     # Write the index;
     with open(subject.get_index_filepath(), 'w') as fh:
         json.dump(index_data, fh, indent=2, sort_keys=True)
 
 
 def _create_datafile(subject: 'SupportsPersistence') -> None:
-    """Inserts the subjects unique field into the index against a new datafile name, and then writes the objects data"""
+    """Inserts the subjects name into the index against a new datafile name, and then writes the objects data"""
     # Create the index entry;
     _create_index_entry(subject)
     # Create the datafile;
     with open(subject.datafile_path, 'w') as fh:
-        json.dump(subject.data_copy, fh, indent=2, sort_keys=True)
+        json.dump(subject.persistable_data, fh, indent=2, sort_keys=True)
 
 
 def _read_index(cls: Type['SupportsPersistence']) -> Dict[str, str]:
@@ -146,36 +146,37 @@ def _read_index(cls: Type['SupportsPersistence']) -> Dict[str, str]:
 
 
 def _update_datafile(subject: 'SupportsPersistence') -> None:
-    """Updates the _subject's index (to catch any changes to the unique field value), and overwrites the old datafile on
-    disk with the current data."""
+    """Updates the subject's index (to catch any changes to the name), and overwrites the
+    old datafile on disk with the current data."""
+
     # Update the index;
-    _update_index_entry(subject)
+    _updated_indexed_name(subject)
+
     # Update the datafile;
     with open(subject.datafile_path, 'w') as fh:
-        json.dump(subject.data_copy, fh, indent=2, sort_keys=True)
+        json.dump(subject.persistable_data, fh, indent=2, sort_keys=True)
 
 
-def _update_index_entry(subject: 'SupportsPersistence') -> None:
-    """Updates the index saved to disk with the latestingr unique field value on the object. Raises an exception if the
-    unique value is not unique in the index."""
-    # Read the index;
+def _updated_indexed_name(subject: 'SupportsPersistence') -> None:
+    """Updates the index saved to disk with the current name on the instance.
+    Raises:
+        NameDuplicatedError: To indicate the name is not unique.
+    """
+
+    # Check the name is unique;
+    if not check_name_available(subject.__class__, subject.datafile_name, subject.name):
+        raise exceptions.NameDuplicatedError
+
+    # Do the update;
     index_data = _read_index(subject.__class__)
-    # Pop the filename so we don't detect a name clash if it hasn't changed;
-    index_data.pop(cast(str, subject.datafile_name))
-    # Check the unique field value isn't used already;
-    if subject.unique_field_value in index_data.values():
-        raise persistence.exceptions.NameDuplicatedError
-    # Update the index;
-    index_data[cast(str, subject.datafile_name)] = cast(str, subject.unique_field_value)
+    index_data[subject.datafile_name] = subject.name
     with open(subject.__class__.get_index_filepath(), 'w') as fh:
         json.dump(index_data, fh, indent=2, sort_keys=True)
 
 
 def _delete_index_entry(cls: Type['SupportsPersistence'], datafile_name: str) -> None:
     """Deletes the _subject's entry from its index."""
-    # Read the index;
     index_data = _read_index(cls)
-    # Remove the key/value from the index;
     del index_data[datafile_name]
     with open(cls.get_index_filepath(), 'w') as fh:
         json.dump(index_data, fh, indent=2, sort_keys=True)
