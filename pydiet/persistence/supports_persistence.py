@@ -35,7 +35,7 @@ class SupportsPersistence(HasSettableName, abc.ABC):
             NameDuplicatedError: To indicate there is another saved instance of this class
                 with the same name.
         """
-        if persistence.check_name_available(self.__class__, name, self.name):
+        if persistence.check_name_available(self.__class__, name, self.datafile_name):
             self._name = name
         else:
             raise exceptions.NameDuplicatedError

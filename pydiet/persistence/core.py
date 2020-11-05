@@ -66,23 +66,11 @@ def count_saved_instances(cls: Type['SupportsPersistence']) -> int:
     return len(index_data)
 
 
-def _get_datafile_name_for_name(cls: Type['SupportsPersistence'], name: str) -> str:
-    """Returns the datafile name associated with the unique name."""
-    index = _read_index(cls)
-    for df_name, u_name in index.items():
-        if u_name == name:
-            return df_name
-    raise exceptions.NoDatafileError
-
-
 def get_saved_names(cls: Type['SupportsPersistence']) -> List[str]:
     """Returns a list of all persisted unique names. For example: If the class
     is Ingredient, this would return all saved ingredient names."""
     index = _read_index(cls)
     return list(index.values())
-
-
-# Todo - Up to here with final check-through. Need to work back and check the functions are grouped sensibly.
 
 
 def check_name_available(cls: Type['SupportsPersistence'], proposed_name: str,
@@ -100,24 +88,24 @@ def check_name_available(cls: Type['SupportsPersistence'], proposed_name: str,
     return proposed_name not in index_data.values()
 
 
-def _read_datafile(filepath: str) -> Dict[str, Any]:
-    """Returns the data in the specified file as json."""
-    with open(filepath, 'r') as fh:
-        raw_data = fh.read()
-        return json.loads(raw_data)
-
-
-def _delete_datafile(cls: Type['SupportsPersistence'], datafile_name: str) -> None:
-    """Deletes the specified datafile from the specified type's database."""
-    os.remove(cls.get_path_into_db() + datafile_name + '.json')
+def _get_datafile_name_for_name(cls: Type['SupportsPersistence'], name: str) -> str:
+    """Returns the datafile name associated with the unique name."""
+    index = _read_index(cls)
+    for df_name, u_name in index.items():
+        if u_name == name:
+            return df_name
+    raise exceptions.NoDatafileError
 
 
 def _create_index_entry(subject: 'SupportsPersistence') -> None:
-    """Adds an index entry for the _subject. Raises an exception if the unique value is not unique in the index."""
+    """Adds an index entry for the subject, setting its datafile_name field in the process.
+    Raises:
+         NameDuplicatedError: To indicate the unique value is not unique in the index.
+    """
     index_data = _read_index(subject.__class__)
 
     # Check the unique field value isn't used already, also checks name is not None;
-    if not check_name_available(subject.__class__, subject.datafile_name, subject.name):
+    if not check_name_available(subject.__class__, subject.name, subject.datafile_name):
         raise exceptions.NameDuplicatedError
 
     # Generate and set the UID on object and index;
@@ -130,12 +118,19 @@ def _create_index_entry(subject: 'SupportsPersistence') -> None:
 
 
 def _create_datafile(subject: 'SupportsPersistence') -> None:
-    """Inserts the subjects name into the index against a new datafile name, and then writes the objects data"""
+    """Adds the subject details to its index and writes its datafile."""
     # Create the index entry;
     _create_index_entry(subject)
     # Create the datafile;
     with open(subject.datafile_path, 'w') as fh:
         json.dump(subject.persistable_data, fh, indent=2, sort_keys=True)
+
+
+def _read_datafile(filepath: str) -> Dict[str, Any]:
+    """Returns the data in the specified file as json."""
+    with open(filepath, 'r') as fh:
+        raw_data = fh.read()
+        return json.loads(raw_data)
 
 
 def _read_index(cls: Type['SupportsPersistence']) -> Dict[str, str]:
@@ -164,7 +159,7 @@ def _updated_indexed_name(subject: 'SupportsPersistence') -> None:
     """
 
     # Check the name is unique;
-    if not check_name_available(subject.__class__, subject.datafile_name, subject.name):
+    if not check_name_available(subject.__class__, subject.name, subject.datafile_name):
         raise exceptions.NameDuplicatedError
 
     # Do the update;
@@ -180,3 +175,8 @@ def _delete_index_entry(cls: Type['SupportsPersistence'], datafile_name: str) ->
     del index_data[datafile_name]
     with open(cls.get_index_filepath(), 'w') as fh:
         json.dump(index_data, fh, indent=2, sort_keys=True)
+
+
+def _delete_datafile(cls: Type['SupportsPersistence'], datafile_name: str) -> None:
+    """Deletes the specified datafile from the specified type's database."""
+    os.remove(cls.get_path_into_db() + datafile_name + '.json')
