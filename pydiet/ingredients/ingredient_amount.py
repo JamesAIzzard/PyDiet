@@ -38,7 +38,7 @@ def summarise_ingredient_amount_data(ingredient_amount_data: 'IngredientAmountDa
         return 'Undefined'
     template = '{qty}{unit} (+{inc}%/-{dec}%)'
     return template.format(
-        qty=quantity.services.convert_qty_unit(
+        qty=quantity.core.convert_qty_unit(
             qty=ingredient_amount_data['quantity_g'],
             start_unit='g',
             end_unit=ingredient_amount_data['pref_quantity_unit'],
@@ -103,7 +103,7 @@ class HasIngredientAmounts(quantity.SupportsBulk, abc.ABC):
 
     def get_ingredient_amount_in_pref_units(self, ingredient_df_name: str) -> float:
         iad = self.get_ingredient_amount_data(ingredient_df_name)
-        return quantity.services.convert_qty_unit(
+        return quantity.core.convert_qty_unit(
             qty=iad['quantity_g'],
             start_unit='g',
             end_unit=iad['pref_quantity_unit'],

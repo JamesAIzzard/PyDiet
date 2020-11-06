@@ -35,7 +35,7 @@ def get_new_recipe() -> 'Recipe':
 
 
 class Recipe(persistence.supports_persistence.SupportsPersistence,
-             completion.supports_completion.SupportsCompletion,
+             completion.has_mandatory_attributes.SupportsCompletion,
              flags.supports_flags.SupportsFlags,
              nutrients.supports_nutrient_content.SupportsNutrientContent,
              quantity.supports_bulk.SupportsBulk,

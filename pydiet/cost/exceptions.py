@@ -1,9 +1,9 @@
-from pydiet import PyDietException
+from pydiet.exceptions import PyDietException
 
-class CostDataUndefinedError(PyDietException):
-    '''The cost data is undefined.'''
-    pass
+
+class CostUndefinedError(PyDietException):
+    """Indicating the cost is not defined."""
+
 
 class CostValueError(PyDietException, ValueError):
-    '''The value is not a valid monetary cost.'''
-    pass
+    """Indicating the value provided is not a valid cost."""

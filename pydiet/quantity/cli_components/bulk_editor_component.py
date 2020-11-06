@@ -4,7 +4,7 @@ from pyconsoleapp import ConsoleAppComponent, PrimaryArg, builtin_validators, St
 from pydiet import quantity
 
 if TYPE_CHECKING:
-    from pydiet.quantity.supports_bulk import SupportsBulkSetting, BulkData
+    from pydiet.quantity.has_bulk import SupportsBulkSetting, BulkData
     from pydiet.quantity.cli_components.validators import QtyAndUnit
 
 _main_screen_template = '''

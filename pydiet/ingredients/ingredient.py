@@ -3,7 +3,7 @@ from typing import Optional, Dict, List, TypedDict, TYPE_CHECKING
 from pydiet import nutrients, completion, cost, flags, quantity, persistence
 
 if TYPE_CHECKING:
-    from pydiet.quantity.supports_bulk import BulkData
+    from pydiet.quantity.has_bulk import BulkData
     from pydiet.nutrients.supports_nutrient_content import NutrientData
     from pydiet.persistence.supports_persistence import DBInfo, PersistenceInfo
 
@@ -13,7 +13,7 @@ class IngredientData(TypedDict):
     flags: Dict[str, Optional[bool]]
     name: Optional[str]
     nutrients: Dict[str, 'NutrientData']
-    bulk: quantity.supports_bulk.BulkData
+    bulk: quantity.has_bulk.BulkData
 
 
 def get_empty_ingredient_data() -> 'IngredientData':
@@ -21,7 +21,7 @@ def get_empty_ingredient_data() -> 'IngredientData':
                           flags=flags.supports_flags.get_empty_flags_data(),
                           name=None,
                           nutrients=nutrients.supports_nutrient_content.get_empty_nutrients_data(),
-                          bulk=quantity.supports_bulk.get_empty_bulk_data())
+                          bulk=quantity.has_bulk.get_empty_bulk_data())
 
 
 def load_new_ingredient() -> 'Ingredient':
@@ -35,12 +35,12 @@ def get_ingredient_name(datafile_name: str) -> str:
 
 
 class Ingredient(persistence.supports_persistence.SupportsPersistence,
-                 completion.supports_completion.SupportsCompletion,
+                 completion.has_mandatory_attributes.SupportsCompletion,
                  completion.supports_name.SupportsNameSetting,
                  cost.supports_cost.SupportsCostSetting,
                  flags.supports_flags.SupportsFlagSetting,
                  nutrients.supports_nutrient_content.SupportsSettingNutrientContent,
-                 quantity.supports_bulk.SupportsBulkSetting):
+                 quantity.has_bulk.SupportsBulkSetting):
 
     def __init__(self, data: 'IngredientData', datafile_name: Optional[str] = None):
         self._data = data

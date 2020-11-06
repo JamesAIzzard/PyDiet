@@ -11,9 +11,9 @@ def validate_nutrient_data(nutrient_data: 'NutrientData') -> 'NutrientData':
     if nutrient_data['nutrient_g_per_subject_g'] is not None and nutrient_data['nutrient_g_per_subject_g'] > 1:
         raise nutrients.exceptions.NutrientQtyExceedsIngredientQtyError
     # Check the pref units are valid and of type mass;
-    nutrient_data['nutrient_pref_units'] = quantity.services.validate_qty_unit(
+    nutrient_data['nutrient_pref_units'] = quantity.core.validate_qty_unit(
         nutrient_data['nutrient_pref_units'])
-    if nutrient_data['nutrient_pref_units'] not in quantity.services.get_recognised_mass_units():
+    if nutrient_data['nutrient_pref_units'] not in quantity.core.get_recognised_mass_units():
         raise quantity.exceptions.IncorrectUnitTypeError
     return nutrient_data
 

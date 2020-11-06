@@ -19,7 +19,7 @@ def get_empty_bulk_data() -> BulkData:
                     piece_mass_g=None)
 
 
-class SupportsBulk:
+class HasBulk:
 
     @property
     @abc.abstractmethod
@@ -50,8 +50,8 @@ class SupportsBulk:
 
     @property
     def ref_qty_in_g(self) -> float:
-        return quantity.services.convert_qty_unit(self.ref_qty, self.pref_unit, 'g', self.g_per_ml,
-                                                  self.piece_mass_g)
+        return quantity.core.convert_qty_unit(self.ref_qty, self.pref_unit, 'g', self.g_per_ml,
+                                              self.piece_mass_g)
 
     @property
     def g_per_ml(self) -> Optional[float]:
@@ -77,15 +77,15 @@ class SupportsBulk:
 
     @property
     def piece_mass_in_pref_units(self) -> float:
-        return quantity.services.convert_qty_unit(self.piece_mass_g, 'g', self.pref_unit, self.g_per_ml,
-                                                  self.piece_mass_g)
+        return quantity.core.convert_qty_unit(self.piece_mass_g, 'g', self.pref_unit, self.g_per_ml,
+                                              self.piece_mass_g)
 
     def check_units_configured(self, *units: str) -> bool:
         for unit in units:
-            if quantity.services.units_are_volumes(unit):
+            if quantity.core.units_are_volumes(unit):
                 if not self.density_is_defined:
                     return False
-            elif quantity.services.units_are_pieces(unit):
+            elif quantity.core.units_are_pieces(unit):
                 if not self.piece_mass_defined:
                     return False
         return True
@@ -149,11 +149,11 @@ class SupportsBulkSetting(SupportsBulk):
         self.set_piece_mass_g(bulk_data['piece_mass_g'])
 
     def set_pref_unit(self, unit: str) -> None:
-        unit = quantity.services.validate_qty_unit(unit)
-        if quantity.services.units_are_volumes(unit):
+        unit = quantity.core.validate_qty_unit(unit)
+        if quantity.core.units_are_volumes(unit):
             if not self.density_is_defined:
                 raise quantity.exceptions.DensityNotConfiguredError
-        if quantity.services.units_are_pieces(unit):
+        if quantity.core.units_are_pieces(unit):
             if not self.piece_mass_defined:
                 raise quantity.exceptions.PcMassNotConfiguredError
         self.bulk_data['pref_unit'] = unit
@@ -163,16 +163,16 @@ class SupportsBulkSetting(SupportsBulk):
         self.set_pref_unit(unit)
 
     def set_ref_qty(self, qty: float) -> None:
-        qty = quantity.services.validate_quantity(qty)
+        qty = quantity.core.validate_quantity(qty)
         self.bulk_data['ref_qty'] = qty
 
     def set_g_per_ml(self, g_per_ml: Optional[float]) -> None:
         if g_per_ml is not None:
-            g_per_ml = quantity.services.validate_quantity(g_per_ml)
+            g_per_ml = quantity.core.validate_quantity(g_per_ml)
         self.bulk_data['g_per_ml'] = g_per_ml
 
     def set_density(self, mass_qty: float, mass_unit: str, vol_qty: float, vol_unit: str) -> None:
-        g_per_ml = quantity.services.convert_density_unit(
+        g_per_ml = quantity.core.convert_density_unit(
             qty=mass_qty / vol_qty,
             start_mass_unit=mass_unit,
             start_vol_unit=vol_unit,
@@ -188,17 +188,17 @@ class SupportsBulkSetting(SupportsBulk):
 
     def set_piece_mass_g(self, piece_mass_g: Optional[float]) -> None:
         if piece_mass_g is not None:
-            piece_mass_g = quantity.services.validate_quantity(piece_mass_g)
+            piece_mass_g = quantity.core.validate_quantity(piece_mass_g)
         self.bulk_data['piece_mass_g'] = piece_mass_g
 
     def set_piece_mass(self, num_pieces: float, mass_qty: float, mass_unit: str) -> None:
-        mass_unit = quantity.services.validate_mass_unit(mass_unit)
-        mass_qty = quantity.services.validate_quantity(mass_qty)
-        num_pieces = quantity.services.validate_quantity(num_pieces)
+        mass_unit = quantity.core.validate_mass_unit(mass_unit)
+        mass_qty = quantity.core.validate_quantity(mass_qty)
+        num_pieces = quantity.core.validate_quantity(num_pieces)
         # Calc the mass of a single piece;
         single_pc_mass = mass_qty / num_pieces
         # Convert single piece mass to g;
-        piece_mass_g = quantity.services.convert_qty_unit(
+        piece_mass_g = quantity.core.convert_qty_unit(
             single_pc_mass, mass_unit, 'g')
         # Set;
         self.set_piece_mass_g(piece_mass_g)

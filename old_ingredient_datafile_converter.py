@@ -44,13 +44,13 @@ for df_name in old_index:
     for nutrient_name in old_data['nutrients']:
         if None in old_data['nutrients'][nutrient_name].values():
             continue
-        ingredient_qty_g = quantity.services.convert_qty_unit(
+        ingredient_qty_g = quantity.core.convert_qty_unit(
             qty=old_data['nutrients'][nutrient_name]['ingredient_qty'],
             start_unit=old_data['nutrients'][nutrient_name]['ingredient_qty_units'],
             end_unit='g',
             g_per_ml=i.g_per_ml
         )
-        nutrient_qty_g = quantity.services.convert_qty_unit(
+        nutrient_qty_g = quantity.core.convert_qty_unit(
             qty=old_data['nutrients'][nutrient_name]['nutrient_mass'],
             start_unit=old_data['nutrients'][nutrient_name]['nutrient_mass_units'],
             end_unit='g'

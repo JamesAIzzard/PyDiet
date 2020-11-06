@@ -6,7 +6,7 @@ from pydiet.persistence import exceptions
 
 
 class SupportsPersistence(HasSettableName, abc.ABC):
-    """Base class for objects supporting persistence."""
+    """ABC for object persistence functionality."""
 
     def __init__(self, datafile_name: Optional[str] = None, **kwds):
         super().__init__(**kwds)
@@ -15,7 +15,7 @@ class SupportsPersistence(HasSettableName, abc.ABC):
     @staticmethod
     @abc.abstractmethod
     def get_path_into_db() -> str:
-        """Returns the static data applicable to persisting all instances of the class."""
+        """Returns the path into the class' database."""
         raise NotImplementedError
 
     @property
