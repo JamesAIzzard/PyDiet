@@ -14,6 +14,7 @@ class BulkData(TypedDict):
 
 
 class HasBulk(HasName, abc.ABC):
+    """Models substances with bulk properties, such as density and mass."""
 
     def __init__(self, pref_unit: str = 'g', ref_qty: float = 100, g_per_ml: Optional[float] = None,
                  piece_mass_g: Optional[float] = None, **kwargs):
@@ -22,7 +23,6 @@ class HasBulk(HasName, abc.ABC):
         self._ref_qty: float = ref_qty
         self._g_per_ml: float = g_per_ml
         self._piece_mass_g: float = piece_mass_g
-        self.__settable: bool = False
 
     @property
     def pref_unit(self) -> str:
@@ -30,74 +30,103 @@ class HasBulk(HasName, abc.ABC):
         return self._pref_unit
 
     def _set_pref_unit(self, unit: str) -> None:
-        """Checks the pref_unit is configured on this object, and writes it.
-        Raises:
-            DensityNotConfiguredError: To indicate density units cannot be used because density is not configured.
-            PcMassNotConfiguredError: To indicate piece mass cannot be used because peice mass is not configured.
-        """
-        if quantity.units_are_volumes(unit) and not self.density_is_defined:
-            raise exceptions.DensityNotConfiguredError
-        elif quantity.units_are_pieces(unit) and not self.piece_mass_defined:
-            raise exceptions.PcMassNotConfiguredError
-
-        self._pref_unit = validation.validate_qty_unit(unit)
+        """Pref unit setter implementation."""
+        raise exceptions.BulkNotSettableError
 
     @pref_unit.setter
     def pref_unit(self, unit: str) -> None:
         """Sets the pref unit."""
-        if self.__settable is False:
-            raise exceptions.BulkNotSettableError
-        else:
-            self._set_pref_unit(unit)
+        self._set_pref_unit(unit)
 
     @property
     def ref_qty(self) -> float:
-        return self.bulk_data['ref_qty']
+        """Returns the object's reference quantity."""
+        return self._ref_qty
+
+    def _set_ref_quantity(self, qty: float) -> None:
+        """Ref quantity setter implementation."""
+        raise exceptions.BulkNotSettableError
+
+    @ref_qty.setter
+    def ref_qty(self, qty: float) -> None:
+        """Sets the object's reference quantity."""
+        self._set_ref_quantity(qty)
 
     @property
     def ref_qty_in_g(self) -> float:
-        return quantity.core.convert_qty_unit(self.ref_qty, self.pref_unit, 'g', self.g_per_ml,
-                                              self.piece_mass_g)
+        """Return's the object's reference quantity in grams."""
+        return quantity.convert_qty_unit(self.ref_qty, self.pref_unit, 'g', self.g_per_ml, self.piece_mass_g)
 
     @property
     def g_per_ml(self) -> Optional[float]:
-        return self.bulk_data['g_per_ml']
+        """Returns the weight of 1ml of the object in g."""
+        return self._g_per_ml
+
+    def _set_g_per_ml(self, g_per_ml: Optional[float]) -> None:
+        """Grams/ml setter implementation."""
+        raise exceptions.BulkNotSettableError
+
+    @g_per_ml.setter
+    def g_per_ml(self, g_per_ml: Optional[float]) -> None:
+        """Set's the object's grams/ml value."""
+        self._set_g_per_ml(g_per_ml)
 
     @property
     def piece_mass_g(self) -> Optional[float]:
-        return self.bulk_data['piece_mass_g']
+        """Returns the mass of a single piece of the object."""
+        return self._piece_mass_g
+
+    def _set_piece_mass_g(self, piece_mass_g: Optional[float]) -> None:
+        """Piece mass setter implementation."""
+        raise exceptions.BulkNotSettableError
+
+    @piece_mass_g.setter
+    def piece_mass_g(self, piece_mass_g: Optional[float]) -> None:
+        """Sets the mass of a single piece of the object."""
+        self._set_piece_mass_g(piece_mass_g)
 
     @property
     def density_is_defined(self) -> bool:
-        if self.bulk_data['g_per_ml'] is None:
-            return False
-        else:
-            return True
+        """Returns True/False to indicate if the object's density is defined."""
+        return self.g_per_ml is None
 
     @property
     def piece_mass_defined(self) -> bool:
-        if self.bulk_data['piece_mass_g'] is None:
-            return False
-        else:
-            return True
+        """Returns True/False to indicate if the mass of a single piece of the substance is defined."""
+        return self.piece_mass_g is None
 
     @property
     def piece_mass_in_pref_units(self) -> float:
-        return quantity.core.convert_qty_unit(self.piece_mass_g, 'g', self.pref_unit, self.g_per_ml,
-                                              self.piece_mass_g)
+        """Returns the mass of a single piece of the substance, in the object's preferred units."""
+        return quantity.convert_qty_unit(qty=self.piece_mass_g,
+                                         start_unit='g',
+                                         end_unit=self.pref_unit,
+                                         g_per_ml=self.g_per_ml,
+                                         piece_mass_g=self.piece_mass_g)
+
+    @property
+    def bulk_data(self) -> 'BulkData':
+        """Returns a dictionary of all the substance's bulk data fields."""
+        return BulkData(pref_unit=self.pref_unit,
+                        ref_qty=self.ref_qty,
+                        g_per_ml=self.g_per_ml,
+                        piece_mass_g=self.piece_mass_g)
 
     def check_units_configured(self, *units: str) -> bool:
+        """Returns True/False to indicate if the specified units have been configured on, and can therefore
+        be used with the substance instance."""
         for unit in units:
-            if quantity.core.units_are_volumes(unit):
+            if quantity.units_are_volumes(unit):
                 if not self.density_is_defined:
                     return False
-            elif quantity.core.units_are_pieces(unit):
+            elif quantity.units_are_pieces(unit):
                 if not self.piece_mass_defined:
                     return False
         return True
 
     @property
     def piece_mass_summary(self) -> str:
+        """Returns a readable summary of the mass of a single piece of the substance."""
         if self.piece_mass_defined:
             return 'One {name} is {mass:.2f}g'.format(
                 name=self.name,
@@ -109,6 +138,7 @@ class HasBulk(HasName, abc.ABC):
 
     @property
     def density_summary(self) -> str:
+        """Returns a readable summary of the density of the substance."""
         if self.density_is_defined:
             return '{g_per_ml:.2f}g/ml'.format(g_per_ml=self.g_per_ml)
         else:
@@ -116,12 +146,14 @@ class HasBulk(HasName, abc.ABC):
 
     @property
     def ref_amount_summary(self) -> str:
+        """Returns a readable summary of the substance's reference amount."""
         return '{ref_qty}{ref_unit}'.format(
             ref_qty=self.ref_qty,
-            ref_unit=self.ref_unit)
+            ref_unit=self.pref_unit)
 
     @property
     def bulk_summary(self) -> str:
+        """Returns a readable summary of all of the substance's bulk data."""
         template = '''Reference Amount: {ref_amount_summary}
 Piece Mass:       {piece_mass_summary}
 Density:          {density_summary}
@@ -133,10 +165,8 @@ Density:          {density_summary}
             density_summary=self.density_summary)
 
 
-class SupportsBulkSetting(SupportsBulk):
-    @property
-    def bulk_data(self) -> 'BulkData':
-        return self._bulk_data
+class SupportsBulkSetting(HasBulk, abc.ABC):
+    """Models substances with settable bulk properties, such as density and mass."""
 
     @abc.abstractmethod
     def _density_reset_cleanup(self) -> None:
@@ -148,37 +178,33 @@ class SupportsBulkSetting(SupportsBulk):
         """Does any custom piece mass data/reference removal on the instance."""
         raise NotImplementedError
 
-    def set_bulk_data(self, bulk_data: 'BulkData') -> None:
-        self.set_pref_unit(bulk_data['pref_unit'])
-        self.set_ref_qty(bulk_data['ref_qty'])
-        self.set_g_per_ml(bulk_data['g_per_ml'])
-        self.set_piece_mass_g(bulk_data['piece_mass_g'])
+    def _set_pref_unit(self, unit: str) -> None:
+        """Implements pref_unit setting."""
 
-    def set_pref_unit(self, unit: str) -> None:
-        unit = quantity.core.validate_qty_unit(unit)
-        if quantity.core.units_are_volumes(unit):
+        # Check the unit is actually valid;
+        unit = validation.validate_qty_unit(unit)
+
+        # Check the instance is configured to use the unit;
+        if quantity.units_are_volumes(unit):
             if not self.density_is_defined:
-                raise quantity.exceptions.DensityNotConfiguredError
-        if quantity.core.units_are_pieces(unit):
+                raise exceptions.DensityNotConfiguredError
+        if quantity.units_are_pieces(unit):
             if not self.piece_mass_defined:
-                raise quantity.exceptions.PcMassNotConfiguredError
-        self.bulk_data['pref_unit'] = unit
+                raise exceptions.PcMassNotConfiguredError
 
-    def set_ref_unit(self, unit: str) -> None:
-        """Alias for set_pref_unit"""
-        self.set_pref_unit(unit)
+        self._pref_unit = unit
 
-    def set_ref_qty(self, qty: float) -> None:
-        qty = quantity.core.validate_quantity(qty)
-        self.bulk_data['ref_qty'] = qty
-
-    def set_g_per_ml(self, g_per_ml: Optional[float]) -> None:
-        if g_per_ml is not None:
-            g_per_ml = quantity.core.validate_quantity(g_per_ml)
-        self.bulk_data['g_per_ml'] = g_per_ml
+    def _set_g_per_ml(self, g_per_ml: Optional[float]) -> None:
+        """Implements gram/ml setting."""
+        if g_per_ml is None:
+            self._density_reset_cleanup()
+            self._g_per_ml = None
+        else:
+            self._g_per_ml = validation.validate_quantity(g_per_ml)
 
     def set_density(self, mass_qty: float, mass_unit: str, vol_qty: float, vol_unit: str) -> None:
-        g_per_ml = quantity.core.convert_density_unit(
+        """Sets the substance's density."""
+        self.g_per_ml = quantity.convert_density_unit(
             qty=mass_qty / vol_qty,
             start_mass_unit=mass_unit,
             start_vol_unit=vol_unit,
@@ -186,34 +212,24 @@ class SupportsBulkSetting(SupportsBulk):
             end_vol_unit='ml',
             piece_mass_g=self.piece_mass_g
         )
-        self.set_g_per_ml(g_per_ml)
 
-    def reset_density(self) -> None:
-        self._density_reset_cleanup()
-        self.set_g_per_ml(None)
-
-    def set_piece_mass_g(self, piece_mass_g: Optional[float]) -> None:
-        if piece_mass_g is not None:
-            piece_mass_g = quantity.core.validate_quantity(piece_mass_g)
-        self.bulk_data['piece_mass_g'] = piece_mass_g
+    def _set_piece_mass_g(self, piece_mass_g: Optional[float]) -> None:
+        """Implements piece mass setting."""
+        if piece_mass_g is None:
+            self._piece_mass_reset_cleanup()
+            self._piece_mass_g = None
+        else:
+            self._piece_mass_g = validation.validate_quantity(piece_mass_g)
 
     def set_piece_mass(self, num_pieces: float, mass_qty: float, mass_unit: str) -> None:
-        mass_unit = quantity.core.validate_mass_unit(mass_unit)
-        mass_qty = quantity.core.validate_quantity(mass_qty)
-        num_pieces = quantity.core.validate_quantity(num_pieces)
+        """Sets the mass of num_pieces of the substance."""
+        mass_unit = validation.validate_mass_unit(mass_unit)
+        mass_qty = validation.validate_quantity(mass_qty)
+        num_pieces = validation.validate_quantity(num_pieces)
         # Calc the mass of a single piece;
         single_pc_mass = mass_qty / num_pieces
         # Convert single piece mass to g;
-        piece_mass_g = quantity.core.convert_qty_unit(
+        piece_mass_g = quantity.convert_qty_unit(
             single_pc_mass, mass_unit, 'g')
-        # Set;
-        self.set_piece_mass_g(piece_mass_g)
 
-    def reset_piece_mass(self):
-        self._piece_mass_reset_cleanup()
-        self.set_piece_mass_g(None)
-
-    def reset_bulk(self) -> None:
-        self.set_bulk_data(get_empty_bulk_data())
-        self.reset_density()
-        self.reset_piece_mass()
+        self._piece_mass_g = piece_mass_g

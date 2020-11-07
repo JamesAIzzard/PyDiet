@@ -1,4 +1,12 @@
-from pydiet import PyDietException
+from pydiet.exceptions import PyDietException
+
+
+class BulkNotSettableError(PyDietException):
+    """Indicates that the bulk cannot be set on this object."""
+
+
+class QuantityNotSettableError(PyDietException):
+    """Indicates that the quantity cannot be set on this object."""
 
 
 class UnitError(PyDietException):
