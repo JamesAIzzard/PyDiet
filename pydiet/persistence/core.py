@@ -47,7 +47,7 @@ def load(cls: Union[Type[T], 'SupportsPersistence'], name: Optional[str] = None,
 
 def delete(cls: Type['SupportsPersistence'], name: Optional[str] = None,
            datafile_name: Optional[str] = None) -> None:
-    """Deletes the instance of the specified type, with the specified unique value, from the database."""
+    """Deletes the instance of the specified type, with the specified unique qty, from the database."""
 
     # Check the params are OK and get the datafile name if required;
     if name is None and datafile_name is None:
@@ -75,7 +75,7 @@ def get_saved_names(cls: Type['SupportsPersistence']) -> List[str]:
 
 def check_name_available(cls: Type['SupportsPersistence'], proposed_name: str,
                          ingore_datafile: Optional[str] = None) -> bool:
-    """Checks if the proposed unique value is available for the persistable class type."""
+    """Checks if the proposed unique qty is available for the persistable class type."""
 
     if proposed_name is None:
         raise exceptions.NameUndefinedError
@@ -100,11 +100,11 @@ def _get_datafile_name_for_name(cls: Type['SupportsPersistence'], name: str) -> 
 def _create_index_entry(subject: 'SupportsPersistence') -> None:
     """Adds an index entry for the subject, setting its datafile_name field in the process.
     Raises:
-         NameDuplicatedError: To indicate the unique value is not unique in the index.
+         NameDuplicatedError: To indicate the unique qty is not unique in the index.
     """
     index_data = _read_index(subject.__class__)
 
-    # Check the unique field value isn't used already, also checks name is not None;
+    # Check the unique field qty isn't used already, also checks name is not None;
     if not check_name_available(subject.__class__, subject.name, subject.datafile_name):
         raise exceptions.NameDuplicatedError
 

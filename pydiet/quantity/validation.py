@@ -1,0 +1,41 @@
+from typing import Any
+
+from pydiet import quantity
+from pydiet.quantity import exceptions
+
+
+def validate_quantity(qty: Any) -> float:
+    """Ensures the quantity value is valid, and returns it.
+    Raises:
+        InvalidQtyError: Indicating the quantity is invalid.
+    """
+    try:
+        qty = float(qty)
+    except ValueError:
+        raise exceptions.InvalidQtyError
+    if qty < 0:
+        raise exceptions.InvalidQtyError
+    else:
+        return qty
+
+
+def validate_qty_unit(unit: Any) -> str:
+    """Ensures the unit is a unit which the system recognises, and returns it."""
+    for recognised_unit in get_recognised_qty_units():
+        if unit.lower() == recognised_unit.lower():
+            return recognised_unit
+    raise quantity.exceptions.UnknownUnitError
+
+
+def validate_mass_unit(unit: Any) -> str:
+    for u in get_recognised_mass_units():
+        if unit.lower() == u.lower():
+            return u
+    raise quantity.exceptions.UnknownUnitError
+
+
+def validate_vol_unit(unit: Any) -> str:
+    for u in get_recognised_vol_units():
+        if unit.lower() == u.lower():
+            return u
+    raise quantity.exceptions.UnknownUnitError

@@ -1,8 +1,9 @@
 import abc
-import copy
 from typing import TypedDict, Optional
 
 from pydiet import quantity
+from pydiet.name import HasName
+from pydiet.quantity import exceptions, validation
 
 
 class BulkData(TypedDict):
@@ -12,37 +13,29 @@ class BulkData(TypedDict):
     piece_mass_g: Optional[float]
 
 
-def get_empty_bulk_data() -> BulkData:
-    return BulkData(pref_unit='g',
-                    ref_qty=100,
-                    g_per_ml=None,
-                    piece_mass_g=None)
+class HasBulk(HasName, abc.ABC):
 
-
-class HasBulk:
-
-    @property
-    @abc.abstractmethod
-    def _bulk_data(self) -> 'BulkData':
-        raise NotImplementedError
-
-    @property
-    @abc.abstractmethod
-    def name(self) -> str:
-        raise NotImplementedError
-
-    @property
-    def bulk_data(self) -> 'BulkData':
-        return copy.deepcopy(self._bulk_data)
+    def __init__(self, pref_unit: str = 'g', ref_qty: float = 100, g_per_ml: Optional[float] = None,
+                 piece_mass_g: Optional[float] = None, **kwargs):
+        super().__init__(**kwargs)
+        self._pref_unit: str = pref_unit
+        self._ref_qty: float = ref_qty
+        self._g_per_ml: float = g_per_ml
+        self._piece_mass_g: float = piece_mass_g
 
     @property
     def pref_unit(self) -> str:
-        return self.bulk_data['pref_unit']
+        """Returns object's preferred unit of measure."""
+        return self._pref_unit
 
-    @property
-    def ref_unit(self) -> str:
-        """Alias for pref_unit"""
-        return self.pref_unit
+    def _set_pref_unit(self, unit: str) -> None:
+        """Validates and writes pref_unit."""
+        if quantity.units_are_volumes(unit) and not self.density_is_defined:
+            raise exceptions.DensityNotConfiguredError
+        elif quantity.units_are_pieces(unit) and not self.piece_mass_defined:
+            raise exceptions.PcMassNotConfiguredError
+
+        self._pref_unit = validation.validate_unit(unit)
 
     @property
     def ref_qty(self) -> float:

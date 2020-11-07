@@ -26,4 +26,4 @@ class PcMassNotConfiguredError(UnitNotConfiguredError):
 
 
 class InvalidQtyError(PyDietException):
-    """The value is not a valid qty."""
+    """The qty is not a valid qty."""

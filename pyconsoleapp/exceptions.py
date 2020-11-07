@@ -64,22 +64,22 @@ class ResponseValidationError(PyConsoleAppError):
 
 
 class ArgMissingValueError(ResponseValidationError):
-    """Indicating the response is missing an argument value."""
+    """Indicating the response is missing an argument qty."""
 
     def __init__(self, arg_name: Optional[str] = None, **kwds):
         if arg_name is None:
             arg_name = "An argument"
-        reason = "{arg_name} is missing its value.".format(arg_name=arg_name)
+        reason = "{arg_name} is missing its qty.".format(arg_name=arg_name)
         super().__init__(reason=reason, **kwds)
 
 
 class OrphanValueError(ResponseValidationError):
-    """Indicating there is an unexpected value in the response."""
+    """Indicating there is an unexpected qty in the response."""
 
     def __init__(self, orphan_value: Optional[str] = None, **kwds):
         if orphan_value is not None:
             orphan_value = ": " + orphan_value
         else:
             orphan_value = ''
-        super().__init__(reason='There was an unexpected value{orphan_value}.'.format(orphan_value=orphan_value),
+        super().__init__(reason='There was an unexpected qty{orphan_value}.'.format(orphan_value=orphan_value),
                          **kwds)

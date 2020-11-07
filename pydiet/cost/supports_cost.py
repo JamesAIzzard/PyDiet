@@ -1,7 +1,7 @@
 import abc
 from typing import Optional
 
-from pydiet import quantity, cost
+from pydiet import quantity
 from pydiet.cost import validation, exceptions
 
 
@@ -12,19 +12,19 @@ class SupportsCost(quantity.HasBulk, abc.ABC):
         self._cost_per_g: Optional[float] = cost_per_g
         super().__init__(**kwds)
 
+    def _set_cost_per_g(self, cost_per_g: Optional[float]):
+        """Customisable implementation for setting the cost_per_g field."""
+        raise exceptions.CostNotSettableError
+
     @property
     def cost_per_g(self) -> Optional[float]:
         """Return's the subject's cost per gram."""
         return self._cost_per_g
 
-    # Todo - Link to private function which we can manipulate to enforce readonly/writable behaviour.
     @cost_per_g.setter
     def cost_per_g(self, cost_per_g: Optional[float]):
         """Set's the object's cost per gram."""
-        if cost_per_g is None:
-            self._cost_per_g = None
-        else:
-            self._cost_per_g = validation.validate_cost(cost_per_g)
+        self._set_cost_per_g(cost_per_g)
 
     @property
     def cost_per_g_defined(self) -> bool:
@@ -56,29 +56,23 @@ class SupportsCost(quantity.HasBulk, abc.ABC):
             return 'Undefined'
 
 
-class SupportsSettableCost(SupportsCost):
+class SupportsSettableCost(SupportsCost, abc.ABC):
     """ABC for objects supporting settable abstract cost (costs per qty)."""
 
-    @abstractmethod
-    def _set_cost_per_g(self, validated_cost_per_g: Optional[float]) -> None:
-        """Writes a validated cost_per_g to the correct field."""
-        raise NotImplementedError
-
-    def set_cost_per_g(self, cost_per_g: Optional[float]) -> None:
-        """Validates cost per gram before writing it."""
-        if cost_per_g is not None:
-            cost_per_g = cost.cost_service.validate_cost(cost_per_g)
-        self._set_cost_per_g(cost_per_g)
+    def _set_cost_per_g(self, cost_per_g: Optional[float]) -> None:
+        """Validates and sets cost_per_g"""
+        if cost_per_g is None:
+            self._set_cost_per_g(None)
+        else:
+            self._set_cost_per_g(validation.validate_cost(cost_per_g))
 
     def set_cost(self, cost_gbp: float, qty: float, unit: str) -> None:
         """Sets the cost in gbp of any quanitity of any unit."""
+        # Todo - Need to finish updating HasBulk to use its properties here.
         cost_per_unit = cost_gbp / qty
-        k = quantity.core.convert_qty_unit(
+        k = quantity.convert_qty_unit(
             1, 'g', unit,
             self._bulk_data['g_per_ml'],
             self._bulk_data['piece_mass_g'])
         cost_per_g = cost_per_unit * k
         self.set_cost_per_g(cost_per_g)
-
-    def reset_cost(self) -> None:
-        self.set_cost_per_g(None)

@@ -1,22 +1,25 @@
-from typing import List, Any, Optional
+from typing import List, Optional
 
-from pydiet import quantity
+from pydiet.quantity import validation, configs
 
 
 def get_recognised_mass_units() -> List[str]:
-    return list(quantity.configs.G_CONVERSIONS.keys())
+    """Returns a list of all recognised mass units."""
+    return list(configs.G_CONVERSIONS.keys())
 
 
 def get_recognised_vol_units() -> List[str]:
-    return list(quantity.configs.ML_CONVERSIONS.keys())
+    """Returns a list of all recognised volumetric units."""
+    return list(configs.ML_CONVERSIONS.keys())
 
 
 def get_recognised_qty_units() -> List[str]:
-    return get_recognised_mass_units() + \
-           get_recognised_vol_units() + ['pc']
+    """Returns a list of all recognised quantity units."""
+    return get_recognised_mass_units() + get_recognised_vol_units() + ['pc']
 
 
 def units_are_masses(*units: str) -> bool:
+    """Returns True/False to indicate if EVERY parameter is a mass unit."""
     for unit in units:
         if unit not in get_recognised_mass_units():
             return False
@@ -24,6 +27,7 @@ def units_are_masses(*units: str) -> bool:
 
 
 def units_are_volumes(*units: str) -> bool:
+    """Returns True/False to indicate if EVERY parameter is a volumetric unit."""
     for unit in units:
         if unit not in get_recognised_vol_units():
             return False
@@ -31,6 +35,7 @@ def units_are_volumes(*units: str) -> bool:
 
 
 def units_are_pieces(*units: str) -> bool:
+    """Returns True or false to indicate if EVERY unit is the piece unit."""
     for unit in units:
         if not unit.lower() == 'pc':
             return False
@@ -40,11 +45,11 @@ def units_are_pieces(*units: str) -> bool:
 def _convert_like2like(qty: float, start_unit: str, end_unit: str) -> float:
     """Handles mass<->mass and vol<->vol"""
     if units_are_masses(start_unit, end_unit):
-        u_i = quantity.configs.G_CONVERSIONS[start_unit]
-        u_o = quantity.configs.G_CONVERSIONS[end_unit]
+        u_i = configs.G_CONVERSIONS[start_unit]
+        u_o = configs.G_CONVERSIONS[end_unit]
     elif units_are_volumes(start_unit, end_unit):
-        u_i = quantity.configs.ML_CONVERSIONS[start_unit]
-        u_o = quantity.configs.ML_CONVERSIONS[end_unit]
+        u_i = configs.ML_CONVERSIONS[start_unit]
+        u_o = configs.ML_CONVERSIONS[end_unit]
     else:  # Units are pieces.
         u_i = 1
         u_o = 1
@@ -90,9 +95,10 @@ def convert_qty_unit(qty: float,
                      end_unit: str,
                      g_per_ml: Optional[float] = None,
                      piece_mass_g: Optional[float] = None) -> float:
+    """Converts any quantity unit to any other quantity unit."""
     # Validate all units to correct any case issues;
-    start_unit = validate_qty_unit(start_unit)
-    end_unit = validate_qty_unit(end_unit)
+    start_unit = validation.validate_qty_unit(start_unit)
+    end_unit = validation.validate_qty_unit(end_unit)
 
     # like2like
     if units_are_masses(start_unit, end_unit) or \
@@ -133,6 +139,7 @@ def convert_density_unit(qty: float,
                          end_mass_unit: str,
                          end_vol_unit: str,
                          piece_mass_g: Optional[float] = None) -> float:
+    """Converts any density unit to any other density unit."""
     # Handle pc being used as the start mass unit;
     if units_are_pieces(start_mass_unit):
         start_mass_unit = 'g'
@@ -144,15 +151,15 @@ def convert_density_unit(qty: float,
         qty = qty / piece_mass_g
 
     # Validate all units to correct any case issues;
-    start_mass_unit = validate_mass_unit(start_mass_unit)
-    start_vol_unit = validate_vol_unit(start_vol_unit)
-    end_mass_unit = validate_mass_unit(end_mass_unit)
-    end_vol_unit = validate_vol_unit(end_vol_unit)
+    start_mass_unit = validation.validate_mass_unit(start_mass_unit)
+    start_vol_unit = validation.validate_vol_unit(start_vol_unit)
+    end_mass_unit = validation.validate_mass_unit(end_mass_unit)
+    end_vol_unit = validation.validate_vol_unit(end_vol_unit)
 
     # m_in/v_in = k(m_out/v_out) => k = (m_in*v_out)/(v_in*m_out)
     # Shortcut the conversion tables;
-    g_convs = quantity.configs.G_CONVERSIONS
-    ml_convs = quantity.configs.ML_CONVERSIONS
+    g_convs = configs.G_CONVERSIONS
+    ml_convs = configs.ML_CONVERSIONS
     # Set the conversion factors;
     m_in = g_convs[start_mass_unit]
     m_out = g_convs[end_mass_unit]
@@ -162,32 +169,3 @@ def convert_density_unit(qty: float,
     k = (m_in * v_out) / (m_out * v_in)
 
     return qty * k
-
-
-def validate_quantity(value: Any) -> float:
-    value = float(value)
-    if value < 0:
-        raise quantity.exceptions.InvalidQtyError
-    else:
-        return value
-
-
-def validate_qty_unit(unit: str) -> str:
-    for u in get_recognised_qty_units():
-        if unit.lower() == u.lower():
-            return u
-    raise quantity.exceptions.UnknownUnitError
-
-
-def validate_mass_unit(unit: str) -> str:
-    for u in get_recognised_mass_units():
-        if unit.lower() == u.lower():
-            return u
-    raise quantity.exceptions.UnknownUnitError
-
-
-def validate_vol_unit(unit: str) -> str:
-    for u in get_recognised_vol_units():
-        if unit.lower() == u.lower():
-            return u
-    raise quantity.exceptions.UnknownUnitError

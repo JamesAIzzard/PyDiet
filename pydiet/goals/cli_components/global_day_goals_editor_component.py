@@ -53,31 +53,31 @@ class GlobalDayGoalsEditorComponent(ConsoleAppComponent):
         try:
             self._gdg.max_cost_gbp = args
         except ValueError:
-            self.app.error_message = 'The cost must be a positive decimal value.'
+            self.app.error_message = 'The cost must be a positive decimal qty.'
 
     def on_edit_cals(self, args):
         try:
             self._gdg.calories = args
         except ValueError:
-            self.app.error_message = 'Calories must be a positive decimal value.'
+            self.app.error_message = 'Calories must be a positive decimal qty.'
 
     def on_edit_perc_fat(self, args):
         try:
             self._gdg.perc_fat = args
         except ValueError:
-            self.app.error_message = 'Percentage fat must be a positive decimal value between 0-100.'
+            self.app.error_message = 'Percentage fat must be a positive decimal qty between 0-100.'
 
     def on_edit_perc_carbs(self, args):
         try:
             self._gdg.perc_carbs = args
         except ValueError:
-            self.app.error_message = 'Percentage carbs must be a positive decimal value between 0-100.'
+            self.app.error_message = 'Percentage carbs must be a positive decimal qty between 0-100.'
 
     def on_edit_perc_protein(self, args):
         try:
             self._gdg.perc_protein = args
         except ValueError:
-            self.app.error_message = 'Percentage protein must be a positive decimal value between 0-100.'
+            self.app.error_message = 'Percentage protein must be a positive decimal qty between 0-100.'
 
     def on_edit_flags(self):
         # Place the day goals object on the flag editor;

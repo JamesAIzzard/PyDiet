@@ -60,19 +60,19 @@ class EditIngredientVarComponent(ConsoleAppComponent):
             letter, number = parse_tools.parse_letter_and_float(raw_response)
         except parse_tools.LetterFloatParseError:
             return
-        # If we are changing the % increase value;
+        # If we are changing the % increase qty;
         if letter == 'i':
             try:
                     self._res.ingredient_amount.perc_increase = number
             except ValueError:
-                self.app.error_message = '{} is not a valid increase value.'.format(number)
+                self.app.error_message = '{} is not a valid increase qty.'.format(number)
                 return
-        # If we are changing the % decrease value;
+        # If we are changing the % decrease qty;
         elif letter == 'd':
             try:
                 self._res.ingredient_amount.perc_decrease = number
             except ValueError:
-                self.app.error_message = '{} is not a valid decrease value.'.format(number)
+                self.app.error_message = '{} is not a valid decrease qty.'.format(number)
             except SaturatedPercDecreaseError:
-                self.app.info_message = 'The maximum decrease value of 100% has been used.'
+                self.app.info_message = 'The maximum decrease qty of 100% has been used.'
                 self._res.ingredient_amount.perc_decrease = 100

@@ -19,7 +19,7 @@ class TimeIntervalEditorComponent(ConsoleAppComponent):
         self._res = recipe_edit_service.RecipeEditService()
 
     def print(self):
-        # If we are editing, build the current value;
+        # If we are editing, build the current qty;
         current_value = ''
         if not self._res.selected_serve_time_index == None:
             current_value = _CURRENT_VALUE_TEMPLATE.format(

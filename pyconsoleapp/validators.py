@@ -4,7 +4,7 @@ import pyconsoleapp
 
 
 def validate_integer(value) -> int:
-    """Raises ResponseValidationError if value is not an integer. Otherwise returns integer value."""
+    """Raises ResponseValidationError if qty is not an integer. Otherwise returns integer qty."""
     try:
         int_value = int(value)
     except ValueError:
@@ -13,7 +13,7 @@ def validate_integer(value) -> int:
 
 
 def validate_number(value) -> float:
-    """Raises ResponseValidationError if value is not a float. Otherwise returns value as float."""
+    """Raises ResponseValidationError if qty is not a float. Otherwise returns qty as float."""
     try:
         value = float(value)
     except ValueError:
@@ -22,7 +22,7 @@ def validate_number(value) -> float:
 
 
 def validate_positive_nonzero_number(value) -> float:
-    """Raises ResponseValidationError if value is not a positive non-zero number. Otherwise returns value as float."""
+    """Raises ResponseValidationError if qty is not a positive non-zero number. Otherwise returns qty as float."""
     value = validate_number(value)
     if value <= 0:
         raise pyconsoleapp.ResponseValidationError('Input must be a number > 0.')
