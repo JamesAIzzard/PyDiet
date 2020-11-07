@@ -22,6 +22,7 @@ class HasBulk(HasName, abc.ABC):
         self._ref_qty: float = ref_qty
         self._g_per_ml: float = g_per_ml
         self._piece_mass_g: float = piece_mass_g
+        self.__settable: bool = False
 
     @property
     def pref_unit(self) -> str:
@@ -40,6 +41,14 @@ class HasBulk(HasName, abc.ABC):
             raise exceptions.PcMassNotConfiguredError
 
         self._pref_unit = validation.validate_qty_unit(unit)
+
+    @pref_unit.setter
+    def pref_unit(self, unit: str) -> None:
+        """Sets the pref unit."""
+        if self.__settable is False:
+            raise exceptions.BulkNotSettableError
+        else:
+            self._set_pref_unit(unit)
 
     @property
     def ref_qty(self) -> float:
