@@ -21,21 +21,23 @@ def validate_quantity(qty: Any) -> float:
 
 def validate_qty_unit(unit: Any) -> str:
     """Ensures the unit is a unit which the system recognises, and returns it."""
-    for recognised_unit in get_recognised_qty_units():
+    for recognised_unit in quantity.get_recognised_qty_units():
         if unit.lower() == recognised_unit.lower():
             return recognised_unit
     raise quantity.exceptions.UnknownUnitError
 
 
 def validate_mass_unit(unit: Any) -> str:
-    for u in get_recognised_mass_units():
-        if unit.lower() == u.lower():
-            return u
+    """Ensures the unit is a recognised mass unit, and returns it."""
+    for recognised_unit in quantity.get_recognised_mass_units():
+        if unit.lower() == recognised_unit.lower():
+            return recognised_unit
     raise quantity.exceptions.UnknownUnitError
 
 
 def validate_vol_unit(unit: Any) -> str:
-    for u in get_recognised_vol_units():
-        if unit.lower() == u.lower():
-            return u
+    """Ensures the unit is a recognised volume unit, and returns it."""
+    for recognised_unit in quantity.get_recognised_vol_units():
+        if unit.lower() == recognised_unit.lower():
+            return recognised_unit
     raise quantity.exceptions.UnknownUnitError

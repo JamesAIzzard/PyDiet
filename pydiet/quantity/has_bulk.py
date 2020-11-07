@@ -29,13 +29,17 @@ class HasBulk(HasName, abc.ABC):
         return self._pref_unit
 
     def _set_pref_unit(self, unit: str) -> None:
-        """Validates and writes pref_unit."""
+        """Checks the pref_unit is configured on this object, and writes it.
+        Raises:
+            DensityNotConfiguredError: To indicate density units cannot be used because density is not configured.
+            PcMassNotConfiguredError: To indicate piece mass cannot be used because peice mass is not configured.
+        """
         if quantity.units_are_volumes(unit) and not self.density_is_defined:
             raise exceptions.DensityNotConfiguredError
         elif quantity.units_are_pieces(unit) and not self.piece_mass_defined:
             raise exceptions.PcMassNotConfiguredError
 
-        self._pref_unit = validation.validate_unit(unit)
+        self._pref_unit = validation.validate_qty_unit(unit)
 
     @property
     def ref_qty(self) -> float:
