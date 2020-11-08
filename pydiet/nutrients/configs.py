@@ -190,9 +190,6 @@ nutrient_group_definitions: Dict[str, List[str]] = {
     "vitamin_e": [],
     "vitamin_k": ["vitamin_k1", "vitamin_k2"],
 }
-nutrient_flag_rels: Dict[str, List[str]] = {
-    "alcohol_free": ["alcohol"]
-}
 
 calorie_nutrients: Dict[str, float] = {
     "protein": 4,

@@ -3,7 +3,7 @@ from typing import List, Dict, TYPE_CHECKING
 from pydiet import nutrients
 
 if TYPE_CHECKING:
-    from pydiet.nutrients.supports_nutrient_content import NutrientData
+    from pydiet.nutrients.has_nutrient_ratios import NutrientData
 
 
 def all_primary_and_alias_nutrient_names() -> List[str]:

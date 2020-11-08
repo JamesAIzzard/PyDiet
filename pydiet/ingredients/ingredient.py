@@ -4,7 +4,7 @@ from pydiet import nutrients, completion, cost, flags, quantity, persistence
 
 if TYPE_CHECKING:
     from pydiet.quantity.has_bulk import BulkData
-    from pydiet.nutrients.supports_nutrient_content import NutrientData
+    from pydiet.nutrients.has_nutrient_ratios import NutrientData
     from pydiet.persistence.supports_persistence import DBInfo, PersistenceInfo
 
 
@@ -20,7 +20,7 @@ def get_empty_ingredient_data() -> 'IngredientData':
     return IngredientData(cost_per_g=None,
                           flags=flags.supports_flags.get_empty_flags_data(),
                           name=None,
-                          nutrients=nutrients.supports_nutrient_content.get_empty_nutrients_data(),
+                          nutrients=nutrients.has_nutrient_ratios.get_empty_nutrients_data(),
                           bulk=quantity.has_bulk.get_empty_bulk_data())
 
 
@@ -39,7 +39,7 @@ class Ingredient(persistence.supports_persistence.SupportsPersistence,
                  completion.supports_name.SupportsNameSetting,
                  cost.supports_cost.SupportsCostSetting,
                  flags.supports_flags.SupportsFlagSetting,
-                 nutrients.supports_nutrient_content.SupportsSettingNutrientContent,
+                 nutrients.has_nutrient_ratios.SupportsSettingNutrientContent,
                  quantity.has_bulk.SupportsBulkSetting):
 
     def __init__(self, data: 'IngredientData', datafile_name: Optional[str] = None):

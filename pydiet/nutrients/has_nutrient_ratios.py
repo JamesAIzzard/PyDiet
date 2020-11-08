@@ -3,22 +3,15 @@ import copy
 from typing import Dict, List, Optional, cast, TypedDict
 
 from pydiet import nutrients, quantity
+from pydiet.quantity import HasBulk
 
 
-class NutrientData(TypedDict):
+class NutrientRatioData(TypedDict):
     nutrient_g_per_subject_g: Optional[float]
     nutrient_pref_units: str
 
 
-def get_empty_nutrients_data() -> Dict[str, 'NutrientData']:
-    nutrients_data = {}
-    for nutrient_name in nutrients.configs.all_primary_nutrient_names:
-        nutrients_data[nutrient_name] = NutrientData(nutrient_g_per_subject_g=None,
-                                                     nutrient_pref_units='g')
-    return nutrients_data
-
-
-class SupportsNutrientContent(quantity.supports_bulk.SupportsBulk, abc.ABC):
+class HasNutrientRatios(HasBulk, abc.ABC):
 
     @property
     @abc.abstractmethod
@@ -88,9 +81,10 @@ class SupportsNutrientContent(quantity.supports_bulk.SupportsBulk, abc.ABC):
         return output
 
 
-class SupportsSettingNutrientContent(SupportsNutrientContent, abc.ABC):
+class HasSettableNutrientRatios(HasNutrientRatios, abc.ABC):
 
-    def set_nutrient_data(self, nutrient_name: str, nutrient_data: 'NutrientData') -> None:
+    def set_nutrient_ratio(self, nutrient_name: str, nutrient_qty: float, nutrient_qty_unit: str, subject_qty: float,
+                          subject_qty_unit: str) -> None:
         nutrient_name = nutrients.nutrients_service.get_nutrient_primary_name(nutrient_name)
 
         nutrient_data = nutrients.validation.validate_nutrient_data(nutrient_data)
@@ -115,6 +109,9 @@ class SupportsSettingNutrientContent(SupportsNutrientContent, abc.ABC):
                 else:
                     # noinspection PyProtectedMember
                     nself._flags_data[flag_name] = False
+
+    def undefine_nutrient_ratio(self, nutrient_name:str) -> None:
+        """Resets the nutrient_g_per_subject_g to None."""
 
     def set_nutrients_data(self, nutrients_data: Dict[str, 'NutrientData']) -> None:
         validated_nutrients_data = nutrients.validation.validate_nutrients_data(nutrients_data)

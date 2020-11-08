@@ -28,8 +28,8 @@ def save(subject: 'SupportsPersistence') -> None:
         _create_datafile(subject)
 
 
-def load(cls: Union[Type[T], 'SupportsPersistence'], name: Optional[str] = None,
-         datafile_name: Optional[str] = None) -> T:
+def load(cls: Type['SupportsPersistence'], name: Optional[str] = None,
+         datafile_name: Optional[str] = None) -> 'SupportsPersistence':
     """Loads and returns an instance of the specified type, corresponding to the
     unique field name provided."""
 
@@ -40,8 +40,9 @@ def load(cls: Union[Type[T], 'SupportsPersistence'], name: Optional[str] = None,
         datafile_name = _get_datafile_name_for_name(cls, name)
 
     # Load & return;
-    datafile = _read_datafile(cls.get_path_into_db() + datafile_name + '.json')
-    loaded_instance = cls(name=name, datafile_name=datafile_name, datafile=datafile)
+    data = _read_datafile(cls.get_path_into_db() + datafile_name + '.json')
+    loaded_instance = cls(name=name, datafile_name=datafile_name)
+    loaded_instance.load_data(data)
     return loaded_instance
 
 

@@ -55,7 +55,7 @@ for df_name in old_index:
             start_unit=old_data['nutrients'][nutrient_name]['nutrient_mass_units'],
             end_unit='g'
         )
-        nutrient_data = nutrients.supports_nutrient_content.NutrientData(
+        nutrient_data = nutrients.has_nutrient_ratios.NutrientData(
             nutrient_g_per_subject_g=nutrient_qty_g / ingredient_qty_g,
             nutrient_pref_units=old_data['nutrients'][nutrient_name]['nutrient_mass_units']
         )

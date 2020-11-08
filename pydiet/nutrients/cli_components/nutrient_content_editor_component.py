@@ -5,7 +5,7 @@ from pyconsoleapp import ConsoleAppComponent, PrimaryArg, menu_tools, StandardPa
 from pydiet import nutrients, quantity
 
 if TYPE_CHECKING:
-    from pydiet.nutrients.supports_nutrient_content import SupportsSettingNutrientContent, NutrientData
+    from pydiet.nutrients.has_nutrient_ratios import SupportsSettingNutrientContent, NutrientData
 
 _main_menu_template = '''
 OK     | -ok
@@ -240,7 +240,7 @@ class NutrientContentEditorComponent(ConsoleAppComponent):
         )
         nutrient_g_per_subject_g = nutrient_qty_g / ingredient_qty_g
         # Build the correct data object;
-        nutrient_data = nutrients.supports_nutrient_content.NutrientData(
+        nutrient_data = nutrients.has_nutrient_ratios.NutrientData(
             nutrient_g_per_subject_g=nutrient_g_per_subject_g,
             nutrient_pref_units=args['nutrient_weight']['unit']
         )

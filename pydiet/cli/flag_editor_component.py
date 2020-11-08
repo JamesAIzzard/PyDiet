@@ -3,7 +3,7 @@ from typing import Dict, Optional, Any, TYPE_CHECKING
 from pyconsoleapp import ConsoleAppComponent, PrimaryArg, ResponseValidationError, menu_tools, styles
 
 if TYPE_CHECKING:
-    from pydiet.flags.supports_flags import SupportsFlagSetting
+    from pydiet.flags.has_flags import SupportsFlagSetting
 
 _main_menu_template = '''
 OK                  | -ok

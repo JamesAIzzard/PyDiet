@@ -1,5 +1,5 @@
 import abc
-from typing import Dict, Optional
+from typing import Dict, Any, Optional
 
 from pydiet import persistence, HasSettableName
 from pydiet.persistence import exceptions
@@ -8,8 +8,9 @@ from pydiet.persistence import exceptions
 class SupportsPersistence(HasSettableName, abc.ABC):
     """ABC for object persistence functionality."""
 
-    def __init__(self, datafile_name: Optional[str] = None, **kwds):
+    def __init__(self, name: Optional[str] = None, datafile_name: Optional[str] = None, **kwds):
         super().__init__(**kwds)
+        self._name = name
         self._datafile_name: Optional[str] = datafile_name
 
     @staticmethod
@@ -22,6 +23,11 @@ class SupportsPersistence(HasSettableName, abc.ABC):
     @abc.abstractmethod
     def persistable_data(self) -> 'Dict':
         """Returns the persistable data for this instance."""
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def load_data(self, data: Dict[str, Any]) -> None:
+        """Loads saved data into the instance."""
         raise NotImplementedError
 
     @property

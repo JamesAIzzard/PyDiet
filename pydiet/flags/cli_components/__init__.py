@@ -1,1 +1,0 @@
-from . import (flag_editor_component)

@@ -1,13 +1,13 @@
-import pydiet
+from pydiet.exceptions import PyDietException
 
 
-class FlagNutrientConflictError(pydiet.exceptions.PyDietException):
+class FlagNutrientConflictError(PyDietException):
     """The flag qty conflicts with the nutrient data."""
 
 
-class FlagNameError(pydiet.exceptions.PyDietException):
+class FlagNameError(PyDietException):
     """The flag name is not recognised."""
 
 
-class FlagValueError(pydiet.PyDietException):
+class FlagValueError(PyDietException):
     """The flag qty is not True, False or None."""

@@ -6,11 +6,11 @@ from pydiet import nutrients, quantity
 class TestValidateNutrientsData(TestCase):
 
     def setUp(self) -> None:
-        self.nd = nutrients.supports_nutrient_content.get_empty_nutrients_data()
+        self.nd = nutrients.has_nutrient_ratios.get_empty_nutrients_data()
 
     def test_catches_nutrient_name_error(self):
-        self.nd['madeup'] = nutrients.supports_nutrient_content.NutrientData(nutrient_g_per_subject_g=0.5,
-                                                                             nutrient_pref_units='g')
+        self.nd['madeup'] = nutrients.has_nutrient_ratios.NutrientData(nutrient_g_per_subject_g=0.5,
+                                                                       nutrient_pref_units='g')
         with self.assertRaises(nutrients.exceptions.NutrientNameError):
             nutrients.validation.validate_nutrients_data(self.nd)
 
