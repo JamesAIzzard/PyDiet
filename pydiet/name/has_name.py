@@ -5,6 +5,7 @@ from . import exceptions
 
 
 class HasName(abc.ABC):
+    """Models any object with a name."""
 
     def __init__(self, name: Optional[str] = None, **kwds):
         self._name: Optional[str] = None
@@ -44,6 +45,7 @@ class HasName(abc.ABC):
 
 
 class HasSettableName(HasName, abc.ABC):
+    """Models any object with a settable name."""
 
     def __init__(self, **kwds):
         super().__init__(**kwds)

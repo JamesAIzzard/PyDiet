@@ -1,9 +1,11 @@
 import abc
-import copy
-from typing import Dict, List, Optional, cast, TypedDict
+from typing import Dict, List, Optional, cast, TypedDict, TYPE_CHECKING
 
 from pydiet import nutrients, quantity
 from pydiet.quantity import HasBulk
+
+if TYPE_CHECKING:
+    from pydiet.nutrients import Nutrient
 
 
 class NutrientRatioData(TypedDict):
@@ -13,21 +15,15 @@ class NutrientRatioData(TypedDict):
 
 class HasNutrientRatios(HasBulk, abc.ABC):
 
-    @property
-    @abc.abstractmethod
-    def _nutrients_data(self) -> Dict[str, 'NutrientData']:
-        raise NotImplementedError
+    def __init__(self, nutrient_ratios: Dict[str, 'NutrientRatioData'] = None, **kwds):
+        super().__init__(**kwds)
+        self._nutrient_ratio_map: Dict['Nutrient', 'NutrientRatioData'] = {}
+        if nutrient_ratios is not None:
+            self._nutrient_ratio_map = nutrient_ratios
 
-    @property
-    def nutrients_data_copy(self) -> Dict[str, 'NutrientData']:
-        return copy.deepcopy(self._nutrients_data)
-
-    def get_nutrient_data_copy(self, nutrient_name: str) -> 'NutrientData':
-        return self.nutrients_data_copy[nutrient_name]
-
-    def nutrient_is_defined(self, nutrient_name: str) -> bool:
+    def nutrient_ratio_defined(self, nutrient_name: str) -> bool:
         # Convert alias
-        nutrient_name = nutrients.nutrients_service.get_nutrient_primary_name(nutrient_name)
+        nutrient_name = nutrients.get_nutrient_primary_name(nutrient_name)
         nutrient_data = self._nutrients_data[nutrient_name]
         if None in nutrient_data.values():
             return False
@@ -84,7 +80,7 @@ class HasNutrientRatios(HasBulk, abc.ABC):
 class HasSettableNutrientRatios(HasNutrientRatios, abc.ABC):
 
     def set_nutrient_ratio(self, nutrient_name: str, nutrient_qty: float, nutrient_qty_unit: str, subject_qty: float,
-                          subject_qty_unit: str) -> None:
+                           subject_qty_unit: str) -> None:
         nutrient_name = nutrients.nutrients_service.get_nutrient_primary_name(nutrient_name)
 
         nutrient_data = nutrients.validation.validate_nutrient_data(nutrient_data)
@@ -110,7 +106,7 @@ class HasSettableNutrientRatios(HasNutrientRatios, abc.ABC):
                     # noinspection PyProtectedMember
                     nself._flags_data[flag_name] = False
 
-    def undefine_nutrient_ratio(self, nutrient_name:str) -> None:
+    def undefine_nutrient_ratio(self, nutrient_name: str) -> None:
         """Resets the nutrient_g_per_subject_g to None."""
 
     def set_nutrients_data(self, nutrients_data: Dict[str, 'NutrientData']) -> None:
