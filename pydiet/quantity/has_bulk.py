@@ -40,7 +40,7 @@ class HasBulk(HasName, abc.ABC):
 
     @property
     def ref_qty(self) -> float:
-        """Returns the object's reference quantity."""
+        """Returns the object's reference quantity (in its preferred units)."""
         return self._ref_qty
 
     def _set_ref_quantity(self, qty: float) -> None:

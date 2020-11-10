@@ -1,7 +1,8 @@
 from typing import Dict
 
-from .has_nutrient_ratios import HasNutrientRatios, HasSettableNutrientRatios, NutrientRatioData
+from .has_nutrient_ratios import HasNutrientRatios, HasSettableNutrientRatios
 from .nutrient import Nutrient
+from .nutrient_ratio import NutrientRatio, SettableNutrientRatio
 from .core import get_nutrient_primary_name, all_primary_and_alias_nutrient_names
 from . import configs, exceptions, validation
 
