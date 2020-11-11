@@ -59,6 +59,11 @@ class NutrientRatio:
         return self._g_per_subject_g is not None and self._pref_unit is not None
 
     @property
+    def is_zero(self) -> bool:
+        """Returns True/False to indicate if the nutrient ratio is explicitly set to zero."""
+        return self._g_per_subject_g == 0
+
+    @property
     def summary(self) -> str:
         """Returns a readable summary of the nutrient ratio."""
         template = '{name}: {summary}'
@@ -100,7 +105,7 @@ class SettableNutrientRatio(NutrientRatio):
             raise err
 
         # Update any related flags if instance is equipped;
-        if isinstance(self, flags.HasSettableFlags):
+        if isinstance(self._subject, flags.HasSettableFlags):
             ...
 
     def _set_pref_unit(self, pref_mass_unit: str) -> None:

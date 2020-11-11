@@ -1,11 +1,12 @@
 import abc
 from typing import Dict, List, Optional
 
+import pydiet
+from pydiet import nutrients
 from pydiet.flags import configs, validation
-from pydiet.nutrients import HasNutrientRatios, HasSettableNutrientRatios
 
 
-class HasFlags(HasNutrientRatios, abc.ABC):
+class HasFlags(abc.ABC):
     """Models an object which has flags to characterise its content."""
 
     def __init__(self, flags: Dict[str, Optional[bool]], **kwds):
@@ -85,11 +86,16 @@ class HasFlags(HasNutrientRatios, abc.ABC):
             return str(val)
 
 
-class HasSettableFlags(HasFlags, HasSettableNutrientRatios, abc.ABC):
+class HasSettableFlags(HasFlags, abc.ABC):
     """Models an object with configurable flags to characterise its content."""
 
     def __init__(self, **kwds):
         super().__init__(**kwds)
+
+        # Check that we don't have readonly nutrient ratios. Having this at the same time as
+        # having settable flags would allow inconsistencies.
+        if not isinstance(self, nutrients.HasSettableNutrientRatios):
+            assert not isinstance(self, nutrients.HasNutrientRatios)
 
     def set_flags(self, flag_data: Dict[str, Optional[bool]]):
         """Sets flags values on the object."""
@@ -102,8 +108,20 @@ class HasSettableFlags(HasFlags, HasSettableNutrientRatios, abc.ABC):
         flag_name = validation.validate_flag_name(flag_name)
         flag_value = validation.validate_flag_value(flag_value)
 
+        # Shout if there is a defined and conflicting nutrient ratio;
+        if isinstance(self, nutrients.HasNutrientRatios):
+            for flag_name in pydiet.configs.flag_nutrient_relations[flag_name]:
+                for nutrient_name, presence in pydiet.configs.flag_nutrient_relations[flag_name].items():
+                    nutrient_ratio = self.get_nutrient_ratio(nutrient_name)
+                    if nutrient_ratio.defined and nutrient_ratio.is_zero:
+                        raise pydiet.exceptions.FlagNutrientConflictError
+
+        # Update any unset and related nutrient ratios;
+        if isinstance(self, nutrients.HasSettableNutrientRatios):
+
+
         # Deal with any nutrient-flag relations;
-        if flag_name in configs.flag_nutrient_relations:
+        if flag_name in pydiet.configs.flag_nutrient_relations:
             relation = configs.flag_nutrient_relations[flag_name]
             for nutrient_name, has_nutrient in relation.items():
                 if has_nutrient is False and self.nutrient_g_per_subject_g(nutrient_name) > 0:

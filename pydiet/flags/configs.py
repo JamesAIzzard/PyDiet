@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import List
 
 all_flag_names: List[str] = [
     "alcohol_free",
@@ -9,7 +9,3 @@ all_flag_names: List[str] = [
     "vegan",
     "vegetarian"
 ]
-
-flag_nutrient_relations: Dict[str, Dict[str, bool]] = {
-    "alcohol_free": {"alcohol": False}
-}
