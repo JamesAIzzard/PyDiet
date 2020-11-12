@@ -108,30 +108,31 @@ class HasSettableFlags(HasFlags, abc.ABC):
         flag_name = validation.validate_flag_name(flag_name)
         flag_value = validation.validate_flag_value(flag_value)
 
-        # Shout if there is a defined and conflicting nutrient ratio;
+        # Shout if there is a defined and conflicting nutrient ratio (hard conflicts);
         if isinstance(self, nutrients.HasNutrientRatios):
-            for flag_name in pydiet.configs.flag_nutrient_relations[flag_name]:
-                for nutrient_name, presence in pydiet.configs.flag_nutrient_relations[flag_name].items():
-                    nutrient_ratio = self.get_nutrient_ratio(nutrient_name)
-                    if nutrient_ratio.defined and nutrient_ratio.is_zero:
-                        raise pydiet.exceptions.FlagNutrientConflictError
+            for relation in pydiet.get_nutrient_relations[flag_name]:
+                nutrient_ratio = self.get_nutrient_ratio(nutrient_name=relation.nutrient_name)
+                if relation.asserts_has_nutrient and nutrient_ratio.is_zero:
+                    raise pydiet.exceptions.FlagNutrientConflictError(
+                        '{flag_name} implies {nutrient_name}% should be zero.'.format(
+                            flag_name=flag_name,
+                            nutrient_name=relation.nutrient_name
+                        )
+                    )
+                elif relation.asserts_has_no_nutrient and nutrient_ratio.is_non_zero:
+                    raise pydiet.exceptions.FlagNutrientConflictError(
+                        '{flag_name} implies {nutrient_name}% should be greater than zero.'.format(
+                            flag_name=flag_name,
+                            nutrient_name=relation.nutrient_name
+                        )
+                    )
 
-        # Update any unset and related nutrient ratios;
+        # Update any unset and related nutrient ratios (soft conflicts);
         if isinstance(self, nutrients.HasSettableNutrientRatios):
-
-
-        # Deal with any nutrient-flag relations;
-        if flag_name in pydiet.configs.flag_nutrient_relations:
-            relation = configs.flag_nutrient_relations[flag_name]
-            for nutrient_name, has_nutrient in relation.items():
-                if has_nutrient is False and self.nutrient_g_per_subject_g(nutrient_name) > 0:
-                    self.set_nutrient_ratio(nutrient_name=nutrient_name,
-                                            nutrient_qty=0,
-                                            nutrient_qty_unit='g',
-                                            subject_qty=1,
-                                            subject_qty_unit='g')
-                elif has_nutrient is True and self.nutrient_g_per_subject_g(nutrient_name) == 0:
-                    self.undefine_nutrient_ratio(nutrient_name)
+            for relation in pydiet.get_nutrient_relations[flag_name]:
+                nutrient_ratio = self.get_nutrient_ratio(nutrient_name=relation.nutrient_name)
+                if relation.asserts_has_no_nutrient and nutrient_ratio.not_defined:
+                    nutrient_ratio.g_per_subject_g = 0
 
         # Set;
         self._flags[flag_name] = flag_value
