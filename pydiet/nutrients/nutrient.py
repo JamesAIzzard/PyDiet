@@ -9,8 +9,6 @@ class Nutrient:
         self._name = nutrients.get_nutrient_primary_name(name)
         self._parent_nutrients_cache: Optional[Dict[str, 'Nutrient']] = None
         self._child_nutrients_cache: Optional[Dict[str, 'Nutrient']] = None
-        # Todo - Looking at building flag relation into nutrient here.
-        self._flag_name_relations: Dict[str, ]
 
     @property
     def primary_name(self) -> str:
