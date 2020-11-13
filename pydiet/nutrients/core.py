@@ -1,6 +1,17 @@
-from typing import List
+from typing import List, Dict, TYPE_CHECKING
 
+from pydiet import nutrients
 from pydiet.nutrients import validation, configs, exceptions
+
+if TYPE_CHECKING:
+    from pydiet.nutrients import Nutrient
+
+# Init the global nutrient instances;
+global_nutrients: Dict[str, 'Nutrient'] = {}
+
+for primary_nutrient_name in configs.all_primary_nutrient_names:
+    if primary_nutrient_name not in global_nutrients.keys():
+        global_nutrients[primary_nutrient_name] = nutrients.Nutrient(primary_nutrient_name)
 
 
 def all_primary_and_alias_nutrient_names() -> List[str]:

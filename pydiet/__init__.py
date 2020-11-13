@@ -1,5 +1,8 @@
 from pyconsoleapp import ConsoleApp
 
+from .core import flag_nutrient_relations
+from .flag_nutrient_relation import FlagNutrientRelation
+
 from pydiet import cli, configs, exceptions
 from pydiet.name import HasName, HasSettableName
 

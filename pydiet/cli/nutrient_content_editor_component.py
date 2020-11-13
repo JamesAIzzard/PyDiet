@@ -28,7 +28,7 @@ Cancel | -cancel
 
 Set Nutrient Amount | [nutrient quantity] -in [ingredient quantity]
 
-{nutrient_name}: {nutrient_summary}
+{primary_nutrient_name}: {nutrient_summary}
 '''
 
 

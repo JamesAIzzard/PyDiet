@@ -7,7 +7,7 @@ if TYPE_CHECKING:
     from pydiet.cli_components.nutrient_search_component import NutrientSearchComponent
 
 _EDIT_QTY_TEMPLATE = '''
-Enter a the target quantity for {nutrient_name}:
+Enter a the target quantity for {primary_nutrient_name}:
 (e.g. 100g, 100mg etc.)
 '''
 

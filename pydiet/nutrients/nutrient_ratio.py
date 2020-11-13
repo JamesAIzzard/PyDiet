@@ -64,6 +64,11 @@ class NutrientRatio:
         return self._g_per_subject_g == 0
 
     @property
+    def is_non_zero(self) -> bool:
+        """Returns True/False to indicate if the nutrient ratio is not zero."""
+        return not self.is_zero
+
+    @property
     def summary(self) -> str:
         """Returns a readable summary of the nutrient ratio."""
         template = '{name}: {summary}'

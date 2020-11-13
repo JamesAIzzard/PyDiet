@@ -110,28 +110,28 @@ class HasSettableFlags(HasFlags, abc.ABC):
 
         # Shout if there is a defined and conflicting nutrient ratio (hard conflicts);
         if isinstance(self, nutrients.HasNutrientRatios):
-            for relation in pydiet.get_nutrient_relations[flag_name]:
-                nutrient_ratio = self.get_nutrient_ratio(nutrient_name=relation.nutrient_name)
+            for relation in pydiet.flag_nutrient_relations[flag_name]:
+                nutrient_ratio = self.get_nutrient_ratio(nutrient_name=relation.primary_nutrient_name)
                 if relation.asserts_has_nutrient and nutrient_ratio.is_zero:
                     raise pydiet.exceptions.FlagNutrientConflictError(
                         '{flag_name} implies {nutrient_name}% should be zero.'.format(
                             flag_name=flag_name,
-                            nutrient_name=relation.nutrient_name
+                            nutrient_name=relation.primary_nutrient_name
                         )
                     )
                 elif relation.asserts_has_no_nutrient and nutrient_ratio.is_non_zero:
                     raise pydiet.exceptions.FlagNutrientConflictError(
                         '{flag_name} implies {nutrient_name}% should be greater than zero.'.format(
                             flag_name=flag_name,
-                            nutrient_name=relation.nutrient_name
+                            nutrient_name=relation.primary_nutrient_name
                         )
                     )
 
         # Update any unset and related nutrient ratios (soft conflicts);
         if isinstance(self, nutrients.HasSettableNutrientRatios):
-            for relation in pydiet.get_nutrient_relations[flag_name]:
-                nutrient_ratio = self.get_nutrient_ratio(nutrient_name=relation.nutrient_name)
-                if relation.asserts_has_no_nutrient and nutrient_ratio.not_defined:
+            for relation in pydiet.flag_nutrient_relations[flag_name]:
+                nutrient_ratio = self.get_nutrient_ratio(nutrient_name=relation.primary_nutrient_name)
+                if relation.asserts_has_no_nutrient and not nutrient_ratio.defined:
                     nutrient_ratio.g_per_subject_g = 0
 
         # Set;
