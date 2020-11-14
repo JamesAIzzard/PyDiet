@@ -13,13 +13,13 @@ class NutrientNameError(PyDietException):
     """Indicates a general error relating to nutrient naming."""
 
 
-class InvalidNutrientQtyError(PyDietException):
-    """Indicates the nutrient amount is not valid."""
+class NutrientRatioGroupError(PyDietException):
+    """Indicates the group of nutrient ratios are collectively invalid."""
 
 
-class NutrientQtyExceedsIngredientQtyError(InvalidNutrientQtyError):
+class NutrientQtyExceedsIngredientQtyError(NutrientRatioGroupError):
     """Indicates the nutrient quantity exceeds the ingredient quantity."""
 
 
-class ChildNutrientQtyExceedsParentNutrientQtyError(InvalidNutrientQtyError):
+class ChildNutrientQtyExceedsParentNutrientQtyError(NutrientRatioGroupError):
     """Indicates the child nutrient quantity exceeds the parent nutrient quantity."""

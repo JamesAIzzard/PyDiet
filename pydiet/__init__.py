@@ -1,6 +1,6 @@
 from pyconsoleapp import ConsoleApp
 
-from .core import flag_nutrient_relations
+from .core import flag_nutrient_relations, nutrient_flag_relations
 from .flag_nutrient_relation import FlagNutrientRelation
 
 from pydiet import cli, configs, exceptions

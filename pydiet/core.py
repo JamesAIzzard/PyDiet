@@ -2,8 +2,8 @@ from typing import List, Dict
 
 from pydiet import configs, FlagNutrientRelation
 
-flag_nutrient_relations: Dict[str, List['FlagNutrientRelation']] = {}
-nutrient_flag_relations: Dict[str, List['FlagNutrientRelation']] = {}
+flag_nutrient_relations: Dict[str, List['FlagNutrientRelation']] = {}  # Flag names for keys;
+nutrient_flag_relations: Dict[str, List['FlagNutrientRelation']] = {}  # Nutrient names for keys;
 
 # Populate the flag-nutrient mappings;
 for flag_name, relations in configs.flag_nutrient_relations.items():

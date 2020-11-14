@@ -1,12 +1,13 @@
 import abc
-from typing import Dict, List, cast, TYPE_CHECKING
+from typing import Dict, List, TYPE_CHECKING
 
-from pydiet import nutrients
-from pydiet.nutrients import configs
+import pydiet
+from pydiet import nutrients, quantity, flags
+from pydiet.nutrients import configs, exceptions
 from pydiet.quantity import HasBulk
 
 if TYPE_CHECKING:
-    from pydiet.nutrients import NutrientRatio
+    from pydiet.nutrients import NutrientRatio, SettableNutrientRatio
 
 
 class HasNutrientRatios(HasBulk, abc.ABC):
@@ -51,38 +52,48 @@ class HasNutrientRatios(HasBulk, abc.ABC):
 class HasSettableNutrientRatios(HasNutrientRatios, abc.ABC):
 
     @abc.abstractmethod
-    def get_nutrient_ratio(self, nutrient_name: str) -> 'NutrientRatio':
+    def get_nutrient_ratio(self, nutrient_name: str) -> 'SettableNutrientRatio':
         """Returns a SettableNutrientRatio by name."""
         raise NotImplementedError
 
-    def set_nutrient_ratio(self, nutrient_name: str, nutrient_qty: float, nutrient_qty_unit: str, subject_qty: float,
+    def set_nutrient_ratio(self, nutrient_name: str,
+                           nutrient_qty: float,
+                           nutrient_qty_unit: str,
+                           subject_qty: float,
                            subject_qty_unit: str) -> None:
-        nutrient_name = nutrients.nutrients_service.get_nutrient_primary_name(nutrient_name)
+        """Sets the data on a nutrient ratio by name."""
+        nutrient_name = nutrients.get_nutrient_primary_name(nutrient_name)
+        nutrient_ratio = self.get_nutrient_ratio(nutrient_name)
+        backup_g_per_subject_g = nutrient_ratio.g_per_subject_g
+        subject_qty_g = quantity.convert_qty_unit(qty=subject_qty,
+                                                  start_unit=subject_qty_unit,
+                                                  end_unit='g')
+        nutrient_qty_g = quantity.convert_qty_unit(qty=nutrient_qty,
+                                                   start_unit=nutrient_qty_unit,
+                                                   end_unit='g')
+        new_g_per_subject_g = nutrient_qty_g / subject_qty_g
+        nutrient_ratio.g_per_subject_g = new_g_per_subject_g
+        try:
+            self._validate_nutrient_ratios()
+        except exceptions.NutrientRatioGroupError as err:
+            nutrient_ratio.g_per_subject_g = backup_g_per_subject_g
+            raise err
 
-        nutrient_data = nutrients.validation.validate_nutrient_data(nutrient_data)
+        # Check for defined & conflicting flags (hard conflicts);
+        if isinstance(self, flags.HasFlags):
+            for relation in pydiet.nutrient_flag_relations[nutrient_name]:
+                if self.flag_is_defined(relation.flag_name) and ...
 
-        # Make the change on a copy of the data and validate it;
-        nutrients_data_copy = self.nutrients_data_copy
-        nutrients_data_copy[nutrient_name] = nutrient_data
-        nutrients.validation.validate_nutrients_data(nutrients_data_copy)
+        # Update any unset and related flags (soft conflicts);
+        if isinstance(self, flags.HasSettableFlags):
+            ...
 
-        # All OK, so make the change on the real dataset;
-        self._nutrients_data[nutrient_name] = nutrient_data
+    def set_nutrient_pref_unit(self, nutrient_name: str, pref_unit: str) -> None:
+        """Sets the pref unit for the nutrient ratio."""
+        nutrient_ratio = self.get_nutrient_ratio(nutrient_name)
+        nutrient_ratio.pref_unit = pref_unit
 
-        # If there is a flag related, set it;
-        # Nasty hack to avoid circular import; A better way to do this would be to have a base class which mixes
-        # nutrients, flags, bulk, etc, which ingredient and recipe would then inherit.
-        nself = cast('flags.supports_flags.SupportsFlagSetting', self)
-        for flag_name in nutrients.configs.nutrient_flag_rels:
-            if nutrient_name in nutrients.configs.nutrient_flag_rels[flag_name]:
-                if nutrient_data['nutrient_g_per_subject_g'] == 0:
-                    # noinspection PyProtectedMember
-                    nself._flags_data[flag_name] = True
-                else:
-                    # noinspection PyProtectedMember
-                    nself._flags_data[flag_name] = False
-
-    def set_nutrients_data(self, nutrients_data: Dict[str, 'NutrientData']) -> None:
-        validated_nutrients_data = nutrients.validation.validate_nutrients_data(nutrients_data)
-        for nutrient_name in self._nutrients_data:
-            self._nutrients_data[nutrient_name] = validated_nutrients_data[nutrient_name]
+    def _validate_nutrient_ratios(self) -> None:
+        """Raises a NutrientRatioGroupError if the set of nutrient ratios are mutually inconsistent."""
+        # Todo - Implement.
+        ...
