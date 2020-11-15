@@ -77,6 +77,14 @@ class HasFlags(abc.ABC):
         """Returns True/False to indicate if a flag is undefined by name."""
         return self._flags[flag_name] is not None
 
+    def flag_is_true(self, flag_name: str) -> bool:
+        """Returns True/False to indicate if the named flag is True."""
+        return self._flags[flag_name] is True
+
+    def flag_is_false(self, flag_name: str) -> bool:
+        """Returns True/False to indicate if the named flag is False."""
+        return self._flags[flag_name] is False
+
     def summarise_flag(self, flag_name: str) -> str:
         """Return a readable summary of the flag by name."""
         val = self.get_flag_value(flag_name)
@@ -119,7 +127,7 @@ class HasSettableFlags(HasFlags, abc.ABC):
                             nutrient_name=relation.nutrient_name
                         )
                     )
-                elif relation.asserts_has_no_nutrient and nutrient_ratio.is_non_zero:
+                elif relation.implies_has_no_nutrient and nutrient_ratio.is_non_zero:
                     raise pydiet.exceptions.FlagNutrientConflictError(
                         '{flag_name} implies {nutrient_name}% should be greater than zero.'.format(
                             flag_name=flag_name,
@@ -131,7 +139,7 @@ class HasSettableFlags(HasFlags, abc.ABC):
         if isinstance(self, nutrients.HasSettableNutrientRatios):
             for relation in pydiet.flag_nutrient_relations[flag_name]:
                 nutrient_ratio = self.get_nutrient_ratio(nutrient_name=relation.nutrient_name)
-                if relation.asserts_has_no_nutrient and not nutrient_ratio.defined:
+                if relation.implies_has_no_nutrient and not nutrient_ratio.defined:
                     nutrient_ratio.g_per_subject_g = 0
 
         # Set;
