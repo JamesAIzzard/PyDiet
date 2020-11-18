@@ -1,7 +1,8 @@
 import abc
 from typing import Dict, Any, Optional
 
-from pydiet import persistence, HasSettableName
+from pydiet import persistence
+from pydiet.name import HasSettableName
 from pydiet.persistence import exceptions
 
 

@@ -1,14 +1,6 @@
 from pyconsoleapp import Component, PrimaryArg
 from pyconsoleapp.builtin_components import StandardPageComponent
 
-_menu_template = '''
-Manage Ingredients      | -ingr
-Manage Recipes          | -recp
-Manage Goals            | -goal
-Generate Meal Plans     | -solv
-View Meal Plans         | -view
-'''
-
 
 class MainMenuComponent(Component):
     _template = u'''-ingr \u2502 -> Manage system ingredients.
@@ -33,5 +25,3 @@ class MainMenuComponent(Component):
 
     def _on_manage_ingredients(self):
         self.app.go_to('home.ingredients')
-
-
