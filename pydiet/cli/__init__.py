@@ -1,3 +1,3 @@
-# from .ingredient_editor_component import IngredientEditorComponent
-# from .ingredient_menu_component import IngredientMenuComponent
+from .base_cedv_component import BaseCEDVComponent
+from .base_editor_component import BaseEditorComponent
 from .main_menu_component import MainMenuComponent

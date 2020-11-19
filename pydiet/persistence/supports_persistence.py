@@ -22,7 +22,7 @@ class SupportsPersistence(HasSettableName, abc.ABC):
 
     @property
     @abc.abstractmethod
-    def persistable_data(self) -> 'Dict':
+    def persistable_data(self) -> Dict[str, Any]:
         """Returns the persistable data for this instance."""
         raise NotImplementedError
 

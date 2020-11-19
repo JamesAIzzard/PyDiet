@@ -1,16 +1,17 @@
 import abc
 from typing import Type, Callable, TYPE_CHECKING
 
-from pyconsoleapp import ConsoleAppComponent, PrimaryArg, StandardPageComponent
-from pydiet import persistence
-from pydiet.cli_components import BaseEditorComponent
+from pyconsoleapp import Component, PrimaryArg
 
 if TYPE_CHECKING:
-    from pyconsoleapp import ConsoleApp
-    from pyconsoleapp.builtin_components.base_search_component import BaseSearchComponent
-    from pydiet.persistence.supports_persistence import SupportsPersistence
+    from pydiet.persistence import SupportsPersistence
+    from pydiet.cli import BaseEditorComponent
 
-_main_view_template = '''
+
+class BaseCEDVComponent(Component, abc.ABC):
+    """Abstract base component for a Create/Edit/Delete/View Menu."""
+
+    _template = u'''
 {u_type_name} Count: {saved_count}
 
 Create a New {u_type_name} | -new
@@ -19,13 +20,13 @@ Delete an {u_type_name}    | -del  [{l_type_name} name]
 View {u_type_name}s        | -view
 '''
 
-
-class CRUDMenuComponent(ConsoleAppComponent, abc.ABC):
-    def __init__(self, subject_type_name: str, subject_type: Type['SupportsPersistence'],
+    def __init__(self, subject_type_name: str,
+                 subject_type: Type['SupportsPersistence'],
                  new_subject_factory: Callable[[], 'SupportsPersistence'],
                  subject_editor_component: Type['BaseEditorComponent'],
-                 subject_search_component: Type['BaseSearchComponent'], subject_base_route: str, app: 'ConsoleApp'):
-        super().__init__(app)
+                 subject_search_component: Type['BaseSearchComponent'],
+                 subject_base_route: str, **kwds):
+        super().__init__(**kwds)
 
         self._subject_type_name = subject_type_name
         self._subject_type = subject_type
@@ -38,15 +39,19 @@ class CRUDMenuComponent(ConsoleAppComponent, abc.ABC):
         self._subject_search_route = self._subject_base_route + '.search'
         self._subject_viewer_route = self._subject_base_route + '.view'
 
-        self.configure_state('menu', self._print_main_view, responders=[
+        self.configure(responders=[
             self.configure_responder(self._on_create, args=[
-                PrimaryArg('new', has_value=False, markers=['-new'])]),
+                PrimaryArg(name='create', accepts_value=False, markers=['-new']),
+            ]),
             self.configure_responder(self._on_edit, args=[
-                PrimaryArg('subject_name', has_value=True, markers=['-edit'])]),
+                PrimaryArg(name='subject_name', accepts_value=True, markers=['-edit'])
+            ]),
             self.configure_responder(self._on_delete, args=[
-                PrimaryArg('subject_name', has_value=True, markers=['-del'])]),
+                PrimaryArg(name='subject_name', accepts_value=True, markers=['-del'])
+            ]),
             self.configure_responder(self._on_view, args=[
-                PrimaryArg('view', has_value=False, markers=['-view'])])
+                PrimaryArg(name='view', accepts_value=False, markers=['-view'])
+            ])
         ])
 
     def _print_main_view(self) -> str:
