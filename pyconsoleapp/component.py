@@ -23,6 +23,7 @@ class Component(abc.ABC):
         self._child_components: List['Component'] = []
         self._local_responders: List['Responder'] = []  # 'local' indicates on *this* instance, not children.
         self._get_view_prefill: Optional[Callable[..., str]] = None
+        self.loaded_once: bool = False
 
     @property
     def app(self) -> 'ConsoleApp':
@@ -46,6 +47,9 @@ class Component(abc.ABC):
 
     def on_load(self) -> None:
         """Method run immediately before the view is extracted from the component."""
+
+    def on_first_load(self) -> None:
+        """Method run the first time the component is used."""
 
     def _validate(self) -> None:
         """Checks the component is valid. Raises an exception if not."""

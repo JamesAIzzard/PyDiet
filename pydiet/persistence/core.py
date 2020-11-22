@@ -1,7 +1,9 @@
 import json
 import os
 import uuid
-from typing import Dict, List, Any, TypeVar, Type, Optional, Union, TYPE_CHECKING
+from difflib import SequenceMatcher
+from heapq import nlargest
+from typing import Dict, List, Any, TypeVar, Type, Optional, TYPE_CHECKING
 
 from . import exceptions
 
@@ -87,6 +89,20 @@ def check_name_available(cls: Type['SupportsPersistence'], proposed_name: str,
         index_data.pop(ingore_datafile)
 
     return proposed_name not in index_data.values()
+
+
+def search_for_names(subject_type: Type['SupportsPersistence'], search_name: str, num_results: int = 5) -> List[str]:
+    """Returns a list of n names which match the search name most closely."""
+
+    def score_similarity(words_to_score: List[str], search_term: str) -> Dict[str, float]:
+        scores = {}
+        for word in words_to_score:
+            scores[word] = SequenceMatcher(None, search_term, word).ratio()
+        return scores
+
+    all_names = get_saved_names(subject_type)
+    all_scores = score_similarity(all_names, search_name)
+    return nlargest(num_results, all_scores, key=all_scores.get)
 
 
 def _get_datafile_name_for_name(cls: Type['SupportsPersistence'], name: str) -> str:

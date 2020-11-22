@@ -110,14 +110,14 @@ class Responder:
 
         # Cycle through each word in the response;
         for current_word in words:
-            # Is the word a marker or part of a qty?
+            # Is the word a marker or part of a value?
             # If it is a marker, write the buffer on the previous arg and update the current arg;
             if word_is_marker(current_word):
                 if current_arg is not None:
                     current_arg.write_value_buffer()
                 current_arg = get_arg_for_marker(current_word)
                 current_arg.marker_found = True
-            # If it is a qty, just add it to the buffer;
+            # If it is a value, just add it to the buffer;
             else:
                 current_arg.buffer_value(current_word)
         # We have run out of words, so write any residual buffer;

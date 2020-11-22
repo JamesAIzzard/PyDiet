@@ -235,6 +235,9 @@ class ConsoleApp:
             # The response has not been collected, draw the view and collect it;
             else:
                 active_component = self._get_active_component()
+                if not active_component.loaded_once:
+                    active_component.on_first_load()
+                    active_component.loaded_once = True
                 active_component.on_load()
                 # Check the component is still the right one after the load method ran.
                 if not active_component == self._get_active_component():

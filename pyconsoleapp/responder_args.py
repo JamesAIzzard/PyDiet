@@ -5,7 +5,7 @@ from pyconsoleapp import exceptions
 
 
 class ResponderArg(abc.ABC):
-    """Base class for an argument, representing its markers, validation and default qty."""
+    """Base class for an argument, representing its markers, validation and default value."""
 
     def __init__(self, name: str, accepts_value: bool,
                  markers: Optional[List[str]] = None,
@@ -29,11 +29,11 @@ class ResponderArg(abc.ABC):
         self._init_value()
 
     def _init_value(self) -> None:
-        """Initialises/resets the argument qty"""
-        # If we accept a qty and have a default, set the qty as default (using validators in setter).
+        """Initialises/resets the argument value"""
+        # If we accept a value and have a default, set the value as default (using validators in setter).
         if self.accepts_value is True and self._default_value is not None:
             self.value = self._default_value
-        # If we don't accept a qty;
+        # If we don't accept a value;
         elif self.accepts_value is False:
             # Valuless values start at False;
             self.value = False
@@ -50,23 +50,23 @@ class ResponderArg(abc.ABC):
 
     @property
     def value(self) -> Any:
-        """Returns the argument's qty."""
+        """Returns the argument's value."""
         return self._value
 
     @value.setter
     def value(self, value: Any) -> None:
-        """Sets the argument's qty, via any registered validators."""
-        # First check we aren't trying to set an arbitrary qty on a valueless arg;
+        """Sets the argument's value, via any registered validators."""
+        # First check we aren't trying to set an arbitrary value on a valueless arg;
         if not self.accepts_value and not isinstance(value, bool):
             raise ValueError('Valueless args should only be given boolean values.')
-        # Now use the validators to set the qty;
+        # Now use the validators to set the value;
         temp_value = value
         for validator in self._validators:
             temp_value = validator(temp_value)
         self._value = temp_value
 
     def buffer_value(self, value_fragment: Any) -> None:
-        """Adds the qty fragment to the qty buffer."""
+        """Adds the value fragment to the value buffer."""
         # Raise exception if we try and buffer a valueless arg;
         if not self._accepts_value:
             raise exceptions.OrphanValueError(value_fragment)
@@ -74,7 +74,7 @@ class ResponderArg(abc.ABC):
         self._value_buffer.append(value_fragment)
 
     def write_value_buffer(self) -> None:
-        """Concatenates the qty buffer and submits it for validation via the qty setter."""
+        """Concatenates the value buffer and submits it for validation via the value setter."""
         # If don't accept values;
         if not self._accepts_value:
             # Check the buffer is empty and write true, otherwise shout;
@@ -100,7 +100,7 @@ class ResponderArg(abc.ABC):
 
     @property
     def accepts_value(self) -> bool:
-        """Returns True/False to indicate if the argument can be given a qty."""
+        """Returns True/False to indicate if the argument can be given a value."""
         return self._accepts_value
 
     @property
@@ -117,7 +117,7 @@ class ResponderArg(abc.ABC):
             return True
 
     def reset(self) -> None:
-        """Resets the arg qty."""
+        """Resets the arg value."""
         self.marker_found = False
         self._init_value()
 

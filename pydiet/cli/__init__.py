@@ -1,3 +1,6 @@
-from .base_cedv_component import BaseCEDVComponent
+from .base_create_edit_delete_component import BaseCreateEditDeleteComponent
 from .base_editor_component import BaseEditorComponent
+from .base_search_component import BaseSearchComponent
+from .ingredient_editor_component import IngredientEditorComponent
+from .ingredient_search_component import IngredientSearchComponent
 from .main_menu_component import MainMenuComponent
