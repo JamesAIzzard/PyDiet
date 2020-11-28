@@ -1,28 +1,59 @@
 import abc
 from collections import OrderedDict
-from typing import List, Callable, Optional
+from typing import List, Callable, Optional, Type, TYPE_CHECKING
 
-from pyconsoleapp import Component
-from pyconsoleapp import builtin_components
+from pyconsoleapp import Component, PrimaryArg, builtin_components
+from pydiet import persistence
+
+if TYPE_CHECKING:
+    from pydiet.persistence import SupportsPersistence
 
 
 class BaseSearchComponent(Component, abc.ABC):
     """Abstract base class for search components. Used as a base class for a component which
     needs to search through persisted items by name."""
 
-    _template = '''Search term: 
-'''
+    _template = '''Search term: \n'''
 
-    def __init__(self, **kwds):
+    def __init__(self, on_result_selected: Callable[[str], None], **kwds):
         super().__init__(**kwds)
 
-        self._subject_type_name: Optional[str] = None
+        self._on_result_selected: Callable[[str], None] = on_result_selected
 
-        self._page_component = self.use_component(builtin_components.StandardPageComponent)
-        self._page_component.configure(page_title='{} Search'.format(self._subject_type_name))
+        # type: builtin_components.StandardPageComponent
+        self._page_component = self.use_component(builtin_components.StandardPageComponent(
+            page_title='{} Search'.format(self._subject_type_name)
+        ))
 
-        self._results_component = self.delegate_state('results', BaseSearchResultsComponent)
-        self._results_component._subject_type_name = self._subject_type_name
+        # type: SearchResultsComponent
+        self._results_component = self.delegate_state('results', SearchResultsComponent(
+            subject_type_name=self._subject_type_name(),
+            on_result_selected=self._on_result_selected
+        ))
+
+        self.configure(responders=[
+            self.configure_responder(self._on_search, args=[
+                PrimaryArg(name='search_term', accepts_value=True, markers=None)
+            ])
+        ])
+
+    @staticmethod
+    @abc.abstractmethod
+    def _subject_type() -> Type['SupportsPersistence']:
+        """Returns the subject type the search component will deal with."""
+        raise NotImplementedError
+
+    @staticmethod
+    @abc.abstractmethod
+    def _subject_type_name() -> str:
+        """Returns the subject type's readable name."""
+        raise NotImplementedError
+
+    def _on_search(self, search_term: str) -> None:
+        """Implements search of saved object names, based on the search_term."""
+        results = persistence.search_for_names(self._subject_type(), search_term)
+        self.load_results(results)
+        self.current_state = 'results'
 
     def printer(self, **kwds) -> str:
         return self._page_component.printer(page_content=self._template)
@@ -37,9 +68,8 @@ class BaseSearchComponent(Component, abc.ABC):
             self._results_component.configure(on_result_selected=on_result_selected)
 
 
-class BaseSearchResultsComponent(Component, abc.ABC):
-    """Base class for search results components. Used to display search results and respond to result
-    selection."""
+class SearchResultsComponent(Component):
+    """Used to display search results and respond to result selection."""
 
     _template = '''
 {results}
@@ -47,11 +77,14 @@ class BaseSearchResultsComponent(Component, abc.ABC):
 Choose a result number.
 '''
 
-    def __init__(self, **kwds):
+    def __init__(self, on_result_selected: Optional[Callable[[str], None]] = None, **kwds):
         super().__init__(**kwds)
 
         self._results: List[str] = []
+
         self._on_result_selected: Optional[Callable[[str], None]] = None
+        if on_result_selected is not None:
+            self._on_result_selected = on_result_selected
 
         self._subject_type_name: Optional[str] = None
         self._page_component = self.use_component(builtin_components.StandardPageComponent)
@@ -76,6 +109,9 @@ Choose a result number.
         for num, result_name in self._results_num_map.items():
             output = output + _template.format(num=num, result_name=result_name)
         return output
+
+    def printer(self, **kwds) -> str:
+        ...
 
     def load_results(self, results: List[str]) -> None:
         """Loads a list of results."""

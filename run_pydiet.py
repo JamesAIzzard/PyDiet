@@ -1,4 +1,5 @@
-import pydiet.main
+from pydiet import app
+app.run()
 
 
 

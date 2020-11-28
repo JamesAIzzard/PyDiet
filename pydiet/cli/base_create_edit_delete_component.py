@@ -23,7 +23,8 @@ class BaseCreateEditDeleteComponent(Component, abc.ABC):
 {single_hr}
 '''
 
-    def __init__(self, **kwds):
+    def __init__(self, editor_component: 'BaseEditorComponent',
+                 search_component: 'BaseSearchComponent', **kwds):
         super().__init__(**kwds)
 
         self.configure(responders=[
@@ -38,13 +39,18 @@ class BaseCreateEditDeleteComponent(Component, abc.ABC):
             ]),
         ])
 
-        self._subject_type: Optional[Type['SupportsPersistence']] = None
-        self._subject_type_name: Optional[str] = None  # Sentence case
-        self._page_component = self.use_component(builtin_components.StandardPageComponent)
-        self._page_component.configure(page_title='{} Menu'.format(self._subject_type_name))
-        self._editor_component: Optional['BaseEditorComponent'] = None
-        self._editor_route: Optional[str] = None
-        self._search_component: Optional['BaseSearchComponent'] = None
+        # type: builtin_components.StandardPageComponent
+        self._page_component = self.use_component(builtin_components.StandardPageComponent(
+            page_title='{} Menu'.format(self._subject_type.__class__.__name__.capitalize())
+        ))
+        self._editor_component: 'BaseEditorComponent' = editor_component
+        self._search_component: 'BaseSearchComponent' = search_component
+
+    @property
+    @abc.abstractmethod
+    def _subject_type(self) -> Type[SupportsPersistence]:
+        """Returns the type of subject the component deals with."""
+        raise NotImplementedError
 
     @property
     def saved_names_summary(self) -> str:
