@@ -1,5 +1,5 @@
 import abc
-from typing import Type, Callable, Optional, TYPE_CHECKING
+from typing import Type, Callable, TYPE_CHECKING
 
 from pyconsoleapp import Component, PrimaryArg, builtin_components
 from pydiet import persistence, mandatory_attributes
@@ -11,6 +11,9 @@ if TYPE_CHECKING:
 
 class BaseCreateEditDeleteComponent(Component, abc.ABC):
     """Abstract base component for a Create/Edit/Delete/View Menu."""
+
+    _subject_type: Type['SupportsPersistence']
+    _subject_type_name: str
 
     _template = u'''
 {saved_names_summary}
@@ -47,14 +50,8 @@ class BaseCreateEditDeleteComponent(Component, abc.ABC):
         self._search_component: 'BaseSearchComponent' = search_component
 
     @property
-    @abc.abstractmethod
-    def _subject_type(self) -> Type[SupportsPersistence]:
-        """Returns the type of subject the component deals with."""
-        raise NotImplementedError
-
-    @property
     def saved_names_summary(self) -> str:
-        """Returns a newline seperated list of all saved names.
+        """Returns a newline separated list of all saved names.
         If the subject type supports mandatory attributes, a definition status is included."""
         # Flag if we need to get the status;
         get_status = False
@@ -88,7 +85,7 @@ class BaseCreateEditDeleteComponent(Component, abc.ABC):
         """Creates a new instance and passes it to the editor."""
         new_subject = self._subject_type()
         self._editor_component.configure(subject=new_subject)
-        self.app.go_to(self._editor_route)
+        self.app.go_to(self._editor_component)
 
     def _on_search_and_action(self, search_name: str, on_result_selected: Callable[[str], None]):
         """Implements name selection and then calls a follow-up function."""
@@ -103,7 +100,7 @@ class BaseCreateEditDeleteComponent(Component, abc.ABC):
         def on_result_selected():
             selected_subject = persistence.load(self._subject_type, name=subject_name)
             self._editor_component.configure(subject=selected_subject)
-            self.app.go_to(self._editor_route)
+            self.app.go_to(self._editor_component)
 
         self._on_search_and_action(subject_name, on_result_selected)
 

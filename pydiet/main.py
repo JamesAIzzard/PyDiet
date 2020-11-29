@@ -10,7 +10,7 @@ nutrients.build_global_nutrients()
 
 # Init the app;
 app: 'ConsoleApp' = ConsoleApp('PyDiet')
-ingredient_search_component = cli.IngredientSearchComponent(subject_type_name='Ingredient')
+ingredient_search_component = cli.IngredientSearchComponent()
 ingredient_editor_component = cli.IngredientEditorComponent()
 app.configure(routes={
     "home": cli.MainMenuComponent(),

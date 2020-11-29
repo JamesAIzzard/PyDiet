@@ -1,13 +1,15 @@
 from typing import Optional, TYPE_CHECKING
 
 from pyconsoleapp import Component, PrimaryArg, ResponseValidationError, builtin_components
+
 from pydiet import cli, persistence
+from pydiet.cli import BaseEditorComponent
 
 if TYPE_CHECKING:
     from pydiet.ingredients import Ingredient
 
 
-class IngredientEditorComponent(Component):
+class IngredientEditorComponent(BaseEditorComponent):
     """Component implement ingredient editing."""
     _template = '''
 Ingredient Status: {status_summary}

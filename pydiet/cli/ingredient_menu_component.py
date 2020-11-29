@@ -11,9 +11,9 @@ if TYPE_CHECKING:
 class IngredientMenuComponent(BaseCreateEditDeleteComponent):
     """Create/Edit/View/Delete menu for ingredients."""
 
-    def __init__(self, **kwds):
-        super().__init__(**kwds)
+    _subject_type: Type['SupportsPersistence'] = ingredients.Ingredient
+    _subject_type_name: str = 'Ingredient'
 
-    @property
-    def _subject_type(self) -> Type['SupportsPersistence']:
-        return ingredients.Ingredient
+    def __init__(self, editor_component: 'IngredientEditorComponent',
+                 search_component: 'IngredientSearchComponent', **kwds):
+        super().__init__(editor_component=editor_component, search_component=search_component, **kwds)
