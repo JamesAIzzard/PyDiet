@@ -1,4 +1,4 @@
-from pydiet import app
+from gui import app
 app.run()
 
 
