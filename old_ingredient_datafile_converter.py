@@ -36,9 +36,9 @@ for df_name in old_index:
     unit = old_data['cost_per_mass']['ingredient_qty_units']
     i.set_cost(cost_gbp, qty, unit)
 
-    # Port the flags across;
-    for flag_name in old_data['flags']:
-        i.set_flag(flag_name, old_data['flags'][flag_name])
+    # Port the flag_data across;
+    for flag_name in old_data['flag_data']:
+        i.set_flag(flag_name, old_data['flag_data'][flag_name])
 
     # Port the nutrients across;
     for nutrient_name in old_data['nutrients']:

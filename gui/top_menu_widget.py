@@ -67,21 +67,24 @@ class Controller:
         self._app.root.bind("<<Edit-Recipe-Click>>", self._on_edit_recipe_click)
         self._app.root.bind("<<View-Recipes-Click>>", self._on_view_recipes_click)
         self._app.root.bind("<<Edit-Global-Day-Goals-Click>>", self._on_edit_global_day_goals_click)
-        self._app.root.bind("<<New-Day-Goal-Click>>", self._on_new_day_goal_click)
-        self._app.root.bind("<<Edit-Day-Goal-Click>>", self._on_edit_day_goal_click)
-        self._app.root.bind("<<New-Meal-Goal-Click>>", self._on_new_meal_goal_click)
-        self._app.root.bind("<<Edit-Meal-Goal-Click>>", self._on_edit_meal_goal_click)
-        self._app.root.bind("<<New-Week-Plan-Click>>", self._on_new_week_plan_click)
-        self._app.root.bind("<<Edit-Week-Plan-Click>>", self._on_edit_week_plan_click)
+        self._app.root.bind("<<New-Day-Goasl-Click>>", self._on_new_day_goals_click)
+        self._app.root.bind("<<Edit-Day-Goals-Click>>", self._on_edit_day_goals_click)
+        self._app.root.bind("<<New-Meal-Goals-Click>>", self._on_new_meal_goals_click)
+        self._app.root.bind("<<Edit-Meal-Goals-Click>>", self._on_edit_meal_goals_click)
+        self._app.root.bind("<<New-Week-Goals-Click>>", self._on_new_week_goals_click)
+        self._app.root.bind("<<Edit-Week-Goals-Click>>", self._on_edit_week_goals_click)
         self._app.root.bind("<<Solve-Click>>", self._on_solve_click)
 
-    @staticmethod
-    def _on_new_ingredient_click(_):
+    def _on_new_ingredient_click(self, _):
         print("New Ingredient Nav Clicked")
+        self._app.new_ingredient_page_controller.load_ingredient(model.ingredients.load_new_ingredient())
+        self._app.current_page_view = self.app.new_ingredient_page_view
+        self._app.draw()
 
     @staticmethod
     def _on_edit_ingredient_click(_):
         print("Edit Ingredient Nav Clicked")
+        self._app.current_view
 
     @staticmethod
     def _on_view_ingredients_click(_):
@@ -104,27 +107,27 @@ class Controller:
         print("Edit Global Day Goals Clicked")
 
     @staticmethod
-    def _on_new_day_goal_click(_):
+    def _on_new_day_goals_click(_):
         print("New Day Goal Clicked")
 
     @staticmethod
-    def _on_edit_day_goal_click(_):
+    def _on_edit_day_goals_click(_):
         print("Edit Day Goal Clicked")
 
     @staticmethod
-    def _on_new_meal_goal_click(_):
+    def _on_new_meal_goals_click(_):
         print("New Meal Goal Clicked")
 
     @staticmethod
-    def _on_edit_meal_goal_click(_):
+    def _on_edit_meal_goals_click(_):
         print("Edit Meal Goal Clicked")
 
     @staticmethod
-    def _on_new_week_plan_click(_):
+    def _on_new_week_goals_click(_):
         print("New Week Plan Clicked")
 
     @staticmethod
-    def _on_edit_week_plan_click(_):
+    def _on_edit_week_goals_click(_):
         print("Edit Week Plan Clicked")
 
     @staticmethod

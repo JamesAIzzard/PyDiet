@@ -1,14 +1,15 @@
 from typing import Optional, Dict, List, TypedDict, TYPE_CHECKING
 
-from pydiet import nutrients, completion, cost, flags, quantity, persistence
+from model import nutrients, cost, flags, quantity, persistence
 
 if TYPE_CHECKING:
-    from pydiet.quantity.has_bulk import BulkData
-    from pydiet.nutrients.has_nutrient_ratios import NutrientData
-    from pydiet.persistence.supports_persistence import DBInfo, PersistenceInfo
+    from model.quantity.has_bulk import BulkData
+    from model.nutrients.has_nutrient_ratios import NutrientData
+    from model.persistence.supports_persistence import DBInfo, PersistenceInfo
 
 
 class IngredientData(TypedDict):
+    """Ingredient data dictionary."""
     cost_per_g: Optional[float]
     flags: Dict[str, Optional[bool]]
     name: Optional[str]
@@ -17,8 +18,9 @@ class IngredientData(TypedDict):
 
 
 def get_empty_ingredient_data() -> 'IngredientData':
+    """Returns a ingredient data dict with the starting default values set."""
     return IngredientData(cost_per_g=None,
-                          flags=flags.supports_flags.get_empty_flags_data(),
+                          flags=flags.has_flags.get_empty_flags_data(),
                           name=None,
                           nutrients=nutrients.has_nutrient_ratios.get_empty_nutrients_data(),
                           bulk=quantity.has_bulk.get_empty_bulk_data())
@@ -62,7 +64,7 @@ class Ingredient(persistence.supports_persistence.SupportsPersistence,
         # Check cost;
         if not self.cost_per_g_defined:
             attr_names.append('cost')
-        # Check flags;
+        # Check flag_data;
         if self.any_flag_undefined:
             for flag_name in self.unset_flags:
                 attr_names.append('{} flag'.format(
@@ -82,7 +84,7 @@ class Ingredient(persistence.supports_persistence.SupportsPersistence,
 
     @property
     def _flags_data(self) -> Dict[str, Optional[bool]]:
-        return self._data['flags']
+        return self._data['flag_data']
 
     @property
     def _nutrients_data(self) -> Dict[str, 'NutrientData']:

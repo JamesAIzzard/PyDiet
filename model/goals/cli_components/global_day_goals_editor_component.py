@@ -19,7 +19,7 @@ Perc Daily Fat:        {perc_fat:>10} | -pfat [percentage]
 Perc Daily Protein:    {perc_protein:>10} | -pprt [percentage]
 Perc Daily Carbs:      {perc_carbs:>10} | -pcrb [percentage]
 
--flags, -f  -> Edit global flags.
+-flag_data, -f  -> Edit global flag_data.
 -nuts, -n   -> Edit global nutrient targets.
 -save, -s   -> Save changes.
 
@@ -35,7 +35,7 @@ class GlobalDayGoalsEditorComponent(ConsoleAppComponent):
         self.set_response_function(['-pfat'], self.on_edit_perc_fat)
         self.set_response_function(['-pprt'], self.on_edit_perc_protein)
         self.set_response_function(['-pcrb'], self.on_edit_perc_carbs)
-        self.set_response_function(['-flags', '-f'], self.on_edit_flags)
+        self.set_response_function(['-flag_data', '-f'], self.on_edit_flags)
         self.set_response_function(['nuts', '-n'], self.on_edit_nutrient_targets)
         self.set_response_function(['-save', '-s'], self.on_save)
 

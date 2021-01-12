@@ -80,7 +80,7 @@ class HasSettableNutrientRatios(HasNutrientRatios, abc.ABC):
             nutrient_ratio.g_per_subject_g = backup_g_per_subject_g
             raise err
 
-        # Check for defined & conflicting flags (hard conflicts);
+        # Check for defined & conflicting flag_data (hard conflicts);
         if isinstance(self, flags.HasFlags):
             for relation in pydiet.nutrient_flag_relations[nutrient_name]:
                 # Raise an exception in any of the four cases (in order of appearance):
@@ -99,7 +99,7 @@ class HasSettableNutrientRatios(HasNutrientRatios, abc.ABC):
                     elif relation.implies_has_no_nutrient and new_g_per_subject_g == 0:  # 4.
                         raise pydiet.exceptions.FlagNutrientConflictError
 
-        # Update any unset and related flags (soft conflicts);
+        # Update any unset and related flag_data (soft conflicts);
         if isinstance(self, flags.HasSettableFlags):
             for relation in pydiet.nutrient_flag_relations[nutrient_name]:
                 # Update an unset flag in any of the four cases (in order of appearance):

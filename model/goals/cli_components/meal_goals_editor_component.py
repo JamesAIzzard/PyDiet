@@ -41,7 +41,7 @@ Flags:
 1. alcohol-free
 {flag_menu}
 
--flags -> Edit flags.
+-flag_data -> Edit flag_data.
 '''
 
 class MealGoalsEditorComponent(ConsoleAppComponent):

@@ -8,7 +8,7 @@ if TYPE_CHECKING:
 data_template = {
     "time": None,
     "max_cost_gbp": None,
-    "flags": [],
+    "flag_data": [],
     "tags": [],
     "calories": None,
     "nutrient_mass_targets": {}
@@ -61,7 +61,7 @@ class MealGoals(flags.supports_flags.SupportsFlags,
 
     @property
     def flags(self) -> List[str]:
-        return self.data['flags']
+        return self.data['flag_data']
 
     def add_flag(self, flag_name: str) -> None:
         raise NotImplementedError

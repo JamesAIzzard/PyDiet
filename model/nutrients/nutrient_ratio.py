@@ -96,7 +96,7 @@ class SettableNutrientRatio(NutrientRatio):
     def __init__(self, **kwds):
         super().__init__(**kwds)
 
-        # Check that we don't have readonly flags (this would allow inconsistencies);
+        # Check that we don't have readonly flag_data (this would allow inconsistencies);
         if not isinstance(self, flags.HasSettableFlags):
             assert not isinstance(self, flags.HasFlags)
 

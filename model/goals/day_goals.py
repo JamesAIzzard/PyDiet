@@ -21,7 +21,7 @@ day_goals_data_template = {
     "name": None,
     "solution_datafile_names": [],
     "max_cost_gbp": None,
-    "flags": {},
+    "flag_data": {},
     "calories": None,
     "nutrient_mass_targets": {},
     "meal_goals": {}
@@ -56,7 +56,7 @@ class DayGoals(flags.supports_flags.SupportsFlags,
 
     @property
     def flags(self) -> List[str]:
-        return self._data['flags']
+        return self._data['flag_data']
 
     def add_flag(self, flag_name: str) -> None:
         # Check the flag name is valid;
@@ -64,7 +64,7 @@ class DayGoals(flags.supports_flags.SupportsFlags,
             raise flags.FlagNameError
         # Add the flag if it isn't already there;
         if not flag_name in self.flags:
-            self._data['flags'].append(flag_name)
+            self._data['flag_data'].append(flag_name)
 
     def remove_flag(self, flag_name: str) -> None:
         # Check the flag name is valid;
@@ -72,7 +72,7 @@ class DayGoals(flags.supports_flags.SupportsFlags,
             raise flags.FlagNameError
         # Remove the flag if it is in the list;
         if flag_name in self.flags:
-            self._data['flags'].remove(flag_name)
+            self._data['flag_data'].remove(flag_name)
 
     @property
     def calories(self) -> Optional[float]:

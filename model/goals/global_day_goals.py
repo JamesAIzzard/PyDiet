@@ -7,7 +7,7 @@ from pydiet import flags, persistence, ingredients, goals
 
 _DATA_TEMPLATE = {
   "calories": None,
-  "flags": [],
+  "flag_data": [],
   "max_cost_gbp": None,
   "nutrient_mass_targets": {}
 }
@@ -71,18 +71,18 @@ class GlobalDayGoals():
 
     @property
     def flags(self) -> List[str]:
-        return self._data['flags']
+        return self._data['flag_data']
 
     # def add_flag(self, flag_name:str)->None:
     #     # Check the flag name is a valid flag;
-    #     if not flag_name in flags.configs.FLAGS:
+    #     if not flag_name in flag_data.configs.FLAGS:
     #         raise ValueError
-    #     if not flag_name in self._data['flags']:
-    #         self._data['flags'].append(flag_name)
+    #     if not flag_name in self._data['flag_data']:
+    #         self._data['flag_data'].append(flag_name)
 
     def remove_flag(self, flag_name:str)->None:
-        if flag_name in self._data['flags']:
-            self._data['flags'].remove(flag_name)
+        if flag_name in self._data['flag_data']:
+            self._data['flag_data'].remove(flag_name)
 
     def validate(self)->None:
         # Check the percentage sums do not exceed 100%;
