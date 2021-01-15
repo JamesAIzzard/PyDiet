@@ -1,6 +1,6 @@
 from typing import Optional
 
-from pydiet.flags import configs, exceptions
+from . import configs, exceptions
 
 
 def validate_flag_name(flag_name: str) -> str:

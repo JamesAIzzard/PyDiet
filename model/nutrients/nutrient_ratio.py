@@ -1,10 +1,10 @@
 from typing import Optional, TYPE_CHECKING
 
-from pydiet import nutrients, quantity, flags
-from pydiet.nutrients import exceptions
+from model import nutrients, quantity, flags
+from . import exceptions
 
 if TYPE_CHECKING:
-    from pydiet.nutrients import Nutrient
+    from model.nutrients import Nutrient
 
 
 class NutrientRatio:

@@ -1,5 +1,5 @@
 import enum
-from typing import List, TypedDict, Dict
+from typing import List, TypedDict, Dict, Optional
 
 import model
 
@@ -57,14 +57,17 @@ class FlagNutrientRelations:
             self._nutrient_name_map[nutrient_name].append(relation)
             self._flag_name_map[flag_name].append(relation)
 
-        def implied_non_zero_nutrients(self, flag_name: str, flag_value: bool) -> List[str]:
-            """Returns a list of nutrients which the flag implies are non-zero."""
+    def get_relations(self, flag_name: Optional[str], nutrient_name: Optional[str]) -> List['FlagNutrientRelation']:
+        """Returns the relations associated with either the flag name or the nutrient name."""
 
-        def implied_zero_nutrients(self, flag_name: str, flag_value: bool) -> List[str]:
-            """Returns a list of nutrients which the flag implies are zero."""
+    def implied_non_zero_nutrients(self, flag_name: str, flag_value: bool) -> List[str]:
+        """Returns a list of nutrients which the flag implies are non-zero."""
 
-        def implied_true_flags(self, nutrient_name: str, nutrient_g_per_subject_g: float) -> List[str]:
-            """Returns a list of flags which the nutrient statement implies must be true."""
+    def implied_zero_nutrients(self, flag_name: str, flag_value: bool) -> List[str]:
+        """Returns a list of nutrients which the flag implies are zero."""
 
-        def implied_false_flags(self, nutrient_name: str, nutrient_g_per_subject_g: float) -> List[str]:
-            """Returns a list of flags which the nutrient statement implies must be false."""
+    def implied_true_flags(self, nutrient_name: str, nutrient_g_per_subject_g: float) -> List[str]:
+        """Returns a list of flags which the nutrient statement implies must be true."""
+
+    def implied_false_flags(self, nutrient_name: str, nutrient_g_per_subject_g: float) -> List[str]:
+        """Returns a list of flags which the nutrient statement implies must be false."""

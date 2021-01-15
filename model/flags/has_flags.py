@@ -1,9 +1,12 @@
 import abc
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, TYPE_CHECKING
 
 import model
 from model import nutrients, flags
+from . import exceptions
 
+if TYPE_CHECKING:
+    from model.nutrients import NutrientRatio
 
 class HasFlags(abc.ABC):
     """Models an object which has flag_data to characterise its content."""
@@ -114,6 +117,35 @@ class HasSettableFlags(HasFlags, abc.ABC):
         # Validate;
         flag_name = flags.validation.validate_flag_name(flag_name)
         flag_value = flags.validation.validate_flag_value(flag_value)
+
+        # Deal with flag being reset;
+        if flag_value is None:
+            self._flags[flag_name] = None
+            return
+
+        # From now on, we know the flag is set.
+
+        # Set the flag value if the instance doesn't support nutrient ratios;
+        if not isinstance(self, nutrients.HasNutrientRatios):
+            self._flags[flag_name] = flag_value
+
+        # Get flag-nutr relations for this flag;
+        rels = model.configs.flag_nutrient_relations.get_relations(flag_name=flag_name)
+
+        # Check each relation for conflicts;
+        for rel in rels:
+            # Get the related nutrient_amount;
+            nut_amt = self.get_nutrient_ratio(rel.nutrient_name) # type: NutrientRatio
+            if rel.flag_implies_nutrient_zero:
+                if nut_amt.defined and nut_amt.is_non_zero:
+                    raise model.exceptions.FlagNutrientConflictError(
+                        '{flag_name} implies {nutrient_name}% should be zero.'.format(
+                            flag_name=flag_name,
+                            nutrient_name=nut_amt.nutrient.primary_name
+                        )
+                    )
+            elif rel.flag_implies_nutrient_non_zero:
+                ...
 
         # Shout if there is a defined and conflicting nutrient ratio (hard conflicts);
         if isinstance(self, nutrients.HasNutrientRatios):
