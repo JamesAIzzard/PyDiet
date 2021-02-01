@@ -1,24 +1,35 @@
-from typing import Optional, TYPE_CHECKING
+from typing import Optional, TypedDict
 
 from model import nutrients, quantity, flags
 from . import exceptions
 
-if TYPE_CHECKING:
-    from model.nutrients import Nutrient
+
+class NutrientRatioData(TypedDict):
+    """Persisted data format for NutrientRatio instances."""
+    nutrient_g_per_subject_g: Optional[float]
+    nutrient_pref_units: str
+
+
+def get_empty_nutrient_ratio_data() -> NutrientRatioData:
+    """Returns an fresh instance of nutrient ratio data with default values."""
+    return NutrientRatioData(
+        nutrient_g_per_subject_g=None,
+        nutrient_pref_units='g'
+    )
 
 
 class NutrientRatio:
     """Models an amount of nutrient per substance."""
 
-    def __init__(self, nutrient_name: str, g_per_subject_g: Optional[float] = None, pref_unit: str = 'g', **kwds):
-        super().__init__(**kwds)
+    def __init__(self, nutrient_name: str, g_per_subject_g: Optional[float] = None,
+                 pref_unit: str = 'g', **kwargs):
         nutrient_name = nutrients.get_nutrient_primary_name(nutrient_name)
-        self._nutrient: 'Nutrient' = nutrients.global_nutrients[nutrient_name]
+        self._nutrient: nutrients.Nutrient = nutrients.global_nutrients[nutrient_name]
         self._g_per_subject_g: Optional[float] = g_per_subject_g
         self._pref_unit: str = pref_unit
 
     @property
-    def nutrient(self) -> 'Nutrient':
+    def nutrient(self) -> nutrients.Nutrient:
         return self._nutrient
 
     @property
@@ -28,7 +39,7 @@ class NutrientRatio:
 
     def _set_g_per_subject_g(self, g_per_subject_g: Optional[float]) -> None:
         """Implementation for setting g_per_subject_g"""
-        raise exceptions.NutrientRatioNotSettableError
+        raise exceptions.ReadonlyNutrientRatioError
 
     @g_per_subject_g.setter
     def g_per_subject_g(self, g_per_subject_g: Optional[float]) -> None:
@@ -42,7 +53,7 @@ class NutrientRatio:
 
     def _set_pref_unit(self, pref_mass_unit: str) -> None:
         """Implementation for setting the pref_unit."""
-        raise exceptions.NutrientRatioNotSettableError
+        raise exceptions.ReadonlyNutrientRatioError
 
     @pref_unit.setter
     def pref_unit(self, pref_mass_unit: str) -> None:
@@ -55,6 +66,11 @@ class NutrientRatio:
         return self._g_per_subject_g is not None and self._pref_unit is not None
 
     @property
+    def undefined(self) -> bool:
+        """Returns True/False to inidcate if the nutrient ratio is undefined."""
+        return not self.defined
+
+    @property
     def is_zero(self) -> bool:
         """Returns True/False to indicate if the nutrient ratio is explicitly set to zero."""
         return self._g_per_subject_g == 0
@@ -64,41 +80,15 @@ class NutrientRatio:
         """Returns True/False to indicate if the nutrient ratio is not zero."""
         return not self.is_zero
 
-    @property
-    def summary(self, subject_ref_qty: Optional[float] = None, subject_pref_unit: Optional[float] = None) -> str:
-        """Returns a readable summary of the nutrient ratio."""
-        template = '{name}: {summary}'
-        if not self.defined:
-            summary = 'Undefined'
-        else:
-            nutr_ref_qty = quantity.convert_qty_unit(
-                qty=self._g_per_subject_g,
-                start_unit='g',
-                end_unit=self._pref_unit
-            )
-            # If subject data was passed, do more detailed summary;
-            if subject_pref_unit is not None and subject_ref_qty is not None:
-                summary = '{nutr_ref_qty:.3f}{nutr_pref_unit} per {subj_ref_qty}{subj_pref_unit}'.format(
-                    nutr_ref_qty=nutr_ref_qty,
-                    nutr_pref_unit=self._pref_unit,
-                    subj_ref_qty=subject_ref_qty,
-                    subj_pref_unit=subject_pref_unit
-                )
-            else:  # Otherwise just do the basic one;
-                summary = '{nutr_ref_qty}{nutr_pref_unit} per g'.format(
-                    nutr_ref_qty=nutr_ref_qty,
-                    nutr_pref_unit=self._pref_unit
-                )
-        return template.format(name=self._nutrient.primary_name.replace('_', ' '), summary=summary)
-
 
 class SettableNutrientRatio(NutrientRatio):
-    def __init__(self, **kwds):
-        super().__init__(**kwds)
 
+    def __init__(self, nutrient_name: str, g_per_subject_g: Optional[float] = None,
+                 pref_unit: str = 'g', **kwargs):
         # Check that we don't have readonly flag_data (this would allow inconsistencies);
         if not isinstance(self, flags.HasSettableFlags):
             assert not isinstance(self, flags.HasFlags)
+        super().__init__(nutrient_name, g_per_subject_g, pref_unit, **kwargs)
 
     def _set_g_per_subject_g(self, g_per_subject_g: Optional[float]) -> None:
         """Implementation for setting grams of nutrient per gram of subject.

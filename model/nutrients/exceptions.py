@@ -1,7 +1,7 @@
-from pydiet.exceptions import PyDietException
+from model.exceptions import PyDietException
 
 
-class NutrientRatioNotSettableError(PyDietException):
+class ReadonlyNutrientRatioError(PyDietException):
     """Indicating the object does not support setting nutrient ratios."""
 
 

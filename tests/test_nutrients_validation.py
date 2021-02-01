@@ -1,11 +1,12 @@
 from unittest import TestCase
 
-from pydiet import nutrients, quantity
+from model import nutrients, quantity, ingredients
 
 
-class TestValidateNutrientsData(TestCase):
+class TestSetNutrientRatio(TestCase):
 
     def setUp(self) -> None:
+        self.i = ingredients.load_new_ingredient()
         self.nd = nutrients.has_nutrient_ratios.get_empty_nutrients_data()
 
     def test_catches_nutrient_name_error(self):

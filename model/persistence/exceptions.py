@@ -1,13 +1,17 @@
-from pydiet.exceptions import PyDietException
+from model.exceptions import PyDietException
 
 
-class NameUndefinedError(PyDietException):
-    """Indicates the unique name is not defined on the instance."""
+class UniqueValueUndefinedError(PyDietException):
+    """Indicates the unique value is not defined on the instance."""
 
 
-class NameDuplicatedError(PyDietException):
-    """Indicates the name on the instance is not unique."""
+class UniqueValueDuplicatedError(PyDietException):
+    """Indicates the unique value on the instance is not unique."""
 
 
-class NoDatafileError(PyDietException):
+class DatafileNotFoundError(PyDietException):
     """Indicates the datafile was not found."""
+
+
+class UniqueValueNotFoundError(PyDietException):
+    """Indicates the unique value was not found in the index."""

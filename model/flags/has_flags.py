@@ -1,37 +1,24 @@
 import abc
-from typing import Dict, List, Optional, TYPE_CHECKING
+from typing import Dict, List, Optional
 
-import model
 from model import nutrients, flags
-from . import exceptions
 
-if TYPE_CHECKING:
-    from model.nutrients import NutrientRatio
 
 class HasFlags(abc.ABC):
     """Models an object which has flag_data to characterise its content."""
 
-    def __init__(self, flag_data: Dict[str, Optional[bool]], **kwds):
-        super().__init__(**kwds)
-        # Init the internal flag_data list;
-        self._flags = {}
-        for flag_name in flags.configs.all_flag_names:
-            self._flags[flag_name] = None
-        # Load in any legitimate values which were passed in;
+    def __init__(self, flag_data: Dict[str, Optional[bool]], **kwargs):
+        super().__init__(**kwargs)
+        # Build the internal flag list;
+        # First build the keys up;
+        self._flags = {flag_name: None for flag_name in flags.configs.all_flags.keys()}
+        # Now import the values;
         for flag_name, flag_value in flag_data.items():
-            if flag_name in self._flags:  # Prevent unknown flag_data being set.
-                self._flags[flag_name] = flag_value
-
-    @property
-    def flags_summary(self) -> str:
-        """Returns a readable summary of the flag_data."""
-        output = ''
-        for fname in self._flags:
-            output = output + '{name:<15} {value:<10}\n'.format(
-                name=fname.replace('_', ' ') + ':',
-                value=self.summarise_flag(fname)
-            )
-        return output
+            # Catch error where flag name is not recognised;
+            if flag_name not in self._flags.keys():
+                raise ValueError(f"{flag_name} is not a recognised flag name.")
+            # Go ahead and assign the value;
+            self._flags[flag_name] = flag_value
 
     @property
     def all_flag_names(self) -> List[str]:
@@ -87,20 +74,12 @@ class HasFlags(abc.ABC):
         """Returns True/False to indicate if the named flag is False."""
         return self._flags[flag_name] is False
 
-    def summarise_flag(self, flag_name: str) -> str:
-        """Return a readable summary of the flag by name."""
-        val = self.get_flag_value(flag_name)
-        if val is None:
-            return 'Undefined'
-        else:
-            return str(val)
-
 
 class HasSettableFlags(HasFlags, abc.ABC):
     """Models an object with configurable flag_data to characterise its content."""
 
-    def __init__(self, **kwds):
-        super().__init__(**kwds)
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
         # Check that we don't have readonly nutrient ratios. Having this at the same time as
         # having settable flag_data would allow inconsistencies.
@@ -115,74 +94,17 @@ class HasSettableFlags(HasFlags, abc.ABC):
     def set_flag(self, flag_name: str, flag_value: Optional[bool]) -> None:
         """Sets a flag value by name."""
         # Validate;
-        flag_name = flags.validation.validate_flag_name(flag_name)
-        flag_value = flags.validation.validate_flag_value(flag_value)
+        # flag_name = flags.validation.validate_flag_name(flag_name)
+        # flag_value = flags.validation.validate_flag_value(flag_value)
 
-        # Deal with flag being reset;
-        if flag_value is None:
-            self._flags[flag_name] = None
-            return
+        raise NotImplementedError
 
-        # From now on, we know the flag is set.
-
-        # Set the flag value if the instance doesn't support nutrient ratios;
-        if not isinstance(self, nutrients.HasNutrientRatios):
-            self._flags[flag_name] = flag_value
-
-        # Get flag-nutr relations for this flag;
-        rels = model.configs.flag_nutrient_relations.get_relations(flag_name=flag_name)
-
-        # Check each relation for conflicts;
-        for rel in rels:
-            # Get the related nutrient_amount;
-            nut_amt = self.get_nutrient_ratio(rel.nutrient_name) # type: NutrientRatio
-            if rel.flag_implies_nutrient_zero:
-                if nut_amt.defined and nut_amt.is_non_zero:
-                    raise model.exceptions.FlagNutrientConflictError(
-                        '{flag_name} implies {nutrient_name}% should be zero.'.format(
-                            flag_name=flag_name,
-                            nutrient_name=nut_amt.nutrient.primary_name
-                        )
-                    )
-            elif rel.flag_implies_nutrient_non_zero:
-                ...
-
-        # Shout if there is a defined and conflicting nutrient ratio (hard conflicts);
-        if isinstance(self, nutrients.HasNutrientRatios):
-            relations = model.configs.flag_nutrient_relations[flag_name]  # Grab ref to the right relations.
-            for nutrient_name in relations:  # Cycle through any related nutrient name.
-                nutrient_ratio = self.get_nutrient_ratio(nutrient_name=nutrient_name)
-                if relation.implies_has_nutrient and nutrient_ratio.is_zero:
-                    raise pydiet.exceptions.FlagNutrientConflictError(
-                        '{flag_name} implies {nutrient_name}% should be zero.'.format(
-                            flag_name=flag_name,
-                            nutrient_name=relation.nutrient_name
-                        )
-                    )
-                elif relation.implies_has_no_nutrient and nutrient_ratio.is_non_zero:
-                    raise pydiet.exceptions.FlagNutrientConflictError(
-                        '{flag_name} implies {nutrient_name}% should be greater than zero.'.format(
-                            flag_name=flag_name,
-                            nutrient_name=relation.nutrient_name
-                        )
-                    )
-
-        # Update any unset and related nutrient ratios (soft conflicts);
-        if isinstance(self, nutrients.HasSettableNutrientRatios):
-            for relation in pydiet.flag_nutrient_relations[flag_name]:
-                nutrient_ratio = self.get_nutrient_ratio(nutrient_name=relation.nutrient_name)
-                if relation.implies_has_no_nutrient and not nutrient_ratio.defined:
-                    nutrient_ratio.g_per_subject_g = 0
-
-        # Set;
-        self._flags[flag_name] = flag_value
-
-    def set_all_flags_yes(self) -> None:
+    def set_all_flags_true(self) -> None:
         """Sets all flag_data to be True."""
         for flag_name in self._flags:
             self.set_flag(flag_name, True)
 
-    def set_all_flags_no(self) -> None:
+    def set_all_flags_false(self) -> None:
         """Sets all flag_data to be False."""
         for flag_name in self._flags:
             self.set_flag(flag_name, False)

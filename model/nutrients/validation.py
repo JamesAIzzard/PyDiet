@@ -1,8 +1,6 @@
 from typing import TYPE_CHECKING
 
-import pydiet
-from pydiet import nutrients, flags
-from pydiet.nutrients import exceptions
+from model import nutrients
 
 if TYPE_CHECKING:
     pass
@@ -16,7 +14,7 @@ def validate_nutrient_name(name: str) -> str:
     name = name.replace(' ', '_')
     if name in nutrients.all_primary_and_alias_nutrient_names():
         return name
-    raise exceptions.NutrientNameError
+    raise nutrients.exceptions.NutrientNameError
 
 
 def validate_configs() -> None:
@@ -50,19 +48,6 @@ def validate_configs() -> None:
             if name not in apnn:
                 raise nutrients.exceptions.NutrientConfigsError(
                     '{} is in included in the group {} but is not a primary nutrient name'.format(name, group_name))
-
-    # Check that nutrient_flag_rels.keys() are in all_flag_names;
-    for flag_name in pydiet.configs.flag_nutrient_relations:
-        if flag_name not in flags.configs.all_flag_names:
-            raise nutrients.exceptions.NutrientConfigsError(
-                '{} is in nutrient_flag_rels but not in all_flag_names'.format(flag_name))
-
-    # Check that nutrient_flag_rels.values() are in all_primary_nutrient_names;
-    for flag_name in pydiet.configs.flag_nutrient_relations:
-        for name in pydiet.configs.flag_nutrient_relations[flag_name]:
-            if name not in apnn:
-                raise nutrients.exceptions.NutrientConfigsError(
-                    '{} is in nutrient_flag_rels but is not a primary nutrient name'.format(name))
 
     # Check that all calorie_nutrients.keys() are in all_primary_nutrient_names;
     for name in nutrients.configs.calorie_nutrients.keys():

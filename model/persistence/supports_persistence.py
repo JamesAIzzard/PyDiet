@@ -1,17 +1,15 @@
 import abc
 from typing import Dict, Any, Optional
 
-from pydiet import persistence
-from pydiet.name import HasSettableName
-from pydiet.persistence import exceptions
+from model import persistence
 
 
-class SupportsPersistence(HasSettableName, abc.ABC):
+class SupportsPersistence(abc.ABC):
     """ABC for object persistence functionality."""
 
-    def __init__(self, name: Optional[str] = None, datafile_name: Optional[str] = None, **kwds):
+    def __init__(self, unique_value: Optional[str] = None, datafile_name: Optional[str] = None, **kwds):
         super().__init__(**kwds)
-        self._name = name
+        self._name = unique_value
         self._datafile_name: Optional[str] = datafile_name
 
     @staticmethod
@@ -36,16 +34,16 @@ class SupportsPersistence(HasSettableName, abc.ABC):
         """Returns the datafile name for the instance."""
         return self._datafile_name
 
-    def _set_name(self, name: str) -> None:
+    def _set_unique_value(self, name: str) -> None:
         """Modifies the name setter to ensure the name being set is unique to that class.
         Raises:
             NameDuplicatedError: To indicate there is another saved instance of this class
                 with the same name.
         """
-        if persistence.check_name_available(self.__class__, name, self.datafile_name):
+        if persistence.check_unique_value_available(self.__class__, name, self.datafile_name):
             self._name = name
         else:
-            raise exceptions.NameDuplicatedError
+            raise persistence.exceptions.UniqueValueDuplicatedError
 
     @property
     def has_unsaved_changes(self) -> bool:
@@ -71,6 +69,6 @@ class SupportsPersistence(HasSettableName, abc.ABC):
     def datafile_path(self) -> str:
         """Returns the entire path to the instance's datafile."""
         if not self.datafile_exists:
-            raise persistence.exceptions.NoDatafileError
+            raise persistence.exceptions.DatafileNotFoundError
         else:
             return self.get_path_into_db() + self.datafile_name + '.json'

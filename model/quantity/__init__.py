@@ -1,4 +1,4 @@
-from .core import (get_recognised_mass_units,
+from .main import (get_recognised_mass_units,
                    get_recognised_vol_units,
                    get_recognised_qty_units,
                    units_are_volumes,
@@ -6,5 +6,5 @@ from .core import (get_recognised_mass_units,
                    units_are_masses,
                    convert_qty_unit,
                    convert_density_unit)
-from .has_bulk import HasBulk
+from .has_bulk import HasBulk, BulkData
 from . import validation, exceptions

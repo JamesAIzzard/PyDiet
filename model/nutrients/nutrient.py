@@ -1,7 +1,8 @@
 from typing import Dict, List, Optional
 
-from pydiet import nutrients
-from pydiet.nutrients import configs, global_nutrients
+from . import configs, global_nutrients
+
+from model import nutrients
 
 
 class Nutrient:

@@ -1,27 +1,56 @@
 import abc
-from typing import Dict, List, TYPE_CHECKING
+from typing import Dict, List
 
-import pydiet
-from pydiet import nutrients, quantity, flags
-from pydiet.nutrients import configs, exceptions
-from pydiet.quantity import HasBulk
-
-if TYPE_CHECKING:
-    from pydiet.nutrients import NutrientRatio, SettableNutrientRatio
+from . import validation, configs, exceptions
+from model import quantity, nutrients
 
 
-class HasNutrientRatios(HasBulk, abc.ABC):
+class HasNutrientRatios(quantity.HasBulk, abc.ABC):
+    """Abstract class to model objects with readonly nutrient ratios."""
 
-    def __init__(self, **kwds):
-        super().__init__(**kwds)
+    def __init__(self, **kwargs):
+        """
+        HasNutrientRatios constructor.
+        Keyword Args:
+            nutrient_ratios (Dict[str, NutrientRatio]): NutrientRatio instances
+                to be loaded into this object.
+        """
+        super().__init__(**kwargs)
+        self._nutrient_ratios: Dict[str, 'nutrients.NutrientRatio'] = {}
+        # Start by populating the list with fresh instances;
+        for nutr_name in configs.all_primary_nutrient_names:
+            if nutr_name not in self._nutrient_ratios:
+                self._nutrient_ratios[nutr_name] = self._new_nutrient_ratio(nutr_name)
+        # Now update list with any data that has been passed in;
+        if 'nutrient_ratios' in kwargs.keys():
+            for nr in kwargs['nutrient_ratios'].values():
+                self._check_nr_type(nr)
+            # Import any nutrient ratio data supplied;
+            for nutr_name, nr in kwargs['nutrient_ratios'].items():
+                prim_nutr_name = validation.validate_nutrient_name(nutr_name)
+                self._nutrient_ratios[prim_nutr_name] = nr
+
+    @staticmethod
+    def _check_nr_type(nutrient_ratio: 'nutrients.NutrientRatio') -> None:
+        """Checks the readonly/writable status of nutrient_ratio."""
+        if not isinstance(nutrient_ratio, nutrients.NutrientRatio):
+            raise ValueError("Expecting a NutrientRatio instance.")
+        if isinstance(nutrient_ratio, nutrients.SettableNutrientRatio):
+            raise ValueError("Settable nutrient ratios not allowed in readonly HasNutrientRatios instance.")
+
+    @staticmethod
+    def _get_new_nutrient_ratio(nutrient_name: str) -> 'nutrients.NutrientRatio':
+        """Gets a fresh NutrientRatio instance of the correct Readonly/Writable type."""
+        return nutrients.NutrientRatio(nutrient_name)
 
     @abc.abstractmethod
-    def get_nutrient_ratio(self, nutrient_name: str) -> 'NutrientRatio':
+    def get_nutrient_ratio(self, nutrient_name: str) -> 'nutrients.NutrientRatio':
         """Returns a NutrientRatio by name."""
-        raise NotImplementedError
+        nutrient_name = validation.validate_nutrient_name(nutrient_name)
+        return self._nutrient_ratios[nutrient_name]
 
     @property
-    def nutrient_ratios(self) -> Dict[str, 'NutrientRatio']:
+    def nutrient_ratios(self) -> Dict[str, 'nutrients.NutrientRatio']:
         """Returns all nutrient ratios (defined & undefined) by their primary names."""
         nutrient_ratios = {}
         for nutrient_name in configs.all_primary_nutrient_names:
@@ -29,7 +58,7 @@ class HasNutrientRatios(HasBulk, abc.ABC):
         return nutrient_ratios
 
     @property
-    def defined_optional_nutrient_names(self) -> List[str]:
+    def defined_optional_nutrient_ratios(self) -> List[str]:
         """Returns a list of the optional nutrient names which have been defined."""
         defined_optionals = []
         for nutrient_name, nutrient_ratio in self.nutrient_ratios.items():
@@ -37,22 +66,24 @@ class HasNutrientRatios(HasBulk, abc.ABC):
                 defined_optionals.append(nutrient_name)
         return defined_optionals
 
-    @property
-    def nutrients_summary(self) -> str:
-        """Returns a readable summary of all mandatory and additionally defined nutrients."""
-        output = ''
-        for nutrient_name in configs.mandatory_nutrient_names + self.defined_optional_nutrient_names:
-            output = output + '{name:<30} {summary:<30}\n'.format(
-                name=nutrient_name.replace('_', ' ') + ':',
-                summary=self.get_nutrient_ratio(nutrient_name).summary
-            )
-        return output
-
 
 class HasSettableNutrientRatios(HasNutrientRatios, abc.ABC):
+    """Abstract class to model objects with settable nutrient ratios."""
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+    @staticmethod
+    def _check_nr_type(nutrient_ratio: 'nutrients.NutrientRatio') -> None:
+        if not isinstance(nutrient_ratio, nutrients.SettableNutrientRatio):
+            raise ValueError("Expecting a SettableNutrientRatio")
+
+    @staticmethod
+    def _get_new_nutrient_ratio(nutrient_name: str) -> 'nutrients.NutrientRatio':
+        return nutrients.SettableNutrientRatio(nutrient_name)
 
     @abc.abstractmethod
-    def get_nutrient_ratio(self, nutrient_name: str) -> 'SettableNutrientRatio':
+    def get_nutrient_ratio(self, nutrient_name: str) -> 'nutrients.SettableNutrientRatio':
         """Returns a SettableNutrientRatio by name."""
         raise NotImplementedError
 
@@ -62,61 +93,40 @@ class HasSettableNutrientRatios(HasNutrientRatios, abc.ABC):
                            subject_qty: float,
                            subject_qty_unit: str) -> None:
         """Sets the data on a nutrient ratio by name."""
-        # Set the new ratio, or raise exception and revert if invalid;
-        nutrient_name = nutrients.get_nutrient_primary_name(nutrient_name)
-        nutrient_ratio = self.get_nutrient_ratio(nutrient_name)
-        backup_g_per_subject_g = nutrient_ratio.g_per_subject_g
-        subject_qty_g = quantity.convert_qty_unit(qty=subject_qty,
-                                                  start_unit=subject_qty_unit,
-                                                  end_unit='g')
+        # Convert the nutrient units into grams;
+        if nutrient_qty_unit not in quantity.get_recognised_mass_units():
+            raise quantity.exceptions.IncorrectUnitTypeError("Nutrient quantity must be a mass.")
         nutrient_qty_g = quantity.convert_qty_unit(qty=nutrient_qty,
                                                    start_unit=nutrient_qty_unit,
                                                    end_unit='g')
+        # Grab the nutrient ratio instance by name;
+        nutrient_name = nutrients.get_nutrient_primary_name(nutrient_name)
+        nutrient_ratio = self.get_nutrient_ratio(nutrient_name)
+        # Take a backup in case we need to revert;
+        backup_g_per_subject_g = nutrient_ratio.g_per_subject_g
+        # Convert the subject units into grams;
+        try:
+            subject_qty_g = quantity.convert_qty_unit(qty=subject_qty,
+                                                      start_unit=subject_qty_unit,
+                                                      end_unit='g',
+                                                      g_per_ml=self.g_per_ml,
+                                                      piece_mass_g=self.piece_mass_g)
+        except ValueError:
+            if quantity.units_are_volumes(subject_qty_unit):
+                raise quantity.exceptions.DensityNotConfiguredError
+            elif quantity.units_are_pieces(subject_qty_unit):
+                raise quantity.exceptions.PcMassNotConfiguredError
+            return
+        # Calculate the new nutrient ratio;
         new_g_per_subject_g = nutrient_qty_g / subject_qty_g
+        # Go ahead and make the change;
         nutrient_ratio.g_per_subject_g = new_g_per_subject_g
+        # Now try and validate it;
         try:
             self._validate_nutrient_ratios()
         except exceptions.NutrientRatioGroupError as err:
             nutrient_ratio.g_per_subject_g = backup_g_per_subject_g
             raise err
-
-        # Check for defined & conflicting flag_data (hard conflicts);
-        if isinstance(self, flags.HasFlags):
-            for relation in pydiet.nutrient_flag_relations[nutrient_name]:
-                # Raise an exception in any of the four cases (in order of appearance):
-                # 1. Flag is True, and implies nutrient should be non-zero, but nutrient is zero.
-                # 2. Flag is True, and implies nutrient should be zero, but nutrient is non-zero.
-                # 3. Nutrient is non-zero, matching flag, but flag is False.
-                # 4. Nutrient is zero, matching flag, but flag is False.
-                if self.flag_is_true(relation.flag_name):
-                    if relation.implies_has_nutrient and new_g_per_subject_g == 0:  # 1.
-                        raise pydiet.exceptions.FlagNutrientConflictError
-                    elif relation.implies_has_no_nutrient and new_g_per_subject_g > 0:  # 2.
-                        raise pydiet.exceptions.FlagNutrientConflictError
-                elif self.flag_is_false(relation.flag_name):
-                    if relation.implies_has_nutrient and new_g_per_subject_g > 0:  # 3.
-                        raise pydiet.exceptions.FlagNutrientConflictError
-                    elif relation.implies_has_no_nutrient and new_g_per_subject_g == 0:  # 4.
-                        raise pydiet.exceptions.FlagNutrientConflictError
-
-        # Update any unset and related flag_data (soft conflicts);
-        if isinstance(self, flags.HasSettableFlags):
-            for relation in pydiet.nutrient_flag_relations[nutrient_name]:
-                # Update an unset flag in any of the four cases (in order of appearance):
-                # 1. The nutrient is non-zero and the flag implies non-zero: Make flag True
-                # 2. The nutrient is non-zero and the flag implies zero: Make the flag False
-                # 3. The nutrient is zero and the flag implies non-zero: Make the flag False
-                # 4. The nutrient is zero and the flag implies zero: Make the flag True
-                if new_g_per_subject_g > 0:
-                    if relation.implies_has_nutrient:
-                        self.set_flag(relation.flag_name, True)
-                    elif relation.implies_has_no_nutrient:
-                        self.set_flag(relation.flag_name, False)
-                elif new_g_per_subject_g == 0:
-                    if relation.implies_has_nutrient:
-                        self.set_flag(relation.flag_name, False)
-                    elif relation.implies_has_no_nutrient:
-                        self.set_flag(relation.flag_name, True)
 
     def set_nutrient_pref_unit(self, nutrient_name: str, pref_unit: str) -> None:
         """Sets the pref unit for the nutrient ratio."""

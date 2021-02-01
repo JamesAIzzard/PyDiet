@@ -1,11 +1,6 @@
-from typing import Optional, Dict, List, TypedDict, TYPE_CHECKING
+from typing import Optional, Dict, List, TypedDict
 
 from model import nutrients, cost, flags, quantity, persistence
-
-if TYPE_CHECKING:
-    from model.quantity.has_bulk import BulkData
-    from model.nutrients.has_nutrient_ratios import NutrientData
-    from model.persistence.supports_persistence import DBInfo, PersistenceInfo
 
 
 class IngredientData(TypedDict):
@@ -13,27 +8,8 @@ class IngredientData(TypedDict):
     cost_per_g: Optional[float]
     flags: Dict[str, Optional[bool]]
     name: Optional[str]
-    nutrients: Dict[str, 'NutrientData']
+    nutrients: Dict[str, 'nutrients.NutrientRatioData']
     bulk: quantity.has_bulk.BulkData
-
-
-def get_empty_ingredient_data() -> 'IngredientData':
-    """Returns a ingredient data dict with the starting default values set."""
-    return IngredientData(cost_per_g=None,
-                          flags=flags.has_flags.get_empty_flags_data(),
-                          name=None,
-                          nutrients=nutrients.has_nutrient_ratios.get_empty_nutrients_data(),
-                          bulk=quantity.has_bulk.get_empty_bulk_data())
-
-
-def load_new_ingredient() -> 'Ingredient':
-    """Creates and returns a fresh ingredient instance with no data filled in."""
-    return Ingredient(get_empty_ingredient_data())
-
-
-def get_ingredient_name(datafile_name: str) -> str:
-    """Returns the ingredient name corresponding to the datafile name."""
-    return persistence.get_unique_val_from_df_name(cls=Ingredient, datafile_name=datafile_name)
 
 
 class Ingredient(persistence.supports_persistence.SupportsPersistence,

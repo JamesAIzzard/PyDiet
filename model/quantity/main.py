@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from pydiet.quantity import validation, configs
+from model.quantity import validation, configs
 
 
 def get_recognised_mass_units() -> List[str]:

@@ -1,16 +1,14 @@
-from typing import List, Dict, TYPE_CHECKING
+from typing import List, Dict
 
-from pydiet import nutrients
-from pydiet.nutrients import validation, configs, exceptions
-
-if TYPE_CHECKING:
-    from pydiet.nutrients import Nutrient
+from model import nutrients
+from . import validation, configs, exceptions
 
 # Init the global nutrient instances;
-global_nutrients: Dict[str, 'Nutrient'] = {}
+global_nutrients: Dict[str, 'nutrients.Nutrient'] = {}
 
 
 def build_global_nutrients() -> None:
+    """Constructs the global list of nutrients for use across the model."""
     for primary_nutrient_name in configs.all_primary_nutrient_names:
         if primary_nutrient_name not in global_nutrients.keys():
             global_nutrients[primary_nutrient_name] = nutrients.Nutrient(primary_nutrient_name)
