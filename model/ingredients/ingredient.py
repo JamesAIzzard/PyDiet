@@ -1,6 +1,6 @@
 from typing import Optional, Dict, List, TypedDict
 
-from model import nutrients, cost, flags, quantity, persistence
+from model import nutrients, cost, flags, quantity, persistence, mandatory_attributes
 
 
 class IngredientData(TypedDict):
@@ -12,24 +12,30 @@ class IngredientData(TypedDict):
     bulk: quantity.has_bulk.BulkData
 
 
-class Ingredient(persistence.supports_persistence.SupportsPersistence,
-                 completion.has_mandatory_attributes.SupportsCompletion,
-                 completion.supports_name.SupportsNameSetting,
-                 cost.supports_cost.SupportsCostSetting,
-                 flags.supports_flags.SupportsFlagSetting,
-                 nutrients.has_nutrient_ratios.SupportsSettingNutrientContent,
-                 quantity.has_bulk.SupportsBulkSetting):
+class Ingredient(persistence.SupportsPersistence,
+                 mandatory_attributes.HasMandatoryAttributes,
+                 quantity.HasSettableBulk,
+                 cost.SupportsSettableCost,
+                 flags.HasSettableFlags,
+                 nutrients.HasSettableNutrientRatios):
 
-    def __init__(self, data: 'IngredientData', datafile_name: Optional[str] = None):
-        self._data = data
-        self._datafile_name = datafile_name
+    def __init__(self, data: Optional[IngredientData] = None, **kwargs):
+        super().__init__(**kwargs)
+        # Init empty ingredient properties;
+        self._cost_per_g: Optional[float] = None
+        ...
+        # Load any data that was provided;
+        if data is not None:
+            self.load_data(data)
 
     @property
     def name(self) -> Optional[str]:
-        return self._data['name']
+        return self.get_unique_value()
 
-    def set_name(self, name: Optional[str]) -> None:
-        self.set_unique_field(name)
+    @name.setter
+    def name(self, name: Optional[str]) -> None:
+        """Setter for the name. Ensures the name is unique before setting."""
+        self.set_unique_value(name)
 
     @property
     def missing_mandatory_attrs(self) -> List[str]:
@@ -77,18 +83,11 @@ class Ingredient(persistence.supports_persistence.SupportsPersistence,
         pass
 
     @staticmethod
-    def get_db_info() -> 'DBInfo':
-        return persistence.supports_persistence.DBInfo(
-            unique_field_name='name',
-            path_into_db=persistence.configs.ingredient_db_path
-        )
+    def get_path_into_db() -> str:
+        return persistence.configs.ingredient_db_path
 
-    @property
-    def _persistence_info(self) -> 'PersistenceInfo':
-        return persistence.supports_persistence.PersistenceInfo(
-            data=self._data,
-            datafile_name=self._datafile_name
-        )
+    def persistable_data(self) -> Dict[str, Any]:
+        ...
 
-    def set_datafile_name(self, datafile_name: str) -> None:
-        self._datafile_name = datafile_name
+    def load_data(self, data: Dict[str, Any]) -> None:
+        ...

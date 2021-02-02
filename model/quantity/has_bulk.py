@@ -1,7 +1,7 @@
 import abc
 from typing import TypedDict, Optional
 
-from model import quantity, name
+from model import quantity
 
 
 class BulkData(TypedDict):
@@ -11,7 +11,7 @@ class BulkData(TypedDict):
     piece_mass_g: Optional[float]
 
 
-class HasBulk(name.HasName, abc.ABC):
+class HasBulk(abc.ABC):
     """Models substances with bulk properties, such as density and mass."""
 
     def __init__(self, pref_unit: str = 'g', ref_qty: float = 100, g_per_ml: Optional[float] = None,
@@ -123,7 +123,7 @@ class HasBulk(name.HasName, abc.ABC):
         return True
 
 
-class SupportsBulkSetting(HasBulk, abc.ABC):
+class HasSettableBulk(HasBulk, abc.ABC):
     """Models substances with settable bulk properties, such as density and mass."""
 
     @abc.abstractmethod

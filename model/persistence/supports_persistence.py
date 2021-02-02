@@ -9,7 +9,7 @@ class SupportsPersistence(abc.ABC):
 
     def __init__(self, unique_value: Optional[str] = None, datafile_name: Optional[str] = None, **kwds):
         super().__init__(**kwds)
-        self._name = unique_value
+        self._unique_value = unique_value
         self._datafile_name: Optional[str] = datafile_name
 
     @staticmethod
@@ -34,16 +34,23 @@ class SupportsPersistence(abc.ABC):
         """Returns the datafile name for the instance."""
         return self._datafile_name
 
-    def _set_unique_value(self, name: str) -> None:
-        """Modifies the name setter to ensure the name being set is unique to that class.
+    def set_unique_value(self, value: str) -> None:
+        """Sets the unique value while ensuring the value being set is unique to that class.
         Raises:
             NameDuplicatedError: To indicate there is another saved instance of this class
                 with the same name.
         """
-        if persistence.check_unique_value_available(self.__class__, name, self.datafile_name):
-            self._name = name
+        # Only things that can be expressed as strings can be unique values;
+        value = str(value)
+        # Set the value if it isn't taken already;
+        if persistence.check_unique_value_available(self.__class__, value, self.datafile_name):
+            self._unique_value = value
         else:
             raise persistence.exceptions.UniqueValueDuplicatedError
+
+    def get_unique_value(self) -> str:
+        """Returns the unique value."""
+        return self._unique_value
 
     @property
     def has_unsaved_changes(self) -> bool:
