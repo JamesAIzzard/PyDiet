@@ -7,4 +7,5 @@ from .main import (get_recognised_mass_units,
                    convert_qty_unit,
                    convert_density_unit)
 from .has_bulk import HasBulk, BulkData, HasSettableBulk
+from .supports_quantity import SupportsQuantity
 from . import validation, exceptions

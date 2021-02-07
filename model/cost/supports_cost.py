@@ -8,22 +8,13 @@ class SupportsCost(quantity.HasBulk, abc.ABC):
     """ABC for objects supporting abstract cost (costs per qty)."""
 
     def __init__(self, cost_per_g: Optional[float] = None, **kwargs):
-        self._cost_per_g: Optional[float] = cost_per_g
         super().__init__(**kwargs)
-
-    def _set_cost_per_g(self, cost_per_g: Optional[float]):
-        """Customisable implementation for setting the cost_per_g field."""
-        raise cost.exceptions.CostNotSettableError
+        self._cost_per_g: Optional[float] = cost_per_g
 
     @property
     def cost_per_g(self) -> Optional[float]:
-        """Return's the subject's cost per gram."""
+        """Returns the cost of a single gram of the subject."""
         return self._cost_per_g
-
-    @cost_per_g.setter
-    def cost_per_g(self, cost_per_g: Optional[float]):
-        """Set's the object's cost per gram."""
-        self._set_cost_per_g(cost_per_g)
 
     @property
     def cost_per_g_defined(self) -> bool:
@@ -45,20 +36,22 @@ class SupportsCost(quantity.HasBulk, abc.ABC):
 class SupportsSettableCost(SupportsCost, abc.ABC):
     """ABC for objects supporting settable abstract cost (costs per qty)."""
 
-    def _set_cost_per_g(self, cost_per_g: Optional[float]) -> None:
+    @SupportsCost.cost_per_g.setter
+    def cost_per_g(self, cost_per_g: Optional[float]) -> None:
         """Validates and sets cost_per_g"""
         if cost_per_g is None:
-            self._set_cost_per_g(None)
+            self._cost_per_g = None
         else:
-            self._set_cost_per_g(cost.validation.validate_cost(cost_per_g))
+            self._cost_per_g = cost.validation.validate_cost(cost_per_g)
 
     def set_cost(self, cost_gbp: float, qty: float, unit: str) -> None:
         """Sets the cost in gbp of any quanitity of any unit."""
-        # Todo - Need to finish updating HasBulk to use its properties here.
-        cost_per_unit = cost_gbp / qty
+        # Find the ratio of cost per original unit
+        r = qty/cost_gbp
+        # Convert ratio to grams
         k = quantity.convert_qty_unit(
-            1, 'g', unit,
-            self._bulk_data['g_per_ml'],
-            self._bulk_data['piece_mass_g'])
-        cost_per_g = cost_per_unit * k
-        self.set_cost_per_g(cost_per_g)
+            1, unit, 'g',
+            self.g_per_ml,
+            self.piece_mass_g)
+        cost_per_g = r * k
+        self.cost_per_g = cost_per_g

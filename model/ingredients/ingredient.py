@@ -9,7 +9,7 @@ class IngredientData(TypedDict):
     flags: Dict[str, Optional[bool]]
     name: Optional[str]
     nutrients: Dict[str, 'nutrients.NutrientRatioData']
-    bulk: quantity.has_bulk.BulkData
+    bulk: quantity.BulkData
 
 
 class Ingredient(persistence.SupportsPersistence,
@@ -21,9 +21,6 @@ class Ingredient(persistence.SupportsPersistence,
 
     def __init__(self, data: Optional[IngredientData] = None, **kwargs):
         super().__init__(**kwargs)
-        # Init empty ingredient properties;
-        self._cost_per_g: Optional[float] = None
-        ...
         # Load any data that was provided;
         if data is not None:
             self.load_data(data)
@@ -36,6 +33,11 @@ class Ingredient(persistence.SupportsPersistence,
     def name(self, name: Optional[str]) -> None:
         """Setter for the name. Ensures the name is unique before setting."""
         self.set_unique_value(name)
+
+    @property
+    def name_is_defined(self) -> bool:
+        """Returns True/False to indicate if the ingredient name has been defined."""
+        return self.unique_value_defined
 
     @property
     def missing_mandatory_attrs(self) -> List[str]:
@@ -52,29 +54,8 @@ class Ingredient(persistence.SupportsPersistence,
                 attr_names.append('{} flag'.format(
                     flag_name.replace('_', ' ')))
         # Check nutrients;
-        for nutrient_name in nutrients.configs.mandatory_nutrient_names:
-            if not self.nutrient_is_defined(nutrient_name):
-                attr_names.append(nutrient_name)
+        attr_names = attr_names + self.undefined_mandatory_nutrient_ratios
         return attr_names
-
-    @property
-    def cost_per_g(self) -> Optional[float]:
-        return self._data['cost_per_g']
-
-    def _set_cost_per_g(self, validated_cost_per_g: Optional[float]) -> None:
-        self._data['cost_per_g'] = validated_cost_per_g
-
-    @property
-    def _flags_data(self) -> Dict[str, Optional[bool]]:
-        return self._data['flag_data']
-
-    @property
-    def _nutrients_data(self) -> Dict[str, 'NutrientData']:
-        return self._data['nutrients']
-
-    @property
-    def _bulk_data(self) -> 'BulkData':
-        return self._data['bulk']
 
     def _density_reset_cleanup(self) -> None:
         pass
@@ -86,8 +67,18 @@ class Ingredient(persistence.SupportsPersistence,
     def get_path_into_db() -> str:
         return persistence.configs.ingredient_db_path
 
-    def persistable_data(self) -> Dict[str, Any]:
-        ...
+    def persistable_data(self) -> Dict[str, IngredientData]:
+        return IngredientData(
+            cost_per_g=self.cost_per_g,
+            flags=self.flags_data,
+            name=self.name,
+            nutrients=self.nutrient_ratios_data,
+            bulk=self.bulk_data
+        )
 
-    def load_data(self, data: Dict[str, Any]) -> None:
-        ...
+    def load_data(self, data: IngredientData) -> None:
+        super().cost_per_g = data['cost_per_g']
+        self.set_flags(data['flags'])
+        self.name = data['name']
+        self.set_nutrient_ratios(data['nutrients'])
+        self.set_bulk_attrs(data['bulk'])

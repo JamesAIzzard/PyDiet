@@ -1,9 +1,7 @@
-from pydiet.quantity.supports_quantity import SupportsQuantity
-from pydiet import cost, quantity
+from model import cost, quantity
 
 
-class SupportsPricetag(cost.supports_cost.SupportsCost,
-                       quantity.supports_quantity.SupportsQuantity):
+class SupportsPricetag(cost.SupportsCost, quantity.SupportsQuantity):
 
     @property
     def pricetag(self) -> float:

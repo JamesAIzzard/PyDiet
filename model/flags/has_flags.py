@@ -25,6 +25,11 @@ class HasFlags(abc.ABC):
         """Returns a list of all flag names."""
         return list(self._flags.keys())
 
+    @property
+    def flags_data(self) -> Dict[str, Optional[bool]]:
+        """Returns a dictionary of the flag names and their states"""
+        return {flag_name: flag_value for flag_name, flag_value in self._flags.items()}
+
     def get_flag_value(self, flag_name: str) -> Optional[bool]:
         """Get the value of a particular flag by name."""
         return self._flags[flag_name]
@@ -96,6 +101,7 @@ class HasSettableFlags(HasFlags, abc.ABC):
         # Validate;
         # flag_name = flags.validation.validate_flag_name(flag_name)
         # flag_value = flags.validation.validate_flag_value(flag_value)
+        pass
 
         raise NotImplementedError
 

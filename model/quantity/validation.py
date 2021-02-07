@@ -1,7 +1,6 @@
 from typing import Any
 
-from pydiet import quantity
-from pydiet.quantity import exceptions
+from model import quantity
 
 
 def validate_quantity(qty: Any) -> float:
@@ -12,9 +11,9 @@ def validate_quantity(qty: Any) -> float:
     try:
         qty = float(qty)
     except ValueError:
-        raise exceptions.InvalidQtyError
+        raise quantity.exceptions.InvalidQtyError
     if qty < 0:
-        raise exceptions.InvalidQtyError
+        raise quantity.exceptions.InvalidQtyError
     else:
         return qty
 

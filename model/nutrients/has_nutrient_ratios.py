@@ -20,30 +20,17 @@ class HasNutrientRatios(quantity.HasBulk, abc.ABC):
         # Start by populating the list with fresh instances;
         for nutr_name in configs.all_primary_nutrient_names:
             if nutr_name not in self._nutrient_ratios:
-                self._nutrient_ratios[nutr_name] = self._new_nutrient_ratio(nutr_name)
+                if isinstance(self, HasSettableNutrientRatios):
+                    self._nutrient_ratios[nutr_name] = nutrients.SettableNutrientRatio(nutrient_name=nutr_name)
+                else:
+                    self._nutrient_ratios[nutr_name] = nutrients.NutrientRatio(nutrient_name=nutr_name)
         # Now update list with any data that has been passed in;
         if 'nutrient_ratios' in kwargs.keys():
-            for nr in kwargs['nutrient_ratios'].values():
-                self._check_nr_type(nr)
             # Import any nutrient ratio data supplied;
             for nutr_name, nr in kwargs['nutrient_ratios'].items():
                 prim_nutr_name = validation.validate_nutrient_name(nutr_name)
                 self._nutrient_ratios[prim_nutr_name] = nr
 
-    @staticmethod
-    def _check_nr_type(nutrient_ratio: 'nutrients.NutrientRatio') -> None:
-        """Checks the readonly/writable status of nutrient_ratio."""
-        if not isinstance(nutrient_ratio, nutrients.NutrientRatio):
-            raise ValueError("Expecting a NutrientRatio instance.")
-        if isinstance(nutrient_ratio, nutrients.SettableNutrientRatio):
-            raise ValueError("Settable nutrient ratios not allowed in readonly HasNutrientRatios instance.")
-
-    @staticmethod
-    def _get_new_nutrient_ratio(nutrient_name: str) -> 'nutrients.NutrientRatio':
-        """Gets a fresh NutrientRatio instance of the correct Readonly/Writable type."""
-        return nutrients.NutrientRatio(nutrient_name)
-
-    @abc.abstractmethod
     def get_nutrient_ratio(self, nutrient_name: str) -> 'nutrients.NutrientRatio':
         """Returns a NutrientRatio by name."""
         nutrient_name = validation.validate_nutrient_name(nutrient_name)
@@ -57,6 +44,20 @@ class HasNutrientRatios(quantity.HasBulk, abc.ABC):
             nutrient_ratios[nutrient_name] = self.get_nutrient_ratio(nutrient_name)
         return nutrient_ratios
 
+    def nutrient_ratio_is_defined(self, nutrient_name: str) -> bool:
+        """Returns True/False to indiciate if the named nutrient ratio has been defined."""
+        nutrient_name = nutrients.validation.validate_nutrient_name(nutrient_name)
+        return self.get_nutrient_ratio(nutrient_name).defined
+
+    @property
+    def undefined_mandatory_nutrient_ratios(self) -> List[str]:
+        """Returns a list of the mandatory nutrient ratios which are undefined."""
+        undefined_mandatory = []
+        for nutrient_name in nutrients.configs.mandatory_nutrient_names:
+            if not self.nutrient_ratio_is_defined(nutrient_name):
+                undefined_mandatory.append(nutrient_name)
+        return undefined_mandatory
+
     @property
     def defined_optional_nutrient_ratios(self) -> List[str]:
         """Returns a list of the optional nutrient names which have been defined."""
@@ -66,6 +67,29 @@ class HasNutrientRatios(quantity.HasBulk, abc.ABC):
                 defined_optionals.append(nutrient_name)
         return defined_optionals
 
+    def _validate_nutrient_ratios(self) -> None:
+        """Raises a NutrientRatioGroupError if the set of nutrient ratios are mutually inconsistent."""
+        # Check no nutrient group parent weigh's less than its children;
+        for parent_nutrient_name in configs.nutrient_group_definitions:
+            parent_nutrient_ratio = self.get_nutrient_ratio(parent_nutrient_name)
+            if parent_nutrient_ratio.defined:
+                child_rolling_total = 0
+                for child_nutrient_name in configs.nutrient_group_definitions[parent_nutrient_name]:
+                    child_nutrient_ratio = self.get_nutrient_ratio(child_nutrient_name)
+                    if child_nutrient_ratio.defined:
+                        child_rolling_total = child_rolling_total + child_nutrient_ratio.g_per_subject_g
+                if child_rolling_total > parent_nutrient_ratio.g_per_subject_g * 1.01:  # 0.01 to avoid rounding issues.
+                    raise nutrients.exceptions.ChildNutrientQtyExceedsParentNutrientQtyError(
+                        'The qty of child nutrients of {} exceed its own mass'.format(parent_nutrient_name))
+
+    @property
+    def nutrient_ratios_data(self) -> Dict[str, nutrients.NutrientRatioData]:
+        """Returns a dict of all nutrient names and corresponding NutrientRatioData fields."""
+        return {nutr_name: nutrients.NutrientRatioData(
+            nutrient_g_per_subject_g=nutr_ratio.g_per_subject_g,
+            nutrient_pref_units=nutr_ratio.pref_unit
+        ) for nutr_name, nutr_ratio in self._nutrient_ratios.keys()}
+
 
 class HasSettableNutrientRatios(HasNutrientRatios, abc.ABC):
     """Abstract class to model objects with settable nutrient ratios."""
@@ -73,19 +97,17 @@ class HasSettableNutrientRatios(HasNutrientRatios, abc.ABC):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-    @staticmethod
-    def _check_nr_type(nutrient_ratio: 'nutrients.NutrientRatio') -> None:
-        if not isinstance(nutrient_ratio, nutrients.SettableNutrientRatio):
-            raise ValueError("Expecting a SettableNutrientRatio")
-
-    @staticmethod
-    def _get_new_nutrient_ratio(nutrient_name: str) -> 'nutrients.NutrientRatio':
-        return nutrients.SettableNutrientRatio(nutrient_name)
-
-    @abc.abstractmethod
-    def get_nutrient_ratio(self, nutrient_name: str) -> 'nutrients.SettableNutrientRatio':
-        """Returns a SettableNutrientRatio by name."""
-        raise NotImplementedError
+    def set_nutrient_ratios(self, nutrient_ratios_data: Dict[str, nutrients.NutrientRatioData]) -> None:
+        """Sets a batch of nutrient ratios from a dictionary of nutrient ratio data."""
+        for nutr_name, nr_data in nutrient_ratios_data:
+            self.set_nutrient_ratio(
+                nutrient_name=nutr_name,
+                nutrient_qty=nr_data['nutrient_g_per_subject_g'],
+                nutrient_qty_unit='g',
+                subject_qty=1,
+                subject_qty_unit='g'
+            )
+            self.set_nutrient_pref_unit(nutrient_name=nutr_name, pref_unit=nr_data['nutrient_pref_units'])
 
     def set_nutrient_ratio(self, nutrient_name: str,
                            nutrient_qty: float,
@@ -132,18 +154,3 @@ class HasSettableNutrientRatios(HasNutrientRatios, abc.ABC):
         """Sets the pref unit for the nutrient ratio."""
         nutrient_ratio = self.get_nutrient_ratio(nutrient_name)
         nutrient_ratio.pref_unit = pref_unit
-
-    def _validate_nutrient_ratios(self) -> None:
-        """Raises a NutrientRatioGroupError if the set of nutrient ratios are mutually inconsistent."""
-        # Check no nutrient group parent weigh's less than its children;
-        for parent_nutrient_name in configs.nutrient_group_definitions:
-            parent_nutrient_ratio = self.get_nutrient_ratio(parent_nutrient_name)
-            if parent_nutrient_ratio.defined:
-                child_rolling_total = 0
-                for child_nutrient_name in configs.nutrient_group_definitions[parent_nutrient_name]:
-                    child_nutrient_ratio = self.get_nutrient_ratio(child_nutrient_name)
-                    if child_nutrient_ratio.defined:
-                        child_rolling_total = child_rolling_total + child_nutrient_ratio.g_per_subject_g
-                if child_rolling_total > parent_nutrient_ratio.g_per_subject_g * 1.01:
-                    raise nutrients.exceptions.ChildNutrientQtyExceedsParentNutrientQtyError(
-                        'The qty of child nutrients of {} exceed its own mass'.format(parent_nutrient_name))

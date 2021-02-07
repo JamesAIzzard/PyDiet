@@ -1,4 +1,4 @@
-from pydiet.exceptions import PyDietException
+from model.exceptions import PyDietException
 
 
 class CostNotSettableError(PyDietException):

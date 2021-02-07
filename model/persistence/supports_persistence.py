@@ -30,6 +30,11 @@ class SupportsPersistence(abc.ABC):
         raise NotImplementedError
 
     @property
+    def unique_value_defined(self) -> bool:
+        """Returns True/False to indicate if the unique value is defined."""
+        return self._unique_value is not None
+
+    @property
     def datafile_name(self) -> Optional[str]:
         """Returns the datafile name for the instance."""
         return self._datafile_name

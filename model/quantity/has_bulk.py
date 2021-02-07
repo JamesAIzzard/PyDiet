@@ -27,28 +27,10 @@ class HasBulk(abc.ABC):
         """Returns object's preferred unit of measure."""
         return self._pref_unit
 
-    def _set_pref_unit(self, unit: str) -> None:
-        """Pref unit setter implementation."""
-        raise quantity.exceptions.BulkNotSettableError
-
-    @pref_unit.setter
-    def pref_unit(self, unit: str) -> None:
-        """Sets the pref unit."""
-        self._set_pref_unit(unit)
-
     @property
     def ref_qty(self) -> float:
         """Returns the object's reference quantity (in its preferred units)."""
         return self._ref_qty
-
-    def _set_ref_quantity(self, qty: float) -> None:
-        """Ref quantity setter implementation."""
-        raise quantity.exceptions.BulkNotSettableError
-
-    @ref_qty.setter
-    def ref_qty(self, qty: float) -> None:
-        """Sets the object's reference quantity."""
-        self._set_ref_quantity(qty)
 
     @property
     def ref_qty_in_g(self) -> float:
@@ -60,28 +42,10 @@ class HasBulk(abc.ABC):
         """Returns the weight of 1ml of the object in g."""
         return self._g_per_ml
 
-    def _set_g_per_ml(self, g_per_ml: Optional[float]) -> None:
-        """Grams/ml setter implementation."""
-        raise quantity.exceptions.BulkNotSettableError
-
-    @g_per_ml.setter
-    def g_per_ml(self, g_per_ml: Optional[float]) -> None:
-        """Set's the object's grams/ml value."""
-        self._set_g_per_ml(g_per_ml)
-
     @property
     def piece_mass_g(self) -> Optional[float]:
         """Returns the mass of a single piece of the object."""
         return self._piece_mass_g
-
-    def _set_piece_mass_g(self, piece_mass_g: Optional[float]) -> None:
-        """Piece mass setter implementation."""
-        raise quantity.exceptions.BulkNotSettableError
-
-    @piece_mass_g.setter
-    def piece_mass_g(self, piece_mass_g: Optional[float]) -> None:
-        """Sets the mass of a single piece of the object."""
-        self._set_piece_mass_g(piece_mass_g)
 
     @property
     def density_is_defined(self) -> bool:
@@ -136,7 +100,13 @@ class HasSettableBulk(HasBulk, abc.ABC):
         """Does any custom piece mass data/reference removal on the instance."""
         raise NotImplementedError
 
-    def _set_pref_unit(self, unit: str) -> None:
+    @HasBulk.ref_qty.setter
+    def ref_qty(self, value: float) -> float:
+        value = quantity.validation.validate_quantity(value)
+        self._ref_qty = value
+
+    @HasBulk.pref_unit.setter
+    def pref_unit(self, unit: str) -> None:
         """Implements pref_unit setting."""
 
         # Check the unit is actually valid;
@@ -152,7 +122,8 @@ class HasSettableBulk(HasBulk, abc.ABC):
 
         self._pref_unit = unit
 
-    def _set_g_per_ml(self, g_per_ml: Optional[float]) -> None:
+    @HasBulk.g_per_ml.setter
+    def g_per_ml(self, g_per_ml: Optional[float]) -> None:
         """Implements gram/ml setting."""
         if g_per_ml is None:
             self._density_reset_cleanup()
@@ -171,7 +142,8 @@ class HasSettableBulk(HasBulk, abc.ABC):
             piece_mass_g=self.piece_mass_g
         )
 
-    def _set_piece_mass_g(self, piece_mass_g: Optional[float]) -> None:
+    @HasBulk.piece_mass_g.setter
+    def piece_mass_g(self, piece_mass_g: Optional[float]) -> None:
         """Implements piece mass setting."""
         if piece_mass_g is None:
             self._piece_mass_reset_cleanup()
@@ -191,3 +163,10 @@ class HasSettableBulk(HasBulk, abc.ABC):
             single_pc_mass, mass_unit, 'g')
 
         self._piece_mass_g = piece_mass_g
+
+    def set_bulk_attrs(self, data: quantity.BulkData) -> None:
+        """Sets the bulk properties on the instance from a BulkData dict."""
+        self.pref_unit = data['pref_unit']
+        self.ref_qty = data['ref_qty']
+        self.g_per_ml = data['g_per_ml']
+        self.piece_mass_g = data['piece_mass_g']
