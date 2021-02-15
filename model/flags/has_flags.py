@@ -7,18 +7,21 @@ from model import nutrients, flags
 class HasFlags(abc.ABC):
     """Models an object which has flag_data to characterise its content."""
 
-    def __init__(self, flag_data: Dict[str, Optional[bool]], **kwargs):
+    def __init__(self, flag_data: Optional[Dict[str, Optional[bool]]] = None, **kwargs):
         super().__init__(**kwargs)
+
         # Build the internal flag list;
         # First build the keys up;
-        self._flags = {flag_name: None for flag_name in flags.configs.all_flags.keys()}
-        # Now import the values;
-        for flag_name, flag_value in flag_data.items():
-            # Catch error where flag name is not recognised;
-            if flag_name not in self._flags.keys():
-                raise ValueError(f"{flag_name} is not a recognised flag name.")
-            # Go ahead and assign the value;
-            self._flags[flag_name] = flag_value
+        self._flags = {flag_name: None for flag_name in flags.all_flags.keys()}
+
+        # Now import the values, if present;
+        if flag_data is not None:
+            for flag_name, flag_value in flag_data.items():
+                # Catch error where flag name is not recognised;
+                if flag_name not in self._flags.keys():
+                    raise ValueError(f"{flag_name} is not a recognised flag name.")
+                # Go ahead and assign the value;
+                self._flags[flag_name] = flag_value
 
     @property
     def all_flag_names(self) -> List[str]:

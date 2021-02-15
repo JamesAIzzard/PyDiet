@@ -122,16 +122,16 @@ class TestConvertDensityUnit(TestCase):
 
     def test_converts_densities_correctly(self):
         g_per_ml = 5
-        lb_per_L = quantity.main.convert_density_unit(g_per_ml, 'g', 'ml', 'lb', 'L')
-        self.assertAlmostEqual(11.02, lb_per_L, delta=0.1)
+        lb_per_l = quantity.main.convert_density_unit(g_per_ml, 'g', 'ml', 'lb', 'L')
+        self.assertAlmostEqual(11.02, lb_per_l, delta=0.1)
 
     def test_converts_density_with_pc_unit_start_mass(self):
         pc_per_ml = 1.5
         piece_mass_g = 100
-        lb_per_L = quantity.main.convert_density_unit(pc_per_ml, 'pc', 'ml', 'lb', 'L', piece_mass_g)
-        self.assertAlmostEqual(330.7, lb_per_L, delta=0.1)
+        lb_per_l = quantity.main.convert_density_unit(pc_per_ml, 'pc', 'ml', 'lb', 'L', piece_mass_g)
+        self.assertAlmostEqual(330.7, lb_per_l, delta=0.1)
 
     def test_converts_density_with_pc_unit_end_mass(self):
         piece_mass_g = 270
-        pc_per_L = quantity.main.convert_density_unit(1.5, 'kg', 'ml', 'pc', 'L', piece_mass_g)
-        self.assertAlmostEqual(pc_per_L, 1.5e6 / 270, delta=0.1)
+        pc_per_l = quantity.main.convert_density_unit(1.5, 'kg', 'ml', 'pc', 'L', piece_mass_g)
+        self.assertAlmostEqual(pc_per_l, 1.5e6 / 270, delta=0.1)

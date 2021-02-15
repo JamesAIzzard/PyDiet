@@ -1,20 +1,22 @@
-from typing import List, Dict
+from enum import Enum
 
-from model import flags
 
-_flags = [
-    flags.Flag(
-        name="alcohol_free",
-        nutrient_relations={
-            "alcohol": flags.FlagImpliesNutrient.ZERO
+class FlagImpliesNutrient(Enum):
+    zero = 1
+    non_zero = 2
+
+
+flag_data = {
+    "alcohol_free": {
+        "nutrient_relations": {
+            "alcohol": FlagImpliesNutrient.zero
         },
-        direct_alias=True
-    ),
-    flags.Flag(name="caffiene_free"),
-    flags.Flag(name="dairy_free"),
-    flags.Flag(name="gluten_free"),
-    flags.Flag(name="nut_free"),
-    flags.Flag(name="vegan"),
-    flags.Flag(name="vegetarian")
-]
-all_flags = {f.name: f for f in _flags}
+        "direct_alias": True
+    },
+    "caffiene_free": {"nutrient_relations": {}, "direct_alias": False},
+    "dairy_free": {"nutrient_relations": {}, "direct_alias": False},
+    "gluten_free": {"nutrient_relations": {}, "direct_alias": False},
+    "nut_free": {"nutrient_relations": {}, "direct_alias": False},
+    "vegan": {"nutrient_relations": {}, "direct_alias": False},
+    "vegetarian": {"nutrient_relations": {}, "direct_alias": False}
+}

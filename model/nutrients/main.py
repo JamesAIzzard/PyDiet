@@ -7,7 +7,7 @@ from . import validation, configs, exceptions
 global_nutrients: Dict[str, 'nutrients.Nutrient'] = {}
 
 
-def build_global_nutrients() -> None:
+def init_global_nutrients() -> None:
     """Constructs the global list of nutrients for use across the model."""
     for primary_nutrient_name in configs.all_primary_nutrient_names:
         if primary_nutrient_name not in global_nutrients.keys():

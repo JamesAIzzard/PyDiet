@@ -1,12 +1,7 @@
-import enum, abc
+import abc
 from typing import Dict, Optional
 
-from model import nutrients
-
-
-class FlagImpliesNutrient(enum.Enum):
-    NON_ZERO = 1
-    ZERO = 0
+from model import nutrients, flags
 
 
 class AbstractFlag(abc.ABC):
@@ -36,7 +31,7 @@ class Flag(AbstractFlag):
     """Models a food flag."""
 
     def __init__(self, name: str,
-                 nutrient_relations: Optional[Dict[str, 'FlagImpliesNutrient']] = None,
+                 nutrient_relations: Optional[Dict[str, flags.FlagImpliesNutrient]] = None,
                  direct_alias: bool = False):
         """
         Args:
@@ -45,9 +40,6 @@ class Flag(AbstractFlag):
                 and what the True flag would imply about the mass of the named nutrient in the subject.
             direct_alias (bool): Indicates if the flag is completely defined by its nutrient relations.
         """
-        # Check the object has nutrient ratios too;
-        if not isinstance(self, nutrients.HasNutrientRatios):
-            raise AttributeError("Flags cannot be used without nutrient ratios.")
 
         # Dissallow direct alias if there are no nutrient relations;
         if direct_alias and len(nutrient_relations) == 0:
@@ -57,9 +49,12 @@ class Flag(AbstractFlag):
         self._nutrient_relations = {}
         self._direct_alias = direct_alias
         self._dof: Optional[bool] = None
-        for nutrient_name, implication in nutrient_relations.items():
-            nutrient_name = nutrients.get_nutrient_primary_name(nutrient_name)
-            self._nutrient_relations[nutrient_name] = implication
+
+        # Populate the nutrient relations info if provided;
+        if nutrient_relations is not None:
+            for nutrient_name, implication in nutrient_relations.items():
+                nutrient_name = nutrients.get_nutrient_primary_name(nutrient_name)
+                self._nutrient_relations[nutrient_name] = implication
 
     @property
     def name(self) -> str:
@@ -67,13 +62,17 @@ class Flag(AbstractFlag):
 
     def set_value(self, value: Optional[bool]) -> None:
         """Sets the flag's value."""
-        if isinstance(self, nutrients.HasSettableNutrientRatios):
-            for nutrient_name, implication in self._nutrient_relations.items():
-                if implication == FlagImpliesNutrient.ZERO:
-                    self.set_nutrient_ratio(nutrient_name, 0, 'g', 100, 'g')
-                elif implication == FlagImpliesNutrient.NON_ZERO:
-                    if self.get_nutrient_ratio(nutrient_name):
-                        ...
+
+        # Only allow flag value setting if nutrient ratios are settable too;
+        if not isinstance(self, nutrients.HasSettableNutrientRatios):
+            raise AttributeError("Settable nutrient ratios are required for flag setting.")
+
+        for nutrient_name, implication in self._nutrient_relations.items():
+            if implication is flags.FlagImpliesNutrient.zero:
+                self.set_nutrient_ratio(nutrient_name, 0, 'g', 100, 'g')
+            elif implication is flags.FlagImpliesNutrient.non_zero:
+                if self.get_nutrient_ratio(nutrient_name):
+                    ...
 
     @property
     def value(self) -> Optional[bool]:
@@ -95,12 +94,14 @@ class Flag(AbstractFlag):
         """Returns True if all nutrients match implied states. Returns False is any nutrient
         conflicts with implied state. Returns None if a related nutrient is undefined.
         """
+
         # Check we have readable nutrients;
         if not isinstance(self, nutrients.HasNutrientRatios):
             raise AttributeError("Flags cannot be used without nutrient ratios.")
 
         undefined_found = False
 
+        # noinspection PyUnresolvedReferences
         for nut_name, implication in self._nutrient_relations.items():
             nutrient_ratio = self.get_nutrient_ratio(nutrient_name=nut_name)
 
@@ -110,9 +111,9 @@ class Flag(AbstractFlag):
                 undefined_found = True
                 continue
             # Now we know the nutrient is defined, check if nutrient matches implication;
-            if implication is FlagImpliesNutrient.ZERO and nutrient_ratio.is_non_zero:
+            if implication is flags.FlagImpliesNutrient.zero and nutrient_ratio.is_non_zero:
                 return False
-            elif implication is FlagImpliesNutrient.NON_ZERO and nutrient_ratio.is_zero:
+            elif implication is flags.FlagImpliesNutrient.non_zero and nutrient_ratio.is_zero:
                 return False
 
             # Check next.

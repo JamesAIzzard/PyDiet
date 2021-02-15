@@ -83,7 +83,7 @@ class HasNutrientRatios(quantity.HasBulk, abc.ABC):
                         'The qty of child nutrients of {} exceed its own mass'.format(parent_nutrient_name))
 
     @property
-    def nutrient_ratios_data(self) -> Dict[str, nutrients.NutrientRatioData]:
+    def nutrient_ratios_data(self) -> Dict[str, 'nutrients.NutrientRatioData']:
         """Returns a dict of all nutrient names and corresponding NutrientRatioData fields."""
         return {nutr_name: nutrients.NutrientRatioData(
             nutrient_g_per_subject_g=nutr_ratio.g_per_subject_g,
@@ -97,7 +97,7 @@ class HasSettableNutrientRatios(HasNutrientRatios, abc.ABC):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-    def set_nutrient_ratios(self, nutrient_ratios_data: Dict[str, nutrients.NutrientRatioData]) -> None:
+    def set_nutrient_ratios(self, nutrient_ratios_data: Dict[str, 'nutrients.NutrientRatioData']) -> None:
         """Sets a batch of nutrient ratios from a dictionary of nutrient ratio data."""
         for nutr_name, nr_data in nutrient_ratios_data:
             self.set_nutrient_ratio(
@@ -139,6 +139,11 @@ class HasSettableNutrientRatios(HasNutrientRatios, abc.ABC):
             elif quantity.units_are_pieces(subject_qty_unit):
                 raise quantity.exceptions.PcMassNotConfiguredError
             return
+
+        # Check the nutrient qty doesn't exceed the subject qty;
+        if nutrient_qty_g > subject_qty_g * 1.001:  # To prevent issues with rounding errors;
+            raise nutrients.exceptions.NutrientQtyExceedsSubjectQtyError
+
         # Calculate the new nutrient ratio;
         new_g_per_subject_g = nutrient_qty_g / subject_qty_g
         # Go ahead and make the change;

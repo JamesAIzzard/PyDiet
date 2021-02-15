@@ -1,2 +1,4 @@
-from . import configs, flags, nutrients, exceptions
-from .flag_nutrient_relation import FlagNutrientRelations
+from . import configs, exceptions, flags, nutrients
+
+nutrients.init_global_nutrients()
+flags.main.init_global_flags()

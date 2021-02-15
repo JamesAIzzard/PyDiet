@@ -1,16 +1,13 @@
-import pydiet
+import model
 
-class DuplicateIngredientNameError(pydiet.exceptions.PyDietException):
+
+class DuplicateIngredientNameError(model.exceptions.PyDietException):
     pass
 
 
-class IngredientNameUndefinedError(pydiet.exceptions.PyDietException):
+class IngredientNameUndefinedError(model.exceptions.PyDietException):
     pass
 
 
-class IngredientNotFoundError(pydiet.exceptions.PyDietException):
+class IngredientNotFoundError(model.exceptions.PyDietException):
     pass
-
-
-
-

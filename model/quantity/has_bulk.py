@@ -164,7 +164,7 @@ class HasSettableBulk(HasBulk, abc.ABC):
 
         self._piece_mass_g = piece_mass_g
 
-    def set_bulk_attrs(self, data: quantity.BulkData) -> None:
+    def set_bulk_attrs(self, data: 'quantity.BulkData') -> None:
         """Sets the bulk properties on the instance from a BulkData dict."""
         self.pref_unit = data['pref_unit']
         self.ref_qty = data['ref_qty']

@@ -1,6 +1,6 @@
 from typing import Optional
 
-from . import configs, exceptions
+from model import flags
 
 
 def validate_flag_name(flag_name: str) -> str:
@@ -8,9 +8,9 @@ def validate_flag_name(flag_name: str) -> str:
     Raises:
         FlagNameError: To indicate the flag name is not recognised.
     """
-    if flag_name in configs.all_flag_names:
+    if flag_name in flags.configs.flag_data.keys():
         return str(flag_name)
-    raise exceptions.FlagNameError
+    raise flags.exceptions.FlagNameError
 
 
 def validate_flag_value(flag_value: Optional[bool]) -> Optional[bool]:
@@ -20,4 +20,4 @@ def validate_flag_value(flag_value: Optional[bool]) -> Optional[bool]:
     """
     if flag_value in [True, False, None]:
         return flag_value
-    raise exceptions.FlagValueError
+    raise flags.exceptions.FlagValueError

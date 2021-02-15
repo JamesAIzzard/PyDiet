@@ -17,7 +17,7 @@ class NutrientRatioGroupError(PyDietException):
     """Indicates the group of nutrient ratios are collectively invalid."""
 
 
-class NutrientQtyExceedsIngredientQtyError(NutrientRatioGroupError):
+class NutrientQtyExceedsSubjectQtyError(NutrientRatioGroupError):
     """Indicates the nutrient quantity exceeds the ingredient quantity."""
 
 

@@ -5,8 +5,8 @@ from typing import List, Optional
 class HasMandatoryAttributes(abc.ABC):
     """ABC for mandatory attribute functionalitly."""
 
-    def __init__(self, **kwds):
-        super.__init__(**kwds)
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
     @property
     @abc.abstractmethod
