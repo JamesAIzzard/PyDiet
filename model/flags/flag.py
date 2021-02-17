@@ -1,34 +1,16 @@
-import abc
-from typing import Dict, Optional
+from typing import Dict, List, Optional
 
 from model import nutrients, flags
 
 
-class AbstractFlag(abc.ABC):
-    """Class to define the interface of flag objects.
-    This perhaps seems like an unescessary overcomplication, but by defining an interface here, we
-    open the possibility of having custom implementations of highly specialised flags, with their
-    own logic.
-    To create a custom implementation, inherit from this class, and overwrite the __bool__ method
-    and set method with the custom logic.
+class Flag:
+    """Models a global food flag.
+    Notes:
+        This class defines the relationships between a particular flag and its nutrients.
+        The instance specific data associated with any given flag is stored on the
+        instances of HasFlags and HasSettableFlags, and should not be confused with this
+        global definition of the flag.
     """
-
-    @abc.abstractmethod
-    def name(self) -> str:
-        """Returns the flag name."""
-
-    @property
-    @abc.abstractmethod
-    def value(self) -> Optional[bool]:
-        """Calculates/returns the flags current value, based on nutrient states and own DOF."""
-
-    @abc.abstractmethod
-    def set_value(self, value: Optional[bool]) -> None:
-        """Sets the flag value."""
-
-
-class Flag(AbstractFlag):
-    """Models a food flag."""
 
     def __init__(self, name: str,
                  nutrient_relations: Optional[Dict[str, flags.FlagImpliesNutrient]] = None,
@@ -48,7 +30,6 @@ class Flag(AbstractFlag):
         self._name = name
         self._nutrient_relations = {}
         self._direct_alias = direct_alias
-        self._dof: Optional[bool] = None
 
         # Populate the nutrient relations info if provided;
         if nutrient_relations is not None:
@@ -60,66 +41,42 @@ class Flag(AbstractFlag):
     def name(self) -> str:
         return self._name
 
-    def set_value(self, value: Optional[bool]) -> None:
-        """Sets the flag's value."""
-
-        # Only allow flag value setting if nutrient ratios are settable too;
-        if not isinstance(self, nutrients.HasSettableNutrientRatios):
-            raise AttributeError("Settable nutrient ratios are required for flag setting.")
-
-        for nutrient_name, implication in self._nutrient_relations.items():
-            if implication is flags.FlagImpliesNutrient.zero:
-                self.set_nutrient_ratio(nutrient_name, 0, 'g', 100, 'g')
-            elif implication is flags.FlagImpliesNutrient.non_zero:
-                if self.get_nutrient_ratio(nutrient_name):
-                    ...
+    @property
+    def direct_alias(self) -> bool:
+        return self._direct_alias
 
     @property
-    def value(self) -> Optional[bool]:
-        """Returns True/False to indicate if the flag is True/False for the given object."""
-        nut_match = self.nutrients_match_implied_states  # Cache this value.
-        # Regardless of direct_alias, if a single nutrient disagrees with flag, return False:
-        if nut_match is False:
-            return False
-        if self._direct_alias:
-            if nut_match is True:  # All nutrients match positively.
-                return True
-            elif nut_match is None:  # At least one nutrient is undefined.
-                return None
-        elif not self._direct_alias:  # No nutrients disagree, so defer to dof.
-            return self._dof
+    def related_nutrient_names(self) -> List[str]:
+        """Returns a list of names of related nutrients."""
+        return list(self._nutrient_relations.keys())
 
-    @property
-    def nutrients_match_implied_states(self) -> Optional[bool]:
-        """Returns True if all nutrients match implied states. Returns False is any nutrient
-        conflicts with implied state. Returns None if a related nutrient is undefined.
-        """
+    def get_implication_for_nutrient(self, nutrient_name: str) -> flags.FlagImpliesNutrient:
+        """Returns the implication associated with the named nutrient."""
+        nutrient_name = nutrients.validation.validate_nutrient_name(nutrient_name)
+        return self._nutrient_relations[nutrient_name]
 
-        # Check we have readable nutrients;
-        if not isinstance(self, nutrients.HasNutrientRatios):
-            raise AttributeError("Flags cannot be used without nutrient ratios.")
+    def nutrient_ratio_matches_relation(self, nutrient_ratio: 'nutrients.NutrientRatio') -> Optional[bool]:
+        """Returns True/False/None to indicate if the nutrient relation
+        matches the nutrient ratio supplied."""
+        # Grab the implication first;
+        implication = self.get_implication_for_nutrient(nutrient_ratio.nutrient.primary_name)
 
-        undefined_found = False
-
-        # noinspection PyUnresolvedReferences
-        for nut_name, implication in self._nutrient_relations.items():
-            nutrient_ratio = self.get_nutrient_ratio(nutrient_name=nut_name)
-
-            # If a nutrient is undefined, log it.
-            # We don't return undefined immediatley, because we still want to check for hard conflicts.
-            if nutrient_ratio.undefined:
-                undefined_found = True
-                continue
-            # Now we know the nutrient is defined, check if nutrient matches implication;
-            if implication is flags.FlagImpliesNutrient.zero and nutrient_ratio.is_non_zero:
-                return False
-            elif implication is flags.FlagImpliesNutrient.non_zero and nutrient_ratio.is_zero:
-                return False
-
-            # Check next.
-
-        # No disagreements found;
-        if undefined_found:
+        # If nutrient ratio is undefined, return None, regardless of implication;
+        if nutrient_ratio.g_per_subject_g is None:
             return None
-        else:
-            return True
+
+        # If implication is zero;
+        if implication is flags.FlagImpliesNutrient.zero:
+            if nutrient_ratio.g_per_subject_g == 0:
+                return True
+            elif nutrient_ratio.g_per_subject_g > 0:
+                return False
+
+        # If implication is non-zero;
+        elif implication is flags.FlagImpliesNutrient.non_zero:
+            if nutrient_ratio.g_per_subject_g == 0:
+                return False
+            elif nutrient_ratio.g_per_subject_g > 0:
+                return True
+
+

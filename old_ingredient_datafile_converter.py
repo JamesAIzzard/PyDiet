@@ -38,7 +38,7 @@ for df_name in old_index:
 
     # Port the flag_data across;
     for flag_name in old_data['flag_data']:
-        i.set_flag(flag_name, old_data['flag_data'][flag_name])
+        i.set_flag_value(flag_name, old_data['flag_data'][flag_name])
 
     # Port the nutrients across;
     for nutrient_name in old_data['nutrients']:

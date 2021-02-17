@@ -8,6 +8,17 @@ class TestSetNutrientRatio(TestCase):
     def setUp(self) -> None:
         self.ingredient = ingredients.Ingredient()
 
+    def test_sets_nutrient_ratio_correctly(self):
+        self.ingredient.set_nutrient_ratio(
+            nutrient_name='protein',
+            nutrient_qty=100,
+            nutrient_qty_unit='g',
+            subject_qty=100,
+            subject_qty_unit='g'
+        )
+        nr = self.ingredient.get_nutrient_ratio('protein')
+        self.assertEqual(nr.g_per_subject_g, 1)
+
     def test_catches_nutrient_name_error(self):
         # Check you do get an error if the name doesn't exist;
         self.ingredient.set_nutrient_ratio(

@@ -78,7 +78,7 @@ class Ingredient(persistence.SupportsPersistence,
 
     def load_data(self, data: IngredientData) -> None:
         super().cost_per_g = data['cost_per_g']
-        self.set_flags(data['flags'])
+        self.set_flag_values(data['flags'])
         self.name = data['name']
         self.set_nutrient_ratios(data['nutrients'])
         self.set_bulk_attrs(data['bulk'])

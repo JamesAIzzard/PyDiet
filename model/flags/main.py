@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, List
 
 from model import flags
 
@@ -13,3 +13,8 @@ def init_global_flags():
             nutrient_relations=data["nutrient_relations"],
             direct_alias=data["direct_alias"]
         )
+
+
+def all_flag_names() -> List[str]:
+    """Return a list of all flag names."""
+    return list(all_flags.keys())
