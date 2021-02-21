@@ -110,3 +110,7 @@ class SettableNutrientRatio(NutrientRatio):
         """Resets g_per_subject_g to None and pref_unit to 'g'."""
         self._g_per_subject_g = None
         self._pref_unit = 'g'
+
+    def zero(self) -> None:
+        """Zeroes the nutrient ratio."""
+        self._g_per_subject_g = 0

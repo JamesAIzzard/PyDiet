@@ -1,5 +1,5 @@
 import abc
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 from . import validation, configs, exceptions
 from model import quantity, nutrients
@@ -110,50 +110,83 @@ class HasSettableNutrientRatios(HasNutrientRatios, abc.ABC):
             self.set_nutrient_pref_unit(nutrient_name=nutr_name, pref_unit=nr_data['nutrient_pref_units'])
 
     def set_nutrient_ratio(self, nutrient_name: str,
-                           nutrient_qty: float,
+                           nutrient_qty: Optional[float],
                            nutrient_qty_unit: str,
                            subject_qty: float,
                            subject_qty_unit: str) -> None:
         """Sets the data on a nutrient ratio by name."""
-        # Convert the nutrient units into grams;
-        if nutrient_qty_unit not in quantity.get_recognised_mass_units():
-            raise quantity.exceptions.IncorrectUnitTypeError("Nutrient quantity must be a mass.")
-        nutrient_qty_g = quantity.convert_qty_unit(qty=nutrient_qty,
-                                                   start_unit=nutrient_qty_unit,
-                                                   end_unit='g')
         # Grab the nutrient ratio instance by name;
         nutrient_name = nutrients.get_nutrient_primary_name(nutrient_name)
         nutrient_ratio = self.get_nutrient_ratio(nutrient_name)
+
         # Take a backup in case we need to revert;
         backup_g_per_subject_g = nutrient_ratio.g_per_subject_g
-        # Convert the subject units into grams;
-        try:
-            subject_qty_g = quantity.convert_qty_unit(qty=subject_qty,
-                                                      start_unit=subject_qty_unit,
-                                                      end_unit='g',
-                                                      g_per_ml=self.g_per_ml,
-                                                      piece_mass_g=self.piece_mass_g)
-        except ValueError:
-            if quantity.units_are_volumes(subject_qty_unit):
-                raise quantity.exceptions.DensityNotConfiguredError
-            elif quantity.units_are_pieces(subject_qty_unit):
-                raise quantity.exceptions.PcMassNotConfiguredError
-            return
 
-        # Check the nutrient qty doesn't exceed the subject qty;
-        if nutrient_qty_g > subject_qty_g * 1.001:  # To prevent issues with rounding errors;
-            raise nutrients.exceptions.NutrientQtyExceedsSubjectQtyError
+        # If we are setting to None:
+        if nutrient_qty is None:
+            nutrient_ratio.g_per_subject_g = None
+        # If we are setting to zero;
+        if nutrient_qty == 0:
+            nutrient_ratio.g_per_subject_g = 0
+        # If we are setting to a non-zero value;
+        elif nutrient_qty > 0:
+            # Convert the nutrient units into grams;
+            if nutrient_qty_unit not in quantity.get_recognised_mass_units():
+                raise quantity.exceptions.IncorrectUnitTypeError("Nutrient quantity must be a mass.")
+            nutrient_qty_g = quantity.convert_qty_unit(qty=nutrient_qty,
+                                                       start_unit=nutrient_qty_unit,
+                                                       end_unit='g')
 
-        # Calculate the new nutrient ratio;
-        new_g_per_subject_g = nutrient_qty_g / subject_qty_g
-        # Go ahead and make the change;
-        nutrient_ratio.g_per_subject_g = new_g_per_subject_g
-        # Now try and validate it;
+            # Convert the subject units into grams;
+            try:
+                subject_qty_g = quantity.convert_qty_unit(qty=subject_qty,
+                                                          start_unit=subject_qty_unit,
+                                                          end_unit='g',
+                                                          g_per_ml=self.g_per_ml,
+                                                          piece_mass_g=self.piece_mass_g)
+            except ValueError:
+                if quantity.units_are_volumes(subject_qty_unit):
+                    raise quantity.exceptions.DensityNotConfiguredError
+                elif quantity.units_are_pieces(subject_qty_unit):
+                    raise quantity.exceptions.PcMassNotConfiguredError
+                return
+
+            # Check the nutrient qty doesn't exceed the subject qty;
+            if nutrient_qty_g > subject_qty_g * 1.001:  # To prevent issues with rounding errors;
+                raise nutrients.exceptions.NutrientQtyExceedsSubjectQtyError
+
+            # Calculate the new nutrient ratio;
+            new_g_per_subject_g = nutrient_qty_g / subject_qty_g
+
+            # Go ahead and make the change;
+            nutrient_ratio.g_per_subject_g = new_g_per_subject_g
+
+        # Now try and validate the changes;
         try:
             self._validate_nutrient_ratios()
         except exceptions.NutrientRatioGroupError as err:
             nutrient_ratio.g_per_subject_g = backup_g_per_subject_g
             raise err
+
+    def zero_nutrient_ratio(self, nutrient_name: str) -> None:
+        """Sets the named nutrient ratio to zero."""
+        self.set_nutrient_ratio(
+            nutrient_name=nutrient_name,
+            nutrient_qty=0,
+            nutrient_qty_unit='g',
+            subject_qty=100,
+            subject_qty_unit='g'
+        )
+
+    def undefine_nutrient_ratio(self, nutrient_name: str) -> None:
+        """Sets the named nutrient ratio to None."""
+        self.set_nutrient_ratio(
+            nutrient_name=nutrient_name,
+            nutrient_qty=None,
+            nutrient_qty_unit='g',
+            subject_qty=100,
+            subject_qty_unit='g'
+        )
 
     def set_nutrient_pref_unit(self, nutrient_name: str, pref_unit: str) -> None:
         """Sets the pref unit for the nutrient ratio."""
