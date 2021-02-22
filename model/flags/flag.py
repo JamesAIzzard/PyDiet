@@ -78,5 +78,3 @@ class Flag:
                 return False
             elif nutrient_ratio.g_per_subject_g > 0:
                 return True
-
-

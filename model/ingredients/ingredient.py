@@ -70,7 +70,7 @@ class Ingredient(persistence.SupportsPersistence,
     def persistable_data(self) -> Dict[str, IngredientData]:
         return IngredientData(
             cost_per_g=self.cost_per_g,
-            flags=self.flags_data,
+            flags=self.flags_dof_data,
             name=self.name,
             nutrients=self.nutrient_ratios_data,
             bulk=self.bulk_data

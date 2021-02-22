@@ -17,9 +17,11 @@ class HasFlags(abc.ABC):
     def __init__(self, flag_data: Optional[Dict[str, Optional[bool]]] = None, **kwargs):
         super().__init__(**kwargs)
 
-        # Build the internal flag list;
-        # First build the keys up;
-        self._flag_dofs = {flag_name: None for flag_name in flags.all_flags.keys()}
+        # Build a dict for all flags which are not direct_alias
+        self._flag_dofs: Dict[str, Optional[bool]] = {}
+        for flag_name, flag in flags.all_flags.items():
+            if flag.direct_alias:
+                self._flag_dofs[flag_name] = None
 
         # Note, this implementation is good, becuase it means if we add a flag to the global list
         # after this instance has been saved, the new flag will automatically be added when this
@@ -31,13 +33,16 @@ class HasFlags(abc.ABC):
                 # Catch error where flag name is not recognised;
                 if flag_name not in self._flag_dofs.keys():
                     raise ValueError(f"{flag_name} is not a recognised flag name.")
+                # Catch dofs for flags which are direct aliases;
+                if flags.all_flags[flag_name].direct_alias:
+                    raise flags.exceptions.UnexpectedFlagDOFError(flag_name=flag_name)
                 # Go ahead and assign the value;
                 self._flag_dofs[flag_name] = flag_value
 
     @property
-    def flags_data(self) -> Dict[str, Optional[bool]]:
-        """Returns a dictionary of the flag names and their states"""
-        return {flag_name: flag_value for flag_name, flag_value in self._flag_dofs.items()}
+    def flags_dof_data(self) -> Dict[str, Optional[bool]]:
+        """Returns a dictionary of the flag names and their dof states"""
+        return {flag_name: flag_dof_value for flag_name, flag_dof_value in self._flag_dofs.items()}
 
     def gather_related_nutrient_ratios(self, flag_name: str) -> List['nutrients.NutrientRatio']:
         """Returns a list of nutrient ratios, from this instance, that are related to the named flag."""
@@ -92,8 +97,8 @@ class HasFlags(abc.ABC):
     def _filter_flags(self, filter_value: Optional[bool]) -> List[str]:
         """Gets flag_data names by value."""
         return_flag_names = []
-        for flag_name in self._flag_dofs.keys():
-            if self._flag_dofs[flag_name] == filter_value:
+        for flag_name in flags.all_flags.keys():
+            if self.get_flag_value(flag_name) == filter_value:
                 return_flag_names.append(flag_name)
         return return_flag_names
 
@@ -111,6 +116,8 @@ class HasFlags(abc.ABC):
     def unset_flags(self) -> List[str]:
         """Returns a list of all flag_data which are undefined."""
         return self._filter_flags(None)
+
+    # todo - Got to here while correcting the old usage of flag_dofs.
 
     @property
     def all_flags_undefined(self) -> bool:
@@ -253,13 +260,25 @@ class HasSettableFlags(HasFlags, abc.ABC):
 
         # Catch the non-fixable error states;
         if len(nr_conflicts['need_non_zero']):
-            raise flags.exceptions.NonZeroNutrientRatioConflictError
+            raise flags.exceptions.NonZeroNutrientRatioConflictError(
+                flag_name=flag_name,
+                flag_value=flag_value,
+                conflicting_nutrient_ratios=nr_conflicts['need_non_zero']
+            )
         if len(nr_conflicts['preventing_undefine']):
-            raise flags.exceptions.UndefineMultipleNutrientRatiosError
+            raise flags.exceptions.UndefineMultipleNutrientRatiosError(
+                flag_name=flag_name,
+                flag_value=flag_value,
+                conflicting_nutrient_ratios=nr_conflicts['preventing_undefine']
+            )
 
         # Get permission to address fixable error states;
         if (len(nr_conflicts['need_zero']) or len(nr_conflicts['need_none'])) and not can_modify_nutrients:
-            raise flags.exceptions.FixableNutrientRatioConflictError
+            raise flags.exceptions.FixableNutrientRatioConflictError(
+                flag_name=flag_name,
+                flag_value=flag_value,
+                conflicting_nutrient_ratios=nr_conflicts['need_zero'] + nr_conflicts['need_none']
+            )
 
         # Correct the error states and make the change;
         for nr in nr_conflicts['need_none']:
