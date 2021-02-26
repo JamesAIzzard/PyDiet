@@ -1,4 +1,4 @@
-from typing import Optional, Dict, List, TypedDict
+from typing import Optional, Dict, List, TypedDict, Union
 
 from model import nutrients, cost, flags, quantity, persistence, mandatory_attributes
 
@@ -19,14 +19,15 @@ class Ingredient(persistence.SupportsPersistence,
                  flags.HasSettableFlags,
                  nutrients.HasSettableNutrientRatios):
 
-    def __init__(self, data: Optional[IngredientData] = None, **kwargs):
+    def __init__(self, ingredient_data: Optional[IngredientData] = None, **kwargs):
         super().__init__(**kwargs)
         # Load any data that was provided;
-        if data is not None:
-            self.load_data(data)
+        if ingredient_data is not None:
+            self.load_data(ingredient_data)
 
     @property
     def name(self) -> Optional[str]:
+        """Returns the name, which is also the unique value of an ingredient."""
         return self.get_unique_value()
 
     @name.setter
@@ -77,7 +78,11 @@ class Ingredient(persistence.SupportsPersistence,
         )
 
     def load_data(self, data: IngredientData) -> None:
-        super().cost_per_g = data['cost_per_g']
+        self: Union[cost.SupportsSettableCost,
+                    flags.HasSettableFlags,
+                    nutrients.HasSettableNutrientRatios,
+                    quantity.HasSettableBulk]
+        self.cost_per_g = data['cost_per_g']
         self.set_flag_values(data['flags'])
         self.name = data['name']
         self.set_nutrient_ratios(data['nutrients'])

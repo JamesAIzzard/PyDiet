@@ -94,6 +94,14 @@ class HasFlags(abc.ABC):
         # Finished looping through all related nutrients, so flag must match nutrient states;
         return True
 
+    @property
+    def all_flag_values(self) -> Dict[str, Optional[bool]]:
+        """Returns a dictionary of all flag names and their current values."""
+        values = {}
+        for flag_name in flags.all_flags.keys():
+            values[flag_name] = self.get_flag_value(flag_name)
+        return values
+
     def _filter_flags(self, filter_value: Optional[bool]) -> List[str]:
         """Gets flag_data names by value."""
         return_flag_names = []
@@ -117,29 +125,28 @@ class HasFlags(abc.ABC):
         """Returns a list of all flag_data which are undefined."""
         return self._filter_flags(None)
 
-    # todo - Got to here while correcting the old usage of flag_dofs.
-
     @property
     def all_flags_undefined(self) -> bool:
         """Returns True/False to indicate if all flag_data are undefined."""
-        return True not in self._flag_dofs.values() and False not in self._flag_dofs.values()
+        values = self.all_flag_values.values()
+        return True not in values and False not in values
 
     @property
     def any_flag_undefined(self) -> bool:
         """Returns True/False to indicate if any flag is undefined."""
-        return None in self._flag_dofs.values()
+        return None in self.all_flag_values.values()
 
     def flag_is_defined(self, flag_name: str) -> bool:
         """Returns True/False to indicate if a flag is undefined by name."""
-        return self._flag_dofs[flag_name] is not None
+        return self.get_flag_value(flag_name) is not None
 
     def flag_is_true(self, flag_name: str) -> bool:
         """Returns True/False to indicate if the named flag is True."""
-        return self._flag_dofs[flag_name] is True
+        return self.get_flag_value(flag_name) is True
 
     def flag_is_false(self, flag_name: str) -> bool:
         """Returns True/False to indicate if the named flag is False."""
-        return self._flag_dofs[flag_name] is False
+        return self.get_flag_value(flag_name) is False
 
 
 class HasSettableFlags(HasFlags, abc.ABC):

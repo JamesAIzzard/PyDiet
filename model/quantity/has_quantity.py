@@ -9,7 +9,7 @@ class QuantityData(TypedDict):
     quantity_units: Optional[str]
 
 
-class SupportsQuantity(quantity.HasBulk, abc.ABC):
+class HasQuantity(quantity.HasBulk, abc.ABC):
     """Models an amount of substance with mass or volume."""
 
     def __init__(self, quantity_g: Optional[float] = None, quantity_units: Optional[str] = None, **kwargs):
@@ -39,13 +39,13 @@ class SupportsQuantity(quantity.HasBulk, abc.ABC):
         return self._quantity_g is not None and self._quantity_units is not None
 
 
-class SupportsSettableQuantity(SupportsQuantity):
+class HasSettableQuantity(HasQuantity):
     """Models an amount of substance with a settable mass or volume."""
 
     def __init__(self):
         super().__init__()
 
-    @SupportsQuantity.quantity_g.setter
+    @HasQuantity.quantity_g.setter
     def quantity_g(self, quantity_g: Optional[float]) -> None:
         """Sets the quantity of the instance in g."""
         if quantity_g is None:
@@ -53,7 +53,7 @@ class SupportsSettableQuantity(SupportsQuantity):
         else:
             self._quantity_g = quantity.validation.validate_quantity(quantity_g)
 
-    @SupportsQuantity.quantity_units.setter
+    @HasQuantity.quantity_units.setter
     def quantity_units(self, units: Optional[str]) -> None:
         """Sets the units of the instance quantity."""
         if units is None:

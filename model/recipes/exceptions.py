@@ -1,4 +1,4 @@
-from pydiet import PyDietException
+from model.exceptions import PyDietException
 
 
 class IngredientNotInRecipeError(PyDietException):

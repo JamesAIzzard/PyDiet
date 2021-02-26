@@ -1,7 +1,7 @@
 from model import cost, quantity
 
 
-class SupportsPricetag(cost.SupportsCost, quantity.SupportsQuantity):
+class HasPricetag(cost.SupportsCost, quantity.HasQuantity):
 
     @property
     def pricetag(self) -> float:

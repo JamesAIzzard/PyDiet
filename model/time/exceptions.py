@@ -1,10 +1,5 @@
-import pydiet
+from model.exceptions import PyDietException
 
-class TimeIntervalParseError(pydiet.exceptions.PyDietException):
-    pass
 
-class TimeIntervalValueError(pydiet.exceptions.PyDietException):
-    pass 
-
-class TimeValueError(pydiet.exceptions.PyDietException):
-    pass
+class TimeIntervalError(PyDietException):
+    """Indicates the time interval is invalid."""
