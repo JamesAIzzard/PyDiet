@@ -1,7 +1,6 @@
 from typing import Optional, TypedDict
 
 from model import nutrients, quantity, flags
-from . import exceptions
 
 
 class NutrientRatioData(TypedDict):
@@ -10,19 +9,11 @@ class NutrientRatioData(TypedDict):
     nutrient_pref_units: str
 
 
-def get_empty_nutrient_ratio_data() -> NutrientRatioData:
-    """Returns an fresh instance of nutrient ratio data with default values."""
-    return NutrientRatioData(
-        nutrient_g_per_subject_g=None,
-        nutrient_pref_units='g'
-    )
-
-
 class NutrientRatio:
     """Models an amount of nutrient per substance."""
 
     def __init__(self, nutrient_name: str, g_per_subject_g: Optional[float] = None,
-                 pref_unit: str = 'g', **kwargs):
+                 pref_unit: str = 'g'):
         nutrient_name = nutrients.get_nutrient_primary_name(nutrient_name)
         self._nutrient: nutrients.Nutrient = nutrients.global_nutrients[nutrient_name]
         self._g_per_subject_g: Optional[float] = g_per_subject_g
@@ -37,28 +28,10 @@ class NutrientRatio:
         """Returns the grams of the nutrient per gram of subject."""
         return self._g_per_subject_g
 
-    def _set_g_per_subject_g(self, g_per_subject_g: Optional[float]) -> None:
-        """Implementation for setting g_per_subject_g"""
-        raise exceptions.ReadonlyNutrientRatioError
-
-    @g_per_subject_g.setter
-    def g_per_subject_g(self, g_per_subject_g: Optional[float]) -> None:
-        """Sets the number of grams of nutrient per gram of subject."""
-        self._set_g_per_subject_g(g_per_subject_g)
-
     @property
     def pref_unit(self) -> str:
         """Returns the preferred unit used to refer to the nutrient quantity on this instance."""
         return self._pref_unit
-
-    def _set_pref_unit(self, pref_mass_unit: str) -> None:
-        """Implementation for setting the pref_unit."""
-        raise exceptions.ReadonlyNutrientRatioError
-
-    @pref_unit.setter
-    def pref_unit(self, pref_mass_unit: str) -> None:
-        """Sets the unit used to refer to this nutrient quantity."""
-        self._set_pref_unit(pref_mass_unit)
 
     @property
     def defined(self) -> bool:
@@ -84,13 +57,14 @@ class NutrientRatio:
 class SettableNutrientRatio(NutrientRatio):
 
     def __init__(self, nutrient_name: str, g_per_subject_g: Optional[float] = None,
-                 pref_unit: str = 'g', **kwargs):
+                 pref_unit: str = 'g'):
         # Check that we don't have readonly flag_data (this would allow inconsistencies);
         if not isinstance(self, flags.HasSettableFlags):
             assert not isinstance(self, flags.HasFlags)
-        super().__init__(nutrient_name, g_per_subject_g, pref_unit, **kwargs)
+        super().__init__(nutrient_name, g_per_subject_g, pref_unit)
 
-    def _set_g_per_subject_g(self, g_per_subject_g: Optional[float]) -> None:
+    @NutrientRatio.g_per_subject_g.setter
+    def g_per_subject_g(self, g_per_subject_g: Optional[float]) -> None:
         """Implementation for setting grams of nutrient per gram of subject.
         Note:
             This method is not responsible for mutual validation of the set of nutrient ratios
@@ -102,7 +76,8 @@ class SettableNutrientRatio(NutrientRatio):
         else:
             self._g_per_subject_g = None
 
-    def _set_pref_unit(self, pref_mass_unit: str) -> None:
+    @NutrientRatio.pref_unit.setter
+    def pref_unit(self, pref_mass_unit: str) -> None:
         """Impelmetnation for setting the pref_unit."""
         self._pref_unit = quantity.validation.validate_mass_unit(pref_mass_unit)
 

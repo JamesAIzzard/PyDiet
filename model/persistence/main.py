@@ -14,9 +14,9 @@ def save(subject: 'persistence.SupportsPersistence') -> None:
     """Saves the subject."""
 
     # Check the name is filled in and available;
-    if not subject.name_is_defined:
+    if not subject.unique_value_defined:
         raise persistence.exceptions.UniqueValueUndefinedError
-    if check_unique_value_available(subject.__class__, subject.name, subject.datafile_name) is False:
+    if check_unique_value_available(subject.__class__, subject.unique_value, subject.datafile_name) is False:
         raise persistence.exceptions.UniqueValueDuplicatedError
 
     # If exists already, we are updating;
@@ -27,20 +27,24 @@ def save(subject: 'persistence.SupportsPersistence') -> None:
         _create_datafile(subject)
 
 
-def load(cls: Type['persistence.SupportsPersistence'], name: Optional[str] = None,
-         datafile_name: Optional[str] = None) -> 'persistence.SupportsPersistence':
+def load(cls: Type[T], unique_value: Optional[str] = None,
+         datafile_name: Optional[str] = None) -> T:
     """Loads and returns an instance of the specified type, corresponding to the
     unique field name provided."""
 
+    # Assert that the class specified supports persistance;
+    if not issubclass(T, persistence.SupportsPersistence):
+        raise TypeError("Type being loaded must support persistence.")
+
     # Check the params are OK and get the datafile name if required;
-    if name is None and datafile_name is None:
+    if unique_value is None and datafile_name is None:
         raise ValueError('Either name or datafile name must be provided.')
-    if name is not None:
-        datafile_name = get_datafile_name_for_unique_value(cls, name)
+    if unique_value is not None:
+        datafile_name = get_datafile_name_for_unique_value(cls, unique_value)
 
     # Load & return;
     data = _read_datafile(cls.get_path_into_db() + datafile_name + '.json')
-    loaded_instance = cls(name=name, datafile_name=datafile_name)
+    loaded_instance = cls(unique_value=unique_value, datafile_name=datafile_name)
     loaded_instance.load_data(data)
     return loaded_instance
 
@@ -74,16 +78,16 @@ def get_saved_unique_values(cls: Type['persistence.SupportsPersistence']) -> Lis
 
 
 def check_unique_value_available(cls: Type['persistence.SupportsPersistence'], proposed_name: str,
-                                 ingore_datafile: Optional[str] = None) -> bool:
-    """Checks if the proposed unique qty is available for the persistable class type."""
+                                 ignore_datafile: Optional[str] = None) -> bool:
+    """Checks if the proposed unique value is available for the persistable class type."""
 
     if proposed_name is None:
         raise persistence.exceptions.UniqueValueUndefinedError
 
     index_data = _read_index(cls)
 
-    if ingore_datafile is not None:
-        index_data.pop(ingore_datafile)
+    if ignore_datafile is not None:
+        index_data.pop(ignore_datafile)
 
     return proposed_name not in index_data.values()
 
@@ -131,12 +135,12 @@ def _create_index_entry(subject: 'persistence.SupportsPersistence') -> None:
     index_data = _read_index(subject.__class__)
 
     # Check the unique field qty isn't used already, also checks name is not None;
-    if not check_unique_value_available(subject.__class__, subject.name, subject.datafile_name):
+    if not check_unique_value_available(subject.__class__, subject.unique_value, subject.datafile_name):
         raise persistence.exceptions.UniqueValueDuplicatedError
 
     # Generate and set the UID on object and index;
     subject._datafile_name = str(uuid.uuid4())
-    index_data[subject.datafile_name] = subject.name
+    index_data[subject.datafile_name] = subject.unique_value
 
     # Write the index;
     with open(subject.get_index_filepath(), 'w') as fh:
@@ -185,12 +189,12 @@ def _update_unique_value(subject: 'persistence.SupportsPersistence') -> None:
     """
 
     # Check the name is unique;
-    if not check_unique_value_available(subject.__class__, subject.name, subject.datafile_name):
+    if not check_unique_value_available(subject.__class__, subject.unique_value, subject.datafile_name):
         raise persistence.exceptions.UniqueValueDuplicatedError
 
     # Do the update;
     index_data = _read_index(subject.__class__)
-    index_data[subject.datafile_name] = subject.name
+    index_data[subject.datafile_name] = subject.unique_value
     with open(subject.__class__.get_index_filepath(), 'w') as fh:
         json.dump(index_data, fh, indent=2, sort_keys=True)
 

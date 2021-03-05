@@ -86,6 +86,16 @@ class HasBulk(abc.ABC):
                     return False
         return True
 
+    def validate_unit_compatibility(self, unit: str) -> str:
+        """Returns the unit if it is recognised, and can be used on this instance."""
+        unit = quantity.validation.validate_qty_unit(unit)
+        if not self.check_units_configured(unit):
+            if quantity.units_are_volumes(unit):
+                raise quantity.exceptions.DensityNotConfiguredError()
+            elif quantity.units_are_pieces(unit):
+                raise quantity.exceptions.PcMassNotConfiguredError()
+        return unit
+
 
 class HasSettableBulk(HasBulk, abc.ABC):
     """Models substances with settable bulk properties, such as density and mass."""

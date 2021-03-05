@@ -66,7 +66,7 @@ class MealGoalsEditorComponent(ConsoleAppComponent):
     def print(self)->str:
         # Build the template;
         output = _TEMPLATE.format(
-            name=self.subject.name,
+            name=self.subject.unique_value,
             time=self.subject.time,
             max_cost=self.subject.max_cost_gbp,
             perc_fat=self.subject.perc_fat,

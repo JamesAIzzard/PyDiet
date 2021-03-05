@@ -5,7 +5,7 @@ def cwd() -> str:
     return str(Path.cwd())
 
 
-path_into_db = 'c:/users.james.izzard/dropbox/pydiet/model/database/'
+path_into_db = 'c:/users/james.izzard/dropbox/pydiet/database/'
 ingredient_db_path = path_into_db + 'ingredients/'
 recipe_db_path = path_into_db + 'recipes/'
 day_goals_db_path = path_into_db + 'day_goals/'

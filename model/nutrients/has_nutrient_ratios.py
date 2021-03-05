@@ -1,7 +1,7 @@
 import abc
 from typing import Dict, List, Optional
 
-from . import validation, configs, exceptions
+from . import configs, exceptions
 from model import quantity, nutrients
 
 
@@ -9,32 +9,12 @@ class HasNutrientRatios(quantity.HasBulk, abc.ABC):
     """Abstract class to model objects with readonly nutrient ratios."""
 
     def __init__(self, **kwargs):
-        """
-        HasNutrientRatios constructor.
-        Keyword Args:
-            nutrient_ratios (Dict[str, NutrientRatio]): NutrientRatio instances
-                to be loaded into this object.
-        """
         super().__init__(**kwargs)
-        self._nutrient_ratios: Dict[str, 'nutrients.NutrientRatio'] = {}
-        # Start by populating the list with fresh instances;
-        for nutr_name in configs.all_primary_nutrient_names:
-            if nutr_name not in self._nutrient_ratios:
-                if isinstance(self, HasSettableNutrientRatios):
-                    self._nutrient_ratios[nutr_name] = nutrients.SettableNutrientRatio(nutrient_name=nutr_name)
-                else:
-                    self._nutrient_ratios[nutr_name] = nutrients.NutrientRatio(nutrient_name=nutr_name)
-        # Now update list with any data that has been passed in;
-        if 'nutrient_ratios' in kwargs.keys():
-            # Import any nutrient ratio data supplied;
-            for nutr_name, nr in kwargs['nutrient_ratios'].items():
-                prim_nutr_name = validation.validate_nutrient_name(nutr_name)
-                self._nutrient_ratios[prim_nutr_name] = nr
 
+    @abc.abstractmethod
     def get_nutrient_ratio(self, nutrient_name: str) -> 'nutrients.NutrientRatio':
         """Returns a NutrientRatio by name."""
-        nutrient_name = validation.validate_nutrient_name(nutrient_name)
-        return self._nutrient_ratios[nutrient_name]
+        raise NotImplementedError
 
     @property
     def nutrient_ratios(self) -> Dict[str, 'nutrients.NutrientRatio']:
@@ -82,20 +62,19 @@ class HasNutrientRatios(quantity.HasBulk, abc.ABC):
                     raise nutrients.exceptions.ChildNutrientQtyExceedsParentNutrientQtyError(
                         'The qty of child nutrients of {} exceed its own mass'.format(parent_nutrient_name))
 
-    @property
-    def nutrient_ratios_data(self) -> Dict[str, 'nutrients.NutrientRatioData']:
-        """Returns a dict of all nutrient names and corresponding NutrientRatioData fields."""
-        return {nutr_name: nutrients.NutrientRatioData(
-            nutrient_g_per_subject_g=nutr_ratio.g_per_subject_g,
-            nutrient_pref_units=nutr_ratio.pref_unit
-        ) for nutr_name, nutr_ratio in self._nutrient_ratios.keys()}
-
 
 class HasSettableNutrientRatios(HasNutrientRatios, abc.ABC):
     """Abstract class to model objects with settable nutrient ratios."""
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+
+    def get_nutrient_ratio(self, nutrient_name: str) -> 'nutrients.SettableNutrientRatio':
+        """Gets a settable nutrient ratio instance by name."""
+        nutrient_ratio = super().get_nutrient_ratio(nutrient_name)
+        if not isinstance(nutrient_ratio, nutrients.SettableNutrientRatio):
+            raise TypeError('Expecting a settable nutrient ratio.')
+        return nutrient_ratio
 
     def set_nutrient_ratios(self, nutrient_ratios_data: Dict[str, 'nutrients.NutrientRatioData']) -> None:
         """Sets a batch of nutrient ratios from a dictionary of nutrient ratio data."""

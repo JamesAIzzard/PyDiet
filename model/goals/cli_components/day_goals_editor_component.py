@@ -61,7 +61,7 @@ class DayGoalsEditorComponent(ConsoleAppComponent):
                 # Build the line;
                 output = output + _MEAL_TEMPLATE.format(
                     num=num,
-                    meal_name=mg.name,
+                    meal_name=mg.unique_value,
                     ratios=_RATIO_TEMPLATE.format(
                         perc_prot=mg.perc_protein,
                         perc_fat=mg.perc_fat,
@@ -75,7 +75,7 @@ class DayGoalsEditorComponent(ConsoleAppComponent):
     def print(self) -> str:
         # Create the content;
         output = _MAIN.format(
-            plan_name=self.subject.name,
+            plan_name=self.subject.unique_value,
             meals=self.meal_summary_table
         )
         # Format and return the template;
@@ -87,7 +87,7 @@ class DayGoalsEditorComponent(ConsoleAppComponent):
 
     def on_set_name(self, name:str) -> None:
         try:
-            self.subject.name = name
+            self.subject.unique_value = name
         except goals.exceptions.DuplicateDayGoalsNameError:
             self.app.error_message = 'There is already a day called {day_goals_name}'.format(
                 day_goals_name=name)
@@ -104,7 +104,7 @@ class DayGoalsEditorComponent(ConsoleAppComponent):
             mg = self.subject.add_new_meal_goal(meal_name)
         except goals.exceptions.DuplicateMealGoalsNameError:
             self.app.error_message = '{day_name} already contains a meal called {meal_name}'.format(
-                day_name=self.subject.name,
+                day_name=self.subject.unique_value,
                 meal_name=meal_name
             )
             return

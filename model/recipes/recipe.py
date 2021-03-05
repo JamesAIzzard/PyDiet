@@ -1,6 +1,6 @@
 from typing import Dict, List, TypedDict, Optional
 
-from model import nutrients, ingredients, quantity, flags, persistence, mandatory_attributes, tags, time, steps
+from model import recipes, ingredients, quantity, persistence, mandatory_attributes
 
 
 class RecipeData(TypedDict):
@@ -14,21 +14,17 @@ class RecipeData(TypedDict):
 
 
 class Recipe(persistence.SupportsPersistence,
-             mandatory_attributes.HasMandatoryAttributes,
-             flags.HasFlags,
-             nutrients.HasNutrientRatios,
-             quantity.HasSettableBulk,
-             # ingredients.HasSettableIngredientAmounts,
-             # tags.supports_tags.HasSettableTags,
-             # time.supports_serve_times.HasSettableServeTimes,
-             # steps.supports_steps.HasSettableSteps
-             ):
-    """Models a recipe. A recipe is a mutable collection of ingredient ratios, which also supports
+             mandatory_attributes.HasMandatoryAttributes):
+    """Models a recipe. A recipe is a collection of ingredient ratios, which also supports
     tagging (meal, dessert, drink, etc), serve times, and steps.
     """
 
     def __init__(self, recipe_data: Optional['RecipeData'] = None, **kwargs):
         super().__init__(**kwargs)
+
+        # Init the ingredient ratio dictionary;
+        self._ingredient_ratios: Dict[str, 'recipes.RecipeIngredientRatio'] = {}
+
         # Load any recipe data that was provided;
         if recipe_data is not None:
             self.load_data(recipe_data)
@@ -36,14 +32,8 @@ class Recipe(persistence.SupportsPersistence,
     @property
     def missing_mandatory_attrs(self) -> List[str]:
         attr_names = []
-        # if not self.name_is_defined:
-        #     attr_names.append('name')
-        # if len(self.ingredient_amounts_data) == 0:
-        #     attr_names.append('ingredients')
-        # if len(self.tag_data) == 0:
-        #     attr_names.append('tags')
-        # if len(self.serve_times_data) == 0:
-        #     attr_names.append('serve_times')
+        if not self.name_is_defined:
+            attr_names.append('name')
         return attr_names
 
     def _density_reset_cleanup(self) -> None:
@@ -55,17 +45,57 @@ class Recipe(persistence.SupportsPersistence,
     @property
     def name(self) -> Optional[str]:
         """Returns the name, which is also the unique value of a recipe."""
-        return self.get_unique_value()
+        return self.unique_value
 
     @name.setter
     def name(self, name: Optional[str]) -> None:
         """Setter for the name. Ensures the name is unique before setting."""
-        self.set_unique_value(name)
+        self.unique_value = name
 
     @property
     def name_is_defined(self) -> bool:
         """Returns True/False to indicate if the ingredient name has been defined."""
         return self.unique_value_defined
+
+    def add_ingredient_ratio(self, ingredient_name: Optional[str] = None,
+                             ingredient_df_name: Optional[str] = None,
+                             ingredient_nominal_quantity: Optional[float] = None,
+                             quantity_units: Optional[str] = None,
+                             inc_perc: Optional[float] = None,
+                             dec_perc: Optional[float] = None) -> None:
+        """Adds an ingredient ratio to the recipe."""
+        # Check ingredient is identified;
+        if ingredient_name is None and ingredient_df_name is None:
+            raise ValueError('Ingredient name or datafile name must be specified.')
+
+        # Grab the datafile name if we don't have it;
+        if ingredient_df_name is None:
+            ingredient_df_name = persistence.get_datafile_name_for_unique_value(ingredient_name)
+
+        # Load the ingredient;
+        ingredient = persistence.load(ingredients.Ingredient, ingredient_df_name)
+
+        # Init the RecipeIngredientRatio;
+        rir = recipes.RecipeIngredientRatio(ingredient=ingredient,
+                                            recipe=self,
+                                            nominal_quantity=ingredient_nominal_quantity,
+                                            nominal_quantity_units=quantity_units,
+                                            perc_incr=inc_perc,
+                                            perc_decr=dec_perc)
+
+        # Attach the instance to the dict;
+        self._ingredient_ratios[ingredient_df_name] = rir
+
+    @property
+    def ingredient_names(self) -> List[str]:
+        """Returns a list of all the unique ingredient names associated with this recipe instance."""
+        names: List[str] = []
+        for ingredient_df_name in self._ingredient_ratios.keys():
+            names.append(persistence.get_unique_value_from_datafile_name(ingredient_df_name))
+        return names
+
+    def mutate(self) -> 'MealComponent':
+        """Takes the current Recipe parameters and outputs a concrete MealComponent instance."""
 
     @staticmethod
     def get_path_into_db() -> str:

@@ -83,7 +83,7 @@ class GoalMenuComponent(ConsoleAppComponent):
         # Create a new DayGoals instance;
         dg = goals.goals_service.load_new_day_goals()
         try:
-            dg.name = text
+            dg.unique_value = text
         except DuplicateDayGoalsNameError:
             self.app.error_message = 'There is already a day called {day_goals_name}'.format(
                 day_goals_name=text)

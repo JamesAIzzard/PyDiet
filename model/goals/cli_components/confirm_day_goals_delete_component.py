@@ -10,14 +10,14 @@ class ConfirmDayGoalsDeleteComponent(YesNoDialogComponent):
         super().__init__(app)
         self._oes = oes.OptimisationEditService()
         self.message = 'Are you sure you want to delete {dg_name}'.format(
-            dg_name=self._oes.day_goals.name)
+            dg_name=self._oes.day_goals.unique_value)
 
     def on_yes(self):
         # If no datafile;
         if not self._oes.datafile_name:
             raise AttributeError
         # Set status message;
-        self.app.info_message = '{dg_name} deleted.'.format(dg_name=self._oes.day_goals.name)        
+        self.app.info_message = '{dg_name} deleted.'.format(dg_name=self._oes.day_goals.unique_value)
         # Delete the datafile;
         rep.delete_day_goals_data(self._oes.datafile_name)
         # Clear instance and df name off the edit service;
