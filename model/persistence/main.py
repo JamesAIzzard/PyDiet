@@ -33,7 +33,7 @@ def load(cls: Type[T], unique_value: Optional[str] = None,
     unique field name provided."""
 
     # Assert that the class specified supports persistance;
-    if not issubclass(T, persistence.SupportsPersistence):
+    if not issubclass(cls, persistence.SupportsPersistence):
         raise TypeError("Type being loaded must support persistence.")
 
     # Check the params are OK and get the datafile name if required;
@@ -109,11 +109,11 @@ def search_for_unique_values(
     return nlargest(num_results, all_scores, key=all_scores.get)
 
 
-def get_datafile_name_for_unique_value(cls: Type['persistence.SupportsPersistence'], name: str) -> str:
+def get_datafile_name_for_unique_value(cls: Type['persistence.SupportsPersistence'], unique_value: str) -> str:
     """Returns the datafile name associated with the unique name."""
     index = _read_index(cls)
     for df_name, u_name in index.items():
-        if u_name == name:
+        if u_name == unique_value:
             return df_name
     raise persistence.exceptions.UniqueValueNotFoundError
 

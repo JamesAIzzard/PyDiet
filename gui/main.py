@@ -3,6 +3,7 @@ from typing import Optional
 
 import gui
 
+
 class App:
     """PyDiet application."""
 

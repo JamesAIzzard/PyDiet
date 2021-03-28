@@ -96,14 +96,20 @@ class Ingredient(persistence.SupportsPersistence,
         )
 
     def load_data(self, data: 'IngredientData') -> None:
+        # Clarify parents for intellisense;
         self: Union[Ingredient,
                     cost.SupportsSettableCost,
                     flags.HasSettableFlags,
                     nutrients.HasSettableNutrientRatios,
                     quantity.HasSettableBulk]
-        self.cost_per_g = data['cost_per_g']
-        self.set_flag_values(data['flags'])
+
         self.name = data['name']
+
+        # Bulk data should be set before we start filling in data which might
+        # rely on the bulk properties;
+        self.set_bulk_data(data['bulk'])
+
+        self.cost_per_g = data['cost_per_g']
 
         # Load the nutrient ratios data;
         for nutrient_name in data['nutrients']:
@@ -116,4 +122,6 @@ class Ingredient(persistence.SupportsPersistence,
             )
             self.get_nutrient_ratio(nutrient_name).pref_unit = data['nutrients'][nutrient_name]['nutrient_pref_units']
 
-        self.set_bulk_attrs(data['bulk'])
+        # Set flags after nutrients;
+        # (We may get conflicts if flags imply not yet defined nutrient values);
+        self.set_flag_data(data['flags'])

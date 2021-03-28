@@ -60,7 +60,8 @@ class Recipe(persistence.SupportsPersistence,
     def add_ingredient_ratio(self, ingredient_name: Optional[str] = None,
                              ingredient_df_name: Optional[str] = None,
                              ingredient_nominal_quantity: Optional[float] = None,
-                             quantity_units: Optional[str] = None,
+                             ingredient_nominal_quantity_units: Optional[str] = None,
+                             pref_units: Optional[str] = None,
                              inc_perc: Optional[float] = None,
                              dec_perc: Optional[float] = None) -> None:
         """Adds an ingredient ratio to the recipe."""
@@ -70,28 +71,72 @@ class Recipe(persistence.SupportsPersistence,
 
         # Grab the datafile name if we don't have it;
         if ingredient_df_name is None:
-            ingredient_df_name = persistence.get_datafile_name_for_unique_value(ingredient_name)
+            ingredient_df_name = persistence.get_datafile_name_for_unique_value(
+                cls=ingredients.Ingredient,
+                unique_value=ingredient_name
+            )
 
         # Load the ingredient;
-        ingredient = persistence.load(ingredients.Ingredient, ingredient_df_name)
+        ingredient = persistence.load(
+            cls=ingredients.Ingredient,
+            datafile_name=ingredient_df_name
+        )
 
         # Init the RecipeIngredientRatio;
         rir = recipes.RecipeIngredientRatio(ingredient=ingredient,
                                             recipe=self,
                                             nominal_quantity=ingredient_nominal_quantity,
-                                            nominal_quantity_units=quantity_units,
+                                            nominal_quantity_units=ingredient_nominal_quantity_units,
+                                            pref_units=pref_units,
                                             perc_incr=inc_perc,
                                             perc_decr=dec_perc)
 
         # Attach the instance to the dict;
         self._ingredient_ratios[ingredient_df_name] = rir
 
+    def get_ingredient_ratio(self, ingredient_name: Optional[str] = None,
+                             ingredient_df_name: Optional[str] = None) -> 'recipes.RecipeIngredientRatio':
+        """Returns an ingredient ratio by its ingredient name or its datafile name."""
+        ingredient_df_name = self._get_df_name_for_ingredient_ratio(ingredient_name, ingredient_df_name)
+
+        return self._ingredient_ratios[ingredient_df_name]
+
+    def delete_ingredient_ratio(self, ingredient_name: Optional[str] = None,
+                                ingredient_df_name: Optional[str] = None) -> None:
+        """Removes an ingredient ratio from the recipe."""
+        ingredient_df_name = self._get_df_name_for_ingredient_ratio(ingredient_name, ingredient_df_name)
+        del (self._ingredient_ratios[ingredient_df_name])
+
+    def _get_df_name_for_ingredient_ratio(self, ingredient_name: Optional[str] = None,
+                                          ingredient_df_name: Optional[str] = None) -> str:
+        """Check the ingredient name and df name params are both provided, and returns the df name.
+        Raises an exception if the ingredient is not there, or one of the parameters are not provided."""
+        # If neither name or df name are provided, raise an exception;
+        if ingredient_name is None and ingredient_df_name is None:
+            raise ValueError('Either the ingredient name or the ingredient datafile name must be provided.')
+
+        # If the ingredient name is provided, convert it to the datafile name;
+        if ingredient_name is not None and ingredient_df_name is None:
+            ingredient_df_name = persistence.get_datafile_name_for_unique_value(
+                cls=ingredients.Ingredient,
+                unique_value=ingredient_name
+            )
+
+        # Raise a useful exception if the datafile name isnt on the list
+        if ingredient_df_name not in self._ingredient_ratios.keys():
+            raise recipes.exceptions.IngredientNotInRecipeError()
+
+        return ingredient_df_name
+
     @property
     def ingredient_names(self) -> List[str]:
         """Returns a list of all the unique ingredient names associated with this recipe instance."""
         names: List[str] = []
         for ingredient_df_name in self._ingredient_ratios.keys():
-            names.append(persistence.get_unique_value_from_datafile_name(ingredient_df_name))
+            names.append(persistence.get_unique_value_from_datafile_name(
+                cls=ingredients.Ingredient,
+                datafile_name=ingredient_df_name
+            ))
         return names
 
     def mutate(self) -> 'MealComponent':

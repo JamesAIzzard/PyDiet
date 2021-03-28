@@ -17,17 +17,25 @@ class HasQuantity(quantity.HasBulk, abc.ABC):
         these values in different ways."""
         super().__init__(**kwargs)
 
-    @property
     @abc.abstractmethod
-    def quantity_in_g(self) -> Optional[float]:
-        """Returns the object's quantity in grams."""
+    def _get_quantity_in_g(self) -> Optional[float]:
+        """Implements the way the concrete class stores/retrieves the quantity in grams"""
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def _get_quantity_pref_units(self) -> Optional[str]:
+        """Implements the way the concrete class stores/retrieves the preferred units of qty."""
         raise NotImplementedError
 
     @property
-    @abc.abstractmethod
+    def quantity_in_g(self) -> Optional[float]:
+        """Returns the object's quantity in grams."""
+        return self._get_quantity_in_g()
+
+    @property
     def quantity_pref_units(self) -> Optional[str]:
         """Returns the object's quantity units."""
-        raise NotImplementedError
+        return self._get_quantity_pref_units()
 
     @property
     def quantity_is_defined(self) -> bool:
@@ -43,12 +51,13 @@ class HasSettableQuantity(HasQuantity):
 
     @abc.abstractmethod
     def _set_validated_pref_quantity_units(self, validated_unit: str) -> None:
-        """Sets the validated quantity units on the instance."""
+        """Implements the way the concrete class sets the validated quantity units on the instance."""
         raise NotImplementedError
 
     @abc.abstractmethod
     def _set_validated_quantity_in_g(self, validated_quantity_in_g: Optional[float]) -> None:
-        """Sets the validated quantity in grams on the instance."""
+        """Implmeents the way the concrete class sets the validated quantity in grams on the instance."""
+        raise NotImplementedError
 
     @HasQuantity.quantity_in_g.setter
     def quantity_in_g(self, quantity_g: Optional[float]) -> None:
@@ -65,14 +74,18 @@ class HasSettableQuantity(HasQuantity):
         elif quantity.units_are_pieces(units) and not self.piece_mass_defined:
             raise quantity.exceptions.PcMassNotConfiguredError
         else:
-            self._set_validated_quantity_pref_units(quantity.validation.validate_qty_unit(units))
+            self._set_validated_pref_quantity_units(quantity.validation.validate_qty_unit(units))
 
     def set_quantity(self, qty: float, units: str) -> None:
         """Set's the substance's quantity in arbitrary units."""
+        # Validate & convert;
         units = quantity.validation.validate_qty_unit(units)
-        self.quantity_pref_units = units
-        self.quantity_in_g = quantity.convert_qty_unit(qty=qty,
-                                                       start_unit=units,
-                                                       end_unit='g',
-                                                       g_per_ml=self.g_per_ml,
-                                                       piece_mass_g=self.piece_mass_g)
+        quantity_in_g = quantity.convert_qty_unit(qty=qty,
+                                                  start_unit=units,
+                                                  end_unit='g',
+                                                  g_per_ml=self.g_per_ml,
+                                                  piece_mass_g=self.piece_mass_g)
+
+        # All is OK, so set the values;
+        self._set_validated_quantity_in_g(validated_quantity_in_g=quantity_in_g)
+        self._set_validated_pref_quantity_units(validated_unit=units)

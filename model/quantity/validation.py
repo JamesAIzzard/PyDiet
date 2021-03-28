@@ -3,7 +3,7 @@ from typing import Any
 from model import quantity
 
 
-def validate_quantity(qty: Any) -> float:
+def validate_quantity(qty: float) -> float:
     """Ensures the quantity value is valid, and returns it.
     Raises:
         InvalidQtyError: Indicating the quantity is invalid.
@@ -18,7 +18,7 @@ def validate_quantity(qty: Any) -> float:
         return qty
 
 
-def validate_qty_unit(unit: Any) -> str:
+def validate_qty_unit(unit: str) -> str:
     """Ensures the unit is a unit which the system recognises, and returns it."""
     for recognised_unit in quantity.get_recognised_qty_units():
         if unit.lower() == recognised_unit.lower():
@@ -26,7 +26,7 @@ def validate_qty_unit(unit: Any) -> str:
     raise quantity.exceptions.UnknownUnitError
 
 
-def validate_mass_unit(unit: Any) -> str:
+def validate_mass_unit(unit: str) -> str:
     """Ensures the unit is a recognised mass unit, and returns it."""
     for recognised_unit in quantity.get_recognised_mass_units():
         if unit.lower() == recognised_unit.lower():
@@ -34,7 +34,7 @@ def validate_mass_unit(unit: Any) -> str:
     raise quantity.exceptions.UnknownUnitError
 
 
-def validate_vol_unit(unit: Any) -> str:
+def validate_vol_unit(unit: str) -> str:
     """Ensures the unit is a recognised volume unit, and returns it."""
     for recognised_unit in quantity.get_recognised_vol_units():
         if unit.lower() == recognised_unit.lower():

@@ -236,7 +236,7 @@ class HasSettableFlags(HasFlags, abc.ABC):
 
         return conflicts
 
-    def set_flag_values(self, flag_data: Dict[str, Optional[bool]]):
+    def set_flag_data(self, flag_data: Dict[str, Optional[bool]]):
         """Sets flag_data values on the object."""
         for flag_name, flag_value in flag_data.items():
             self.set_flag_value(flag_name, flag_value)
