@@ -1,7 +1,7 @@
 import abc
 from typing import Dict, Any, Optional
 
-from model import persistence
+import persistence
 
 
 class SupportsPersistence(abc.ABC):

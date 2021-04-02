@@ -1,6 +1,7 @@
 from typing import Dict, List, TypedDict, Optional
 
-from model import recipes, ingredients, quantity, persistence, mandatory_attributes
+from model import recipes, ingredients, quantity, mandatory_attributes
+import persistence
 
 
 class RecipeData(TypedDict):

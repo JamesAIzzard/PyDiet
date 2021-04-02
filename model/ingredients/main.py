@@ -1,4 +1,5 @@
-from model import ingredients, persistence
+from model import ingredients
+import persistence
 
 
 def get_ingredient_name(datafile_name: str) -> str:

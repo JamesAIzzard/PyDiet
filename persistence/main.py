@@ -5,7 +5,7 @@ from difflib import SequenceMatcher
 from heapq import nlargest
 from typing import Dict, List, Any, TypeVar, Type, Optional
 
-from model import persistence
+import persistence
 
 T = TypeVar('T')
 

@@ -1,6 +1,8 @@
 from typing import List, Optional
 
-from model import nutrients, goals, persistence, quantity
+from model import nutrients, quantity
+import persistence
+import goals
 
 
 class MealGoalsData(goals.GoalsData):

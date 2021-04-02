@@ -1,6 +1,7 @@
 from typing import Optional, Dict, List, TypedDict, Union
 
-from model import nutrients, cost, flags, quantity, persistence, mandatory_attributes
+from model import nutrients, cost, flags, quantity, mandatory_attributes
+import persistence
 
 
 class IngredientData(TypedDict):

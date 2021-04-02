@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from model import goals
+import goals
 import tests
 
 
@@ -101,7 +101,8 @@ class SetNutrientMassGoal(TestCase):
         with self.assertRaises(goals.exceptions.OverConstrainedNutrientMassGoalError):
             dg.set_nutrient_mass_goal("Protein", 180, 'g')
 
-class TestAddMealGoals(TestCase):
+
+class AddMealGoals(TestCase):
 
     def test_dissallow_adding_of_unnamed_meal_goals(self) -> None:
         """Check we get an exception if we try and add an unnamed MealGoals instance."""
