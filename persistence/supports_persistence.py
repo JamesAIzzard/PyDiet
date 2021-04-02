@@ -72,7 +72,7 @@ class SupportsPersistence(abc.ABC):
     @property
     def datafile_exists(self) -> bool:
         """Returns True/False to indicate if the instance has been previously saved."""
-        return self._datafile_name is None
+        return self._datafile_name is not None
 
     @classmethod
     def get_index_filepath(cls) -> str:

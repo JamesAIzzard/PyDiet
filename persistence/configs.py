@@ -1,10 +1,3 @@
-from pathlib import Path
-
-
-def cwd() -> str:
-    return str(Path.cwd())
-
-
 path_into_db = 'C:/Users/james.izzard/Dropbox/pydiet/database/'
 ingredient_db_path = path_into_db + 'ingredients/'
 recipe_db_path = path_into_db + 'recipes/'
