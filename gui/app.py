@@ -5,7 +5,7 @@ import gui
 
 
 class App:
-    """PyDiet application."""
+    """PyDiet GUI root instance."""
 
     def __init__(self):
         self._root = tk.Tk()
@@ -17,7 +17,7 @@ class App:
         self.top_menu_controller = gui.top_menu_widget.Controller(app=self, view=self.top_menu_view)
 
         self.current_view: 'tk.Frame' = tk.Frame(master=self.root)
-        self.current_view.pack(fill=tk.BOTH)
+        self.current_view.pack(expand=True, fill=tk.BOTH)
 
         # New ingredient editor;
         self.new_ingredient_editor_view = gui.ingredient_editor_widget.View(master=self.current_view)
@@ -25,7 +25,7 @@ class App:
             app=self, view=self.new_ingredient_editor_view)
 
         # Init the current view;
-        self.new_ingredient_editor_view.pack(fill=tk.BOTH)
+        self.new_ingredient_editor_view.pack(expand=True, fill=tk.BOTH)
 
     @property
     def root(self) -> 'tk.Tk':
