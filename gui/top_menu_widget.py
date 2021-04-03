@@ -1,8 +1,6 @@
 import tkinter as tk
-from typing import TYPE_CHECKING
 
-if TYPE_CHECKING:
-    from gui import App
+import gui
 
 
 class View(tk.Menu):
@@ -56,10 +54,9 @@ class View(tk.Menu):
                                command=lambda: self._root.event_generate("<<Solve-Click>>"))
 
 
-class Controller:
-    def __init__(self, app: 'App', view: 'View'):
-        self._app = app
-        self._view = view
+class Controller(gui.ViewController):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
         self._app.root.bind("<<New-Ingredient-Click>>", self._on_new_ingredient_click)
         self._app.root.bind("<<Edit-Ingredient-Click>>", self._on_edit_ingredient_click)
         self._app.root.bind("<<View-Ingredients-Click>>", self._on_view_ingredients_click)

@@ -13,10 +13,19 @@ class App:
         self._root.geometry("{}x{}".format(gui.configs.app_window_width, gui.configs.app_widow_height))
         self._root.iconbitmap("gui/assets/pydiet.ico")
 
-        self.top_menu_view = gui.top_menu_widget.View(root=self._root)
+        self.top_menu_view = gui.top_menu_widget.View(root=self.root)
         self.top_menu_controller = gui.top_menu_widget.Controller(app=self, view=self.top_menu_view)
 
-        self.current_view: Optional['tk.Frame'] = None
+        self.current_view: 'tk.Frame' = tk.Frame(master=self.root)
+        self.current_view.pack(fill=tk.BOTH)
+
+        # New ingredient editor;
+        self.new_ingredient_editor_view = gui.ingredient_editor_widget.View(master=self.current_view)
+        self.new_ingredient_editor_controller = gui.ingredient_editor_widget.Controller(
+            app=self, view=self.new_ingredient_editor_view)
+
+        # Init the current view;
+        self.new_ingredient_editor_view.pack(fill=tk.BOTH)
 
     @property
     def root(self) -> 'tk.Tk':
