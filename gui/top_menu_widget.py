@@ -3,7 +3,7 @@ import tkinter as tk
 import gui
 
 
-class View(tk.Menu):
+class TopMenuWidget(tk.Menu):
     def __init__(self, root, **kwargs):
         super().__init__(master=root, **kwargs)
         self._root = root
@@ -54,9 +54,10 @@ class View(tk.Menu):
                                command=lambda: self._root.event_generate("<<Solve-Click>>"))
 
 
-class Controller(gui.ViewController):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+class TopMenuController:
+    def __init__(self, app: 'gui.App', view: 'TopMenuWidget'):
+        self._app = app
+        self._view = view
         self._app.root.bind("<<New-Ingredient-Click>>", self._on_new_ingredient_click)
         self._app.root.bind("<<Edit-Ingredient-Click>>", self._on_edit_ingredient_click)
         self._app.root.bind("<<View-Ingredients-Click>>", self._on_view_ingredients_click)
@@ -73,15 +74,12 @@ class Controller(gui.ViewController):
         self._app.root.bind("<<Solve-Click>>", self._on_solve_click)
 
     def _on_new_ingredient_click(self, _):
+        self._app.set_current_view(self._app.new_ingredient_editor_view)
         print("New Ingredient Nav Clicked")
-        self._app.new_ingredient_page_controller.load_ingredient(model.ingredients.load_new_ingredient())
-        self._app.current_page_view = self.app.new_ingredient_page_view
-        self._app.draw()
 
     @staticmethod
     def _on_edit_ingredient_click(_):
         print("Edit Ingredient Nav Clicked")
-        self._app.current_view
 
     @staticmethod
     def _on_view_ingredients_click(_):

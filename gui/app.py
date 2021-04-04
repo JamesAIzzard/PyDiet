@@ -1,5 +1,4 @@
 import tkinter as tk
-from typing import Optional
 
 import gui
 
@@ -13,27 +12,29 @@ class App:
         self._root.geometry("{}x{}".format(gui.configs.app_window_width, gui.configs.app_widow_height))
         self._root.iconbitmap("gui/assets/pydiet.ico")
 
-        self.top_menu_view = gui.top_menu_widget.View(root=self.root)
-        self.top_menu_controller = gui.top_menu_widget.Controller(app=self, view=self.top_menu_view)
+        # Frame that shows the current page;
+        self._view_pane = tk.Frame(master=self._root)
+        self._view_pane.pack(expand=True, fill=tk.BOTH)
 
-        self.current_view: 'tk.Frame' = tk.Frame(master=self.root)
-        self.current_view.pack(expand=True, fill=tk.BOTH)
+        # Top menu bar;
+        self.top_menu_view = gui.TopMenuWidget(root=self._root)
+        self.top_menu = gui.TopMenuController(app=self, view=self.top_menu_view)
 
         # New ingredient editor;
-        self.new_ingredient_editor_view = gui.ingredient_editor_widget.View(master=self.current_view)
-        self.new_ingredient_editor_controller = gui.ingredient_editor_widget.Controller(
-            app=self, view=self.new_ingredient_editor_view)
+        self.new_ingredient_editor_view = gui.IngredientEditorWidget(master=self._view_pane)
+        self.new_ingredient_editor = gui.IngredientEditorController(app=self, view=self.new_ingredient_editor_view)
 
-        # Init the current view;
-        self.new_ingredient_editor_view.pack(expand=True, fill=tk.BOTH)
+        # Load the app showing the new ingredient editor;
+        self.set_current_view(self.new_ingredient_editor_view)
 
     @property
     def root(self) -> 'tk.Tk':
-        """Returns the top level app window object."""
+        """Returns the app root instance."""
         return self._root
 
-    def draw(self) -> None:
-        """Draws the main application in its current state."""
+    def set_current_view(self, view: 'tk.Widget') -> None:  # noqa
+        """Places the specified widget in the view pane."""
+        view.pack(expand=True, fill=tk.BOTH)
 
     def run(self) -> None:
         """Runs the app."""
