@@ -1,8 +1,8 @@
 from model import cost
 
 
-def validate_cost(cost_per_g: float) -> float:
-    if cost_per_g >= 0:
-        return float(cost_per_g)
+def validate_cost(cost_value: float) -> float:
+    if cost_value >= 0:
+        return float(cost_value)
     else:
         raise cost.exceptions.CostValueError

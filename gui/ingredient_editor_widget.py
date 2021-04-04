@@ -2,6 +2,7 @@ import tkinter as tk
 from typing import Optional
 
 import gui
+import model
 
 
 class IngredientEditorWidget(tk.Frame):
@@ -28,12 +29,11 @@ class IngredientEditorWidget(tk.Frame):
         self._basic_info_frame = tk.Frame(master=self)
         self.name_entry_widget = gui.LabelledEntryWidget(master=self._basic_info_frame,
                                                          label_text="Name",
-                                                         entry_width=40)
+                                                         entry_width=40,
+                                                         invalid_bg=gui.configs.invalid_bg_colour)
         self.name_entry_widget.grid(row=0, column=0, sticky="w")
-        self.cost_entry = gui.LabelledEntryWidget(master=self._basic_info_frame,
-                                                  label_text="Cost: £",
-                                                  entry_width=10)
-        self.cost_entry.grid(row=1, column=0, sticky="w")
+        self.cost_entry_widget = gui.CostEditorWidget(master=self._basic_info_frame)
+        self.cost_entry_widget.grid(row=1, column=0, sticky="w")
         self._basic_info_frame.grid(row=2, column=0, padx=5, pady=5, sticky="ew")
 
     def clear(self) -> None:
@@ -50,6 +50,8 @@ class IngredientEditorController:
         self._view.bind("<<save-clicked>>", self._on_save_clicked)
         self._view.bind("<<reset-clicked>>", self._on_reset_clicked)
         self._view.name_entry_widget.bind("<<Value-Changed>>", self._on_name_changed)
+        self._view.cost_entry_widget.bind("<<Cost-Changed>>", self._on_cost_value_changed)
+        self._view.cost_entry_widget.bind("<<Qty-Changed>>", self._on_cost_qty_changed)
 
     @property
     def ingredient_name(self) -> Optional[str]:
@@ -67,3 +69,21 @@ class IngredientEditorController:
     def _on_name_changed(self, event) -> None:
         """Handler for ingredient name changes."""
         print("name changed!")
+
+    def _on_cost_value_changed(self, _) -> None:
+        """Handler for cost value changes."""
+        try:
+            _ = model.cost.validation.validate_cost(self._view.cost_entry_widget.cost_value)
+        except (model.cost.exceptions.CostValueError, ValueError):
+            self._view.cost_entry_widget.make_cost_invalid()
+            return
+        self._view.cost_entry_widget.make_cost_valid()
+
+    def _on_cost_qty_changed(self, event) -> None:
+        """Handler for cost qty changes."""
+        try:
+            _ = model.quantity.validation.validate_quantity(self._view.cost_entry_widget.qty_value)
+        except (model.quantity.exceptions.InvalidQtyError, ValueError):
+            self._view.cost_entry_widget.make_qty_invalid()
+            return
+        self._view.cost_entry_widget.make_qty_valid()

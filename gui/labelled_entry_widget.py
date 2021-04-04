@@ -5,10 +5,11 @@ import gui
 
 
 class LabelledEntryWidget(tk.Frame):
-    def __init__(self, label_text: str = "", entry_width: int = 10, **kwargs):
+    def __init__(self, label_text: str = "", entry_width: int = 10,
+                 invalid_bg: str = "#D7806D", **kwargs):
         super().__init__(**kwargs)
         self._label = tk.Label(master=self, text=label_text)
-        self._entry = gui.SmartEntryWidget(master=self, width=entry_width)
+        self._entry = gui.SmartEntryWidget(master=self, width=entry_width, invalid_bg=invalid_bg)
         self._label.grid(row=0, column=0)
         self._entry.grid(row=0, column=2)
 
