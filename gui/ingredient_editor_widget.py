@@ -36,9 +36,13 @@ class IngredientEditorWidget(tk.Frame):
         self.cost_editor.grid(row=1, column=0, sticky="w")
         self._basic_info_frame.grid(row=2, column=0, padx=5, pady=5, sticky="ew")
 
-        # Bulk info;
+        # Bulk editor;
         self.bulk_info_editor = gui.BulkEditorWidget(master=self)
         self.bulk_info_editor.grid(row=3, column=0, padx=5, pady=5, sticky="ew")
+
+        # Flag editor;
+        self.flag_info_editor = gui.FlagEditorWidget(master=self)
+        self.flag_info_editor.grid(row=4, column=0, padx=5, pady=5, sticky="ew")
 
     def clear(self) -> None:
         """Clears the fields in the form."""
@@ -50,10 +54,11 @@ class IngredientEditorController:
     def __init__(self, app: 'gui.App', view: 'IngredientEditorWidget'):
         self._app = app
         self._view = view
-        self._ingredient: 'model.ingredients.Ingredient'
+        self._subject: Optional['model.ingredients.Ingredient'] = None
 
-        # Init the complex widget controller
-        self._bulk_editor_controller = gui.BulkEditorController(app=self._app, view=self._view.bulk_info_editor)
+        # Init the complex widget controllers;
+        self._bulk_editor = gui.BulkEditorController(app=self._app, view=self._view.bulk_info_editor)
+        self._flag_editor = gui.FlagEditorController(app=self._app, view=self._view.flag_info_editor)
 
         # Add the mass units to the cost editor unit dropdown;
         self._view.cost_editor.add_unit_options(model.quantity.get_recognised_mass_units())
@@ -64,6 +69,18 @@ class IngredientEditorController:
         self._view.name_entry.bind("<<Value-Changed>>", self._on_name_changed)
         self._view.cost_editor.bind("<<Cost-Changed>>", self._on_cost_value_changed)
         self._view.cost_editor.bind("<<Qty-Changed>>", self._on_cost_qty_changed)
+
+    @property
+    def subject(self) -> Optional['model.ingredients.Ingredient']:
+        """Returns the editor's subject."""
+        return self._subject
+
+    @subject.setter
+    def subject(self, ingredient: 'model.ingredients.Ingredient') -> None:
+        """Loads an ingredient instance into the editor."""
+        # Pass the ingredient to the flag editor;
+        self._bulk_editor.subject = ingredient
+        self._flag_editor.subject = ingredient
 
     @property
     def ingredient_name(self) -> Optional[str]:

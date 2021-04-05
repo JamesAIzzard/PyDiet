@@ -27,6 +27,12 @@ class SmartDropdownWidget(ttk.Combobox):
                 values.remove(option)
         self['values'] = tuple(values)
 
+    def set(self, value: str) -> None:
+        """Sets the value of the dropdown."""
+        if value not in self['values']:
+            raise ValueError(f'{value} is not an option for this dropdown box.')
+        super().set(value)
+
 
 class LabelledDropdownWidget(tk.Frame):
     def __init__(self, label_text: str = "", dropdown_width: int = None, values: List[str] = None, **kwargs):
@@ -35,6 +41,14 @@ class LabelledDropdownWidget(tk.Frame):
         self._dropdown = SmartDropdownWidget(master=self, dropdown_width=dropdown_width, values=values)
         self._label.grid(row=0, column=0)
         self._dropdown.grid(row=0, column=1)
+
+    def set(self, value: str) -> None:
+        """Sets the value of the dropdown box."""
+        self._dropdown.set(value)
+
+    def get(self) -> str:
+        """Gets the value of the dropdown box."""
+        self._dropdown.get()
 
 
 class EntryDropdownWidget(tk.Frame):
@@ -49,7 +63,7 @@ class EntryDropdownWidget(tk.Frame):
 
 class LabelledEntryDropdownWidget(tk.Frame):
     def __init__(self, label_text: str = "", entry_width: int = 10, invalid_bg: str = "#D7806D",
-                 values: List[str] = None, dropdown_width: int=None, **kwargs):
+                 values: List[str] = None, dropdown_width: int = None, **kwargs):
         super().__init__(**kwargs)
         self._label = tk.Label(master=self, text=label_text)
         self._entry_dropdown = EntryDropdownWidget(master=self, entry_width=entry_width, invalid_bg=invalid_bg,
