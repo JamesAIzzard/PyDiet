@@ -1,7 +1,7 @@
 import tkinter as tk
 
 import gui
-
+import model
 
 class App:
     """PyDiet GUI root instance."""
@@ -26,6 +26,7 @@ class App:
 
         # Load the app showing the new ingredient editor;
         self.set_current_view(self.new_ingredient_editor_view)
+        self.new_ingredient_editor.subject = model.ingredients.Ingredient()
 
     @property
     def root(self) -> 'tk.Tk':
