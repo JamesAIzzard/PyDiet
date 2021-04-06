@@ -44,6 +44,14 @@ class IngredientEditorWidget(tk.Frame):
         self.flag_info_editor = gui.FlagEditorWidget(master=self)
         self.flag_info_editor.grid(row=4, column=0, padx=5, pady=5, sticky="ew")
 
+        # Mandatory nutrient editor;
+        ingredient_name = gui.DefaultStringVar(value="Cheese")
+        self.mandatory_nutrient_editor = gui.NutrientRatioEditorWdiget(
+            master=self,
+            nutrient_name="Protein"
+        )
+        self.mandatory_nutrient_editor.grid(row=5, column=0, padx=5, pady=5, sticky="ew")
+
     def clear(self) -> None:
         """Clears the fields in the form."""
         self.name_entry.clear()
