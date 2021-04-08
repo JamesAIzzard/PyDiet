@@ -24,9 +24,14 @@ class SmartEntryWidget(tk.Entry):
         self._value.set("")  # Using the value var triggers the change event.
 
     @property
-    def in_invalid_state(self) -> bool:
+    def in_valid_state(self) -> bool:
         """Returns True/False to indicate if widget is in invalid state."""
         return self._valid
+
+    @property
+    def in_invalid_state(self) -> bool:
+        """Returns True/False to indicate if widget is in an invalid state."""
+        return not self._valid
 
     def make_invalid(self) -> None:
         """Sets the textbox to its invalid state."""

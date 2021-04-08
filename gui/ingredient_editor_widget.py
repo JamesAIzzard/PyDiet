@@ -14,7 +14,8 @@ class IngredientEditorWidget(tk.Frame):
 
         # Page title;
         self._title = tk.Label(master=self, text="Ingredient Editor")
-        self._title.grid(row=0, column=0)
+        self._title.config(font=44)
+        self._title.grid(row=0, column=0, padx=5, pady=10, sticky="ew")
 
         # Add the save and reset button to the top;
         self._save_reset_frame = tk.Frame(master=self)
@@ -27,9 +28,9 @@ class IngredientEditorWidget(tk.Frame):
         self._save_reset_frame.grid(row=1, column=0, sticky="ew")
 
         # Basic info groups;
-        self._basic_info_frame = tk.Frame(master=self)
+        self._basic_info_frame = tk.LabelFrame(master=self, text="Basic Info")
         self.name_entry = gui.LabelledEntryWidget(master=self._basic_info_frame,
-                                                  label_text="Name",
+                                                  label_text="Name: ",
                                                   entry_width=40,
                                                   invalid_bg=gui.configs.invalid_bg_colour)
         self.name_entry.grid(row=0, column=0, sticky="w")
@@ -58,29 +59,12 @@ class IngredientEditorWidget(tk.Frame):
         self.name_entry.clear()
 
 
-class HasIngredientSubject:
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self._subject: Optional['model.ingredients.Ingredient'] = None
-
-    @property
-    def subject(self) -> Optional['model.ingredients.Ingredient']:
-        """Returns the subject instance."""
-        return self._subject
-
-    @subject.setter
-    def subject(self, subject: 'model.ingredients.Ingredient') -> None:
-        """Sets the subject instance."""
-        if not isinstance(subject, model.ingredients.Ingredient):
-            raise TypeError("Subject must be an ingredient instance.")
-        self._subject = subject
-
-
-class HasIngredientNameWidget(HasIngredientSubject):
+class HasIngredientNameWidget(gui.HasSubject):
     def __init__(self, ingredient_name_editor_widget: 'gui.LabelledEntryWidget',
                  **kwargs):
         super().__init__(**kwargs)
         self._ingredient_name_editor_widget = ingredient_name_editor_widget
+        # Bind handlers to widget events;
         self._ingredient_name_editor_widget.bind("<<Value-Changed>>", self._on_ingredient_name_change)
 
     @property
@@ -108,17 +92,21 @@ class HasIngredientNameWidget(HasIngredientSubject):
         ):
             self._ingredient_name_editor_widget.make_invalid()
         else:
+            subject:'model.ingredients.Ingredient' = self.subject
             self._ingredient_name_editor_widget.make_valid()
+            subject.name = self._ingredient_name_editor_widget.get()
 
 
-class IngredientEditorController(HasIngredientNameWidget):
+class IngredientEditorController(HasIngredientNameWidget, gui.HasCostEditorWidget):
 
     def __init__(self, ingredient_editor_widget: 'IngredientEditorWidget', **kwargs):
-        self._ingredient_editor_widget = ingredient_editor_widget
         super().__init__(
+            subject_type=model.ingredients.Ingredient,
             ingredient_name_editor_widget=ingredient_editor_widget.name_entry,
+            cost_editor_widget=ingredient_editor_widget.cost_editor,
             **kwargs
         )
+        self._ingredient_editor_widget = ingredient_editor_widget
 
         # Init the complex widget controllers;
         # self.bulk_editor = gui.BulkEditorController(app=self._app, view=self._view.bulk_info_editor)
@@ -142,7 +130,7 @@ class IngredientEditorController(HasIngredientNameWidget):
 
     def _on_save_clicked(self, event) -> None:
         """Handler for ingredient save."""
-        print("save ingredient clicked", self.ingredient_name)
+        print("save ingredient clicked", self.subject)
 
     def _on_reset_clicked(self, event) -> None:
         """Handler for reset button."""

@@ -7,11 +7,15 @@ import gui
 
 class SmartDropdownWidget(ttk.Combobox):
     def __init__(self, dropdown_width: int = None, values: List[str] = None, **kwargs):
+        self._value = tk.StringVar()  # So we can trace changes.
         if values is None:
             values = []
         if dropdown_width is None:
             dropdown_width = 5
-        super().__init__(values=values, width=dropdown_width, **kwargs)
+        super().__init__(values=values, width=dropdown_width, textvar=self._value, state="readonly", **kwargs)
+
+        # Raise event when value changes.
+        self._value.trace_add("write", callback=lambda *args: self.event_generate("<<Value-Changed>>"))
 
     def add_options(self, options: List[str]) -> None:
         """Adds the list of options to the dropdown box, if not already there."""
@@ -31,7 +35,11 @@ class SmartDropdownWidget(ttk.Combobox):
         """Sets the value of the dropdown."""
         if value not in self['values']:
             raise ValueError(f'{value} is not an option for this dropdown box.')
-        super().set(value)
+        self._value.set(value=value)
+
+    def get(self) -> str:
+        """Gets the current value of the dropdown."""
+        return self._value.get()
 
 
 class LabelledDropdownWidget(tk.Frame):

@@ -2,6 +2,7 @@ import tkinter as tk
 from typing import List
 
 import gui
+import model
 
 
 class CostEditorWidget(tk.Frame):
@@ -18,12 +19,13 @@ class CostEditorWidget(tk.Frame):
         self._per_label.grid(row=0, column=2)
         self._qty_entry = gui.SmartEntryWidget(master=self, width=5, invalid_bg=gui.configs.invalid_bg_colour)
         self._qty_entry.grid(row=0, column=3)
-        self._qty_units_dropdown = gui.SmartDropdownWidget(master=self, dropdown_width=5)
+        self._qty_units_dropdown = gui.SmartDropdownWidget(master=self, dropdown_width=8)
         self._qty_units_dropdown.grid(row=0, column=4)
 
         # Wire up events;
         self._cost_entry.bind("<<Value-Changed>>", lambda _: self.event_generate("<<Cost-Changed>>"))
         self._qty_entry.bind("<<Value-Changed>>", lambda _: self.event_generate("<<Qty-Changed>>"))
+        self._qty_units_dropdown.bind("<<Value-Changed>>", lambda _: self.event_generate("<<Qty-Units-Changed>>"))
 
     @property
     def cost_value(self) -> float:
@@ -34,12 +36,22 @@ class CostEditorWidget(tk.Frame):
             return float(self._cost_entry.get())
 
     @property
-    def qty_value(self) -> float:
+    def subject_qty_value(self) -> float:
         """Returns the contents of the qty value entry box."""
         if self._qty_entry.get() == "":
             return 0
         else:
             return float(self._qty_entry.get())
+
+    @property
+    def subject_qty_unit(self) -> str:
+        """Returns the currently selected quantity unit."""
+        return self._qty_units_dropdown.get()
+
+    @subject_qty_unit.setter
+    def subject_qty_unit(self, qty_unit: str) -> None:
+        """Sets the selected quantity unit."""
+        self._qty_units_dropdown.set(qty_unit)
 
     @property
     def cost_in_valid_state(self) -> bool:
@@ -74,3 +86,59 @@ class CostEditorWidget(tk.Frame):
     def remove_unit_options(self, units: List[str]) -> None:
         """Removes units from the units dropdown box."""
         self._qty_units_dropdown.remove_options(units)
+
+
+class HasCostEditorWidget(gui.HasSubject):
+    def __init__(self, cost_editor_widget: 'gui.CostEditorWidget', **kwargs):
+        super().__init__(**kwargs)
+        if not issubclass(self._subject_type, model.cost.SupportsSettableCost):
+            raise TypeError("CostEditorWidget requires the subject to inherit from SupportsSettableCost")
+        self._cost_editor_widget = cost_editor_widget
+
+        # Init the subject qty dropdown;
+        self._cost_editor_widget.add_unit_options(model.quantity.get_recognised_mass_units())
+        self._cost_editor_widget.subject_qty_unit = 'g'
+        if self.subject is not None:
+            if self.subject.density_is_defined:
+                self._cost_editor_widget.add_unit_options(model.quantity.get_recognised_vol_units())
+            if self.subject.piece_mass_defined:
+                self._cost_editor_widget.add_unit_options(model.quantity.get_recognised_pc_units())
+
+        # Bind handlers to widget events;
+        self._cost_editor_widget.bind("<<Cost-Changed>>", self._on_cost_value_change)
+        self._cost_editor_widget.bind("<<Qty-Changed>>", self._on_cost_subject_qty_value_change)
+        self._cost_editor_widget.bind("<<Qty-Units-Changed>>", self._on_cost_subject_qty_unit_change)
+
+    def _post_values(self) -> None:
+        """Posts the values from the form onto the subject."""
+        subject: 'model.cost.SupportsSettableCost' = self.subject
+        if self._cost_editor_widget.cost_in_valid_state and self._cost_editor_widget.qty_in_valid_state:
+            subject.set_cost(
+                cost_gbp=self._cost_editor_widget.cost_value,
+                qty=self._cost_editor_widget.subject_qty_value,
+                unit=self._cost_editor_widget.subject_qty_unit
+            )
+
+    def _on_cost_value_change(self, _) -> None:
+        """Handler for changes in the cost value field."""
+        subject: 'model.cost.SupportsSettableCost' = self.subject
+        try:
+            _ = model.cost.validation.validate_cost(self._cost_editor_widget.cost_value)
+            self._cost_editor_widget.make_cost_valid()
+            self._post_values()
+        except (model.cost.exceptions.CostValueError, ValueError):
+            self._cost_editor_widget.make_cost_invalid()
+
+    def _on_cost_subject_qty_value_change(self, _) -> None:
+        """Handler for changes in the subject quantity value field."""
+        subject: 'model.cost.SupportsSettableCost' = self.subject
+        try:
+            _ = model.quantity.validation.validate_quantity(self._cost_editor_widget.subject_qty_value)
+            self._cost_editor_widget.make_qty_valid()
+            self._post_values()
+        except (model.quantity.exceptions.InvalidQtyError, ValueError):
+            self._cost_editor_widget.make_qty_invalid()
+
+    def _on_cost_subject_qty_unit_change(self, _) -> None:
+        """Handler for changes in the subject quantity unit dropdown."""
+        self._post_values()

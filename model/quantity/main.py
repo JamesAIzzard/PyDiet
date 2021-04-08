@@ -13,9 +13,14 @@ def get_recognised_vol_units() -> List[str]:
     return list(configs.ML_CONVERSIONS.keys())
 
 
+def get_recognised_pc_units() -> List[str]:
+    """Returns a list of all pc mass units."""
+    return ['pc']
+
+
 def get_recognised_qty_units() -> List[str]:
     """Returns a list of all recognised quantity units."""
-    return get_recognised_mass_units() + get_recognised_vol_units() + ['pc']
+    return get_recognised_mass_units() + get_recognised_vol_units() + get_recognised_pc_units()
 
 
 def units_are_masses(*units: str) -> bool:

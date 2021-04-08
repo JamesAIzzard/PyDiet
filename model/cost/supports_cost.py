@@ -46,12 +46,16 @@ class SupportsSettableCost(SupportsCost, abc.ABC):
 
     def set_cost(self, cost_gbp: float, qty: float, unit: str) -> None:
         """Sets the cost in gbp of any quanitity of any unit."""
-        # Find the ratio of cost per original unit
-        r = cost_gbp/qty
-        # Convert ratio to grams
-        k = quantity.convert_qty_unit(
-            1, unit, 'g',
-            self.g_per_ml,
-            self.piece_mass_g)
-        cost_per_g = r / k
-        self.cost_per_g = cost_per_g
+        # If either of the values are None, just set to None;
+        if qty is None or qty == 0:  # To prevent divide by zero.
+            self.cost_per_g = None
+        else:
+            # Find the ratio of cost per original unit
+            r = cost_gbp / qty
+            # Convert ratio to grams
+            k = quantity.convert_qty_unit(
+                1, unit, 'g',
+                self.g_per_ml,
+                self.piece_mass_g)
+            cost_per_g = r / k
+            self.cost_per_g = cost_per_g

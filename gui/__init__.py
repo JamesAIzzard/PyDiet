@@ -1,10 +1,11 @@
 from gui import configs
 from gui.app import App
+from gui.has_subject import HasSubject
 from gui.default_stringvar import DefaultStringVar
 from gui.dropdown_widgets import SmartDropdownWidget, LabelledDropdownWidget, LabelledEntryDropdownWidget, \
     EntryDropdownWidget
 from gui.entry_widgets import SmartEntryWidget, LabelledEntryWidget
-from gui.cost_editor_widget import CostEditorWidget
+from gui.cost_editor_widget import CostEditorWidget, HasCostEditorWidget
 from gui.density_editor_widget import DensityEditorWidget
 from gui.nutrient_ratio_editor_widget import NutrientRatioEditorWidget
 from gui.flag_editor_widget import FlagEditorWidget, FlagEditorController
