@@ -3,6 +3,7 @@ from typing import Optional
 
 import gui
 import model
+import persistence
 
 
 class IngredientEditorWidget(tk.Frame):
@@ -45,55 +46,99 @@ class IngredientEditorWidget(tk.Frame):
         self.flag_info_editor.grid(row=4, column=0, padx=5, pady=5, sticky="ew")
 
         # Mandatory nutrient editor;
-        ingredient_name = gui.DefaultStringVar(value="Cheese")
-        self.mandatory_nutrient_editor = gui.NutrientRatioEditorWdiget(
-            master=self,
-            nutrient_name="Protein"
-        )
-        self.mandatory_nutrient_editor.grid(row=5, column=0, padx=5, pady=5, sticky="ew")
+        # self.mandatory_nutrient_editor = gui.FixedNutrientRatioEditorWidget(master=self, )
+        # self.mandatory_nutrient_editor.grid(row=5, column=0, padx=5, pady=5, sticky="ew")
+
+        # Dynamic nutrient editor;
+        # self.dynamic_nutrient_editor = gui.DynamicNutrientRatioEditorWidget(master=self)
+        # self.dynamic_nutrient_editor.grid(row=6, column=0, padx=5, pady=5, sticky="ew")
 
     def clear(self) -> None:
         """Clears the fields in the form."""
         self.name_entry.clear()
 
 
-class IngredientEditorController:
-
-    def __init__(self, app: 'gui.App', view: 'IngredientEditorWidget'):
-        self._app = app
-        self._view = view
+class HasIngredientSubject:
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
         self._subject: Optional['model.ingredients.Ingredient'] = None
-
-        # Init the complex widget controllers;
-        self._bulk_editor = gui.BulkEditorController(app=self._app, view=self._view.bulk_info_editor)
-        self._flag_editor = gui.FlagEditorController(app=self._app, view=self._view.flag_info_editor)
-
-        # Add the mass units to the cost editor unit dropdown;
-        self._view.cost_editor.add_unit_options(model.quantity.get_recognised_mass_units())
-
-        # Bind the handlers;
-        self._view.bind("<<save-clicked>>", self._on_save_clicked)
-        self._view.bind("<<reset-clicked>>", self._on_reset_clicked)
-        self._view.name_entry.bind("<<Value-Changed>>", self._on_name_changed)
-        self._view.cost_editor.bind("<<Cost-Changed>>", self._on_cost_value_changed)
-        self._view.cost_editor.bind("<<Qty-Changed>>", self._on_cost_qty_changed)
 
     @property
     def subject(self) -> Optional['model.ingredients.Ingredient']:
-        """Returns the editor's subject."""
+        """Returns the subject instance."""
         return self._subject
 
     @subject.setter
-    def subject(self, ingredient: 'model.ingredients.Ingredient') -> None:
-        """Loads an ingredient instance into the editor."""
-        # Pass the ingredient to the flag editor;
-        self._bulk_editor.subject = ingredient
-        self._flag_editor.subject = ingredient
+    def subject(self, subject: 'model.ingredients.Ingredient') -> None:
+        """Sets the subject instance."""
+        if not isinstance(subject, model.ingredients.Ingredient):
+            raise TypeError("Subject must be an ingredient instance.")
+        self._subject = subject
+
+
+class HasIngredientNameWidget(HasIngredientSubject):
+    def __init__(self, ingredient_name_editor_widget: 'gui.LabelledEntryWidget',
+                 **kwargs):
+        super().__init__(**kwargs)
+        self._ingredient_name_editor_widget = ingredient_name_editor_widget
+        self._ingredient_name_editor_widget.bind("<<Value-Changed>>", self._on_ingredient_name_change)
 
     @property
     def ingredient_name(self) -> Optional[str]:
-        """Gets the value from the ingredient name field."""
-        return self._view.name_entry.get()
+        """Returns the value from the ingredient name entry."""
+        if self._ingredient_name_editor_widget.get() == "":
+            return None
+        else:
+            return self._ingredient_name_editor_widget.get()
+
+    @ingredient_name.setter
+    def ingredient_name(self, ingredient_name: Optional[str]) -> None:
+        """Sets the value from the ingredient name entry."""
+        if ingredient_name is None:
+            ingredient_name = ""
+        self._ingredient_name_editor_widget.set(ingredient_name)
+
+    def _on_ingredient_name_change(self, _) -> None:
+        """Handler for changes to the ingredient name."""
+        # Check the name value is allowed;
+        if not persistence.check_unique_value_available(
+                cls=model.ingredients.Ingredient,
+                proposed_name=self._ingredient_name_editor_widget.get(),
+                ignore_datafile=self.subject.datafile_name
+        ):
+            self._ingredient_name_editor_widget.make_invalid()
+        else:
+            self._ingredient_name_editor_widget.make_valid()
+
+
+class IngredientEditorController(HasIngredientNameWidget):
+
+    def __init__(self, ingredient_editor_widget: 'IngredientEditorWidget', **kwargs):
+        self._ingredient_editor_widget = ingredient_editor_widget
+        super().__init__(
+            ingredient_name_editor_widget=ingredient_editor_widget.name_entry,
+            **kwargs
+        )
+
+        # Init the complex widget controllers;
+        # self.bulk_editor = gui.BulkEditorController(app=self._app, view=self._view.bulk_info_editor)
+        # self.flag_editor = gui.FlagEditorController(app=self._app, view=self._view.flag_info_editor)
+        # self.mandatory_nutrient_editor = gui.FixedNutrientRatioEditorController(
+        #     app=self._app,
+        #     view=self._view.mandatory_nutrient_editor)
+        # self.dynamic_nutrient_editor = gui.DynamicNutrientRatioEditorController(
+        #     app=self._app,
+        #     view=self._view.dynamic_nutrient_editor
+        # )
+
+        # # Add the mass units to the cost editor unit dropdown;
+        # self._view.cost_editor.add_unit_options(model.quantity.get_recognised_mass_units())
+        #
+        # # Bind the handlers;
+        self._ingredient_editor_widget.bind("<<save-clicked>>", self._on_save_clicked)
+        self._ingredient_editor_widget.bind("<<reset-clicked>>", self._on_reset_clicked)
+        # self._view.cost_editor.bind("<<Cost-Changed>>", self._on_cost_value_changed)
+        # self._view.cost_editor.bind("<<Qty-Changed>>", self._on_cost_qty_changed)
 
     def _on_save_clicked(self, event) -> None:
         """Handler for ingredient save."""
@@ -101,26 +146,22 @@ class IngredientEditorController:
 
     def _on_reset_clicked(self, event) -> None:
         """Handler for reset button."""
-        self._view.clear()
+        self._ingredient_editor_widget.clear()
 
-    def _on_name_changed(self, event) -> None:
-        """Handler for ingredient name changes."""
-        print("name changed!")
-
-    def _on_cost_value_changed(self, _) -> None:
-        """Handler for cost value changes."""
-        try:
-            _ = model.cost.validation.validate_cost(self._view.cost_editor.cost_value)
-        except (model.cost.exceptions.CostValueError, ValueError):
-            self._view.cost_editor.make_cost_invalid()
-            return
-        self._view.cost_editor.make_cost_valid()
-
-    def _on_cost_qty_changed(self, event) -> None:
-        """Handler for cost qty changes."""
-        try:
-            _ = model.quantity.validation.validate_quantity(self._view.cost_editor.qty_value)
-        except (model.quantity.exceptions.InvalidQtyError, ValueError):
-            self._view.cost_editor.make_qty_invalid()
-            return
-        self._view.cost_editor.make_qty_valid()
+    # def _on_cost_value_changed(self, _) -> None:
+    #     """Handler for cost value changes."""
+    #     try:
+    #         _ = model.cost.validation.validate_cost(self._view.cost_editor.cost_value)
+    #     except (model.cost.exceptions.CostValueError, ValueError):
+    #         self._view.cost_editor.make_cost_invalid()
+    #         return
+    #     self._view.cost_editor.make_cost_valid()
+    #
+    # def _on_cost_qty_changed(self, event) -> None:
+    #     """Handler for cost qty changes."""
+    #     try:
+    #         _ = model.quantity.validation.validate_quantity(self._view.cost_editor.qty_value)
+    #     except (model.quantity.exceptions.InvalidQtyError, ValueError):
+    #         self._view.cost_editor.make_qty_invalid()
+    #         return
+    #     self._view.cost_editor.make_qty_valid()

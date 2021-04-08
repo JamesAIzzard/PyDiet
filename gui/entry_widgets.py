@@ -15,9 +15,13 @@ class SmartEntryWidget(tk.Entry):
         # Raise event when value changes;
         self._value.trace_add("write", callback=lambda *args: self.event_generate("<<Value-Changed>>"))
 
+    def set(self, value: str) -> None:
+        """Sets the widget's value."""
+        self._value.set(value)  # Using the value var triggers the change event.
+
     def clear(self) -> None:
         """Clears the textbox."""
-        self.delete("0", tk.END)
+        self._value.set("")  # Using the value var triggers the change event.
 
     @property
     def in_invalid_state(self) -> bool:
@@ -48,8 +52,12 @@ class LabelledEntryWidget(tk.Frame):
         self._entry.bind("<<Value-Changed>>", lambda _: self.event_generate("<<Value-Changed>>"))
 
     def get(self) -> Optional[str]:
-        """Returns the text content of the view."""
+        """Returns the text content of the entry element."""
         return self._entry.get()
+
+    def set(self, value: str) -> None:
+        """Sets the text content of the entry element."""
+        self._entry.set(value)
 
     def clear(self) -> None:
         """Clears the textbox."""

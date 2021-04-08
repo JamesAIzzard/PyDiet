@@ -4,7 +4,7 @@ from typing import Optional, Union
 import gui
 
 
-class NutrientRatioEditorWdiget(tk.Frame):
+class NutrientRatioEditorWidget(tk.Frame):
     """Widget to manipulate the quantity of a nutrient per quantity of subject."""
 
     def __init__(self, nutrient_name: str, **kwargs):

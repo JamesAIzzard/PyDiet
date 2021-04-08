@@ -3,6 +3,7 @@ import tkinter as tk
 import gui
 import model
 
+
 class App:
     """PyDiet GUI root instance."""
 
@@ -22,7 +23,8 @@ class App:
 
         # New ingredient editor;
         self.new_ingredient_editor_view = gui.IngredientEditorWidget(master=self._view_pane)
-        self.new_ingredient_editor = gui.IngredientEditorController(app=self, view=self.new_ingredient_editor_view)
+        self.new_ingredient_editor = gui.IngredientEditorController(
+            ingredient_editor_widget=self.new_ingredient_editor_view)
 
         # Load the app showing the new ingredient editor;
         self.set_current_view(self.new_ingredient_editor_view)
