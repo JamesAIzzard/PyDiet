@@ -12,11 +12,6 @@ class IngredientEditorWidget(tk.Frame):
 
         self.columnconfigure(0, weight=1)  # Make the 0th col expand to fill full width of self.
 
-        # Page title;
-        self._title = tk.Label(master=self, text="Ingredient Editor")
-        self._title.config(font=44)
-        self._title.grid(row=0, column=0, padx=5, pady=10, sticky="ew")
-
         # Add the save and reset button to the top;
         self._save_reset_frame = tk.Frame(master=self)
         self.save_button = tk.Button(master=self._save_reset_frame, text="Save")
@@ -25,7 +20,7 @@ class IngredientEditorWidget(tk.Frame):
         self.reset_button = tk.Button(master=self._save_reset_frame, text="Reset")
         self.reset_button.bind("<Button-1>", lambda _: self.event_generate("<<reset-clicked>>"))
         self.reset_button.grid(row=0, column=1, padx=5)
-        self._save_reset_frame.grid(row=1, column=0, sticky="ew")
+        self._save_reset_frame.grid(row=0, column=0, sticky="ew")
 
         # Basic info groups;
         self._basic_info_frame = tk.LabelFrame(master=self, text="Basic Info")
@@ -36,15 +31,15 @@ class IngredientEditorWidget(tk.Frame):
         self.name_entry.grid(row=0, column=0, sticky="w")
         self.cost_editor = gui.CostEditorWidget(master=self._basic_info_frame)
         self.cost_editor.grid(row=1, column=0, sticky="w")
-        self._basic_info_frame.grid(row=2, column=0, padx=5, pady=5, sticky="ew")
+        self._basic_info_frame.grid(row=1, column=0, padx=5, pady=5, sticky="ew")
 
         # Bulk editor;
         self.bulk_info_editor = gui.BulkEditorWidget(master=self)
-        self.bulk_info_editor.grid(row=3, column=0, padx=5, pady=5, sticky="ew")
+        self.bulk_info_editor.grid(row=2, column=0, padx=5, pady=5, sticky="ew")
 
         # Flag editor;
         self.flag_info_editor = gui.FlagEditorWidget(master=self)
-        self.flag_info_editor.grid(row=4, column=0, padx=5, pady=5, sticky="ew")
+        self.flag_info_editor.grid(row=3, column=0, padx=5, pady=5, sticky="ew")
 
         # Mandatory nutrient editor;
         # self.mandatory_nutrient_editor = gui.FixedNutrientRatioEditorWidget(master=self, )
