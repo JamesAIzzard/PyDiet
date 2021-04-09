@@ -92,7 +92,7 @@ class HasIngredientNameWidget(gui.HasSubject):
         ):
             self._ingredient_name_editor_widget.make_invalid()
         else:
-            subject:'model.ingredients.Ingredient' = self.subject
+            subject: 'model.ingredients.Ingredient' = self.subject
             self._ingredient_name_editor_widget.make_valid()
             subject.name = self._ingredient_name_editor_widget.get()
 

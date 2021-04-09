@@ -50,6 +50,9 @@ class LabelledDropdownWidget(tk.Frame):
         self._label.grid(row=0, column=0)
         self._dropdown.grid(row=0, column=1)
 
+        # Bind events to value changes;
+        self._dropdown.bind("<<Value-Changed>>", lambda _: self.event_generate("<<Value-Changed>>"))
+
     def set(self, value: str) -> None:
         """Sets the value of the dropdown box."""
         self._dropdown.set(value)
@@ -68,6 +71,10 @@ class EntryDropdownWidget(tk.Frame):
         self._entry.grid(row=0, column=0)
         self._dropdown.grid(row=0, column=1)
 
+        # Bind events to dropdown and entry changes;
+        self._entry.bind("<<Value-Changed>>", lambda _: self.event_generate("<<Entry-Value-Changed>>"))
+        self._dropdown.bind("<<Value-Changed>>", lambda _: self.event_generate("<<Dropdown-Value-Changed>>"))
+
 
 class LabelledEntryDropdownWidget(tk.Frame):
     def __init__(self, label_text: str = "", entry_width: int = 10, invalid_bg: str = "#D7806D",
@@ -78,3 +85,14 @@ class LabelledEntryDropdownWidget(tk.Frame):
                                                    values=values, dropdown_width=dropdown_width)
         self._label.grid(row=0, column=0)
         self._entry_dropdown.grid(row=0, column=1)
+
+        # Bind events to dropdown and entry changes;
+        self._entry_dropdown.bind("<<Entry-Value-Changed>>", lambda _: self.event_generate("<<Entry-Value-Changed>>"))
+        self._entry_dropdown.bind(
+            "<<Dropdown-Value-Changed>>",
+            lambda _: self.event_generate("<<Dropdown-Value-Changed>>")
+        )
+
+        # todo
+        # This re-binding events is a code smell - I should be doing this by inheritence, not composition
+        # I think, this would remove the need to listen for and re-raise events.
