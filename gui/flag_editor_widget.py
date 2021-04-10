@@ -16,7 +16,7 @@ class FlagEditorWidget(tk.LabelFrame):
         if flag_name in self._flags.keys():
             raise ValueError("Can't add two flags with the same name.")
         label = tk.Label(master=self, text=flag_label)
-        self._flags[flag_name] = gui.SmartDropdownWidget(master=self, values=["True", "False", "Undefined"])
+        self._flags[flag_name] = gui.SmartDropdownWidget(master=self, width=9, values=["True", "False", "Undefined"])
         self._flags[flag_name].set("Undefined")
         label.grid(row=len(self._flags), column=0, sticky="w")
         self._flags[flag_name].grid(row=len(self._flags), column=1, sticky="w")
@@ -67,7 +67,7 @@ class HasFlagEditorWidget(gui.HasSubject):
         super().__init__(**kwargs)
 
         # Check the subject has editable flags;
-        if not issubclass(self._subject_type, model.flags.HasSettableFlags):
+        if not issubclass(self.subject_type, model.flags.HasSettableFlags):
             raise TypeError("FlagEditorWidget requires the subject to support flag setting.")
 
         # Stash the flag editor widget;

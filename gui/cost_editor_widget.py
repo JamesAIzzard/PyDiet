@@ -11,7 +11,7 @@ class CostEditorWidget(tk.Frame):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         # Create the components;
-        self._cost_label = tk.Label(master=self, text="Cost: £")
+        self._cost_label = tk.Label(master=self, width=6, text="Cost: £", anchor="w")
         self._cost_label.grid(row=0, column=0)
         self._cost_entry = gui.SmartEntryWidget(master=self, width=10, invalid_bg=gui.configs.invalid_bg_colour)
         self._cost_entry.grid(row=0, column=1)
@@ -93,7 +93,7 @@ class HasCostEditorWidget(gui.HasSubject):
         super().__init__(**kwargs)
 
         # Check the subject type has editable cost;
-        if not issubclass(self._subject_type, model.cost.SupportsSettableCost):
+        if not issubclass(self.subject_type, model.cost.SupportsSettableCost):
             raise TypeError("CostEditorWidget requires the subject to support cost setting.")
         self._cost_editor_widget = cost_editor_widget
 

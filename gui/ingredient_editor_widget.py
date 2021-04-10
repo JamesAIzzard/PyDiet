@@ -24,7 +24,7 @@ class IngredientEditorWidget(tk.Frame):
         # Basic info groups;
         self._basic_info_frame = tk.LabelFrame(master=self, text="Basic Info")
         self._name_frame = tk.Frame(master=self._basic_info_frame)
-        self._name_entry_label = tk.Label(master=self._name_frame, text="Name:")
+        self._name_entry_label = tk.Label(master=self._name_frame, width=6, text="Name:", anchor="w")
         self._name_entry_label.grid(row=0, column=0, sticky="w")
         self.name_entry = gui.SmartEntryWidget(master=self._name_frame, width=30,
                                                invalid_bg=gui.configs.invalid_bg_colour)
@@ -42,13 +42,13 @@ class IngredientEditorWidget(tk.Frame):
         self.flag_editor = gui.FlagEditorWidget(master=self)
         self.flag_editor.grid(row=3, column=0, padx=5, pady=5, sticky="ew")
 
-        # # Mandatory nutrient editor;
-        # self.mandatory_nutrient_editor = gui.FixedNutrientEditor(master=self)
-        # self.mandatory_nutrient_editor.grid(row=4, column=0, padx=5, pady=5)
-        #
-        # # Dynamic nutrient editor;
-        # self.dynamic_nutrient_editor = gui.DynamicNutrientEditor(master=self)
-        # self.dynamic_nutrient_editor.grid(row=5, column=0, padx=5, pady=5)
+        # Mandatory nutrient editor;
+        self.basic_nutrient_ratios_editor = gui.FixedNutrientRatiosEditorWidget(master=self)
+        self.basic_nutrient_ratios_editor.grid(row=4, column=0, padx=5, pady=5, sticky="ew")
+
+        # Dynamic nutrient editor;
+        self.extended_nutrient_ratios_editor = gui.DynamicNutrientRatiosEditorWidget(master=self)
+        self.extended_nutrient_ratios_editor.grid(row=5, column=0, padx=5, pady=5, sticky="ew")
 
     def clear(self) -> None:
         """Clears the fields in the form."""
@@ -88,7 +88,13 @@ class HasIngredientNameWidget(gui.HasSubject):
             subject.name = self._ingredient_name_editor_widget.get()
 
 
-class IngredientEditorController(HasIngredientNameWidget, gui.HasCostEditorWidget, gui.HasFlagEditorWidget):
+class IngredientEditorWidgetController(
+    HasIngredientNameWidget,
+    gui.HasCostEditorWidget,
+    gui.HasFlagEditorWidget,
+    gui.HasFixedNutrientRatiosEditorWidget,
+    gui.HasDynamicNutrientRatiosEditorWidget
+):
 
     def __init__(self, ingredient_editor_widget: 'IngredientEditorWidget', **kwargs):
         super().__init__(
@@ -96,6 +102,8 @@ class IngredientEditorController(HasIngredientNameWidget, gui.HasCostEditorWidge
             ingredient_name_editor_widget=ingredient_editor_widget.name_entry,
             cost_editor_widget=ingredient_editor_widget.cost_editor,
             flag_editor_widget=ingredient_editor_widget.flag_editor,
+            fixed_nutrient_ratios_editor_widget=ingredient_editor_widget.basic_nutrient_ratios_editor,
+            dynamic_nutrient_ratios_editor_widget=ingredient_editor_widget.extended_nutrient_ratios_editor,
             **kwargs
         )
         self._ingredient_editor_widget = ingredient_editor_widget

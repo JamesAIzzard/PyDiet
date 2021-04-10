@@ -8,7 +8,7 @@ import model.quantity.validation
 class RefQtyEditorWidget(tk.Frame):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self._ref_qty_label = tk.Label(master=self, text="Ref Quantity:")
+        self._ref_qty_label = tk.Label(master=self, text="Ref Quantity:", width=10, anchor="w")
         self.ref_qty_value_entry = gui.SmartEntryWidget(master=self, width=15, invalid_bg=gui.configs.invalid_bg_colour)
         self.ref_qty_unit_dropdown = gui.SmartDropdownWidget(master=self, width=8)
         self._ref_qty_label.grid(row=0, column=0)
@@ -21,7 +21,7 @@ class DensityEditorWidget(tk.Frame):
         super().__init__(**kwargs)
 
         # Build the UI elements;
-        self._widget_label = tk.Label(master=self, text="Density:")
+        self._widget_label = tk.Label(master=self, text="Density:", width=10, anchor="w")
         self.vol_value_entry = gui.SmartEntryWidget(master=self, width=10, invalid_bg=gui.configs.invalid_bg_colour)
         self.vol_unit_dropdown = gui.SmartDropdownWidget(master=self, width=8)
         self._weighs_label = tk.Label(master=self, text=" weighs ")
@@ -40,7 +40,7 @@ class PieceMassEditorWidget(tk.Frame):
         super().__init__(**kwargs)
 
         # Build the UI elements;
-        self._widget_label = tk.Label(master=self, text="Piece Mass:")
+        self._widget_label = tk.Label(master=self, text="Piece Mass:", width=10, anchor="w")
         self.num_pieces_entry = gui.SmartEntryWidget(master=self, width=10, invalid_bg=gui.configs.invalid_bg_colour)
         self._label = tk.Label(master=self, text=" piece(s) weighs ")
         self.pieces_mass_value_entry = gui.SmartEntryWidget(
@@ -72,7 +72,7 @@ class HasBulkEditorWidget(gui.HasSubject):
         super().__init__(**kwargs)
 
         # Check the subject type has editable bulk;
-        if not issubclass(self._subject_type, model.quantity.HasSettableBulk):
+        if not issubclass(self.subject_type, model.quantity.HasSettableBulk):
             raise TypeError("BulkEditorWidget requires the subject support bulk property setting.")
 
         self._bulk_editor_widget = bulk_editor_widget

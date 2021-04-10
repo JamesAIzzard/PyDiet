@@ -7,4 +7,4 @@ from .nutrient_ratios import NutrientRatioData, NutrientRatio, SettableNutrientR
     HasSettableNutrientRatios
 from .nutrient_mass import NutrientMassData, SettableNutrientMass
 from .nutrient import Nutrient
-from .configs import all_primary_nutrient_names
+from .configs import all_primary_nutrient_names, mandatory_nutrient_names

@@ -23,7 +23,7 @@ class App:
 
         # New ingredient editor;
         self.new_ingredient_editor_view = gui.IngredientEditorWidget(master=self._view_pane)
-        self.new_ingredient_editor = gui.IngredientEditorController(
+        self.new_ingredient_editor = gui.IngredientEditorWidgetController(
             ingredient_editor_widget=self.new_ingredient_editor_view)
 
         # Load the app showing the new ingredient editor;
