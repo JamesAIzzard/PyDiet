@@ -8,6 +8,12 @@ class HasSubject:
         self._subject_type = subject_type
         self._subject: Any = None
 
+    def _set_subject(self, subject: Any) -> None:
+        """Method to set subject to allow overriding/extending in child class."""
+        if not isinstance(subject, self._subject_type):
+            raise TypeError(f"Subject must be an instance of {self._subject_type}")
+        self._subject = subject
+
     @property
     def subject(self) -> Any:
         """Returns the subject."""
@@ -16,6 +22,4 @@ class HasSubject:
     @subject.setter
     def subject(self, subject: Any) -> None:
         """Sets the subject."""
-        if not isinstance(subject, self._subject_type):
-            raise TypeError(f"Subject must be an instance of {self._subject_type}")
-        self._subject = subject
+        self._set_subject(subject)

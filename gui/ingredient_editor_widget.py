@@ -1,5 +1,4 @@
 import tkinter as tk
-from typing import Optional
 
 import gui
 import model
@@ -24,13 +23,15 @@ class IngredientEditorWidget(tk.Frame):
 
         # Basic info groups;
         self._basic_info_frame = tk.LabelFrame(master=self, text="Basic Info")
-        self.name_entry = gui.LabelledEntryWidget(master=self._basic_info_frame,
-                                                  label_text="Name: ",
-                                                  entry_width=40,
-                                                  invalid_bg=gui.configs.invalid_bg_colour)
-        self.name_entry.grid(row=0, column=0, sticky="w")
+        self._name_frame = tk.Frame(master=self._basic_info_frame)
+        self._name_entry_label = tk.Label(master=self._name_frame, text="Name:")
+        self._name_entry_label.grid(row=0, column=0, sticky="w")
+        self.name_entry = gui.SmartEntryWidget(master=self._name_frame, width=30,
+                                               invalid_bg=gui.configs.invalid_bg_colour)
+        self.name_entry.grid(row=0, column=1)
+        self._name_frame.grid(row=0, column=0, sticky="w")
         self.cost_editor = gui.CostEditorWidget(master=self._basic_info_frame)
-        self.cost_editor.grid(row=1, column=0, sticky="w")
+        self.cost_editor.grid(row=1, column=0)
         self._basic_info_frame.grid(row=1, column=0, padx=5, pady=5, sticky="ew")
 
         # Bulk editor;
@@ -38,16 +39,16 @@ class IngredientEditorWidget(tk.Frame):
         self.bulk_info_editor.grid(row=2, column=0, padx=5, pady=5, sticky="ew")
 
         # Flag editor;
-        self.flag_info_editor = gui.FlagEditorWidget(master=self)
-        self.flag_info_editor.grid(row=3, column=0, padx=5, pady=5, sticky="ew")
+        self.flag_editor = gui.FlagEditorWidget(master=self)
+        self.flag_editor.grid(row=3, column=0, padx=5, pady=5, sticky="ew")
 
-        # Mandatory nutrient editor;
-        # self.mandatory_nutrient_editor = gui.FixedNutrientRatioEditorWidget(master=self, )
-        # self.mandatory_nutrient_editor.grid(row=5, column=0, padx=5, pady=5, sticky="ew")
-
-        # Dynamic nutrient editor;
-        # self.dynamic_nutrient_editor = gui.DynamicNutrientRatioEditorWidget(master=self)
-        # self.dynamic_nutrient_editor.grid(row=6, column=0, padx=5, pady=5, sticky="ew")
+        # # Mandatory nutrient editor;
+        # self.mandatory_nutrient_editor = gui.FixedNutrientEditor(master=self)
+        # self.mandatory_nutrient_editor.grid(row=4, column=0, padx=5, pady=5)
+        #
+        # # Dynamic nutrient editor;
+        # self.dynamic_nutrient_editor = gui.DynamicNutrientEditor(master=self)
+        # self.dynamic_nutrient_editor.grid(row=5, column=0, padx=5, pady=5)
 
     def clear(self) -> None:
         """Clears the fields in the form."""
@@ -55,7 +56,7 @@ class IngredientEditorWidget(tk.Frame):
 
 
 class HasIngredientNameWidget(gui.HasSubject):
-    def __init__(self, ingredient_name_editor_widget: 'gui.LabelledEntryWidget',
+    def __init__(self, ingredient_name_editor_widget: 'gui.SmartEntryWidget',
                  **kwargs):
         super().__init__(**kwargs)
         self._ingredient_name_editor_widget = ingredient_name_editor_widget
@@ -63,18 +64,13 @@ class HasIngredientNameWidget(gui.HasSubject):
         self._ingredient_name_editor_widget.bind("<<Value-Changed>>", self._on_ingredient_name_change)
 
     @property
-    def ingredient_name(self) -> Optional[str]:
+    def ingredient_name(self) -> str:
         """Returns the value from the ingredient name entry."""
-        if self._ingredient_name_editor_widget.get() == "":
-            return None
-        else:
-            return self._ingredient_name_editor_widget.get()
+        return self._ingredient_name_editor_widget.get()
 
     @ingredient_name.setter
-    def ingredient_name(self, ingredient_name: Optional[str]) -> None:
+    def ingredient_name(self, ingredient_name: str) -> None:
         """Sets the value from the ingredient name entry."""
-        if ingredient_name is None:
-            ingredient_name = ""
         self._ingredient_name_editor_widget.set(ingredient_name)
 
     def _on_ingredient_name_change(self, _) -> None:
@@ -92,59 +88,26 @@ class HasIngredientNameWidget(gui.HasSubject):
             subject.name = self._ingredient_name_editor_widget.get()
 
 
-class IngredientEditorController(HasIngredientNameWidget, gui.HasCostEditorWidget):
+class IngredientEditorController(HasIngredientNameWidget, gui.HasCostEditorWidget, gui.HasFlagEditorWidget):
 
     def __init__(self, ingredient_editor_widget: 'IngredientEditorWidget', **kwargs):
         super().__init__(
             subject_type=model.ingredients.Ingredient,
             ingredient_name_editor_widget=ingredient_editor_widget.name_entry,
             cost_editor_widget=ingredient_editor_widget.cost_editor,
+            flag_editor_widget=ingredient_editor_widget.flag_editor,
             **kwargs
         )
         self._ingredient_editor_widget = ingredient_editor_widget
 
-        # Init the complex widget controllers;
-        # self.bulk_editor = gui.BulkEditorController(app=self._app, view=self._view.bulk_info_editor)
-        # self.flag_editor = gui.FlagEditorController(app=self._app, view=self._view.flag_info_editor)
-        # self.mandatory_nutrient_editor = gui.FixedNutrientRatioEditorController(
-        #     app=self._app,
-        #     view=self._view.mandatory_nutrient_editor)
-        # self.dynamic_nutrient_editor = gui.DynamicNutrientRatioEditorController(
-        #     app=self._app,
-        #     view=self._view.dynamic_nutrient_editor
-        # )
-
-        # # Add the mass units to the cost editor unit dropdown;
-        # self._view.cost_editor.add_unit_options(model.quantity.get_recognised_mass_units())
-        #
-        # # Bind the handlers;
+        # Bind handlers;
         self._ingredient_editor_widget.bind("<<save-clicked>>", self._on_save_clicked)
         self._ingredient_editor_widget.bind("<<reset-clicked>>", self._on_reset_clicked)
-        # self._view.cost_editor.bind("<<Cost-Changed>>", self._on_cost_value_changed)
-        # self._view.cost_editor.bind("<<Qty-Changed>>", self._on_cost_qty_changed)
 
-    def _on_save_clicked(self, event) -> None:
+    def _on_save_clicked(self, _) -> None:
         """Handler for ingredient save."""
         print("save ingredient clicked", self.subject)
 
-    def _on_reset_clicked(self, event) -> None:
+    def _on_reset_clicked(self, _) -> None:
         """Handler for reset button."""
         self._ingredient_editor_widget.clear()
-
-    # def _on_cost_value_changed(self, _) -> None:
-    #     """Handler for cost value changes."""
-    #     try:
-    #         _ = model.cost.validation.validate_cost(self._view.cost_editor.cost_value)
-    #     except (model.cost.exceptions.CostValueError, ValueError):
-    #         self._view.cost_editor.make_cost_invalid()
-    #         return
-    #     self._view.cost_editor.make_cost_valid()
-    #
-    # def _on_cost_qty_changed(self, event) -> None:
-    #     """Handler for cost qty changes."""
-    #     try:
-    #         _ = model.quantity.validation.validate_quantity(self._view.cost_editor.qty_value)
-    #     except (model.quantity.exceptions.InvalidQtyError, ValueError):
-    #         self._view.cost_editor.make_qty_invalid()
-    #         return
-    #     self._view.cost_editor.make_qty_valid()

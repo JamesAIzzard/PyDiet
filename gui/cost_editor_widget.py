@@ -19,7 +19,7 @@ class CostEditorWidget(tk.Frame):
         self._per_label.grid(row=0, column=2)
         self._qty_entry = gui.SmartEntryWidget(master=self, width=5, invalid_bg=gui.configs.invalid_bg_colour)
         self._qty_entry.grid(row=0, column=3)
-        self._qty_units_dropdown = gui.SmartDropdownWidget(master=self, dropdown_width=8)
+        self._qty_units_dropdown = gui.SmartDropdownWidget(master=self, width=8)
         self._qty_units_dropdown.grid(row=0, column=4)
 
         # Wire up events;
@@ -91,8 +91,10 @@ class CostEditorWidget(tk.Frame):
 class HasCostEditorWidget(gui.HasSubject):
     def __init__(self, cost_editor_widget: 'gui.CostEditorWidget', **kwargs):
         super().__init__(**kwargs)
+
+        # Check the subject type has editable cost;
         if not issubclass(self._subject_type, model.cost.SupportsSettableCost):
-            raise TypeError("CostEditorWidget requires the subject to inherit from SupportsSettableCost")
+            raise TypeError("CostEditorWidget requires the subject to support cost setting.")
         self._cost_editor_widget = cost_editor_widget
 
         # Init the subject qty dropdown;
@@ -121,7 +123,6 @@ class HasCostEditorWidget(gui.HasSubject):
 
     def _on_cost_value_change(self, _) -> None:
         """Handler for changes in the cost value field."""
-        subject: 'model.cost.SupportsSettableCost' = self.subject
         try:
             _ = model.cost.validation.validate_cost(self._cost_editor_widget.cost_value)
             self._cost_editor_widget.make_cost_valid()
@@ -131,7 +132,6 @@ class HasCostEditorWidget(gui.HasSubject):
 
     def _on_cost_subject_qty_value_change(self, _) -> None:
         """Handler for changes in the subject quantity value field."""
-        subject: 'model.cost.SupportsSettableCost' = self.subject
         try:
             _ = model.quantity.validation.validate_quantity(self._cost_editor_widget.subject_qty_value)
             self._cost_editor_widget.make_qty_valid()

@@ -1,5 +1,4 @@
 import tkinter as tk
-from typing import Optional
 
 
 class SmartEntryWidget(tk.Entry):
@@ -42,36 +41,3 @@ class SmartEntryWidget(tk.Entry):
         """Sets the textbox to its valid state."""
         self.configure(bg=self._valid_bg)
         self._valid = True
-
-
-class LabelledEntryWidget(tk.Frame):
-    def __init__(self, label_text: str = "", entry_width: int = 10,
-                 invalid_bg: str = "#D7806D", **kwargs):
-        super().__init__(**kwargs)
-        self._label = tk.Label(master=self, text=label_text)
-        self._entry = SmartEntryWidget(master=self, width=entry_width, invalid_bg=invalid_bg)
-        self._label.grid(row=0, column=0)
-        self._entry.grid(row=0, column=1)
-
-        # Forward the value changed event;
-        self._entry.bind("<<Value-Changed>>", lambda _: self.event_generate("<<Value-Changed>>"))
-
-    def get(self) -> Optional[str]:
-        """Returns the text content of the entry element."""
-        return self._entry.get()
-
-    def set(self, value: str) -> None:
-        """Sets the text content of the entry element."""
-        self._entry.set(value)
-
-    def clear(self) -> None:
-        """Clears the textbox."""
-        self._entry.clear()
-
-    def make_invalid(self) -> None:
-        """Sets the textbox to valid."""
-        self._entry.make_invalid()
-
-    def make_valid(self) -> None:
-        """Sets the textbox to invalid."""
-        self._entry.make_valid()

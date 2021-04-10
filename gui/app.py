@@ -29,6 +29,7 @@ class App:
         # Load the app showing the new ingredient editor;
         self.set_current_view(self.new_ingredient_editor_view)
         self.new_ingredient_editor.subject = model.ingredients.Ingredient()
+        self._root.title("PyDiet - Ingredient Editor")
 
     @property
     def root(self) -> 'tk.Tk':
