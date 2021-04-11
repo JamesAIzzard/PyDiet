@@ -12,11 +12,12 @@ class SmartEntryWidget(tk.Entry):
         self._valid: bool = True  # Init the validity tracker.
 
         # Raise event when value changes;
-        self._value.trace_add("write", callback=lambda *args: self.event_generate("<<Value-Changed>>"))
+        # self._value.trace_add("write", callback=lambda *args: self.event_generate("<<Value-Changed>>"))
 
     def set(self, value: str) -> None:
         """Sets the widget's value."""
         self._value.set(value)  # Using the value var triggers the change event.
+        self.event_generate("<<Value-Changed>>")
 
     def clear(self) -> None:
         """Clears the textbox."""

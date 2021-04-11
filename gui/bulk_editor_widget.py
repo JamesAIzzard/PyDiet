@@ -72,7 +72,7 @@ class HasBulkEditorWidget(gui.HasSubject):
         super().__init__(**kwargs)
 
         # Check the subject type has editable bulk;
-        if not issubclass(self.subject_type, model.quantity.HasSettableBulk):
+        if not issubclass(self._subject_type, model.quantity.HasSettableBulk):
             raise TypeError("BulkEditorWidget requires the subject support bulk property setting.")
 
         self._bulk_editor_widget = bulk_editor_widget

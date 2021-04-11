@@ -12,5 +12,6 @@ from gui.flag_editor_widget import FlagEditorWidget, HasFlagEditorWidget
 from gui.nutrient_editor_widgets import FixedNutrientRatiosEditorWidget, DynamicNutrientRatiosEditorWidget, \
     HasFixedNutrientRatiosEditorWidget, HasDynamicNutrientRatiosEditorWidget
 from gui.ingredient_editor_widget import IngredientEditorWidgetController, IngredientEditorWidget
+from gui.ingredient_search_widget import IngredientSearchWidget, IngredientSearchWidgetController
 
 app = App()

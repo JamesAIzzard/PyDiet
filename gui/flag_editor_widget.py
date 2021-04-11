@@ -67,7 +67,7 @@ class HasFlagEditorWidget(gui.HasSubject):
         super().__init__(**kwargs)
 
         # Check the subject has editable flags;
-        if not issubclass(self.subject_type, model.flags.HasSettableFlags):
+        if not issubclass(self._subject_type, model.flags.HasSettableFlags):
             raise TypeError("FlagEditorWidget requires the subject to support flag setting.")
 
         # Stash the flag editor widget;
@@ -80,9 +80,7 @@ class HasFlagEditorWidget(gui.HasSubject):
                 flag_label=flag_name.replace("_", " ")
             )
 
-    @gui.HasSubject.subject.setter
-    def subject(self, subject: 'model.flags.HasSettableFlags') -> None:
-        # Pass subject to parent class first;
+    def _set_subject(self, subject: 'model.ingredients.Ingredient') -> None:
         super()._set_subject(subject)
         # Use subject to set flag values;
         for flag_name, flag_value in subject.all_flag_values.items():

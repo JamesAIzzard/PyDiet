@@ -26,19 +26,34 @@ class App:
         self.new_ingredient_editor = gui.IngredientEditorWidgetController(
             ingredient_editor_widget=self.new_ingredient_editor_view)
 
+        # Existing ingredient editor;
+        self.existing_ingredient_editor_view = gui.IngredientEditorWidget(master=self._view_pane)
+        self.existing_ingredient_editor = gui.IngredientEditorWidgetController(
+            ingredient_editor_widget=self.existing_ingredient_editor_view
+        )
+
+        # Ingredient search page;
+        self.ingredient_search_view = gui.IngredientSearchWidget(master=self._view_pane)
+        self.ingredient_search = gui.IngredientSearchWidgetController(
+            app=self,
+            ingredient_search_widget=self.ingredient_search_view)
+
         # Load the app showing the new ingredient editor;
-        self.set_current_view(self.new_ingredient_editor_view)
-        self.new_ingredient_editor.subject = model.ingredients.Ingredient()
-        self._root.title("PyDiet - Ingredient Editor")
+        self.set_current_view(self.ingredient_search_view, "Ingredient Search")
 
     @property
     def root(self) -> 'tk.Tk':
         """Returns the app root instance."""
         return self._root
 
-    def set_current_view(self, view: 'tk.Widget') -> None:  # noqa
+    def set_current_view(self, view: 'tk.Widget', title: str) -> None:
         """Places the specified widget in the view pane."""
+        # Clear the old view;
+        for child_view in self._view_pane.winfo_children():
+            child_view.pack_forget()
         view.pack(expand=True, fill=tk.BOTH)
+        # Set the window title;
+        self._root.title(f"PyDiet - {title}")
 
     def run(self) -> None:
         """Runs the app."""

@@ -81,11 +81,14 @@ def check_unique_value_available(cls: Type['persistence.SupportsPersistence'], p
                                  ignore_datafile: Optional[str] = None) -> bool:
     """Checks if the proposed unique value is available for the persistable class type."""
 
+    # Check proposed name was provided;
     if proposed_name is None:
         raise persistence.exceptions.UniqueValueUndefinedError
 
+    # Grab the index data;
     index_data = _read_index(cls)
 
+    # If we are ignoring a datafile, remove it from the index data;
     if ignore_datafile is not None:
         index_data.pop(ignore_datafile)
 

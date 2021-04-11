@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
-from typing import List
+from typing import List, Optional
 
 
 class SmartDropdownWidget(ttk.Combobox):
@@ -17,13 +17,16 @@ class SmartDropdownWidget(ttk.Combobox):
             if option not in self['values']:
                 self['values'] = (*self['values'], option)
 
-    def remove_options(self, options: List[str]) -> None:
+    def remove_options(self, options: Optional[List[str]] = None) -> None:
         """Removes the list of options from the dropdown box, if they are there."""
-        values = list(self['values'])
-        for option in options:
-            if option in values:
-                values.remove(option)
-        self['values'] = tuple(values)
+        if options is None:
+            self['values'] = []
+        else:
+            values = list(self['values'])
+            for option in options:
+                if option in values:
+                    values.remove(option)
+            self['values'] = tuple(values)
 
     def set(self, value: str) -> None:
         """Sets the value of the dropdown."""

@@ -1,6 +1,7 @@
 import tkinter as tk
 
 import gui
+import model.ingredients
 
 
 class TopMenuWidget(tk.Menu):
@@ -39,14 +40,14 @@ class TopMenuWidget(tk.Menu):
                                      command=lambda: self._root.event_generate("<<New-Day-Goal-Click>>"))
         self._goals_menu.add_command(label="Edit Day Goal",
                                      command=lambda: self._root.event_generate("<<Edit-Day-Goal-Click>>"))
+        self._goals_menu.add_command(label="View Day Goals",
+                                     command=lambda: self._root.event_generate("<<View-Day-Goal-Click>>"))
         self._goals_menu.add_command(label="New Meal Goal",
                                      command=lambda: self._root.event_generate("<<New-Meal-Goal-Click>>"))
         self._goals_menu.add_command(label="Edit Meal Goal",
                                      command=lambda: self._root.event_generate("<<Edit-Meal-Goal-Click>>"))
-        self._goals_menu.add_command(label="New Week Plan",
-                                     command=lambda: self._root.event_generate("<<New-Week-Plan-Click>>"))
-        self._goals_menu.add_command(label="Edit Week Plan",
-                                     command=lambda: self._root.event_generate("<<Edit-Week-Plan-Click>>"))
+        self._goals_menu.add_command(label="View Meal Goals",
+                                     command=lambda: self._root.event_generate("<<Edit-Day-Goal-Click>>"))
 
         # Solve;
         self._solve_menu = tk.Menu(self._root)
@@ -69,21 +70,17 @@ class TopMenuController:
         self._app.root.bind("<<Edit-Day-Goals-Click>>", self._on_edit_day_goals_click)
         self._app.root.bind("<<New-Meal-Goals-Click>>", self._on_new_meal_goals_click)
         self._app.root.bind("<<Edit-Meal-Goals-Click>>", self._on_edit_meal_goals_click)
-        self._app.root.bind("<<New-Week-Goals-Click>>", self._on_new_week_goals_click)
-        self._app.root.bind("<<Edit-Week-Goals-Click>>", self._on_edit_week_goals_click)
         self._app.root.bind("<<Solve-Click>>", self._on_solve_click)
 
     def _on_new_ingredient_click(self, _):
-        self._app.set_current_view(self._app.new_ingredient_editor_view)
-        print("New Ingredient Nav Clicked")
+        self._app.new_ingredient_editor.subject = model.ingredients.Ingredient()
+        self._app.set_current_view(self._app.new_ingredient_editor_view, "New Ingredient")
 
-    @staticmethod
-    def _on_edit_ingredient_click(_):
-        print("Edit Ingredient Nav Clicked")
+    def _on_edit_ingredient_click(self, _):
+        self._app.set_current_view(self._app.ingredient_search_view, "Ingredient Search")
 
-    @staticmethod
-    def _on_view_ingredients_click(_):
-        print("View Ingredient Nav Clicked")
+    def _on_view_ingredients_click(self, _):
+        self._app.set_current_view(self._app.ingredient_search_view, "Ingredient Search")
 
     @staticmethod
     def _on_new_recipe_click(_):
@@ -116,14 +113,6 @@ class TopMenuController:
     @staticmethod
     def _on_edit_meal_goals_click(_):
         print("Edit Meal Goal Clicked")
-
-    @staticmethod
-    def _on_new_week_goals_click(_):
-        print("New Week Plan Clicked")
-
-    @staticmethod
-    def _on_edit_week_goals_click(_):
-        print("Edit Week Plan Clicked")
 
     @staticmethod
     def _on_solve_click(_):

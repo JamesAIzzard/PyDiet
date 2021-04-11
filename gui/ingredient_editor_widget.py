@@ -63,6 +63,12 @@ class HasIngredientNameWidget(gui.HasSubject):
         # Bind handlers to widget events;
         self._ingredient_name_editor_widget.bind("<<Value-Changed>>", self._on_ingredient_name_change)
 
+    def _set_subject(self, subject: 'model.ingredients.Ingredient') -> None:
+        """Populates the name field and passes the call on to super()."""
+        super()._set_subject(subject)
+        if subject.name is not None:
+            self.ingredient_name = self.subject.name
+
     @property
     def ingredient_name(self) -> str:
         """Returns the value from the ingredient name entry."""
@@ -78,14 +84,15 @@ class HasIngredientNameWidget(gui.HasSubject):
         # Check the name value is allowed;
         if not persistence.check_unique_value_available(
                 cls=model.ingredients.Ingredient,
-                proposed_name=self._ingredient_name_editor_widget.get(),
+                proposed_name=self.ingredient_name,
                 ignore_datafile=self.subject.datafile_name
         ):
             self._ingredient_name_editor_widget.make_invalid()
         else:
             subject: 'model.ingredients.Ingredient' = self.subject
+            # Push the name to the subject;
+            subject.name = self.ingredient_name
             self._ingredient_name_editor_widget.make_valid()
-            subject.name = self._ingredient_name_editor_widget.get()
 
 
 class IngredientEditorWidgetController(
@@ -111,6 +118,9 @@ class IngredientEditorWidgetController(
         # Bind handlers;
         self._ingredient_editor_widget.bind("<<save-clicked>>", self._on_save_clicked)
         self._ingredient_editor_widget.bind("<<reset-clicked>>", self._on_reset_clicked)
+
+    def _set_subject(self, subject: 'model.ingredients.Ingredient') -> None:
+        super()._set_subject(subject)
 
     def _on_save_clicked(self, _) -> None:
         """Handler for ingredient save."""

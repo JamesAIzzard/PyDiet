@@ -35,7 +35,7 @@ class FixedNutrientRatiosEditorWidget(tk.LabelFrame):
         super().__init__(text="Basic Nutrients", **kwargs)
         self.nutrient_ratio_widgets: Dict[str, 'NutrientRatioEditorWidget'] = {}
 
-    def _check_nutrient_not_added(self, nutrient_name:str) -> None:
+    def _check_nutrient_not_added(self, nutrient_name: str) -> None:
         """Raise an exception if the nutrient is on board already."""
         if nutrient_name in self.nutrient_ratio_widgets.keys():
             raise ValueError("Can't add the same nutrient twice")
@@ -80,7 +80,7 @@ class DynamicNutrientRatiosEditorWidget(FixedNutrientRatiosEditorWidget):
 
 def check_settable_nutrient_ratios(controller: 'gui.HasSubject') -> None:
     # Check the subject has editable nutrient ratios;
-    if not issubclass(controller.subject_type, model.nutrients.HasSettableNutrientRatios):
+    if not issubclass(controller._subject_type, model.nutrients.HasSettableNutrientRatios):
         raise TypeError("FixedNutrientRatiosEditorWidget requires the subject to support settable nutrient ratios.")
 
 
@@ -98,6 +98,9 @@ class HasFixedNutrientRatiosEditorWidget(gui.HasSubject):
         for nutrient_name in model.nutrients.mandatory_nutrient_names:
             self._fixed_nutrient_ratios_editor_widget.add_nutrient_ratio_widget(nutrient_name)
 
+    def _set_subject(self, subject: 'model.nutrients.HasSettableNutrientRatios') -> None:
+        super()._set_subject(subject)
+
 
 class HasDynamicNutrientRatiosEditorWidget(gui.HasSubject):
     def __init__(self, dynamic_nutrient_ratios_editor_widget: 'DynamicNutrientRatiosEditorWidget', **kwargs):
@@ -110,5 +113,8 @@ class HasDynamicNutrientRatiosEditorWidget(gui.HasSubject):
         self._dynamic_nutrient_ratios_editor_widget = dynamic_nutrient_ratios_editor_widget
 
         # Init the mandatory nutrients;
-        for nutrient_name in model.nutrients.mandatory_nutrient_names:
+        for nutrient_name in model.nutrients.all_primary_nutrient_names:
             self._dynamic_nutrient_ratios_editor_widget.add_nutrient_ratio_widget(nutrient_name)
+
+    def _set_subject(self, subject: 'model.nutrients.HasSettableNutrientRatios') -> None:
+        super()._set_subject(subject)
