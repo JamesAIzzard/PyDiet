@@ -32,6 +32,10 @@ class SupportsCost(quantity.HasBulk, abc.ABC):
                                          g_per_ml=self.g_per_ml,
                                          piece_mass_g=self.piece_mass_g)
 
+    @property
+    def cost_of_ref_qty(self) -> float:
+        return self.cost_per_pref_unit * self.ref_qty
+
 
 class SupportsSettableCost(SupportsCost, abc.ABC):
     """ABC for objects supporting settable abstract cost (costs per qty)."""

@@ -2,6 +2,25 @@ import tkinter as tk
 from tkinter import ttk
 from typing import List, Optional
 
+import model
+
+
+def configure_qty_units(dropdown: 'SmartDropdownWidget', subject: 'model.quantity.HasBulk') -> None:
+    """Configures the dropdown widget to match the subject's configured units."""
+    # Save the old value;
+    prev_value = dropdown.get()
+    # Clear it all out;
+    dropdown.remove_options()
+    # Repopulate with correct options;
+    dropdown.add_options(model.quantity.get_recognised_mass_units())
+    if subject.density_is_defined:
+        dropdown.add_options(model.quantity.get_recognised_vol_units())
+    if subject.piece_mass_defined:
+        dropdown.add_options(model.quantity.get_recognised_pc_units())
+    # Reinstate the old value if it is still available;
+    if prev_value in dropdown['values']:
+        dropdown.set(prev_value)
+
 
 class SmartDropdownWidget(ttk.Combobox):
     def __init__(self, **kwargs):

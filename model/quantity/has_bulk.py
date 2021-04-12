@@ -50,12 +50,12 @@ class HasBulk(abc.ABC):
     @property
     def density_is_defined(self) -> bool:
         """Returns True/False to indicate if the object's density is defined."""
-        return self.g_per_ml is None
+        return self.g_per_ml is not None
 
     @property
     def piece_mass_defined(self) -> bool:
         """Returns True/False to indicate if the mass of a single piece of the substance is defined."""
-        return self.piece_mass_g is None
+        return self.piece_mass_g is not None
 
     @property
     def piece_mass_in_pref_units(self) -> float:
