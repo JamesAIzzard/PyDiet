@@ -1,4 +1,5 @@
 from unittest import TestCase
+import tkinter as tk
 
 import model
 import gui
@@ -6,11 +7,13 @@ import gui
 
 class TestSubjectSetter(TestCase):
     def setUp(self) -> None:
-        self.hs = gui.HasSubject(subject_type=model.ingredients.Ingredient)
+        root = tk.Tk()
+        view = gui.IngredientEditorView(master=root)
+        self.ctrl = gui.IngredientEditorController(view=view)
 
     def test_raises_exception_if_wrong_subject_type_is_passed(self) -> None:
         with self.assertRaises(TypeError):
-            self.hs.subject = object()
+            self.ctrl.set_subject(object()) # noqa
 
     def test_sets_correct_type_ok(self) -> None:
-        self.hs.subject = model.ingredients.Ingredient()
+        self.ctrl.set_subject(model.ingredients.Ingredient())
