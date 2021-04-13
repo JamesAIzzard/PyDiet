@@ -13,7 +13,7 @@ class BaseController:
 
     @property
     @abc.abstractmethod
-    def view(self) -> 'tk.Widget':
+    def view(self) -> 'Any':
         """Returns the view associated with the controller instance."""
         return self._view
 

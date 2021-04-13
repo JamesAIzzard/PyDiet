@@ -101,7 +101,7 @@ class DensityEditorController(gui.HasSubject):
             self.view.mass_value_entry.set(str(self.subject.g_per_ml * 100))
 
     def process_view_changes(self, *args, **kwargs) -> None:
-        found_invalid = False  # noqa
+        found_invalid = False # noqa
         # Validate the entry widgets;
         found_invalid, vol_value = gui.validate_nullable_entry(
             entry=self.view.vol_value_entry,

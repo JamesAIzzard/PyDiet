@@ -40,7 +40,7 @@ class IngredientEditorView(tk.Frame):
         self.bulk_editor.grid(row=2, column=0, padx=5, pady=5, sticky="ew")
 
         # Flag editor;
-        self.flag_editor = gui.FlagEditorWidget(master=self)
+        self.flag_editor = gui.FlagEditorView(master=self)
         self.flag_editor.grid(row=3, column=0, padx=5, pady=5, sticky="ew")
 
         # Mandatory nutrient editor;
@@ -102,6 +102,7 @@ class IngredientEditorController(gui.HasSubject):
         self.name_entry_controller = IngredientNameEntryController(view=view.name_entry, **kwargs)
         self.cost_editor_controller = gui.CostEditorController(view=view.cost_editor, **kwargs)
         self.bulk_editor_controller = gui.BulkEditorController(view=view.bulk_editor, **kwargs)
+        self.flag_editor_controller = gui.FlagEditorController(view=view.flag_editor, **kwargs)
 
         # Bind handlers;
         self.view.bind("<<save-clicked>>", self._on_save_clicked)
@@ -115,6 +116,7 @@ class IngredientEditorController(gui.HasSubject):
         self.name_entry_controller.set_subject(subject)
         self.cost_editor_controller.set_subject(subject)
         self.bulk_editor_controller.set_subject(subject)
+        self.flag_editor_controller.set_subject(subject)
         super().set_subject(subject)
 
     def update_view(self) -> None:

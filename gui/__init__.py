@@ -8,7 +8,7 @@ from gui.top_menu_widget import TopMenuController, TopMenuWidget
 from gui.scroll_frame_widget import ScrollFrameWidget
 from gui.bulk_editor import BulkEditorView, BulkEditorController
 from gui.cost_editor import CostEditorView, CostEditorController
-from gui.flag_editor_widget import FlagEditorWidget, HasFlagEditorWidget
+from gui.flag_editor import FlagEditorView, FlagEditorController
 from gui.nutrient_editor_widgets import FixedNutrientRatiosEditorWidget, DynamicNutrientRatiosEditorWidget, \
     HasFixedNutrientRatiosEditorWidget, HasDynamicNutrientRatiosEditorWidget
 from gui.ingredient_editor import IngredientEditorController, IngredientEditorView
