@@ -1,5 +1,5 @@
 import tkinter as tk
-from typing import Dict, Optional, Any
+from typing import Dict, Callable, Optional
 
 import gui
 import model
@@ -63,8 +63,9 @@ class FlagEditorView(tk.LabelFrame):
 
 
 class FlagEditorController(gui.HasSubject):
-    def __init__(self, view: 'FlagEditorView', **kwargs):
+    def __init__(self, view: 'FlagEditorView', on_flag_value_change_callback: Callable[..., None], **kwargs):
         super().__init__(subject_type=model.quantity.HasSettableBulk, view=view, **kwargs)
+        self._on_flag_value_change_callback = on_flag_value_change_callback
         # Populate with the system flags;
         for flag_name in model.flags.all_flag_names():
             self.view.add_flag(
@@ -76,9 +77,7 @@ class FlagEditorController(gui.HasSubject):
             def callback(_):
                 self.process_view_changes(flag_name=flag_name)
 
-            self.view.flags[flag_name].bind("<<Value-Changed>>", callback)
-            # Raise event so other can hear a flag value was changed;
-            self.view.event_generate("<<Flag-Value-Changed>>")
+            self.view.flags[flag_name].bind("<<Value-Changed>>", on_flag_value_change_callback)
 
     @property
     def subject(self) -> 'model.flags.HasSettableFlags':
@@ -96,7 +95,4 @@ class FlagEditorController(gui.HasSubject):
             self.view.set_flag_value(flag_name, self.subject.get_flag_value(flag_name))
 
     def process_view_changes(self, flag_name: str, *args, **kwargs) -> None:
-        self.subject.set_flag_value(
-            flag_name=flag_name,
-            flag_value=self.view.get_flag_value(flag_name=flag_name)
-        )
+        pass

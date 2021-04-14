@@ -39,17 +39,21 @@ class IngredientEditorView(tk.Frame):
         self.bulk_editor = gui.BulkEditorView(master=self)
         self.bulk_editor.grid(row=2, column=0, padx=5, pady=5, sticky="ew")
 
+        # Nutrient-Flag Status Widget;
+        self.nutrient_flag_status_widget = gui.FlagNutrientStatusView(master=self)
+        self.nutrient_flag_status_widget.grid(row=3, column=0, padx=5, pady=5, sticky="ew")
+
         # Flag editor;
         self.flag_editor = gui.FlagEditorView(master=self)
-        self.flag_editor.grid(row=3, column=0, padx=5, pady=5, sticky="ew")
+        self.flag_editor.grid(row=4, column=0, padx=5, pady=5, sticky="ew")
 
         # Mandatory nutrient editor;
         self.basic_nutrient_ratios_editor = gui.FixedNutrientRatiosEditorView(master=self)
-        self.basic_nutrient_ratios_editor.grid(row=4, column=0, padx=5, pady=5, sticky="ew")
+        self.basic_nutrient_ratios_editor.grid(row=5, column=0, padx=5, pady=5, sticky="ew")
 
         # Dynamic nutrient editor;
         self.extended_nutrient_ratios_editor = gui.DynamicNutrientRatiosEditorView(master=self)
-        self.extended_nutrient_ratios_editor.grid(row=5, column=0, padx=5, pady=5, sticky="ew")
+        self.extended_nutrient_ratios_editor.grid(row=6, column=0, padx=5, pady=5, sticky="ew")
 
     def clear(self) -> None:
         """Clears the fields in the form."""
@@ -102,12 +106,21 @@ class IngredientEditorController(gui.HasSubject):
         self.name_entry_controller = IngredientNameEntryController(view=view.name_entry, **kwargs)
         self.cost_editor_controller = gui.CostEditorController(view=view.cost_editor, **kwargs)
         self.bulk_editor_controller = gui.BulkEditorController(view=view.bulk_editor, **kwargs)
-        self.flag_editor_controller = gui.FlagEditorController(view=view.flag_editor, **kwargs)
+        self.nutrient_flag_status_controller = gui.FlagNutrientStatusController(view=view.nutrient_flag_status_widget,
+                                                                                **kwargs)
+        self.flag_editor_controller = gui.FlagEditorController(
+            view=view.flag_editor,
+            on_flag_value_change_callback=self._on_flag_values_changed,
+            **kwargs
+        )
         self.basic_nutrient_ratio_editor_controller = gui.BasicNutrientRatiosEditorController(
             view=view.basic_nutrient_ratios_editor,
             on_nutrient_values_change_callback=self._on_nutrient_values_changed,
             **kwargs
         )
+
+        # Stick a message in the nutrient flag status;
+        self.nutrient_flag_status_controller.update_view("No conflicts.")
 
         # Bind handlers;
         self.view.bind("<<save-clicked>>", self._on_save_clicked)
@@ -147,3 +160,6 @@ class IngredientEditorController(gui.HasSubject):
 
     def _on_nutrient_values_changed(self, event) -> None:
         print("nutrient value changed")
+
+    def _on_flag_values_changed(self, event) -> None:
+        print("Flag values changed.")
