@@ -104,7 +104,10 @@ class IngredientEditorController(gui.HasSubject):
         self.bulk_editor_controller = gui.BulkEditorController(view=view.bulk_editor, **kwargs)
         self.flag_editor_controller = gui.FlagEditorController(view=view.flag_editor, **kwargs)
         self.basic_nutrient_ratio_editor_controller = gui.BasicNutrientRatiosEditorController(
-            view=view.basic_nutrient_ratios_editor, **kwargs)
+            view=view.basic_nutrient_ratios_editor,
+            on_nutrient_values_change_callback=self._on_nutrient_values_changed,
+            **kwargs
+        )
 
         # Bind handlers;
         self.view.bind("<<save-clicked>>", self._on_save_clicked)
@@ -141,3 +144,6 @@ class IngredientEditorController(gui.HasSubject):
     def _on_reset_clicked(self, _) -> None:
         """Handler for reset button."""
         self.view.clear()
+
+    def _on_nutrient_values_changed(self, event) -> None:
+        print("nutrient value changed")

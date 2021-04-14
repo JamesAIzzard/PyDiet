@@ -1,6 +1,7 @@
 import abc
-from typing import TypedDict, Optional
+from typing import List, TypedDict, Optional
 
+import model
 from model import quantity
 
 
@@ -26,6 +27,16 @@ class HasBulk(abc.ABC):
     def pref_unit(self) -> str:
         """Returns object's preferred unit of measure."""
         return self._pref_unit
+
+    @property
+    def available_units(self) -> List[str]:
+        """Returns a list of units which can be used on the instance."""
+        units = model.quantity.get_recognised_mass_units()
+        if self.density_is_defined:
+            units = units + quantity.get_recognised_vol_units()
+        if self.piece_mass_defined:
+            units = units + quantity.get_recognised_pc_units()
+        return units
 
     @property
     def ref_qty(self) -> float:

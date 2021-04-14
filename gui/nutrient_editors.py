@@ -1,5 +1,5 @@
 import tkinter as tk
-from typing import List, Dict, Optional, Any
+from typing import List, Dict, Callable, Optional
 
 import gui
 import model
@@ -30,27 +30,80 @@ class NutrientRatioEditorView(tk.Frame):
         self.subject_qty_unit_dropdown.grid(row=0, column=5)
 
 
+class NutrientRatioEditorController(gui.BaseController):
+    def __init__(self, view: 'NutrientRatioEditorView', **kwargs):
+        super().__init__(view, **kwargs)
+
+        # Populate the nutrient mass dropdown (these don't change)
+        self.view.nutrient_mass_unit_dropdown.add_options(model.quantity.get_recognised_mass_units())
+
+        # Bind change handler;
+        self.view.nutrient_mass_value_entry.bind("<<Value-Changed>>", self.process_view_changes)
+        self.view.nutrient_mass_unit_dropdown.bind("<<Value-Changed>>", self.process_view_changes)
+        self.view.subject_qty_value_entry.bind("<<Value-Changed>>", self.process_view_changes)
+        self.view.subject_qty_unit_dropdown.bind("<<Value-Changed>>", self.process_view_changes)
+
+    @property
+    def view(self) -> 'NutrientRatioEditorView':
+        return super().view
+
+    def update_view(self,
+                    nutrient_mass_value: Optional[float],
+                    nutrient_mass_unit: str,
+                    subject_qty_value: Optional[float],
+                    subject_qty_unit: str,
+                    subject_qty_available_units: List[str]
+                    ) -> None:
+        # Map input datatypes;
+        if nutrient_mass_value is None:
+            nutrient_mass_value = ""
+        else:
+            nutrient_mass_value = str(nutrient_mass_value)
+        if subject_qty_value is None:
+            subject_qty_value = ""
+        else:
+            subject_qty_value = str(subject_qty_value)
+        self.view.nutrient_mass_value_entry.set(nutrient_mass_value)
+        self.view.nutrient_mass_unit_dropdown.set(nutrient_mass_unit)
+        self.view.subject_qty_value_entry.set(subject_qty_value)
+        self.view.subject_qty_unit_dropdown.remove_options()
+        self.view.subject_qty_unit_dropdown.add_options(subject_qty_available_units)
+        self.view.subject_qty_unit_dropdown.set(subject_qty_unit)
+
+    def process_view_changes(self, *args, **kwargs) -> None:
+        def validate_qty(entry: 'gui.SmartEntryWidget') -> None:
+            value = entry.get()
+            if not value == "":
+                try:
+                    _ = model.quantity.validation.validate_quantity(float(value))
+                    entry.make_valid()
+                except (ValueError, model.quantity.exceptions.InvalidQtyError):
+                    entry.make_invalid()
+
+        validate_qty(self.view.nutrient_mass_value_entry)
+        validate_qty(self.view.subject_qty_value_entry)
+        if self.view.nutrient_mass_value_entry.is_valid and self.view.subject_qty_value_entry.is_valid:
+            self.view.event_generate("<<Value-Changed>>")
+
+
 class FixedNutrientRatiosEditorView(tk.LabelFrame):
     """Widget to present a fixed group of nutrient ratio widgets."""
 
     def __init__(self, **kwargs):
         super().__init__(text="Basic Nutrients", **kwargs)
-        self.nutrient_ratio_widgets: Dict[str, 'NutrientRatioEditorView'] = {}
+        self._nutrient_ratio_views: Dict[str, 'NutrientRatioEditorView'] = {}
 
     def _check_nutrient_not_added(self, nutrient_name: str) -> None:
         """Raise an exception if the nutrient is on board already."""
-        if nutrient_name in self.nutrient_ratio_widgets.keys():
+        if nutrient_name in self._nutrient_ratio_views.keys():
             raise ValueError("Can't add the same nutrient twice")
 
-    def add_nutrient_ratio_widget(self, nutrient_name: str) -> None:
+    def add_nutrient(self, nutrient_ratio_editor_view: 'NutrientRatioEditorView') -> None:
         """Add a nutrient ratio wigit to the group."""
+        nutrient_name = nutrient_ratio_editor_view.nutrient_name
         self._check_nutrient_not_added(nutrient_name)
-        self.nutrient_ratio_widgets[nutrient_name] = NutrientRatioEditorView(
-            master=self,
-            nutrient_name=nutrient_name,
-            nutrient_display_name=nutrient_name.replace("_", " ")
-        )
-        self.nutrient_ratio_widgets[nutrient_name].grid(row=len(self.nutrient_ratio_widgets), column=0, sticky="w")
+        self._nutrient_ratio_views[nutrient_name] = nutrient_ratio_editor_view
+        self._nutrient_ratio_views[nutrient_name].grid(row=len(self._nutrient_ratio_views), column=0, sticky="w")
 
 
 class DynamicNutrientRatiosEditorView(FixedNutrientRatiosEditorView):
@@ -67,27 +120,45 @@ class DynamicNutrientRatiosEditorView(FixedNutrientRatiosEditorView):
         self._scrollframe = gui.ScrollFrameWidget(master=self, width=470, height=200)
         self._scrollframe.grid(row=1, column=0, sticky="nsew")
 
-    def add_nutrient_ratio_widget(self, nutrient_name: str) -> None:
+    def add_nutrient(self, nutrient_name: str) -> None:
         """Adds a nutrient ratio widget and remove button to the UI."""
         self._check_nutrient_not_added(nutrient_name)
         widget_frame = tk.Frame(master=self._scrollframe.scrollable_frame)
-        self.nutrient_ratio_widgets[nutrient_name] = NutrientRatioEditorView(
+        self._nutrient_ratio_views[nutrient_name] = NutrientRatioEditorView(
             master=widget_frame,
             nutrient_name=nutrient_name,
             nutrient_display_name=nutrient_name.replace("_", " ")
         )
-        self.nutrient_ratio_widgets[nutrient_name].grid(row=0, column=0)
+        self._nutrient_ratio_views[nutrient_name].grid(row=0, column=0)
         remove_button = tk.Button(master=widget_frame, text="Remove")
         remove_button.grid(row=0, column=1)
         widget_frame.pack()
 
 
 class BasicNutrientRatiosEditorController(gui.HasSubject):
-    def __init__(self, view: 'FixedNutrientRatiosEditorView', **kwargs):
+    def __init__(self, view: 'FixedNutrientRatiosEditorView', on_nutrient_values_change_callback: Callable[..., None],
+                 **kwargs):
         super().__init__(view=view, subject_type=model.nutrients.HasSettableNutrientRatios, **kwargs)
+        self._on_nutrient_values_change_callback = on_nutrient_values_change_callback
+
+        # Dict to store NutrientRatioWidgets;
+        self._nutrient_ratio_editor_controllers: Dict[str, 'NutrientRatioEditorController'] = {}
+
         # Populate the view with a widget for each of the basic (mandatory) nutrients;
         for nutrient_name in model.nutrients.mandatory_nutrient_names:
-            self.view.add_nutrient_ratio_widget(nutrient_name)
+            # Create the view;
+            nutrient_ratio_editor_view = NutrientRatioEditorView(
+                master=self.view,
+                nutrient_name=nutrient_name,
+                nutrient_display_name=nutrient_name.replace("_", " ")
+            )
+            # Create the controller;
+            nutrient_ratio_editor_controller = NutrientRatioEditorController(view=nutrient_ratio_editor_view)
+            # Bind the controller to handler;
+            nutrient_ratio_editor_view.bind("<<Value-Changed>>", on_nutrient_values_change_callback)
+            # Stash the controller and add the widget;
+            self._nutrient_ratio_editor_controllers[nutrient_name] = nutrient_ratio_editor_controller
+            self.view.add_nutrient(nutrient_ratio_editor_view)
 
     @property
     def subject(self) -> 'model.nutrients.HasSettableNutrientRatios':
@@ -100,46 +171,17 @@ class BasicNutrientRatiosEditorController(gui.HasSubject):
     def view(self) -> 'FixedNutrientRatiosEditorView':
         return super().view
 
-    def _update_nutrient_names(self, nutrient_names: Optional[List[str]] = None) -> None:
-        """Update the listed nutrient names on the widget."""
-        # Check they are all in the widget before doing anything else;
-        for nutrient_name in nutrient_names:
-            if nutrient_name not in self.view.nutrient_ratio_widgets.keys():
-                raise ValueError(f"{nutrient_name} is not a nutrient in the view.")
-        # Update the view for each nutrient listed;
-        for nutrient_name in nutrient_names:
-            # Grab the widget in question;
-            nutrient_editor_view = self.view.nutrient_ratio_widgets[nutrient_name]
-            # Set the subject qty value;
-            nutrient_editor_view.subject_qty_value_entry.set(str(self.subject.ref_qty))
-            # Set the subject qty unit;
-            nutrient_editor_view.subject_qty_unit_dropdown.set(str(self.subject.pref_unit))
-            # If the nutrient isn't defined, just skip the rest;
-            if not self.subject.check_nutrient_ratio_is_defined(nutrient_name):
-                continue
-            # Grab the nutrient ratio instance;
-            nutrient_ratio = self.subject.get_nutrient_ratio(nutrient_name)
-            # Set the mass value entry;
-            mass_value: float = self.subject.get_nutrient_mass_in_pref_unit_per_subject_ref_qty(nutrient_name)
-            nutrient_editor_view.nutrient_mass_value_entry.set(str(mass_value))
-            # Set the nutrient unit dropdown;
-            nutrient_editor_view.nutrient_mass_unit_dropdown.set(nutrient_ratio.pref_unit)
-
     def update_view(self, nutrient_names: Optional[List[str]] = None) -> None:
-        # Configure all the unit dropdowns based on the subject's bulk configuration;
-        for nutrient_editor_view in self.view.nutrient_ratio_widgets.values():
-            nutrient_editor_view.nutrient_mass_unit_dropdown.remove_options()
-            nutrient_editor_view.subject_qty_unit_dropdown.remove_options()
-            nutrient_editor_view.nutrient_mass_unit_dropdown.add_options(model.quantity.get_recognised_mass_units())
-            nutrient_editor_view.subject_qty_unit_dropdown.add_options(model.quantity.get_recognised_mass_units())
-            if self.subject.density_is_defined:
-                nutrient_editor_view.subject_qty_unit_dropdown.add_options(model.quantity.get_recognised_vol_units())
-            if self.subject.piece_mass_defined:
-                nutrient_editor_view.subject_qty_unit_dropdown.add_options(model.quantity.get_recognised_pc_units())
-        # If particular nutrient names were not passed, populate with all mandatory nutrient names;
-        if nutrient_names is None:
-            nutrient_names = model.nutrients.mandatory_nutrient_names
-        self._update_nutrient_names(nutrient_names)
+        # Configure the nutrient ratio's
+        for nutr_name, ctrl in self._nutrient_ratio_editor_controllers.items():
+            nutr_ratio = self.subject.get_nutrient_ratio(nutr_name)
+            ctrl.update_view(
+                nutrient_mass_value=nutr_ratio.mass_in_pref_unit_per_subject_g,
+                nutrient_mass_unit=nutr_ratio.pref_unit,
+                subject_qty_value=self.subject.ref_qty,
+                subject_qty_unit=self.subject.pref_unit,
+                subject_qty_available_units=self.subject.available_units
+            )
 
     def process_view_changes(self, *args, **kwargs) -> None:
         pass
