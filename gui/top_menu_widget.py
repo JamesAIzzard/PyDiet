@@ -74,7 +74,7 @@ class TopMenuController:
 
     def _on_new_ingredient_click(self, _):
         self._app.new_ingredient_editor.subject = model.ingredients.Ingredient()
-        self._app.set_current_view(self._app.new_ingredient_editor_view, "New Ingredient")
+        self._app.set_current_view(self._app.ingredient_editor_view, "New Ingredient")
 
     def _on_edit_ingredient_click(self, _):
         self._app.set_current_view(self._app.ingredient_search_view, "Ingredient Search")

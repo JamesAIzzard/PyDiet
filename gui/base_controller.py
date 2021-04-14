@@ -18,7 +18,7 @@ class BaseController:
         return self._view
 
     @abc.abstractmethod
-    def update_view(self) -> None:
+    def update_view(self, *args, **kwargs) -> None:
         """Push data from the model to the view."""
         raise NotImplementedError
 

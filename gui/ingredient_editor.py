@@ -44,11 +44,11 @@ class IngredientEditorView(tk.Frame):
         self.flag_editor.grid(row=3, column=0, padx=5, pady=5, sticky="ew")
 
         # Mandatory nutrient editor;
-        self.basic_nutrient_ratios_editor = gui.FixedNutrientRatiosEditorWidget(master=self)
+        self.basic_nutrient_ratios_editor = gui.FixedNutrientRatiosEditorView(master=self)
         self.basic_nutrient_ratios_editor.grid(row=4, column=0, padx=5, pady=5, sticky="ew")
 
         # Dynamic nutrient editor;
-        self.extended_nutrient_ratios_editor = gui.DynamicNutrientRatiosEditorWidget(master=self)
+        self.extended_nutrient_ratios_editor = gui.DynamicNutrientRatiosEditorView(master=self)
         self.extended_nutrient_ratios_editor.grid(row=5, column=0, padx=5, pady=5, sticky="ew")
 
     def clear(self) -> None:
@@ -103,6 +103,8 @@ class IngredientEditorController(gui.HasSubject):
         self.cost_editor_controller = gui.CostEditorController(view=view.cost_editor, **kwargs)
         self.bulk_editor_controller = gui.BulkEditorController(view=view.bulk_editor, **kwargs)
         self.flag_editor_controller = gui.FlagEditorController(view=view.flag_editor, **kwargs)
+        self.basic_nutrient_ratio_editor_controller = gui.BasicNutrientRatiosEditorController(
+            view=view.basic_nutrient_ratios_editor, **kwargs)
 
         # Bind handlers;
         self.view.bind("<<save-clicked>>", self._on_save_clicked)
@@ -117,6 +119,7 @@ class IngredientEditorController(gui.HasSubject):
         self.cost_editor_controller.set_subject(subject)
         self.bulk_editor_controller.set_subject(subject)
         self.flag_editor_controller.set_subject(subject)
+        self.basic_nutrient_ratio_editor_controller.set_subject(subject)
         super().set_subject(subject)
 
     def update_view(self) -> None:

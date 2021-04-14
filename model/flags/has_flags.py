@@ -289,13 +289,9 @@ class HasSettableFlags(HasFlags, abc.ABC):
 
         # Correct the error states and make the change;
         for nr in nr_conflicts['need_none']:
-            if not isinstance(nr, nutrients.SettableNutrientRatio):
-                raise AttributeError("set_flag_value requires settable nutrient ratios.")
-            nr.undefine()
+            self.undefine_nutrient_ratio(nr.nutrient.primary_name)
         for nr in nr_conflicts['need_zero']:
-            if not isinstance(nr, nutrients.SettableNutrientRatio):
-                raise AttributeError("set_flag_value requires settable nutrient ratios.")
-            nr.zero()
+            self.zero_nutrient_ratio(nr.nutrient.primary_name)
 
         # Finally, set the flag's dof if flag is not a direct alias;
         if not flag.direct_alias:

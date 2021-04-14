@@ -24,7 +24,7 @@ class Ingredient(persistence.SupportsPersistence,
         super().__init__(**kwargs)
 
         # Init the blank nutrient ratios list;
-        self._nutrient_ratios: Dict[str, 'nutrients.NutrientRatio'] = {
+        self._nutrient_ratios: Dict[str, 'nutrients.SettableNutrientRatio'] = {
             nutr_name: nutrients.SettableNutrientRatio(nutr_name) for nutr_name in
             nutrients.configs.all_primary_nutrient_names}
 
@@ -65,9 +65,24 @@ class Ingredient(persistence.SupportsPersistence,
         attr_names = attr_names + self.undefined_mandatory_nutrient_ratios
         return attr_names
 
-    def get_nutrient_ratio(self, nutrient_name: str) -> 'nutrients.NutrientRatio':
+    def _get_settable_nutrient_ratio(self, nutrient_name: str) -> 'nutrients.SettableNutrientRatio':
         nutrient_name = nutrients.validation.validate_nutrient_name(nutrient_name)
         return self._nutrient_ratios[nutrient_name]
+
+    def get_nutrient_ratio(self, nutrient_name: str) -> 'nutrients.NutrientRatio':
+        """See note on parent class. It is important not to give out settable nutrient ratios
+        becuase that would allow them to be set without triggering mutual validation against
+        all the nutrients in the set.
+        """
+        nutrient_name = nutrients.validation.validate_nutrient_name(nutrient_name)
+        # Grab the settable instance and convert it to a non-settable;
+        settable_nr = self._nutrient_ratios[nutrient_name]
+        non_settable_nr = nutrients.NutrientRatio(
+            nutrient_name=settable_nr.nutrient.primary_name,
+            g_per_subject_g=settable_nr.g_per_subject_g,
+            pref_unit=settable_nr.pref_unit
+        )
+        return non_settable_nr
 
     def _density_reset_cleanup(self) -> None:
         pass
@@ -121,7 +136,8 @@ class Ingredient(persistence.SupportsPersistence,
                 subject_qty=1,
                 subject_qty_unit='g'
             )
-            self.get_nutrient_ratio(nutrient_name).pref_unit = data['nutrients'][nutrient_name]['nutrient_pref_units']
+            self._get_settable_nutrient_ratio(nutrient_name).pref_unit = data['nutrients'][nutrient_name][
+                'nutrient_pref_units']
 
         # Set flags after nutrients;
         # (We may get conflicts if flags imply not yet defined nutrient values);

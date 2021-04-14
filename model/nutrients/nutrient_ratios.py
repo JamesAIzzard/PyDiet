@@ -5,6 +5,7 @@ from . import configs, exceptions
 
 from typing import Optional, TypedDict
 
+import model
 from model import nutrients, quantity, flags
 
 
@@ -40,6 +41,19 @@ class NutrientRatio:
         return self._pref_unit
 
     @property
+    def mass_in_pref_unit_per_subject_g(self) -> Optional[float]:
+        """Returns the mass of nutrient in its pref units, per gram of subject."""
+        # Catch unset basic mass;
+        if self.undefined:
+            return None
+        # First calculate mass of nutrient in its pref unit;
+        return model.quantity.convert_qty_unit(
+            qty=self.g_per_subject_g,
+            start_unit='g',
+            end_unit=self.pref_unit
+        )
+
+    @property
     def defined(self) -> bool:
         """Returns True/False to indicate if the nutrient ratio is fully defined."""
         return self._g_per_subject_g is not None and self._pref_unit is not None
@@ -61,6 +75,8 @@ class NutrientRatio:
 
 
 class SettableNutrientRatio(NutrientRatio):
+    """Models a settable nutrient ratio. Careful where you return these! Nutrient ratios
+    shouldn't be set without mutually validating all nutrients on the subject."""
 
     def __init__(self, nutrient_name: str, g_per_subject_g: Optional[float] = None,
                  pref_unit: str = 'g'):
@@ -116,7 +132,7 @@ class HasNutrientRatios(quantity.HasBulk, abc.ABC):
             nutrient_ratios[nutrient_name] = self.get_nutrient_ratio(nutrient_name)
         return nutrient_ratios
 
-    def nutrient_ratio_is_defined(self, nutrient_name: str) -> bool:
+    def check_nutrient_ratio_is_defined(self, nutrient_name: str) -> bool:
         """Returns True/False to indiciate if the named nutrient ratio has been defined."""
         nutrient_name = nutrients.validation.validate_nutrient_name(nutrient_name)
         return self.get_nutrient_ratio(nutrient_name).defined
@@ -126,7 +142,7 @@ class HasNutrientRatios(quantity.HasBulk, abc.ABC):
         """Returns a list of the mandatory nutrient ratios which are undefined."""
         undefined_mandatory = []
         for nutrient_name in nutrients.configs.mandatory_nutrient_names:
-            if not self.nutrient_ratio_is_defined(nutrient_name):
+            if not self.check_nutrient_ratio_is_defined(nutrient_name):
                 undefined_mandatory.append(nutrient_name)
         return undefined_mandatory
 
@@ -138,6 +154,14 @@ class HasNutrientRatios(quantity.HasBulk, abc.ABC):
             if nutrient_name not in nutrients.configs.mandatory_nutrient_names and nutrient_ratio.defined:
                 defined_optionals.append(nutrient_name)
         return defined_optionals
+
+    def get_nutrient_mass_in_pref_unit_per_subject_ref_qty(self, nutrient_name: str) -> Optional[float]:
+        """Returns the mass of a nutrient in its preferred unit, per reference mass of the subject."""
+        nutrient_ratio = self.get_nutrient_ratio(nutrient_name)
+        if nutrient_ratio.undefined:
+            return None
+        else:
+            return nutrient_ratio.mass_in_pref_unit_per_subject_g * self.g_in_ref_qty
 
     def _validate_nutrient_ratios(self) -> None:
         """Raises a NutrientRatioGroupError if the set of nutrient ratios are mutually inconsistent."""
@@ -161,12 +185,19 @@ class HasSettableNutrientRatios(HasNutrientRatios, abc.ABC):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-    def get_nutrient_ratio(self, nutrient_name: str) -> 'SettableNutrientRatio':
-        """Gets a settable nutrient ratio instance by name."""
-        nutrient_ratio = super().get_nutrient_ratio(nutrient_name)
-        if not isinstance(nutrient_ratio, SettableNutrientRatio):
-            raise TypeError('Expecting a settable nutrient ratio.')
-        return nutrient_ratio
+    def get_nutrient_ratio(self, nutrient_name: str) -> 'NutrientRatio':
+        """Gets a settable nutrient ratio instance by name.
+        Note:
+            Important! this must not return a `SettableNutrientRatio` since that would allow its
+            properties to be set without triggering the validation on this class. Any changes to
+            nutrient ratios must be done through the methods on this class.
+        """
+        return super().get_nutrient_ratio(nutrient_name)
+
+    @abc.abstractmethod
+    def _get_settable_nutrient_ratio(self, nutrient_name: str) -> 'SettableNutrientRatio':
+        """Returns a SettableNutrientRatio instance. IMPORTANT! Internal use only."""
+        raise NotImplementedError
 
     def set_nutrient_ratios(self, nutrient_ratios_data: Dict[str, 'NutrientRatioData']) -> None:
         """Sets a batch of nutrient ratios from a dictionary of nutrient ratio data."""
@@ -188,7 +219,7 @@ class HasSettableNutrientRatios(HasNutrientRatios, abc.ABC):
         """Sets the data on a nutrient ratio by name."""
         # Grab the nutrient ratio instance by name;
         nutrient_name = nutrients.get_nutrient_primary_name(nutrient_name)
-        nutrient_ratio = self.get_nutrient_ratio(nutrient_name)
+        nutrient_ratio = self._get_settable_nutrient_ratio(nutrient_name)
 
         # Take a backup in case we need to revert;
         backup_g_per_subject_g = nutrient_ratio.g_per_subject_g
@@ -261,5 +292,5 @@ class HasSettableNutrientRatios(HasNutrientRatios, abc.ABC):
 
     def set_nutrient_pref_unit(self, nutrient_name: str, pref_unit: str) -> None:
         """Sets the pref unit for the nutrient ratio."""
-        nutrient_ratio = self.get_nutrient_ratio(nutrient_name)
+        nutrient_ratio = self._get_settable_nutrient_ratio(nutrient_name)
         nutrient_ratio.pref_unit = pref_unit

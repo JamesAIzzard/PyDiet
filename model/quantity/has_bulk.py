@@ -38,6 +38,15 @@ class HasBulk(abc.ABC):
         return quantity.convert_qty_unit(self.ref_qty, self.pref_unit, 'g', self.g_per_ml, self.piece_mass_g)
 
     @property
+    def g_in_ref_qty(self) -> float:
+        """Returns the number of grams in the subject's reference quantity"""
+        return quantity.convert_qty_unit(
+            qty=self.ref_qty,
+            start_unit=self.pref_unit,
+            end_unit='g'
+        )
+
+    @property
     def g_per_ml(self) -> Optional[float]:
         """Returns the weight of 1ml of the object in g."""
         return self._g_per_ml

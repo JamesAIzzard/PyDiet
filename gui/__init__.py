@@ -9,9 +9,9 @@ from gui.scroll_frame_widget import ScrollFrameWidget
 from gui.bulk_editor import BulkEditorView, BulkEditorController
 from gui.cost_editor import CostEditorView, CostEditorController
 from gui.flag_editor import FlagEditorView, FlagEditorController
-from gui.nutrient_editor_widgets import FixedNutrientRatiosEditorWidget, DynamicNutrientRatiosEditorWidget, \
-    HasFixedNutrientRatiosEditorWidget, HasDynamicNutrientRatiosEditorWidget
+from gui.nutrient_editors import FixedNutrientRatiosEditorView, DynamicNutrientRatiosEditorView, \
+    BasicNutrientRatiosEditorController, DynamicNutrientRatiosEditorController
 from gui.ingredient_editor import IngredientEditorController, IngredientEditorView
-from gui.ingredient_search_widget import IngredientSearchWidget, IngredientSearchWidgetController
+from gui.ingredient_search import IngredientSearchView, IngredientSearchController
 
 app = App()

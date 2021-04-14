@@ -100,4 +100,3 @@ class FlagEditorController(gui.HasSubject):
             flag_name=flag_name,
             flag_value=self.view.get_flag_value(flag_name=flag_name)
         )
-        print("view changed")

@@ -3,6 +3,18 @@ from unittest import TestCase
 from model import nutrients, quantity, ingredients
 
 
+class TestGetNutrientRatio(TestCase):
+    def setUp(self) -> None:
+        self.ingredient = ingredients.Ingredient()
+
+    def test_cant_get_nutrient_ratio_and_set_it_directly(self):
+        carb = self.ingredient.get_nutrient_ratio("carbohydrate")
+        with self.assertRaises(AttributeError):
+            carb.g_per_subject_g = 0.5  # noqa
+        with self.assertRaises(AttributeError):
+            carb.pref_unit = 'g'  # noqa
+
+
 class TestSetNutrientRatio(TestCase):
 
     def setUp(self) -> None:

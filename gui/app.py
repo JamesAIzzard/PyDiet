@@ -2,6 +2,7 @@ import tkinter as tk
 
 import gui
 import model
+import persistence
 
 
 class App:
@@ -22,25 +23,20 @@ class App:
         self.top_menu = gui.TopMenuController(app=self, view=self.top_menu_view)
 
         # New ingredient editor;
-        self.new_ingredient_editor_view = gui.IngredientEditorView(master=self._view_pane)
+        self.ingredient_editor_view = gui.IngredientEditorView(master=self._view_pane)
         self.new_ingredient_editor_controller = gui.IngredientEditorController(
-            view=self.new_ingredient_editor_view)
+            view=self.ingredient_editor_view)
         self.new_ingredient_editor_controller.set_subject(model.ingredients.Ingredient())
 
-        # # Existing ingredient editor;
-        # self.existing_ingredient_editor_view = gui.IngredientEditorView(master=self._view_pane)
-        # self.existing_ingredient_editor = gui.IngredientEditorWidgetController(
-        #     ingredient_editor_widget=self.existing_ingredient_editor_view
-        # )
-        #
-        # # Ingredient search page;
-        # self.ingredient_search_view = gui.IngredientSearchWidget(master=self._view_pane)
-        # self.ingredient_search = gui.IngredientSearchWidgetController(
-        #     app=self,
-        #     ingredient_search_widget=self.ingredient_search_view)
+        # Ingredient search page;
+        self.ingredient_search_view = gui.IngredientSearchView(master=self._view_pane)
+        self.ingredient_search = gui.IngredientSearchController(
+            view=self.ingredient_search_view,
+            on_result_edit_callback=self._on_ingredient_edit
+        )
 
         # Load the app showing the new ingredient editor;
-        self.set_current_view(self.new_ingredient_editor_view, "Ingredient Search")
+        self.set_current_view(self.ingredient_editor_view, "Ingredient Search")
 
     @property
     def root(self) -> 'tk.Tk':
@@ -55,6 +51,15 @@ class App:
         view.pack(expand=True, fill=tk.BOTH)
         # Set the window title;
         self._root.title(f"PyDiet - {title}")
+
+    def _on_ingredient_edit(self, event):
+        """Handler for the edit ingredient event."""
+        i = persistence.load(
+            cls=model.ingredients.Ingredient,
+            unique_value=event.widget.ingredient_name
+        )
+        self.new_ingredient_editor_controller.set_subject(i)
+        self.set_current_view(self.ingredient_editor_view, "Ingredient Editor")
 
     def run(self) -> None:
         """Runs the app."""

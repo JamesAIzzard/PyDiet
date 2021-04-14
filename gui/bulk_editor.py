@@ -49,6 +49,8 @@ class RefQtyEditorController(gui.HasSubject):
         self.subject.ref_qty = ref_qty_value
         self.subject.pref_unit = self.view.ref_qty_unit_dropdown.get()
         self.view.ref_qty_value_entry.make_valid()
+        # Emit event to indicate ref qty was changed.
+        self.view.event_generate("<<Ref-Qty-Changed>>")
 
 
 class DensityEditorView(tk.Frame):
