@@ -119,6 +119,12 @@ class IngredientEditorController(gui.HasSubject):
             **kwargs
         )
 
+        self.extended_nutrient_ratio_editor_controller = gui.DynamicNutrientRatiosEditorController(
+            view=view.extended_nutrient_ratios_editor,
+            on_nutrient_values_change_callback=self._on_nutrient_values_changed,
+            **kwargs
+        )
+
         # Stick a message in the nutrient flag status;
         self.nutrient_flag_status_controller.update_view("No conflicts.")
 

@@ -14,5 +14,6 @@ from gui.nutrient_editors import FixedNutrientRatiosEditorView, DynamicNutrientR
     BasicNutrientRatiosEditorController, DynamicNutrientRatiosEditorController
 from gui.ingredient_editor import IngredientEditorController, IngredientEditorView
 from gui.ingredient_search import IngredientSearchView, IngredientSearchController
+from gui.nutrient_search import NutrientSearchView, NutrientSearchController
 
 app = App()

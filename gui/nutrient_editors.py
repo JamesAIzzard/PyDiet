@@ -31,6 +31,8 @@ class NutrientRatioEditorView(tk.Frame):
 
 
 class NutrientRatioEditorController(gui.BaseController):
+    """Handles basic validation, and raises Value-Changed event when the values appear to be valid."""
+
     def __init__(self, view: 'NutrientRatioEditorView', **kwargs):
         super().__init__(view, **kwargs)
 
@@ -106,35 +108,6 @@ class FixedNutrientRatiosEditorView(tk.LabelFrame):
         self._nutrient_ratio_views[nutrient_name].grid(row=len(self._nutrient_ratio_views), column=0, sticky="w")
 
 
-class DynamicNutrientRatiosEditorView(FixedNutrientRatiosEditorView):
-    """Widget to present a changable group of nutrient ratio widgets."""
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        # Change the frame label;
-        self.configure(text="Extended Nutrients")
-        # Add the search button;
-        self.add_nutrient_button = tk.Button(master=self, text="Add Nutrient")
-        self.add_nutrient_button.grid(row=0, column=0, sticky="w")
-        # Install the scroll box;
-        self._scrollframe = gui.ScrollFrameWidget(master=self, width=470, height=200)
-        self._scrollframe.grid(row=1, column=0, sticky="nsew")
-
-    def add_nutrient(self, nutrient_name: str) -> None:
-        """Adds a nutrient ratio widget and remove button to the UI."""
-        self._check_nutrient_not_added(nutrient_name)
-        widget_frame = tk.Frame(master=self._scrollframe.scrollable_frame)
-        self._nutrient_ratio_views[nutrient_name] = NutrientRatioEditorView(
-            master=widget_frame,
-            nutrient_name=nutrient_name,
-            nutrient_display_name=nutrient_name.replace("_", " ")
-        )
-        self._nutrient_ratio_views[nutrient_name].grid(row=0, column=0)
-        remove_button = tk.Button(master=widget_frame, text="Remove")
-        remove_button.grid(row=0, column=1)
-        widget_frame.pack()
-
-
 class BasicNutrientRatiosEditorController(gui.HasSubject):
     def __init__(self, view: 'FixedNutrientRatiosEditorView', on_nutrient_values_change_callback: Callable[..., None],
                  **kwargs):
@@ -145,20 +118,30 @@ class BasicNutrientRatiosEditorController(gui.HasSubject):
         self._nutrient_ratio_editor_controllers: Dict[str, 'NutrientRatioEditorController'] = {}
 
         # Populate the view with a widget for each of the basic (mandatory) nutrients;
+        self._initialise_nutrient_ratio_editors()
+
+    def _initialise_nutrient_ratio_editors(self) -> None:
+        """Add the mandatory nutrients;"""
         for nutrient_name in model.nutrients.mandatory_nutrient_names:
-            # Create the view;
-            nutrient_ratio_editor_view = NutrientRatioEditorView(
-                master=self.view,
-                nutrient_name=nutrient_name,
-                nutrient_display_name=nutrient_name.replace("_", " ")
-            )
-            # Create the controller;
-            nutrient_ratio_editor_controller = NutrientRatioEditorController(view=nutrient_ratio_editor_view)
-            # Bind the controller to handler;
-            nutrient_ratio_editor_view.bind("<<Value-Changed>>", on_nutrient_values_change_callback)
-            # Stash the controller and add the widget;
-            self._nutrient_ratio_editor_controllers[nutrient_name] = nutrient_ratio_editor_controller
-            self.view.add_nutrient(nutrient_ratio_editor_view)
+            self.add_nutrient_ratio(nutrient_name)
+
+    def add_nutrient_ratio(self, nutrient_name: str):
+        """Adds a nutrient ratio editor."""
+        # Validate the nutrient name;
+        nutrient_name = model.nutrients.validation.validate_nutrient_name(nutrient_name)
+        # Create the view;
+        nutrient_ratio_editor_view = NutrientRatioEditorView(
+            master=self.view,
+            nutrient_name=nutrient_name,
+            nutrient_display_name=nutrient_name.replace("_", " ")
+        )
+        # Create the controller;
+        nutrient_ratio_editor_controller = NutrientRatioEditorController(view=nutrient_ratio_editor_view)
+        # Bind the controller to handler;
+        nutrient_ratio_editor_view.bind("<<Value-Changed>>", self._on_nutrient_values_change_callback)
+        # Stash the controller and add the widget;
+        self._nutrient_ratio_editor_controllers[nutrient_name] = nutrient_ratio_editor_controller
+        self.view.add_nutrient(nutrient_ratio_editor_view)
 
     @property
     def subject(self) -> 'model.nutrients.HasSettableNutrientRatios':
@@ -187,9 +170,63 @@ class BasicNutrientRatiosEditorController(gui.HasSubject):
         pass
 
 
-class DynamicNutrientRatiosEditorController(gui.HasSubject):
+class DynamicNutrientRatiosEditorView(FixedNutrientRatiosEditorView):
+    """Widget to present a changable group of nutrient ratio widgets."""
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        # Change the frame label;
+        self.configure(text="Extended Nutrients")
+        # Add the search button;
+        self.add_nutrient_button = tk.Button(master=self, text="Add Nutrient")
+        self.add_nutrient_button.grid(row=0, column=0, sticky="w")
+        # Install the scroll box;
+        self._scrollframe = gui.ScrollFrameWidget(master=self, width=470, height=200)
+        self._scrollframe.grid(row=1, column=0, sticky="nsew")
+        # Create the new window for the nutrient search
+        self.nutrient_search_window = self.nutrient_search_window = tk.Toplevel()
+        self.nutrient_search_window.geometry("400x600")
+        self.nutrient_search_window.title("Nutrient Search")
+        self.nutrient_search_window.protocol("WM_DELETE_WINDOW", self.hide_nutrient_search_window)
+        self.hide_nutrient_search_window()  # Immediately hide;
+        # Create the nutrient search view;
+
+    def add_nutrient(self, nutrient_name: str) -> None:
+        """Adds a nutrient ratio widget and remove button to the UI."""
+        self._check_nutrient_not_added(nutrient_name)
+        widget_frame = tk.Frame(master=self._scrollframe.scrollable_frame)
+        self._nutrient_ratio_views[nutrient_name] = NutrientRatioEditorView(
+            master=widget_frame,
+            nutrient_name=nutrient_name,
+            nutrient_display_name=nutrient_name.replace("_", " ")
+        )
+        self._nutrient_ratio_views[nutrient_name].grid(row=0, column=0)
+        remove_button = tk.Button(master=widget_frame, text="Remove")
+        remove_button.grid(row=0, column=1)
+        widget_frame.pack()
+
+    def show_nutrient_search_window(self) -> None:
+        """Pop the nutrient search window open."""
+        self.nutrient_search_window.deiconify()
+
+    def hide_nutrient_search_window(self) -> None:
+        """Hides the nutrient search window."""
+        self.nutrient_search_window.withdraw()
+
+
+class DynamicNutrientRatiosEditorController(BasicNutrientRatiosEditorController):
     def __init__(self, view: 'DynamicNutrientRatiosEditorView', **kwargs):
-        super().__init__(view=view, subject_type=model.nutrients.HasSettableNutrientRatios, **kwargs)
+        super().__init__(view=view, **kwargs)
+
+        # Bind the search button to open the new window;
+        # Use lambda to avoid passing it an event;
+        self.view.add_nutrient_button.bind("<Button-1>", lambda _: self.view.show_nutrient_search_window())
+
+    def _initialise_nutrient_ratio_editors(self) -> None:
+        """If there is a subject, populate any extended nutrients."""
+        if self.subject is not None:
+            for nutrient_name in self.subject.defined_optional_nutrient_ratios:
+                self.add_nutrient_ratio(nutrient_name)
 
     @property
     def subject(self) -> 'model.nutrients.HasSettableNutrientRatios':
@@ -200,7 +237,9 @@ class DynamicNutrientRatiosEditorController(gui.HasSubject):
 
     @property
     def view(self) -> 'DynamicNutrientRatiosEditorView':
-        return super().view
+        view = super().view
+        assert (isinstance(view, DynamicNutrientRatiosEditorView))
+        return view
 
     def update_view(self, *args, **kwargs) -> None:
         pass
