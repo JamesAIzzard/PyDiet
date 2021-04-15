@@ -1,4 +1,6 @@
 from typing import List, Dict
+from difflib import SequenceMatcher
+from heapq import nlargest
 
 from model import nutrients
 from . import validation, configs, exceptions
@@ -14,7 +16,7 @@ def init_global_nutrients() -> None:
             global_nutrients[primary_nutrient_name] = nutrients.Nutrient(primary_nutrient_name)
 
 
-def all_primary_and_alias_nutrient_names() -> List[str]:
+def get_all_primary_and_alias_nutrient_names() -> List[str]:
     """Returns a list of all nutrient names, primary and alias."""
     names = []
     for nutrient_name in configs.all_primary_nutrient_names:
@@ -42,3 +44,21 @@ def get_nutrient_primary_name(nutrient_name: str) -> str:
             return primary_name
     # Nothing found - error;
     raise exceptions.NutrientNameError
+
+
+def get_n_closest_nutrient_names(search_term: str, num_results: int = 5) -> List[str]:
+    """Returns a list of n nutrient names matching the search term most closely."""
+    scores = {}
+    for nutrient_name in nutrients.get_all_primary_and_alias_nutrient_names():
+        scores[nutrient_name] = SequenceMatcher(None, search_term, nutrient_name).ratio()
+    return nlargest(num_results, scores, key=scores.get)
+
+# def score_similarity(words_to_score: List[str], search_term: str) -> Dict[str, float]:
+#     scores = {}
+#     for word in words_to_score:
+#         scores[word] = SequenceMatcher(None, search_term, word).ratio()
+#     return scores
+#
+# all_names = get_saved_unique_values(subject_type)
+# all_scores = score_similarity(all_names, search_term)
+# return nlargest(num_results, all_scores, key=all_scores.get)

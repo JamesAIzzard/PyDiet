@@ -12,7 +12,7 @@ def validate_nutrient_name(name: str) -> str:
         NutrientNameError: To indicate the nutrient name was not valid.
     """
     name = name.lower().replace(' ', '_')
-    if name in nutrients.all_primary_and_alias_nutrient_names():
+    if name in nutrients.get_all_primary_and_alias_nutrient_names():
         return name
     raise nutrients.exceptions.NutrientNameError
 
