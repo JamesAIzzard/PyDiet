@@ -72,11 +72,6 @@ class FlagEditorController(gui.HasSubject):
                 flag_name=flag_name,
                 flag_label=f"{flag_name.replace('_', ' ')}: "
             )
-
-            # Bind function to identify the flag on change;
-            def callback(_):
-                self.process_view_changes(flag_name=flag_name)
-
             self.view.flags[flag_name].bind("<<Value-Changed>>", on_flag_value_change_callback)
 
     @property

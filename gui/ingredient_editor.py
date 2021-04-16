@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import messagebox
+from typing import Optional
 
 import gui
 import model
@@ -113,7 +113,7 @@ class IngredientEditorController(gui.HasSubject):
                                                                                 **kwargs)
         self.flag_editor_controller = gui.FlagEditorController(
             view=view.flag_editor,
-            on_flag_value_change_callback=self._on_flag_values_changed,
+            on_flag_value_change_callback=self._on_flag_value_changed,
             **kwargs
         )
         self.basic_nutrient_ratio_editor_controller = gui.FixedNutrientRatiosEditorController(
@@ -128,6 +128,10 @@ class IngredientEditorController(gui.HasSubject):
             on_nutrient_values_change_callback=self._on_nutrient_values_changed,
             **kwargs
         )
+
+        # Markers to stop circular updates between nutrients and flags;
+        self.editing_nutrients: bool = False
+        self.editing_flags: bool = False
 
         # Stick a message in the nutrient flag status;
         self.nutrient_flag_status_controller.update_view("No conflicts.")
@@ -163,45 +167,70 @@ class IngredientEditorController(gui.HasSubject):
 
     def _on_save_clicked(self, _) -> None:
         """Handler for ingredient save."""
-        print("save ingredient clicked", self.subject)
+        print("save pressed")
 
     def _on_reset_clicked(self, _) -> None:
         """Handler for reset button."""
         self.view.clear()
 
-    def _on_nutrient_values_changed(self, *args, **kwargs) -> None:
-        pass
-
-    def _on_flag_values_changed(self, event) -> None:
-        """Handler for changes to flag values."""
-        # Prevent things breaking if subject is unset;
+    def _on_nutrient_values_changed(self,
+                                    nutrient_name: str,
+                                    nutrient_qty: Optional[float],
+                                    nutrient_qty_unit: str,
+                                    subject_qty: Optional[float],
+                                    subject_qty_unit: str
+                                    ) -> None:
+        """Handler for changes to nutrient values."""
+        # Catch unset subject;
         if self.subject is None:
             return
-        # Cycle through each flag and try and set it on the subject;
-        for flag_name, flag_value in self.flag_editor_controller.flag_values.items():
-            try:
-                self.subject.set_flag_value(flag_name, flag_value)
-            except model.flags.exceptions.FixableNutrientRatioConflictError as e:
-                response = messagebox.askyesno(
-                    title="Flag-Nutrient Conflict",
-                    message="Update nutrients to match flag?"
-                )
-                if response is True:
-                    self.subject.set_flag_value(flag_name, flag_value, True)
-                    continue
-                elif response is False:
-                    self.nutrient_flag_status_controller.update_view(
-                        f"{flag_name.replace('_', ' ')} flag conflicts with {e.conflicting_nutrient_ratios[0].nutrient.primary_name} nutrient ratio"
-                    )
-                    return
-            except (model.flags.exceptions.NonZeroNutrientRatioConflictError,
-                    model.flags.exceptions.UndefineMultipleNutrientRatiosError) as e:
-                self.nutrient_flag_status_controller.update_view(
-                    f"{flag_name.replace('_', ' ')} flag conflicts with {e.conflicting_nutrient_ratios[0].nutrient.primary_name} nutrient ratio"
-                )
-                return
+
+        if self.editing_nutrients is False and self.editing_flags is False:
+            self.editing_nutrients = True
+
+        try:
+            self.subject.set_nutrient_ratio(
+                nutrient_name=nutrient_name,
+                nutrient_qty=nutrient_qty,
+                nutrient_qty_unit=nutrient_qty_unit,
+                subject_qty=subject_qty,
+                subject_qty_unit=subject_qty_unit
+            )
+        except model.nutrients.exceptions.ChildNutrientQtyExceedsParentNutrientQtyError:
+            self.nutrient_flag_status_controller.update_view(
+                f"{nutrient_name.replace('_', ' ')} qty exceeds its parent group."
+            )
+
+        if self.editing_nutrients:
+            self.flag_editor_controller.update_view()
+        self.editing_nutrients = False
+        # Reset the conflict message;
+        self.nutrient_flag_status_controller.update_view("No conflicts.")
+
+    def _on_flag_value_changed(self, event) -> None:
+        """Handler for changes to flag values."""
+        # Catch unset subject;
+        if self.subject is None:
+            return
+
+        if self.editing_nutrients is False and self.editing_flags is False:
+            self.editing_flags = True
+
+        # Try and move the form flag values into the model;
+        try:
+            for flag_name, flag_value in self.flag_editor_controller.flag_values.items():
+                self.subject.set_flag_value(flag_name, self.view.flag_editor.get_flag_value(flag_name), True)
+        except (model.flags.exceptions.NonZeroNutrientRatioConflictError,
+                model.flags.exceptions.UndefineMultipleNutrientRatiosError) as e:
+            self.nutrient_flag_status_controller.update_view(
+                f"'{flag_name.replace('_', ' ')}' flag conflicts with {e.conflicting_nutrient_ratios[0].nutrient.primary_name} nutrient ratio"
+            )
+            return
+
         # Update the nutrient editors;
-        self.basic_nutrient_ratio_editor_controller.update_view()
-        self.extended_nutrient_ratio_editor_controller.update_view()
+        if self.editing_flags:
+            self.basic_nutrient_ratio_editor_controller.update_view()
+            self.extended_nutrient_ratio_editor_controller.update_view()
+        self.editing_flags = False
         # Reset the conflict message;
         self.nutrient_flag_status_controller.update_view("No conflicts.")

@@ -146,7 +146,7 @@ class BaseNutrientRatiosEditorController(gui.HasSubject, abc.ABC):
         super().__init__(view=view, subject_type=model.nutrients.HasSettableNutrientRatios, **kwargs)
 
         # Dict to store NutrientRatioWidgets;
-        self._nutrient_ratio_editor_controllers: Dict[str, 'NutrientRatioEditorController'] = {}
+        self.nutrient_ratio_editor_controllers: Dict[str, 'NutrientRatioEditorController'] = {}
 
         # Stash the change callback;
         self._on_nutrient_values_change_callback = on_nutrient_values_change_callback
@@ -161,8 +161,8 @@ class BaseNutrientRatiosEditorController(gui.HasSubject, abc.ABC):
     def update_view(self) -> None:
         """Update the view to reflect the list of nutrient ratios provided."""
         # Go through all the registered editors and make sure they are showing the right things.
-        for nutrient_name in self._nutrient_ratio_editor_controllers.keys():
-            self._nutrient_ratio_editor_controllers[nutrient_name].update_view(self.subject)
+        for nutrient_name in self.nutrient_ratio_editor_controllers.keys():
+            self.nutrient_ratio_editor_controllers[nutrient_name].update_view(self.subject)
 
     def process_view_changes(self, *args, **kwargs) -> None:
         pass
@@ -183,8 +183,8 @@ class FixedNutrientRatiosEditorController(BaseNutrientRatiosEditorController):
                 nutrient_name=nutrient_name,
                 on_values_change_callback=self._on_nutrient_values_change_callback
             )
-            self._nutrient_ratio_editor_controllers[nutrient_name] = ctrl
-            editor_view.grid(row=len(self._nutrient_ratio_editor_controllers), column=1, sticky="w")
+            self.nutrient_ratio_editor_controllers[nutrient_name] = ctrl
+            editor_view.grid(row=len(self.nutrient_ratio_editor_controllers), column=1, sticky="w")
 
     @property
     def view(self) -> 'FixedNutrientRatiosEditorView':
@@ -274,21 +274,21 @@ class DynamicNutrientRatiosEditorController(BaseNutrientRatiosEditorController):
         nutrient_name = model.nutrients.validation.validate_nutrient_name(nutrient_name)
 
         # Don't add the same nutrient twice;
-        if nutrient_name in self._nutrient_ratio_editor_controllers.keys():
+        if nutrient_name in self.nutrient_ratio_editor_controllers.keys():
             return
 
         # Init the view;
         self.view.add_nutrient_ratio_editor(nutrient_name)
-        self._nutrient_ratio_editor_controllers[nutrient_name] = NutrientRatioEditorController(
+        self.nutrient_ratio_editor_controllers[nutrient_name] = NutrientRatioEditorController(
             view=self.view.get_nutrient_ratio_editor(nutrient_name),
             nutrient_name=nutrient_name,
             on_values_change_callback=self._on_nutrient_values_change_callback
         )
         # Listen for the remove button click;
-        self._nutrient_ratio_editor_controllers[nutrient_name].view.bind("<<Remove-Clicked>>",
-                                                                         self._on_remove_nutrient_click)
+        self.nutrient_ratio_editor_controllers[nutrient_name].view.bind("<<Remove-Clicked>>",
+                                                                        self._on_remove_nutrient_click)
         # Update the nutreint editor view you jsut added;
-        self._nutrient_ratio_editor_controllers[nutrient_name].update_view(self.subject)
+        self.nutrient_ratio_editor_controllers[nutrient_name].update_view(self.subject)
 
     def remove_nutrient_ratio_editor(self, nutrient_name: str) -> None:
         """Removes a nutrient ratio editor."""
@@ -300,7 +300,15 @@ class DynamicNutrientRatiosEditorController(BaseNutrientRatiosEditorController):
         # Drop the view;
         self.view.remove_nutrient_ratio_editor(nutrient_name)
         # Drop the controller;
-        del self._nutrient_ratio_editor_controllers[nutrient_name]
+        del self.nutrient_ratio_editor_controllers[nutrient_name]
+        # Push the change to the model;
+        self._on_nutrient_values_change_callback(
+            nutrient_name=nutrient_name,
+            nutrient_qty=None,
+            nutrient_qty_unit='g',
+            subject_qty=None,
+            subject_qty_unit='g'
+        )
 
     def _on_add_nutrient_click(self, _) -> None:
         """Handler for the add nutrient button click."""
@@ -311,7 +319,7 @@ class DynamicNutrientRatiosEditorController(BaseNutrientRatiosEditorController):
         # Nasty hack to figure out which nutrient ratio editor had remove pressed.
         # todo: Think of a better way to do this if there is time.
         caller_name = None
-        for nutrient_ratio_controller in self._nutrient_ratio_editor_controllers.values():
+        for nutrient_ratio_controller in self.nutrient_ratio_editor_controllers.values():
             if nutrient_ratio_controller.view == event.widget:
                 caller_name = nutrient_ratio_controller.nutrient_name
                 break
@@ -324,25 +332,25 @@ class DynamicNutrientRatiosEditorController(BaseNutrientRatiosEditorController):
     def update_view(self) -> None:
         # If there is no view, drop all the editors & return;
         if self.subject is None:
-            for nutrient_name in self._nutrient_ratio_editor_controllers.keys():
+            for nutrient_name in self.nutrient_ratio_editor_controllers.keys():
                 self.remove_nutrient_ratio_editor(nutrient_name)
             return
 
         # Add any nutrient ratios which are defined on the subject, but not in the view yet;
         nutrient_names = []
         for nutrient_name in self.subject.defined_optional_nutrient_ratios:
-            if nutrient_name not in self._nutrient_ratio_editor_controllers.keys():
+            if nutrient_name not in self.nutrient_ratio_editor_controllers.keys():
                 nutrient_names.append(nutrient_name)
         for nutrient_name in nutrient_names:
             self.add_nutrient_ratio_editor(nutrient_name)
         nutrient_names = []
 
         # Remove any nutrient ratios which are on the view, but not on the subject;
-        for nutrient_name in self._nutrient_ratio_editor_controllers.keys():
+        for nutrient_name in self.nutrient_ratio_editor_controllers.keys():
             if not self.subject.check_nutrient_ratio_is_defined(nutrient_name):
                 nutrient_names.append(nutrient_name)
         for nutrient_name in nutrient_names:
             self.remove_nutrient_ratio_editor(nutrient_name)
         # Now cycle through and update all the views;
-        for nutrient_ratio_editor in self._nutrient_ratio_editor_controllers.values():
+        for nutrient_ratio_editor in self.nutrient_ratio_editor_controllers.values():
             nutrient_ratio_editor.update_view(self.subject)
