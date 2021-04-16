@@ -80,6 +80,14 @@ class FlagEditorController(gui.HasSubject):
             self.view.flags[flag_name].bind("<<Value-Changed>>", on_flag_value_change_callback)
 
     @property
+    def flag_values(self) -> Dict[str, Optional[bool]]:
+        """Returns the flag values from the form."""
+        values: Dict[str, Optional[bool]] = {}
+        for flag_name, str_value in self.view.flags.items():
+            values[flag_name] = self.view.get_flag_value(flag_name)
+        return values
+
+    @property
     def subject(self) -> 'model.flags.HasSettableFlags':
         return super().subject
 

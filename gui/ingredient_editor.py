@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import messagebox
 
 import gui
 import model
@@ -79,6 +80,8 @@ class IngredientNameEntryController(gui.HasSubject):
         super().set_subject(subject)
 
     def update_view(self) -> None:
+        if self.subject is None:
+            return
         if self.subject.name_is_defined:
             self.view.set(self.subject.name)
 
@@ -167,7 +170,38 @@ class IngredientEditorController(gui.HasSubject):
         self.view.clear()
 
     def _on_nutrient_values_changed(self, *args, **kwargs) -> None:
-        print("nutrient value changed")
+        pass
 
     def _on_flag_values_changed(self, event) -> None:
-        print("Flag values changed.")
+        """Handler for changes to flag values."""
+        # Prevent things breaking if subject is unset;
+        if self.subject is None:
+            return
+        # Cycle through each flag and try and set it on the subject;
+        for flag_name, flag_value in self.flag_editor_controller.flag_values.items():
+            try:
+                self.subject.set_flag_value(flag_name, flag_value)
+            except model.flags.exceptions.FixableNutrientRatioConflictError as e:
+                response = messagebox.askyesno(
+                    title="Flag-Nutrient Conflict",
+                    message="Update nutrients to match flag?"
+                )
+                if response is True:
+                    self.subject.set_flag_value(flag_name, flag_value, True)
+                    continue
+                elif response is False:
+                    self.nutrient_flag_status_controller.update_view(
+                        f"{flag_name.replace('_', ' ')} flag conflicts with {e.conflicting_nutrient_ratios[0].nutrient.primary_name} nutrient ratio"
+                    )
+                    return
+            except (model.flags.exceptions.NonZeroNutrientRatioConflictError,
+                    model.flags.exceptions.UndefineMultipleNutrientRatiosError) as e:
+                self.nutrient_flag_status_controller.update_view(
+                    f"{flag_name.replace('_', ' ')} flag conflicts with {e.conflicting_nutrient_ratios[0].nutrient.primary_name} nutrient ratio"
+                )
+                return
+        # Update the nutrient editors;
+        self.basic_nutrient_ratio_editor_controller.update_view()
+        self.extended_nutrient_ratio_editor_controller.update_view()
+        # Reset the conflict message;
+        self.nutrient_flag_status_controller.update_view("No conflicts.")
