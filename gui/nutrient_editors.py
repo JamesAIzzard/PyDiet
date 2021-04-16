@@ -177,7 +177,7 @@ class FixedNutrientRatiosEditorController(BaseNutrientRatiosEditorController):
         # Initialise the fields in the view;
         for nutrient_name in primary_nutrient_names:
             editor_view = NutrientRatioEditorView(master=self.view,
-                                                  nutrient_display_name=nutrient_name.replace("_", ""))
+                                                  nutrient_display_name=nutrient_name.replace("_", " "))
             ctrl = NutrientRatioEditorController(
                 view=editor_view,
                 nutrient_name=nutrient_name,
@@ -287,13 +287,16 @@ class DynamicNutrientRatiosEditorController(BaseNutrientRatiosEditorController):
         # Listen for the remove button click;
         self._nutrient_ratio_editor_controllers[nutrient_name].view.bind("<<Remove-Clicked>>",
                                                                          self._on_remove_nutrient_click)
+        # Update the nutreint editor view you jsut added;
+        self._nutrient_ratio_editor_controllers[nutrient_name].update_view(self.subject)
 
     def remove_nutrient_ratio_editor(self, nutrient_name: str) -> None:
         """Removes a nutrient ratio editor."""
         # Validate the name;
         nutrient_name = model.nutrients.validation.validate_nutrient_name(nutrient_name)
         # Wipe the nutrient ratio;
-        self.subject.undefine_nutrient_ratio(nutrient_name)
+        if self.subject is not None:
+            self.subject.undefine_nutrient_ratio(nutrient_name)
         # Drop the view;
         self.view.remove_nutrient_ratio_editor(nutrient_name)
         # Drop the controller;
@@ -305,7 +308,14 @@ class DynamicNutrientRatiosEditorController(BaseNutrientRatiosEditorController):
 
     def _on_remove_nutrient_click(self, event) -> None:
         """Handler for click on remove nutrient button."""
-        self.remove_nutrient_ratio_editor(event.widget.nutrient_name)
+        # Nasty hack to figure out which nutrient ratio editor had remove pressed.
+        # todo: Think of a better way to do this if there is time.
+        caller_name = None
+        for nutrient_ratio_controller in self._nutrient_ratio_editor_controllers.values():
+            if nutrient_ratio_controller.view == event.widget:
+                caller_name = nutrient_ratio_controller.nutrient_name
+                break
+        self.remove_nutrient_ratio_editor(caller_name)
 
     def _on_nutrient_result_click(self, nutrient_name: str) -> None:
         """Handler for nutrient result click."""
@@ -325,3 +335,6 @@ class DynamicNutrientRatiosEditorController(BaseNutrientRatiosEditorController):
         for nutrient_name in self._nutrient_ratio_editor_controllers.keys():
             if not self.subject.check_nutrient_ratio_is_defined(nutrient_name):
                 self.remove_nutrient_ratio_editor(nutrient_name)
+        # Now cycle through and update all the views;
+        for nutrient_ratio_editor in self._nutrient_ratio_editor_controllers.values():
+            nutrient_ratio_editor.update_view(self.subject)

@@ -143,6 +143,7 @@ class IngredientEditorController(gui.HasSubject):
         self.bulk_editor_controller.set_subject(subject)
         self.flag_editor_controller.set_subject(subject)
         self.basic_nutrient_ratio_editor_controller.set_subject(subject)
+        self.extended_nutrient_ratio_editor_controller.set_subject(subject)
         super().set_subject(subject)
 
     def update_view(self) -> None:
