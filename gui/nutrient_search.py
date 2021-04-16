@@ -46,7 +46,7 @@ class NutrientSearchController(gui.BaseController):
         result = tk.Label(master=self.view.results_scrollframe.scrollable_frame, text=nutrient_name)
         result.nutrient_name = nutrient_name
         # Bind the click responder;
-        result.bind("<Button-1>", self._on_result_click)
+        result.bind("<Button-1>", lambda _: self._on_result_click(nutrient_name))
         # Add it to the search box;
         result.pack()
 

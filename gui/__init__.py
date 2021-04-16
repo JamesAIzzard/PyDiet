@@ -1,4 +1,5 @@
 from gui import configs
+from gui.main import set_noneable_qty_entry, get_noneable_qty_entry, validate_qty_entry
 from gui.app import App
 from gui.base_controllers import BaseController, HasSubject
 from gui.default_stringvar import DefaultStringVar
@@ -11,7 +12,7 @@ from gui.cost_editor import CostEditorView, CostEditorController
 from gui.flag_nutrient_status import FlagNutrientStatusView, FlagNutrientStatusController
 from gui.flag_editor import FlagEditorView, FlagEditorController
 from gui.nutrient_editors import FixedNutrientRatiosEditorView, DynamicNutrientRatiosEditorView, \
-    BasicNutrientRatiosEditorController, DynamicNutrientRatiosEditorController
+    FixedNutrientRatiosEditorController, DynamicNutrientRatiosEditorController
 from gui.ingredient_editor import IngredientEditorController, IngredientEditorView
 from gui.ingredient_search import IngredientSearchView, IngredientSearchController
 from gui.nutrient_search import NutrientSearchView, NutrientSearchController

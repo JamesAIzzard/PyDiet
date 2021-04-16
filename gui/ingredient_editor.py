@@ -113,9 +113,10 @@ class IngredientEditorController(gui.HasSubject):
             on_flag_value_change_callback=self._on_flag_values_changed,
             **kwargs
         )
-        self.basic_nutrient_ratio_editor_controller = gui.BasicNutrientRatiosEditorController(
+        self.basic_nutrient_ratio_editor_controller = gui.FixedNutrientRatiosEditorController(
             view=view.basic_nutrient_ratios_editor,
             on_nutrient_values_change_callback=self._on_nutrient_values_changed,
+            primary_nutrient_names=model.nutrients.mandatory_nutrient_names,
             **kwargs
         )
 
@@ -164,7 +165,7 @@ class IngredientEditorController(gui.HasSubject):
         """Handler for reset button."""
         self.view.clear()
 
-    def _on_nutrient_values_changed(self, event) -> None:
+    def _on_nutrient_values_changed(self, *args, **kwargs) -> None:
         print("nutrient value changed")
 
     def _on_flag_values_changed(self, event) -> None:

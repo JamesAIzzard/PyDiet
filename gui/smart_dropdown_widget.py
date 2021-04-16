@@ -47,6 +47,11 @@ class SmartDropdownWidget(ttk.Combobox):
                     values.remove(option)
             self['values'] = tuple(values)
 
+    def refresh_options(self, options: List[str]) -> None:
+        """Removes all existing options and replaces them with the new list."""
+        self.remove_options()
+        self.add_options(options)
+
     def set(self, value: str) -> None:
         """Sets the value of the dropdown."""
         if value not in self['values']:
