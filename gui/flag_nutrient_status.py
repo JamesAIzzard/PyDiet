@@ -15,6 +15,22 @@ class FlagNutrientStatusView(tk.Frame):
 class FlagNutrientStatusController(gui.BaseController):
     def __init__(self, view: 'FlagNutrientStatusView', **kwargs):
         super().__init__(view=view, **kwargs)
+        self._has_conflict: bool = False
+
+    def show_ok(self) -> None:
+        """Change the state to no-conflict."""
+        self.view.status_label.configure(text="No conflicts.", fg="green")
+        self._has_conflict = False
+
+    def show_conflict(self, conflict_message: str) -> None:
+        """Change state to show conflict."""
+        self.view.status_label.configure(text=conflict_message, fg="red")
+        self._has_conflict = True
+
+    @property
+    def has_conflict(self) -> bool:
+        """Returns True/False to indicate if a conflict is logged."""
+        return self._has_conflict
 
     @property
     def view(self) -> 'FlagNutrientStatusView':
@@ -24,7 +40,4 @@ class FlagNutrientStatusController(gui.BaseController):
         self.view.status_label.configure(text=status_message)
 
     def process_view_changes(self, *args, **kwargs) -> None:
-        # Work through the flags, trying to set.
-        # Work through the nutrients trying to set.
-        # If you find an error, display it;
         pass

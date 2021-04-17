@@ -191,7 +191,6 @@ class IngredientEditorController(gui.HasSubject):
             self.editing_nutrients = True
 
         try:
-            print(f"setting {nutrient_name}")
             self.subject.set_nutrient_ratio(
                 nutrient_name=nutrient_name,
                 nutrient_qty=nutrient_qty,
@@ -200,7 +199,7 @@ class IngredientEditorController(gui.HasSubject):
                 subject_qty_unit=subject_qty_unit
             )
         except model.nutrients.exceptions.ChildNutrientQtyExceedsParentNutrientQtyError:
-            self.nutrient_flag_status.update_view(
+            self.nutrient_flag_status.show_conflict(
                 f"{nutrient_name.replace('_', ' ')} qty exceeds its parent group."
             )
             # Reset the update state;
@@ -216,7 +215,7 @@ class IngredientEditorController(gui.HasSubject):
         self.editing_nutrients = False
 
         # Reset the conflict message;
-        self.nutrient_flag_status.update_view("No conflicts.")
+        self.nutrient_flag_status.show_ok()
 
     def _on_flag_value_changed(self, event) -> None:
         """Handler for changes to flag values."""
@@ -232,10 +231,9 @@ class IngredientEditorController(gui.HasSubject):
         try:
             for flag_name, flag_value in self.flag_editor.flag_values.items():
                 self.subject.set_flag_value(flag_name, self.view.flag_editor.get_flag_value(flag_name), True)
-                print(f"setting {flag_name}")
         except (model.flags.exceptions.NonZeroNutrientRatioConflictError,
                 model.flags.exceptions.UndefineMultipleNutrientRatiosError) as e:
-            self.nutrient_flag_status.update_view(
+            self.nutrient_flag_status.show_conflict(
                 f"'{flag_name.replace('_', ' ')}' flag conflicts with {e.conflicting_nutrient_ratios[0].nutrient.primary_name} nutrient ratio"
             )
             # Reset the circular dependency flag;
@@ -252,4 +250,4 @@ class IngredientEditorController(gui.HasSubject):
         self.editing_flags = False
 
         # Reset the conflict message;
-        self.nutrient_flag_status.update_view("No conflicts.")
+        self.nutrient_flag_status.show_ok()
