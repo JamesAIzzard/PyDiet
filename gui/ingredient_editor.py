@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import messagebox
 from typing import Optional
 
 import gui
@@ -18,8 +19,6 @@ class IngredientEditorView(tk.Frame):
         self.save_button.bind("<Button-1>", lambda _: self.event_generate("<<save-clicked>>"))
         self.save_button.grid(row=0, column=0, padx=5)
         self.reset_button = tk.Button(master=self._save_reset_frame, text="Reset")
-        self.reset_button.bind("<Button-1>", lambda _: self.event_generate("<<reset-clicked>>"))
-        self.reset_button.grid(row=0, column=1, padx=5)
         self._save_reset_frame.grid(row=0, column=0, sticky="ew")
 
         # Basic info groups;
@@ -61,10 +60,26 @@ class IngredientEditorView(tk.Frame):
         self.name_entry.clear()
 
 
-class IngredientNameEntryController(gui.HasSubject):
+class IngredientNameEntryController(gui.HasSubject, gui.SupportsValidity, gui.SupportsDefinition):
     def __init__(self, view: 'gui.SmartEntryWidget', **kwargs):
         super().__init__(view=view, subject_type=model.ingredients.Ingredient, **kwargs)
         self.view.bind("<<Value-Changed>>", self.process_view_changes)
+
+    @property
+    def name(self) -> Optional[str]:
+        """Gets the ingredient name."""
+        if self.view.get().replace(" ", "") == "":
+            return None
+        else:
+            return self.view.get()
+
+    @property
+    def is_valid(self) -> bool:
+        return self.view.is_valid
+
+    @property
+    def is_defined(self) -> bool:
+        return self.name is not None
 
     @property
     def view(self) -> 'gui.SmartEntryWidget':
@@ -136,7 +151,6 @@ class IngredientEditorController(gui.HasSubject):
 
         # Bind handlers;
         self.view.bind("<<save-clicked>>", self._on_save_clicked)
-        self.view.bind("<<reset-clicked>>", self._on_reset_clicked)
 
         # Stick a message in the nutrient flag status;
         self.nutrient_flag_status.update_view("No conflicts.")
@@ -168,11 +182,18 @@ class IngredientEditorController(gui.HasSubject):
 
     def _on_save_clicked(self, _) -> None:
         """Handler for ingredient save."""
-        print("save pressed")
 
-    def _on_reset_clicked(self, _) -> None:
-        """Handler for reset button."""
-        self.view.clear()
+        def show_save_message(message: str) -> None:
+            messagebox.showinfo(title="Save Ingredient", message=message)
+
+        # Work through the fields, checking they are valid.
+        # First check the name is populated and valid;
+        if self.name_entry.is_undefined:
+            show_save_message("Ingredient name is required.")
+        if self.name_entry.is_invalid:
+            show_save_message("Ingredient name must be unique.")
+
+        print("save pressed")
 
     def _on_nutrient_values_changed(self,
                                     nutrient_name: str,
@@ -208,7 +229,6 @@ class IngredientEditorController(gui.HasSubject):
 
         # Update the right views;
         if self.editing_nutrients:
-            print("updating flag views")
             self.flag_editor.update_view()
 
         # Reset the update state;
@@ -242,7 +262,6 @@ class IngredientEditorController(gui.HasSubject):
 
         # Update the views;
         if self.editing_flags:
-            print("updating nutrient views")
             self.basic_nutrient_ratio_editor.update_view()
             self.extended_nutrient_ratio_editor.update_view()
 

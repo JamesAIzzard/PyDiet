@@ -52,3 +52,35 @@ class HasSubject(BaseController, abc.ABC):
         self._subject = subject
         # Update the view to reflect it;
         self.update_view()
+
+
+class SupportsValidity(abc.ABC):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+    @property
+    @abc.abstractmethod
+    def is_valid(self) -> bool:
+        """Returns True/False to indicate if the element is valid."""
+        raise NotImplementedError
+
+    @property
+    def is_invalid(self) -> bool:
+        """Returns True/False to indicate if the element is invalid."""
+        return not self.is_valid
+
+
+class SupportsDefinition(abc.ABC):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+    @property
+    @abc.abstractmethod
+    def is_defined(self) -> bool:
+        """Returns True/False to indicate if the element is defined."""
+        raise NotImplementedError
+
+    @property
+    def is_undefined(self) -> bool:
+        """Returns True/False to indicate if the element is undefined."""
+        return not self.is_defined

@@ -203,7 +203,15 @@ class BaseNutrientRatiosEditorController(gui.HasSubject, abc.ABC):
             ctrl.update_view(self.subject)
 
         # Update this view to reflect the new nutrient;
-        self._on_nutrient_values_change_callback(nutrient_name=nutrient_name)
+        if self.subject is not None:
+            nr = self.subject.get_nutrient_ratio(nutrient_name)
+            self._on_nutrient_values_change_callback(
+                nutrient_name=nutrient_name,
+                nutrient_qty=self.subject.get_nutrient_mass_in_pref_unit_per_subject_ref_qty(nutrient_name),
+                nutrient_qty_unit=nr.pref_unit,
+                subject_qty=self.subject.ref_qty,
+                subject_qty_unit=self.subject.pref_unit
+            )
 
     def remove_nutrient_ratio_editor(self, nutrient_name: str) -> None:
         # Grab the editor to remove;

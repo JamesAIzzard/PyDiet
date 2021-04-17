@@ -1,7 +1,7 @@
 from gui import configs
 from gui.main import set_noneable_qty_entry, get_noneable_qty_entry, validate_qty_entry
 from gui.app import App
-from gui.base_controllers import BaseController, HasSubject
+from gui.base_controllers import BaseController, HasSubject, SupportsValidity, SupportsDefinition
 from gui.entry_widgets import SmartEntryWidget, validate_nullable_entry
 from gui.smart_dropdown_widget import SmartDropdownWidget, configure_qty_units
 from gui.top_menu_widget import TopMenuController, TopMenuWidget
