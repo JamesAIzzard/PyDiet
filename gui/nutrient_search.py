@@ -42,11 +42,18 @@ class NutrientSearchController(gui.BaseController):
 
     def add_result(self, nutrient_name: str) -> None:
         """Adds a nutrient name to the list."""
+        # Get the primary version of the name;
+        primary_name = model.nutrients.get_nutrient_primary_name(nutrient_name)
+        # Generate the result text;
+        if nutrient_name == primary_name:
+            text = nutrient_name
+        else:
+            text = f"{nutrient_name} ({primary_name})"
         # Create the result item;
-        result = tk.Label(master=self.view.results_scrollframe.scrollable_frame, text=nutrient_name)
+        result = tk.Label(master=self.view.results_scrollframe.scrollable_frame, text=text)
         result.nutrient_name = nutrient_name
         # Bind the click responder;
-        result.bind("<Button-1>", lambda _: self._on_result_click(nutrient_name))
+        result.bind("<Button-1>", lambda _: self._on_result_click(primary_name))
         # Add it to the search box;
         result.pack()
 

@@ -388,13 +388,13 @@ class DynamicNutrientRatiosEditorController(BaseNutrientRatiosEditorController):
         for nutrient_name in nutrient_names_to_add:
             self.add_nutrient_ratio_editor(nutrient_name)
 
-        # Remove any nutrient ratios which are on the view, but not on the subject;
-        nutrient_names_to_remove = []
-        for nutrient_name in self.nutrient_names:
-            if not self.subject.check_nutrient_ratio_is_defined(nutrient_name):
-                nutrient_names_to_remove.append(nutrient_name)
-        for nutrient_name in nutrient_names_to_remove:
-            self.remove_nutrient_ratio_editor(nutrient_name)
+        # # Remove any nutrient ratios which are on the view, but not on the subject;
+        # nutrient_names_to_remove = []
+        # for nutrient_name in self.nutrient_names:
+        #     if not self.subject.check_nutrient_ratio_is_defined(nutrient_name):
+        #         nutrient_names_to_remove.append(nutrient_name)
+        # for nutrient_name in nutrient_names_to_remove:
+        #     self.remove_nutrient_ratio_editor(nutrient_name)
 
         # Now trigger the standard update;
         super().update_view()
