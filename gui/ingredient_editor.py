@@ -106,24 +106,25 @@ class IngredientEditorController(gui.HasSubject):
         super().__init__(subject_type=model.ingredients.Ingredient, view=view, **kwargs)
 
         # Child controllers;
-        self.name_entry_controller = IngredientNameEntryController(view=view.name_entry, **kwargs)
-        self.cost_editor_controller = gui.CostEditorController(view=view.cost_editor, **kwargs)
-        self.bulk_editor_controller = gui.BulkEditorController(view=view.bulk_editor, **kwargs)
-        self.nutrient_flag_status_controller = gui.FlagNutrientStatusController(view=view.nutrient_flag_status_widget,
-                                                                                **kwargs)
-        self.flag_editor_controller = gui.FlagEditorController(
+        self.name_entry = IngredientNameEntryController(view=view.name_entry, **kwargs)
+        self.cost_editor = gui.CostEditorController(view=view.cost_editor, **kwargs)
+        self.bulk_editor = gui.BulkEditorController(view=view.bulk_editor, **kwargs)
+        self.nutrient_flag_status = gui.FlagNutrientStatusController(
+            view=view.nutrient_flag_status_widget,
+            **kwargs
+        )
+        self.flag_editor = gui.FlagEditorController(
             view=view.flag_editor,
             on_flag_value_change_callback=self._on_flag_value_changed,
             **kwargs
         )
-        self.basic_nutrient_ratio_editor_controller = gui.FixedNutrientRatiosEditorController(
+        self.basic_nutrient_ratio_editor = gui.FixedNutrientRatiosEditorController(
             view=view.basic_nutrient_ratios_editor,
             on_nutrient_values_change_callback=self._on_nutrient_values_changed,
             primary_nutrient_names=model.nutrients.mandatory_nutrient_names,
             **kwargs
         )
-
-        self.extended_nutrient_ratio_editor_controller = gui.DynamicNutrientRatiosEditorController(
+        self.extended_nutrient_ratio_editor = gui.DynamicNutrientRatiosEditorController(
             view=view.extended_nutrient_ratios_editor,
             on_nutrient_values_change_callback=self._on_nutrient_values_changed,
             **kwargs
@@ -133,24 +134,24 @@ class IngredientEditorController(gui.HasSubject):
         self.editing_nutrients: bool = False
         self.editing_flags: bool = False
 
-        # Stick a message in the nutrient flag status;
-        self.nutrient_flag_status_controller.update_view("No conflicts.")
-
         # Bind handlers;
         self.view.bind("<<save-clicked>>", self._on_save_clicked)
         self.view.bind("<<reset-clicked>>", self._on_reset_clicked)
+
+        # Stick a message in the nutrient flag status;
+        self.nutrient_flag_status.update_view("No conflicts.")
 
     @property
     def subject(self) -> 'model.ingredients.Ingredient':
         return super().subject
 
     def set_subject(self, subject: 'model.ingredients.Ingredient') -> None:
-        self.name_entry_controller.set_subject(subject)
-        self.cost_editor_controller.set_subject(subject)
-        self.bulk_editor_controller.set_subject(subject)
-        self.flag_editor_controller.set_subject(subject)
-        self.basic_nutrient_ratio_editor_controller.set_subject(subject)
-        self.extended_nutrient_ratio_editor_controller.set_subject(subject)
+        self.name_entry.set_subject(subject)
+        self.cost_editor.set_subject(subject)
+        self.bulk_editor.set_subject(subject)
+        self.flag_editor.set_subject(subject)
+        self.basic_nutrient_ratio_editor.set_subject(subject)
+        self.extended_nutrient_ratio_editor.set_subject(subject)
         super().set_subject(subject)
 
     def update_view(self) -> None:
@@ -175,20 +176,22 @@ class IngredientEditorController(gui.HasSubject):
 
     def _on_nutrient_values_changed(self,
                                     nutrient_name: str,
-                                    nutrient_qty: Optional[float],
-                                    nutrient_qty_unit: str,
-                                    subject_qty: Optional[float],
-                                    subject_qty_unit: str
+                                    nutrient_qty: Optional[float] = None,
+                                    nutrient_qty_unit: str = 'g',
+                                    subject_qty: Optional[float] = None,
+                                    subject_qty_unit: str = 'g'
                                     ) -> None:
         """Handler for changes to nutrient values."""
         # Catch unset subject;
         if self.subject is None:
             return
 
+        # Determine the type of update;
         if self.editing_nutrients is False and self.editing_flags is False:
             self.editing_nutrients = True
 
         try:
+            print(f"setting {nutrient_name}")
             self.subject.set_nutrient_ratio(
                 nutrient_name=nutrient_name,
                 nutrient_qty=nutrient_qty,
@@ -197,15 +200,23 @@ class IngredientEditorController(gui.HasSubject):
                 subject_qty_unit=subject_qty_unit
             )
         except model.nutrients.exceptions.ChildNutrientQtyExceedsParentNutrientQtyError:
-            self.nutrient_flag_status_controller.update_view(
+            self.nutrient_flag_status.update_view(
                 f"{nutrient_name.replace('_', ' ')} qty exceeds its parent group."
             )
+            # Reset the update state;
+            self.editing_nutrients = False
+            return
 
+        # Update the right views;
         if self.editing_nutrients:
-            self.flag_editor_controller.update_view()
+            print("updating flag views")
+            self.flag_editor.update_view()
+
+        # Reset the update state;
         self.editing_nutrients = False
+
         # Reset the conflict message;
-        self.nutrient_flag_status_controller.update_view("No conflicts.")
+        self.nutrient_flag_status.update_view("No conflicts.")
 
     def _on_flag_value_changed(self, event) -> None:
         """Handler for changes to flag values."""
@@ -213,24 +224,32 @@ class IngredientEditorController(gui.HasSubject):
         if self.subject is None:
             return
 
+        # Determine which part of the UI is being editied to prevent circular update dependency.
         if self.editing_nutrients is False and self.editing_flags is False:
             self.editing_flags = True
 
-        # Try and move the form flag values into the model;
+        # Try and move the flag values into the model;
         try:
-            for flag_name, flag_value in self.flag_editor_controller.flag_values.items():
+            for flag_name, flag_value in self.flag_editor.flag_values.items():
                 self.subject.set_flag_value(flag_name, self.view.flag_editor.get_flag_value(flag_name), True)
+                print(f"setting {flag_name}")
         except (model.flags.exceptions.NonZeroNutrientRatioConflictError,
                 model.flags.exceptions.UndefineMultipleNutrientRatiosError) as e:
-            self.nutrient_flag_status_controller.update_view(
+            self.nutrient_flag_status.update_view(
                 f"'{flag_name.replace('_', ' ')}' flag conflicts with {e.conflicting_nutrient_ratios[0].nutrient.primary_name} nutrient ratio"
             )
+            # Reset the circular dependency flag;
+            self.editing_flags = False
             return
 
-        # Update the nutrient editors;
+        # Update the views;
         if self.editing_flags:
-            self.basic_nutrient_ratio_editor_controller.update_view()
-            self.extended_nutrient_ratio_editor_controller.update_view()
+            print("updating nutrient views")
+            self.basic_nutrient_ratio_editor.update_view()
+            self.extended_nutrient_ratio_editor.update_view()
+
+        # Reset the circular dependency flag;
         self.editing_flags = False
+
         # Reset the conflict message;
-        self.nutrient_flag_status_controller.update_view("No conflicts.")
+        self.nutrient_flag_status.update_view("No conflicts.")
