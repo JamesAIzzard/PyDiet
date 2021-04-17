@@ -26,13 +26,13 @@ class IngredientEditorView(tk.Frame):
         self._name_frame = tk.Frame(master=self._basic_info_frame)
         self._name_entry_label = tk.Label(master=self._name_frame, width=6, text="Name:", anchor="w")
         self._name_entry_label.grid(row=0, column=0, sticky="w")
-        self.name_entry = gui.SmartEntryWidget(master=self._name_frame, width=30,
+        self.name_entry = gui.SmartEntryWidget(master=self._name_frame, width=50,
                                                invalid_bg=gui.configs.invalid_bg_colour)
         self.name_entry.bind("<<Value-Changed>>", lambda _: self.name_entry.event_generate("<<View-Change>>"))
         self.name_entry.grid(row=0, column=1)
         self._name_frame.grid(row=0, column=0, sticky="w")
         self.cost_editor = gui.CostEditorView(master=self._basic_info_frame)
-        self.cost_editor.grid(row=1, column=0)
+        self.cost_editor.grid(row=1, column=0, sticky="w")
         self._basic_info_frame.grid(row=1, column=0, padx=5, pady=5, sticky="ew")
 
         # Bulk editor;
@@ -153,7 +153,7 @@ class IngredientEditorController(gui.HasSubject):
         self.view.bind("<<save-clicked>>", self._on_save_clicked)
 
         # Stick a message in the nutrient flag status;
-        self.nutrient_flag_status.update_view("No conflicts.")
+        self.nutrient_flag_status.show_ok()
 
     @property
     def subject(self) -> 'model.ingredients.Ingredient':
@@ -192,6 +192,12 @@ class IngredientEditorController(gui.HasSubject):
             show_save_message("Ingredient name is required.")
         if self.name_entry.is_invalid:
             show_save_message("Ingredient name must be unique.")
+
+        # Now check through cost;
+        if self.cost_editor.is_undefined:
+            show_save_message("Cost field must be completed.")
+        if self.cost_editor.is_invalid:
+            show_save_message("Cost field must be valid.")
 
         print("save pressed")
 

@@ -1,4 +1,5 @@
 import tkinter as tk
+from typing import Optional
 
 import gui
 import model
@@ -11,7 +12,7 @@ class CostEditorView(tk.Frame):
         super().__init__(**kwargs)
         # Create the components;
         self._cost_label = tk.Label(master=self, width=6, text="Cost: £", anchor="w")
-        self._cost_label.grid(row=0, column=0)
+        self._cost_label.grid(row=0, column=0, sticky="w")
         self.cost_entry = gui.SmartEntryWidget(master=self, width=10, invalid_bg=gui.configs.invalid_bg_colour)
         self.cost_entry.grid(row=0, column=1)
         self._per_label = tk.Label(master=self, text=" per ")
@@ -22,12 +23,59 @@ class CostEditorView(tk.Frame):
         self.qty_units_dropdown.grid(row=0, column=4)
 
 
-class CostEditorController(gui.HasSubject):
+class CostEditorController(gui.HasSubject, gui.SupportsDefinition, gui.SupportsValidity):
+
     def __init__(self, view: 'gui.CostEditorView', **kwargs):
         super().__init__(view=view, subject_type=model.cost.SupportsSettableCost, **kwargs)
         self.view.cost_entry.bind("<<Value-Changed>>", self.process_view_changes)
         self.view.qty_entry.bind("<<Value-Changed>>", self.process_view_changes)
         self.view.qty_units_dropdown.bind("<<Value-Changed>>", self.process_view_changes)
+
+    @property
+    def cost_value(self) -> Optional[float]:
+        """Returns the cost value."""
+        return gui.get_noneable_qty_entry(self.view.cost_entry)
+
+    @cost_value.setter
+    def cost_value(self, cost_value: Optional[float]) -> None:
+        """Sets the cost value."""
+        gui.set_noneable_qty_entry(self.view.cost_entry, cost_value)
+
+    @property
+    def cost_qty_value(self) -> Optional[float]:
+        """Returns the cost quantity value."""
+        return gui.get_noneable_qty_entry(self.view.qty_entry)
+
+    @cost_qty_value.setter
+    def cost_qty_value(self, cost_qty_value: Optional[float]) -> None:
+        """Sets the cost quantity value."""
+        gui.set_noneable_qty_entry(self.view.qty_entry, cost_qty_value)
+
+    @property
+    def cost_qty_unit(self) -> str:
+        """Gets the cost quantity unit."""
+        return self.view.qty_units_dropdown.get()
+
+    @cost_qty_unit.setter
+    def cost_qty_unit(self, cost_qty_unit: str) -> None:
+        """Sets the cost quantity unit."""
+        self.view.qty_units_dropdown.set(cost_qty_unit)
+
+    @property
+    def is_defined(self) -> bool:
+        if self.view.cost_entry.get().replace(" ", "") == "":
+            return False
+        if self.view.qty_entry.get().replace(" ", "") == "":
+            return False
+        return True
+
+    @property
+    def is_valid(self) -> bool:
+        if not self.view.cost_entry.is_valid:
+            return False
+        if not self.view.qty_entry.is_valid:
+            return False
+        return True
 
     @property
     def subject(self) -> 'model.cost.SupportsSettableCost':
@@ -38,49 +86,21 @@ class CostEditorController(gui.HasSubject):
 
     def update_view(self) -> None:
         if self.subject.cost_per_g_defined:
-            self.view.cost_entry.set(str(self.subject.cost_of_ref_qty))
-        self.view.qty_entry.set(str(self.subject.ref_qty))
+            self.cost_value = round(self.subject.cost_of_ref_qty, 4)
+        self.cost_qty_value = round(self.subject.ref_qty, 2)
         gui.configure_qty_units(self.view.qty_units_dropdown, self.subject)
-        self.view.qty_units_dropdown.set(self.subject.pref_unit)
+        self.cost_qty_unit = self.subject.pref_unit
 
     def process_view_changes(self, _) -> None:
-        # Work through and validate the view;
-        should_set: bool = True  # Indicates if setting should go ahead;
-        # Try and collect the cost value first;
-        try:
-            cost_value = self.view.cost_entry.get()
-            if cost_value == "":
-                cost_value = None
-            else:
-                cost_value = model.cost.validation.validate_cost(float(cost_value))
-            self.view.cost_entry.make_valid()
-        except (ValueError, model.cost.exceptions.CostValueError):
-            self.view.cost_entry.make_invalid()
-            cost_value = None
-            should_set = False
-        # Now try the qty value;
-        try:
-            qty_value = self.view.qty_entry.get()
-            if qty_value == "":
-                qty_value = None
-            else:
-                qty_value = model.quantity.validation.validate_quantity(float(qty_value))
-            self.view.qty_entry.make_valid()
-        except (ValueError, model.quantity.exceptions.InvalidQtyError):
-            self.view.qty_entry.make_invalid()
-            qty_value = None
-            should_set = False
-
-        # If the view validated OK, use the values to set the subject;
-        if should_set:
-            if cost_value is None or qty_value is None:
-                self.subject.cost_per_g = None
-            else:
-                self.subject.set_cost(
-                    cost_gbp=cost_value,
-                    qty=qty_value,
-                    unit=self.view.qty_units_dropdown.get()
-                )
+        """Handler for view changes."""
+        gui.validate_qty_entry(self.view.cost_entry)
+        gui.validate_qty_entry(self.view.qty_entry)
+        if self.is_defined and self.is_valid:
+            self.subject.set_cost(
+                cost_gbp=self.cost_value,
+                qty=self.cost_qty_value,
+                unit=self.cost_qty_unit
+            )
 
     @property
     def view(self) -> 'gui.CostEditorView':

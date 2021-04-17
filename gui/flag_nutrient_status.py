@@ -3,13 +3,11 @@ import tkinter as tk
 import gui
 
 
-class FlagNutrientStatusView(tk.Frame):
+class FlagNutrientStatusView(tk.LabelFrame):
     def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self._heading_label = tk.Label(master=self, text="Flag-Nutrient Status: ")
-        self._heading_label.grid(row=0, column=0, sticky="w")
+        super().__init__(text="Nutrient-Flag Status", **kwargs)
         self.status_label = tk.Label(master=self, text="")
-        self.status_label.grid(row=0, column=1, sticky="w")
+        self.status_label.grid(row=0, column=0, sticky="w")
 
 
 class FlagNutrientStatusController(gui.BaseController):
@@ -36,8 +34,8 @@ class FlagNutrientStatusController(gui.BaseController):
     def view(self) -> 'FlagNutrientStatusView':
         return super().view
 
-    def update_view(self, status_message: str) -> None:
-        self.view.status_label.configure(text=status_message)
+    def update_view(self) -> None:
+        pass
 
     def process_view_changes(self, *args, **kwargs) -> None:
         pass
