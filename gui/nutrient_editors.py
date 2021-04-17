@@ -245,6 +245,10 @@ class BaseNutrientRatiosEditorController(gui.HasSubject, abc.ABC):
 
     def update_view(self) -> None:
         """Update the view to reflect the nutrient ratios on the model."""
+        # Catch empty subject;
+        if self.subject is None:
+            return
+
         for nutrient_name in self.nutrient_names:
             self.get_nutrient_ratio_editor(nutrient_name).update_view(self.subject)
 

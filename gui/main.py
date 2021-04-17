@@ -27,6 +27,11 @@ def get_noneable_qty_entry(entry_widget: 'gui.SmartEntryWidget') -> Optional[flo
         return float(entry_widget.get())
 
 
+def entry_is_defined(entry_widget: 'gui.SmartEntryWidget') -> bool:
+    """Returns True/False to indicate if there is a value in the entry widget."""
+    return not entry_widget.get().replace(" ", "") == ""
+
+
 def validate_qty_entry(entry_widget: 'gui.SmartEntryWidget') -> None:
     value = entry_widget.get()
     if not value == "":
@@ -35,3 +40,20 @@ def validate_qty_entry(entry_widget: 'gui.SmartEntryWidget') -> None:
             entry_widget.make_valid()
         except (ValueError, model.quantity.exceptions.InvalidQtyError):
             entry_widget.make_invalid()
+
+
+def configure_qty_units(dropdown: 'gui.SmartDropdownWidget', subject: 'model.quantity.HasBulk') -> None:
+    """Configures the dropdown widget to match the subject's configured units."""
+    # Save the old value;
+    prev_value = dropdown.get()
+    # Clear it all out;
+    dropdown.remove_options()
+    # Repopulate with correct options;
+    dropdown.add_options(model.quantity.get_recognised_mass_units())
+    if subject.density_is_defined:
+        dropdown.add_options(model.quantity.get_recognised_vol_units())
+    if subject.piece_mass_defined:
+        dropdown.add_options(model.quantity.get_recognised_pc_units())
+    # Reinstate the old value if it is still available;
+    if prev_value in dropdown['values']:
+        dropdown.set(prev_value)

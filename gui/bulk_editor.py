@@ -1,4 +1,5 @@
 import tkinter as tk
+from typing import Optional
 
 import gui
 import model.quantity.validation
@@ -15,11 +16,39 @@ class RefQtyEditorView(tk.Frame):
         self.ref_qty_unit_dropdown.grid(row=0, column=2)
 
 
-class RefQtyEditorController(gui.HasSubject):
+class RefQtyEditorController(gui.HasSubject, gui.SupportsValidity, gui.SupportsDefinition):
     def __init__(self, view: 'RefQtyEditorView', **kwargs):
         super().__init__(subject_type=model.quantity.HasSettableBulk, view=view, **kwargs)
         self.view.ref_qty_value_entry.bind("<<Value-Changed>>", self.process_view_changes)
         self.view.ref_qty_unit_dropdown.bind("<<Value-Changed>>", self.process_view_changes)
+
+    @property
+    def ref_qty_value(self) -> Optional[float]:
+        """Gets the reference qty value."""
+        return gui.get_noneable_qty_entry(self.view.ref_qty_value_entry)
+
+    @ref_qty_value.setter
+    def ref_qty_value(self, ref_qty_value: Optional[float]) -> None:
+        """Sets the reference qty value."""
+        gui.set_noneable_qty_entry(self.view.ref_qty_value_entry, round(ref_qty_value, 2))
+
+    @property
+    def pref_unit(self) -> str:
+        """Gets the req qty unit dropdown."""
+        return self.view.ref_qty_unit_dropdown.get()
+
+    @pref_unit.setter
+    def pref_unit(self, pref_unit: str) -> None:
+        """Sets the reference quantity unit."""
+        self.view.ref_qty_unit_dropdown.set(pref_unit)
+
+    @property
+    def is_valid(self) -> bool:
+        return self.view.ref_qty_value_entry.is_valid
+
+    @property
+    def is_defined(self) -> bool:
+        return gui.entry_is_defined(self.view.ref_qty_value_entry)
 
     @property
     def subject(self) -> 'model.quantity.HasSettableBulk':
@@ -35,22 +64,17 @@ class RefQtyEditorController(gui.HasSubject):
         return view
 
     def update_view(self) -> None:
-        self.view.ref_qty_value_entry.set(str(self.subject.ref_qty))
+        self.ref_qty_value = self.subject.ref_qty
         gui.configure_qty_units(self.view.ref_qty_unit_dropdown, self.subject)
-        self.view.ref_qty_unit_dropdown.set(self.subject.pref_unit)
+        self.pref_unit = self.subject.pref_unit
 
     def process_view_changes(self, *args, **kwargs) -> None:
-        ref_qty_value = self.view.ref_qty_value_entry.get()
-        try:
-            ref_qty_value = model.quantity.validation.validate_quantity(float(ref_qty_value))
-        except (ValueError, model.quantity.exceptions.InvalidQtyError):
-            self.view.ref_qty_value_entry.make_invalid()
-            return
-        self.subject.ref_qty = ref_qty_value
-        self.subject.pref_unit = self.view.ref_qty_unit_dropdown.get()
-        self.view.ref_qty_value_entry.make_valid()
-        # Emit event to indicate ref qty was changed.
-        self.view.event_generate("<<Ref-Qty-Changed>>")
+        gui.validate_qty_entry(self.view.ref_qty_value_entry)
+        if self.is_defined and self.is_valid:
+            self.subject.ref_qty = self.ref_qty_value
+            self.subject.pref_unit = self.pref_unit
+            # Emit event to indicate ref qty was changed.
+            self.view.event_generate("<<Ref-Qty-Changed>>")
 
 
 class DensityEditorView(tk.Frame):
@@ -72,13 +96,69 @@ class DensityEditorView(tk.Frame):
         self.mass_unit_dropdown.grid(row=0, column=5)
 
 
-class DensityEditorController(gui.HasSubject):
+class DensityEditorController(gui.HasSubject, gui.SupportsValidity, gui.SupportsDefinition):
     def __init__(self, view: 'DensityEditorView', **kwargs):
         super().__init__(subject_type=model.quantity.HasSettableBulk, view=view, **kwargs)
+
+        # Configure the dropdowns;
+        self.view.vol_unit_dropdown.add_options(model.quantity.get_recognised_vol_units())
+        self.view.vol_unit_dropdown.set("ml")
+        self.view.mass_unit_dropdown.add_options(model.quantity.get_recognised_mass_units())
+        self.view.mass_unit_dropdown.set("g")
+
+        # Bind to view changes;
         self.view.vol_value_entry.bind("<<Value-Changed>>", self.process_view_changes)
         self.view.vol_unit_dropdown.bind("<<Value-Changed>>", self.process_view_changes)
         self.view.mass_value_entry.bind("<<Value-Changed>>", self.process_view_changes)
         self.view.mass_unit_dropdown.bind("<<Value-Changed>>", self.process_view_changes)
+
+    @property
+    def vol_value(self) -> Optional[float]:
+        """Gets the volume value."""
+        return gui.get_noneable_qty_entry(self.view.vol_value_entry)
+
+    @vol_value.setter
+    def vol_value(self, vol_value: Optional[float]) -> None:
+        """Sets the volume value."""
+        gui.set_noneable_qty_entry(self.view.vol_value_entry, round(vol_value, 3))
+
+    @property
+    def vol_unit(self) -> str:
+        """Returns the volume unit."""
+        return self.view.vol_unit_dropdown.get()
+
+    @vol_unit.setter
+    def vol_unit(self, vol_unit: str) -> None:
+        """Sets the volume unit."""
+        self.view.vol_unit_dropdown.set(vol_unit)
+
+    @property
+    def mass_value(self) -> Optional[float]:
+        """Gets the mass value."""
+        return gui.get_noneable_qty_entry(self.view.mass_value_entry)
+
+    @mass_value.setter
+    def mass_value(self, mass_value: Optional[float]) -> None:
+        """Sets the mass value."""
+        gui.set_noneable_qty_entry(self.view.mass_value_entry, round(mass_value, 3))
+
+    @property
+    def mass_unit(self) -> str:
+        """Returns the mass unit."""
+        return self.view.mass_unit_dropdown.get()
+
+    @mass_unit.setter
+    def mass_unit(self, mass_unit: str) -> None:
+        """Sets the mass unit."""
+        self.view.mass_unit_dropdown.set(mass_unit)
+
+    @property
+    def is_valid(self) -> bool:
+        return self.view.vol_value_entry.is_valid and self.view.mass_value_entry.is_valid
+
+    @property
+    def is_defined(self) -> bool:
+        return gui.entry_is_defined(self.view.vol_value_entry) and gui.entry_is_defined(self.view.mass_value_entry)
 
     @property
     def subject(self) -> 'model.quantity.HasSettableBulk':
@@ -89,50 +169,26 @@ class DensityEditorController(gui.HasSubject):
 
     @property
     def view(self) -> 'DensityEditorView':
-        view = super().view
-        assert (isinstance(view, DensityEditorView))
-        return view
+        return super().view
 
     def update_view(self) -> None:
-        self.view.vol_unit_dropdown.add_options(model.quantity.get_recognised_vol_units())
-        self.view.vol_unit_dropdown.set("ml")
-        self.view.mass_unit_dropdown.add_options(model.quantity.get_recognised_mass_units())
-        self.view.mass_unit_dropdown.set("g")
         if self.subject.density_is_defined:
-            self.view.vol_value_entry.set(str(100))
-            self.view.mass_value_entry.set(str(self.subject.g_per_ml * 100))
+            self.vol_value = 100
+            self.view.vol_unit_dropdown.set("ml")
+            self.mass_value = self.subject.g_per_ml * 100
+            self.view.mass_unit_dropdown.set("g")
 
     def process_view_changes(self, *args, **kwargs) -> None:
-        found_invalid = False # noqa
-        # Validate the entry widgets;
-        found_invalid, vol_value = gui.validate_nullable_entry(
-            entry=self.view.vol_value_entry,
-            validator=lambda val: model.quantity.validation.validate_quantity(float(val)),
-            exceptions=(ValueError, model.quantity.exceptions.InvalidQtyError),
-            found_invalid=found_invalid
-        )
-        found_invalid, mass_value = gui.validate_nullable_entry(
-            entry=self.view.mass_value_entry,
-            validator=lambda val: model.quantity.validation.validate_quantity(float(val)),
-            exceptions=(ValueError, model.quantity.exceptions.InvalidQtyError),
-            found_invalid=found_invalid
-        )
-
-        if not found_invalid:
-            # Handle special case were both are None;
-            if vol_value is None and mass_value is None:
-                self.subject.g_per_ml = None
-                return
-            # Handle special case where one is None and the other is valid;
-            elif vol_value is None or mass_value is None:
-                return
-
+        gui.validate_qty_entry(self.view.mass_value_entry)
+        gui.validate_qty_entry(self.view.vol_value_entry)
+        if self.is_defined and self.is_valid:
             self.subject.set_density(
-                mass_qty=mass_value,
-                mass_unit=self.view.mass_unit_dropdown.get(),
-                vol_qty=vol_value,
-                vol_unit=self.view.vol_unit_dropdown.get()
+                mass_qty=self.mass_value,
+                mass_unit=self.mass_unit,
+                vol_qty=self.vol_value,
+                vol_unit=self.vol_unit
             )
+            self.view.event_generate("<<Density-Changed>>")
 
 
 class PieceMassEditorView(tk.Frame):
@@ -149,6 +205,8 @@ class PieceMassEditorView(tk.Frame):
             invalid_bg=gui.configs.invalid_bg_colour
         )
         self.pieces_mass_units_dropdown = gui.SmartDropdownWidget(master=self, width=8)
+
+        # Place the elements;
         self._widget_label.grid(row=0, column=0)
         self.num_pieces_entry.grid(row=0, column=1)
         self._label.grid(row=0, column=2)
@@ -156,12 +214,56 @@ class PieceMassEditorView(tk.Frame):
         self.pieces_mass_units_dropdown.grid(row=0, column=4)
 
 
-class PieceMassEditorController(gui.HasSubject):
+class PieceMassEditorController(gui.HasSubject, gui.SupportsValidity, gui.SupportsDefinition):
     def __init__(self, view: 'PieceMassEditorView', **kwargs):
         super().__init__(subject_type=model.quantity.HasSettableBulk, view=view, **kwargs)
+
+        # Populate the units dropdown;
+        self.view.pieces_mass_units_dropdown.add_options(model.quantity.get_recognised_mass_units())
+        self.piece_mass_units = 'g'  # Init as grams.
+
         self.view.num_pieces_entry.bind("<<Value-Changed>>", self.process_view_changes)
         self.view.pieces_mass_value_entry.bind("<<Value-Changed>>", self.process_view_changes)
         self.view.pieces_mass_units_dropdown.bind("<<Value-Changed>>", self.process_view_changes)
+
+    @property
+    def num_pieces(self) -> Optional[float]:
+        """Gets the number of pieces."""
+        return gui.get_noneable_qty_entry(self.view.num_pieces_entry)
+
+    @num_pieces.setter
+    def num_pieces(self, num_pieces: Optional[float]) -> None:
+        """Sets the number of pieces."""
+        gui.set_noneable_qty_entry(self.view.num_pieces_entry, num_pieces)
+
+    @property
+    def pieces_mass(self) -> Optional[float]:
+        """Gets the mass of the pieces."""
+        return gui.get_noneable_qty_entry(self.view.pieces_mass_value_entry)
+
+    @pieces_mass.setter
+    def pieces_mass(self, pieces_mass: Optional[float]) -> None:
+        """Sets the mass of the pieces."""
+        gui.set_noneable_qty_entry(self.view.pieces_mass_value_entry, pieces_mass)
+
+    @property
+    def piece_mass_units(self) -> str:
+        """Gets the piece mass units."""
+        return self.view.pieces_mass_units_dropdown.get()
+
+    @piece_mass_units.setter
+    def piece_mass_units(self, units: str) -> None:
+        """Sets the piece mass units."""
+        self.view.pieces_mass_units_dropdown.set(units)
+
+    @property
+    def is_valid(self) -> bool:
+        return self.view.pieces_mass_value_entry.is_valid and self.view.num_pieces_entry.is_valid
+
+    @property
+    def is_defined(self) -> bool:
+        return gui.entry_is_defined(self.view.pieces_mass_value_entry) and gui.entry_is_defined(
+            self.view.num_pieces_entry)
 
     @property
     def subject(self) -> 'model.quantity.HasSettableBulk':
@@ -172,48 +274,28 @@ class PieceMassEditorController(gui.HasSubject):
 
     @property
     def view(self) -> 'PieceMassEditorView':
-        view = super().view
-        assert (isinstance(view, PieceMassEditorView))
-        return view
+        return super().view
 
     def update_view(self) -> None:
-        # Configure the number of peices;
-        self.view.num_pieces_entry.set(str(1))
-        # Configure piece mass entry;
         if self.subject.piece_mass_defined:
-            self.view.pieces_mass_value_entry.set(str(self.subject.piece_mass_in_pref_units))
-        # Configure the piece mass unit dropdown.
-        self.view.pieces_mass_units_dropdown.add_options(model.quantity.get_recognised_mass_units())
-        if self.subject.pref_unit in model.quantity.get_recognised_mass_units():
-            self.view.pieces_mass_units_dropdown.set(self.subject.pref_unit)
-        else:
-            self.view.pieces_mass_units_dropdown.set('g')
+            self.num_pieces = 1
+            if model.quantity.units_are_masses(self.subject.pref_unit):
+                self.pieces_mass = self.subject.piece_mass_in_pref_units
+                self.piece_mass_units = self.subject.pref_unit
+            else:
+                self.pieces_mass = self.subject.piece_mass_g
+                self.piece_mass_units = 'g'
 
     def process_view_changes(self, *args, **kwargs) -> None:
-        found_invalid = False  # noqa
-        found_invalid, num_pieces_value = gui.validate_nullable_entry(
-            entry=self.view.num_pieces_entry,
-            validator=lambda val: model.quantity.validation.validate_quantity(float(val)),
-            exceptions=(ValueError, model.quantity.exceptions.InvalidQtyError),
-            found_invalid=found_invalid
-        )
-        found_invalid, pieces_mass_value = gui.validate_nullable_entry(
-            entry=self.view.pieces_mass_value_entry,
-            validator=lambda val: model.quantity.validation.validate_quantity(float(val)),
-            exceptions=(ValueError, model.quantity.exceptions.InvalidQtyError),
-            found_invalid=found_invalid
-        )
-        if not found_invalid:
-            if num_pieces_value is None and pieces_mass_value is None:
-                self.subject.piece_mass_g = None
-                return
-            elif num_pieces_value is None or pieces_mass_value is None:
-                return
+        gui.validate_qty_entry(self.view.pieces_mass_value_entry)
+        gui.validate_qty_entry(self.view.num_pieces_entry)
+        if self.is_defined and self.is_valid:
             self.subject.set_piece_mass(
-                num_pieces=num_pieces_value,
-                mass_qty=pieces_mass_value,
-                mass_unit=self.view.pieces_mass_units_dropdown.get()
+                num_pieces=self.num_pieces,
+                mass_qty=self.pieces_mass,
+                mass_unit=self.piece_mass_units
             )
+            self.view.event_generate("<<Piece-Mass-Changed>>")
 
 
 class BulkEditorView(tk.LabelFrame):
@@ -232,18 +314,18 @@ class BulkEditorController(gui.HasSubject):
         super().__init__(view=view, subject_type=model.quantity.HasSettableBulk, **kwargs)
 
         # Child controllers;
-        self.ref_qty_editor_controller = RefQtyEditorController(view=view.ref_quantity_editor, **kwargs)
-        self.density_editor_controller = DensityEditorController(view=view.density_editor, **kwargs)
-        self.piece_mass_editor_controller = PieceMassEditorController(view=view.piece_mass_editor, **kwargs)
+        self.ref_qty_editor = RefQtyEditorController(view=view.ref_quantity_editor, **kwargs)
+        self.density_editor = DensityEditorController(view=view.density_editor, **kwargs)
+        self.piece_mass_editor = PieceMassEditorController(view=view.piece_mass_editor, **kwargs)
 
     @property
     def subject(self) -> 'model.quantity.HasSettableBulk':
         return super().subject
 
     def set_subject(self, subject: 'model.quantity.HasSettableBulk') -> None:
-        self.ref_qty_editor_controller.set_subject(subject)
-        self.density_editor_controller.set_subject(subject)
-        self.piece_mass_editor_controller.set_subject(subject)
+        self.ref_qty_editor.set_subject(subject)
+        self.density_editor.set_subject(subject)
+        self.piece_mass_editor.set_subject(subject)
         super().set_subject(subject)
 
     @property
@@ -253,7 +335,15 @@ class BulkEditorController(gui.HasSubject):
         return view
 
     def update_view(self) -> None:
-        pass
+        # Catch empty subject;
+        if self.subject is None:
+            return
+
+        self.ref_qty_editor.update_view()
+        self.density_editor.update_view()
+        self.piece_mass_editor.update_view()
 
     def process_view_changes(self, *args, **kwargs) -> None:
-        pass
+        self.ref_qty_editor.process_view_changes()
+        self.density_editor.process_view_changes()
+        self.piece_mass_editor.process_view_changes()

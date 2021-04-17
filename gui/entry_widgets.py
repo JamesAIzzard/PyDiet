@@ -3,6 +3,7 @@ from typing import Optional, Callable, Tuple, Type
 
 import gui
 
+
 class SmartEntryWidget(tk.Entry):
     def __init__(self, width: int = 10, valid_bg: str = "#FFFFFF",
                  invalid_bg: str = "#D7806D", **kwargs):
@@ -18,7 +19,8 @@ class SmartEntryWidget(tk.Entry):
 
     def set(self, value: str) -> None:
         """Sets the widget's value."""
-        self._value.set(value)  # Using the value var triggers the change event.
+        if not value == self._value.get():
+            self._value.set(value)  # Using the value var triggers the change event.
         # self.event_generate("<<Value-Changed>>")
 
     def clear(self) -> None:

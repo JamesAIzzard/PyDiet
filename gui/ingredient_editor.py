@@ -150,6 +150,9 @@ class IngredientEditorController(gui.HasSubject):
         self.editing_flags: bool = False
 
         # Bind handlers;
+        self.bulk_editor.ref_qty_editor.view.bind("<<Ref-Qty-Changed>>", self._on_bulk_properties_changed)
+        self.bulk_editor.density_editor.view.bind("<<Density-Changed>>", self._on_bulk_properties_changed)
+        self.bulk_editor.piece_mass_editor.view.bind("<<Piece-Mass-Changed>>", self._on_bulk_properties_changed)
         self.view.bind("<<save-clicked>>", self._on_save_clicked)
 
         # Stick a message in the nutrient flag status;
@@ -184,7 +187,7 @@ class IngredientEditorController(gui.HasSubject):
         """Handler for ingredient save."""
 
         def show_save_message(message: str) -> None:
-            messagebox.showinfo(title="Save Ingredient", message=message)
+            messagebox.showinfo(title="PyDiet", message=message)
 
         # Work through the fields, checking they are valid.
         # First check the name is populated and valid;
@@ -199,7 +202,21 @@ class IngredientEditorController(gui.HasSubject):
         if self.cost_editor.is_invalid:
             show_save_message("Cost field must be valid.")
 
-        print("save pressed")
+        # Now check ref qty;
+        if self.bulk_editor.ref_qty_editor.is_undefined:
+            show_save_message("Reference quantity field must be completed.")
+        if self.bulk_editor.ref_qty_editor.is_invalid:
+            show_save_message("Reference quantity field must be valid.")
+
+        # Now check density;
+        if self.bulk_editor.density_editor.is_invalid:
+            show_save_message("Density field must be valid or empty.")
+
+        # Now check piece mass;
+        if self.bulk_editor.piece_mass_editor.is_invalid:
+            show_save_message("Piece mass field must be valid or empty.")
+
+        show_save_message(f"{self.subject.name} saved!")
 
     def _on_nutrient_values_changed(self,
                                     nutrient_name: str,
@@ -276,3 +293,15 @@ class IngredientEditorController(gui.HasSubject):
 
         # Reset the conflict message;
         self.nutrient_flag_status.show_ok()
+
+    def _on_bulk_properties_changed(self, event) -> None:
+        """Handler for bulk properties changing."""
+
+        # Catch empty subject;
+        if self.subject is None:
+            return
+
+        self.cost_editor.update_view()
+        self.bulk_editor.update_view()
+        self.basic_nutrient_ratio_editor.update_view()
+        self.extended_nutrient_ratio_editor.update_view()

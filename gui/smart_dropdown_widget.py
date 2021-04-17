@@ -2,25 +2,6 @@ import tkinter as tk
 from tkinter import ttk
 from typing import List, Optional
 
-import model
-
-
-def configure_qty_units(dropdown: 'SmartDropdownWidget', subject: 'model.quantity.HasBulk') -> None:
-    """Configures the dropdown widget to match the subject's configured units."""
-    # Save the old value;
-    prev_value = dropdown.get()
-    # Clear it all out;
-    dropdown.remove_options()
-    # Repopulate with correct options;
-    dropdown.add_options(model.quantity.get_recognised_mass_units())
-    if subject.density_is_defined:
-        dropdown.add_options(model.quantity.get_recognised_vol_units())
-    if subject.piece_mass_defined:
-        dropdown.add_options(model.quantity.get_recognised_pc_units())
-    # Reinstate the old value if it is still available;
-    if prev_value in dropdown['values']:
-        dropdown.set(prev_value)
-
 
 class SmartDropdownWidget(ttk.Combobox):
     def __init__(self, **kwargs):
@@ -49,14 +30,16 @@ class SmartDropdownWidget(ttk.Combobox):
 
     def refresh_options(self, options: List[str]) -> None:
         """Removes all existing options and replaces them with the new list."""
-        self.remove_options()
-        self.add_options(options)
+        if not options == self['values']:
+            self.remove_options()
+            self.add_options(options)
 
     def set(self, value: str) -> None:
         """Sets the value of the dropdown."""
-        if value not in self['values']:
-            raise ValueError(f'{value} is not an option for this dropdown box.')
-        self._value.set(value=value)
+        if not value == self._value.get():
+            if value not in self['values']:
+                raise ValueError(f'{value} is not an option for this dropdown box.')
+            self._value.set(value=value)
 
     def get(self) -> str:
         """Gets the current value of the dropdown."""

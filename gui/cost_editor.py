@@ -63,11 +63,7 @@ class CostEditorController(gui.HasSubject, gui.SupportsDefinition, gui.SupportsV
 
     @property
     def is_defined(self) -> bool:
-        if self.view.cost_entry.get().replace(" ", "") == "":
-            return False
-        if self.view.qty_entry.get().replace(" ", "") == "":
-            return False
-        return True
+        return gui.entry_is_defined(self.view.cost_entry) and gui.entry_is_defined(self.view.qty_entry)
 
     @property
     def is_valid(self) -> bool:
@@ -85,6 +81,10 @@ class CostEditorController(gui.HasSubject, gui.SupportsDefinition, gui.SupportsV
         super().set_subject(subject)
 
     def update_view(self) -> None:
+        # Catch empty subject;
+        if self.subject is None:
+            return
+
         if self.subject.cost_per_g_defined:
             self.cost_value = round(self.subject.cost_of_ref_qty, 4)
         self.cost_qty_value = round(self.subject.ref_qty, 2)
