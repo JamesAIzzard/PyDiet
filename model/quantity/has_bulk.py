@@ -54,7 +54,9 @@ class HasBulk(abc.ABC):
         return quantity.convert_qty_unit(
             qty=self.ref_qty,
             start_unit=self.pref_unit,
-            end_unit='g'
+            end_unit='g',
+            g_per_ml=self.g_per_ml,
+            piece_mass_g=self.piece_mass_g
         )
 
     @property
@@ -161,16 +163,19 @@ class HasSettableBulk(HasBulk, abc.ABC):
         else:
             self._g_per_ml = quantity.validation.validate_quantity(g_per_ml)
 
-    def set_density(self, mass_qty: float, mass_unit: str, vol_qty: float, vol_unit: str) -> None:
+    def set_density(self, mass_qty: Optional[float], mass_unit: str, vol_qty: Optional[float], vol_unit: str) -> None:
         """Sets the substance's density."""
-        self.g_per_ml = quantity.convert_density_unit(
-            qty=mass_qty / vol_qty,
-            start_mass_unit=mass_unit,
-            start_vol_unit=vol_unit,
-            end_mass_unit='g',
-            end_vol_unit='ml',
-            piece_mass_g=self.piece_mass_g
-        )
+        if mass_qty is None and vol_qty is None:
+            self.g_per_ml = None
+        else:
+            self.g_per_ml = quantity.convert_density_unit(
+                qty=mass_qty / vol_qty,
+                start_mass_unit=mass_unit,
+                start_vol_unit=vol_unit,
+                end_mass_unit='g',
+                end_vol_unit='ml',
+                piece_mass_g=self.piece_mass_g
+            )
 
     @HasBulk.piece_mass_g.setter
     def piece_mass_g(self, piece_mass_g: Optional[float]) -> None:

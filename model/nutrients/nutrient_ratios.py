@@ -176,7 +176,8 @@ class HasNutrientRatios(quantity.HasBulk, abc.ABC):
                         child_rolling_total = child_rolling_total + child_nutrient_ratio.g_per_subject_g
                 if child_rolling_total > parent_nutrient_ratio.g_per_subject_g * 1.01:  # 0.01 to avoid rounding issues.
                     raise nutrients.exceptions.ChildNutrientQtyExceedsParentNutrientQtyError(
-                        'The qty of child nutrients of {} exceed its own mass'.format(parent_nutrient_name))
+                        nutrient_group_name=parent_nutrient_name
+                    )
 
 
 class HasSettableNutrientRatios(HasNutrientRatios, abc.ABC):
@@ -255,7 +256,9 @@ class HasSettableNutrientRatios(HasNutrientRatios, abc.ABC):
 
             # Check the nutrient qty doesn't exceed the subject qty;
             if nutrient_qty_g > subject_qty_g * 1.001:  # To prevent issues with rounding errors;
-                raise nutrients.exceptions.NutrientQtyExceedsSubjectQtyError
+                raise nutrients.exceptions.NutrientQtyExceedsSubjectQtyError(
+                    nutrient_name=nutrient_name
+                )
 
             # Calculate the new nutrient ratio;
             new_g_per_subject_g = nutrient_qty_g / subject_qty_g

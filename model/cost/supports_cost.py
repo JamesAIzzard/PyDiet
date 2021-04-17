@@ -1,6 +1,7 @@
 import abc
 from typing import Optional
 
+import model.quantity
 from model import quantity, cost
 
 
@@ -26,11 +27,13 @@ class SupportsCost(quantity.HasBulk, abc.ABC):
         """Returns the cost of one of the instance's preferred units."""
         if not self.cost_per_g_defined:
             raise cost.exceptions.CostUndefinedError
-        return quantity.convert_qty_unit(qty=self.cost_per_g,
-                                         start_unit='g',
-                                         end_unit=self.pref_unit,
-                                         g_per_ml=self.g_per_ml,
-                                         piece_mass_g=self.piece_mass_g)
+        return model.quantity.convert_qty_unit(
+            qty=self.cost_per_g,
+            start_unit=self.pref_unit,
+            end_unit='g',
+            g_per_ml=self.g_per_ml,
+            piece_mass_g=self.piece_mass_g
+        )
 
     @property
     def cost_of_ref_qty(self) -> float:

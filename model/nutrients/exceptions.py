@@ -20,6 +20,12 @@ class NutrientRatioGroupError(PyDietException):
 class NutrientQtyExceedsSubjectQtyError(PyDietException):
     """Indicates the nutrient quantity exceeds the ingredient quantity."""
 
+    def __init__(self, nutrient_name: str):
+        self.nutrient_name = nutrient_name
+
 
 class ChildNutrientQtyExceedsParentNutrientQtyError(NutrientRatioGroupError):
     """Indicates the child nutrient quantity exceeds the parent nutrient quantity."""
+
+    def __init__(self, nutrient_group_name: str):
+        self.nutrient_group_name = nutrient_group_name

@@ -37,7 +37,7 @@ class NutrientRatioEditorView(tk.Frame):
         return self._nutrient_name
 
 
-class NutrientRatioEditorController(gui.BaseController):
+class NutrientRatioEditorController(gui.BaseController, gui.SupportsValidity, gui.SupportsDefinition):
     """Controller for NutrientRatioEditorView.
     - Implements basic validation.
     - Emits Value-Changed event when all values appear to be valid.
@@ -54,8 +54,11 @@ class NutrientRatioEditorController(gui.BaseController):
         # Stash the callback;
         self._on_values_change_callback = on_values_change_callback
 
-        # Populate the nutrient mass dropdown (these don't change)
+        # Initialise the dropdowns;
         self.view.nutrient_mass_unit_dropdown.add_options(model.quantity.get_recognised_mass_units())
+        self.view.subject_qty_unit_dropdown.add_options(model.quantity.get_recognised_mass_units())
+        self.nutrient_mass_unit = 'g'
+        self.subject_qty_unit = 'g'
 
         # Bind change handler;
         self.view.nutrient_mass_value_entry.bind("<<Value-Changed>>", self.process_view_changes)
@@ -112,6 +115,15 @@ class NutrientRatioEditorController(gui.BaseController):
         self.view.subject_qty_unit_dropdown.refresh_options(units)
 
     @property
+    def is_valid(self) -> bool:
+        return self.view.subject_qty_value_entry.is_valid and self.view.nutrient_mass_value_entry.is_valid
+
+    @property
+    def is_defined(self) -> bool:
+        return gui.entry_is_defined(self.view.nutrient_mass_value_entry) and gui.entry_is_defined(
+            self.view.subject_qty_value_entry)
+
+    @property
     def view(self) -> 'NutrientRatioEditorView':
         return super().view
 
@@ -122,6 +134,10 @@ class NutrientRatioEditorController(gui.BaseController):
             I have to submit the whole subject, because I need to interrogate it for its
             reference quantity data.
         """
+        # Catch None subject;
+        if subject is None:
+            return
+
         nutrient_ratio = subject.get_nutrient_ratio(self.nutrient_name)
         self.nutrient_mass_value = subject.get_nutrient_mass_in_pref_unit_per_subject_ref_qty(self.nutrient_name)
         self.nutrient_mass_unit = nutrient_ratio.pref_unit
@@ -138,7 +154,7 @@ class NutrientRatioEditorController(gui.BaseController):
         gui.validate_qty_entry(self.view.subject_qty_value_entry)
 
         # If all looks OK, try and fire the callback;
-        if self.view.nutrient_mass_value_entry.is_valid and self.view.subject_qty_value_entry.is_valid:
+        if self.is_valid:
             self._on_values_change_callback(
                 nutrient_name=self.nutrient_name,
                 nutrient_qty=self.nutrient_mass_value,
@@ -365,6 +381,11 @@ class DynamicNutrientRatiosEditorController(BaseNutrientRatiosEditorController):
 
     def add_nutrient_ratio_editor(self, nutrient_name: str) -> None:
         """Adds a nutrient ratio editor."""
+        # Catch trying to add a basic nutrient;
+        nutrient_name = model.nutrients.validation.validate_nutrient_name(nutrient_name)
+        if nutrient_name in model.nutrients.mandatory_nutrient_names:
+            return
+
         # Add as normal;
         super().add_nutrient_ratio_editor(nutrient_name)
 

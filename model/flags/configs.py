@@ -13,9 +13,21 @@ flag_data = {
         },
         "direct_alias": True
     },
-    "caffiene_free": {"nutrient_relations": {}, "direct_alias": False},
-    "dairy_free": {"nutrient_relations": {}, "direct_alias": False},
-    "gluten_free": {"nutrient_relations": {}, "direct_alias": False},
+    "caffeine_free": {
+        "nutrient_relations": {
+            "caffeine": FlagImpliesNutrient.zero
+        },
+        "direct_alias": True},
+    "lactose_free": {
+        "nutrient_relations": {
+            "lactose": FlagImpliesNutrient.zero
+        },
+        "direct_alias": True},
+    "gluten_free": {
+        "nutrient_relations": {
+            "gluten": FlagImpliesNutrient.zero
+        },
+        "direct_alias": True},
     "nut_free": {"nutrient_relations": {}, "direct_alias": False},
     "vegan": {"nutrient_relations": {}, "direct_alias": False},
     "vegetarian": {"nutrient_relations": {}, "direct_alias": False}

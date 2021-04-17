@@ -82,6 +82,14 @@ class FlagEditorController(gui.HasSubject):
             values[flag_name] = self.view.get_flag_value(flag_name)
         return values
 
+    def get_flag_value(self, flag_name: str) -> Optional[bool]:
+        """Gets the value of a flag by name."""
+        return self.view.get_flag_value(flag_name)
+
+    def set_flag_value(self, flag_name: str, flag_value=Optional[bool]):
+        """Sets the value of a flag by name."""
+        self.view.set_flag_value(flag_name, flag_value)
+
     @property
     def subject(self) -> 'model.flags.HasSettableFlags':
         return super().subject
@@ -95,7 +103,7 @@ class FlagEditorController(gui.HasSubject):
 
     def update_view(self) -> None:
         for flag_name in self.view.flags.keys():
-            self.view.set_flag_value(flag_name, self.subject.get_flag_value(flag_name))
+            self.set_flag_value(flag_name, self.subject.get_flag_value(flag_name))
 
     def process_view_changes(self, flag_name: str, *args, **kwargs) -> None:
         pass

@@ -1,7 +1,4 @@
 import tkinter as tk
-from typing import Optional, Callable, Tuple, Type
-
-import gui
 
 
 class SmartEntryWidget(tk.Entry):
@@ -41,23 +38,3 @@ class SmartEntryWidget(tk.Entry):
         """Sets the textbox to its valid state."""
         self.configure(bg=self._valid_bg)
         self._valid = True
-
-
-def validate_nullable_entry(
-        entry: 'gui.SmartEntryWidget',
-        validator: Callable,
-        exceptions: Tuple[Type['Exception'], ...],
-        found_invalid: bool
-) -> Tuple[bool, Optional[float]]:
-    value = entry.get()
-    if value == "":
-        value = None
-        entry.make_valid()
-    else:
-        try:
-            value = validator(value)
-            entry.make_valid()
-        except exceptions:
-            entry.make_invalid()
-            found_invalid = True
-    return found_invalid, value

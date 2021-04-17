@@ -86,8 +86,11 @@ class CostEditorController(gui.HasSubject, gui.SupportsDefinition, gui.SupportsV
             return
 
         if self.subject.cost_per_g_defined:
-            self.cost_value = round(self.subject.cost_of_ref_qty, 4)
-        self.cost_qty_value = round(self.subject.ref_qty, 2)
+            self.cost_value = self.subject.cost_of_ref_qty
+        else:
+            self.cost_value = None
+
+        self.cost_qty_value = self.subject.ref_qty
         gui.configure_qty_units(self.view.qty_units_dropdown, self.subject)
         self.cost_qty_unit = self.subject.pref_unit
 

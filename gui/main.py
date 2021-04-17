@@ -12,7 +12,7 @@ def set_noneable_qty_entry(entry_widget: 'gui.SmartEntryWidget', qty_value: Opti
     if qty_value is None:
         qty_value = ""
     else:
-        qty_value = str(model.quantity.validation.validate_quantity(qty_value))
+        qty_value = str(model.quantity.validation.validate_quantity(round(qty_value, 4)))
     entry_widget.set(qty_value)
 
 
@@ -40,6 +40,8 @@ def validate_qty_entry(entry_widget: 'gui.SmartEntryWidget') -> None:
             entry_widget.make_valid()
         except (ValueError, model.quantity.exceptions.InvalidQtyError):
             entry_widget.make_invalid()
+    if value.replace(" ", "") == "":
+        entry_widget.make_valid()
 
 
 def configure_qty_units(dropdown: 'gui.SmartDropdownWidget', subject: 'model.quantity.HasBulk') -> None:

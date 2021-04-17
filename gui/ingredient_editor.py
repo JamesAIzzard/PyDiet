@@ -73,6 +73,13 @@ class IngredientNameEntryController(gui.HasSubject, gui.SupportsValidity, gui.Su
         else:
             return self.view.get()
 
+    @name.setter
+    def name(self, name: Optional[str]) -> None:
+        """Sets the ingredient name."""
+        if name is None:
+            name = ""
+        self.view.set(name)
+
     @property
     def is_valid(self) -> bool:
         return self.view.is_valid
@@ -98,7 +105,9 @@ class IngredientNameEntryController(gui.HasSubject, gui.SupportsValidity, gui.Su
         if self.subject is None:
             return
         if self.subject.name_is_defined:
-            self.view.set(self.subject.name)
+            self.name = self.subject.name
+        else:
+            self.name = None
 
     def process_view_changes(self, _) -> None:
         value = self.view.get()
@@ -193,28 +202,51 @@ class IngredientEditorController(gui.HasSubject):
         # First check the name is populated and valid;
         if self.name_entry.is_undefined:
             show_save_message("Ingredient name is required.")
+            return
         if self.name_entry.is_invalid:
             show_save_message("Ingredient name must be unique.")
+            return
 
         # Now check through cost;
         if self.cost_editor.is_undefined:
             show_save_message("Cost field must be completed.")
+            return
         if self.cost_editor.is_invalid:
             show_save_message("Cost field must be valid.")
+            return
 
         # Now check ref qty;
         if self.bulk_editor.ref_qty_editor.is_undefined:
             show_save_message("Reference quantity field must be completed.")
+            return
         if self.bulk_editor.ref_qty_editor.is_invalid:
             show_save_message("Reference quantity field must be valid.")
+            return
 
         # Now check density;
         if self.bulk_editor.density_editor.is_invalid:
             show_save_message("Density field must be valid or empty.")
+            return
 
         # Now check piece mass;
         if self.bulk_editor.piece_mass_editor.is_invalid:
             show_save_message("Piece mass field must be valid or empty.")
+            return
+
+        for nutrient_name in self.basic_nutrient_ratio_editor.nutrient_names:
+            nutrient_editor = self.basic_nutrient_ratio_editor.get_nutrient_ratio_editor(nutrient_name)
+            if nutrient_editor.is_invalid:
+                show_save_message(f"{nutrient_name.replace('_', ' ')} must be valid before saving.")
+                return
+            if nutrient_editor.is_undefined:
+                show_save_message(f"{nutrient_name.replace('_', ' ')} must be defined before saving.")
+                return
+
+        for nutrient_name in self.extended_nutrient_ratio_editor.nutrient_names:
+            nutrient_editor = self.extended_nutrient_ratio_editor.get_nutrient_ratio_editor(nutrient_name)
+            if nutrient_editor.is_invalid:
+                show_save_message(f"{nutrient_name.replace('_', ' ')} cannot be invalid.")
+                return
 
         show_save_message(f"{self.subject.name} saved!")
 
@@ -242,9 +274,16 @@ class IngredientEditorController(gui.HasSubject):
                 subject_qty=subject_qty,
                 subject_qty_unit=subject_qty_unit
             )
-        except model.nutrients.exceptions.ChildNutrientQtyExceedsParentNutrientQtyError:
+        except model.nutrients.exceptions.ChildNutrientQtyExceedsParentNutrientQtyError as err:
             self.nutrient_flag_status.show_conflict(
-                f"{nutrient_name.replace('_', ' ')} qty exceeds its parent group."
+                f"The nutrients in the {err.nutrient_group_name} group exceed its mass."
+            )
+            # Reset the update state;
+            self.editing_nutrients = False
+            return
+        except model.nutrients.exceptions.NutrientQtyExceedsSubjectQtyError as err:
+            self.nutrient_flag_status.show_conflict(
+                f"The mass of {err.nutrient_name} exceeds its stated ingredient mass."
             )
             # Reset the update state;
             self.editing_nutrients = False
@@ -277,7 +316,7 @@ class IngredientEditorController(gui.HasSubject):
         except (model.flags.exceptions.NonZeroNutrientRatioConflictError,
                 model.flags.exceptions.UndefineMultipleNutrientRatiosError) as e:
             self.nutrient_flag_status.show_conflict(
-                f"'{flag_name.replace('_', ' ')}' flag conflicts with {e.conflicting_nutrient_ratios[0].nutrient.primary_name} nutrient ratio"
+                f"'{flag_name.replace('_', ' ')}' flag conflicts with {e.conflicting_nutrient_ratios[0].nutrient.primary_name} nutrient ratio" # noqa
             )
             # Reset the circular dependency flag;
             self.editing_flags = False

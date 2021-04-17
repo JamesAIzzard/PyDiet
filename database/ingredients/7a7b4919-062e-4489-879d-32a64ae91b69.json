@@ -7,10 +7,6 @@
   },
   "cost_per_g": 0.0072,
   "flags": {
-    "alcohol_free": true,
-    "caffiene_free": true,
-    "dairy_free": false,
-    "gluten_free": true,
     "nut_free": true,
     "vegan": false,
     "vegetarian": true
@@ -30,7 +26,7 @@
       "nutrient_pref_units": "g"
     },
     "alcohol": {
-      "nutrient_g_per_subject_g": 0.0,
+      "nutrient_g_per_subject_g": 0,
       "nutrient_pref_units": "g"
     },
     "amylopectin": {
@@ -75,6 +71,10 @@
     },
     "butyric_acid": {
       "nutrient_g_per_subject_g": null,
+      "nutrient_pref_units": "g"
+    },
+    "caffeine": {
+      "nutrient_g_per_subject_g": 0,
       "nutrient_pref_units": "g"
     },
     "calcium": {
@@ -187,6 +187,10 @@
     },
     "glutamine": {
       "nutrient_g_per_subject_g": null,
+      "nutrient_pref_units": "g"
+    },
+    "gluten": {
+      "nutrient_g_per_subject_g": 0,
       "nutrient_pref_units": "g"
     },
     "glycine": {

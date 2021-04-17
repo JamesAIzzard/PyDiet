@@ -64,6 +64,10 @@ class RefQtyEditorController(gui.HasSubject, gui.SupportsValidity, gui.SupportsD
         return view
 
     def update_view(self) -> None:
+        # Catch empty subject;
+        if self.subject is None:
+            return
+
         self.ref_qty_value = self.subject.ref_qty
         gui.configure_qty_units(self.view.ref_qty_unit_dropdown, self.subject)
         self.pref_unit = self.subject.pref_unit
@@ -88,12 +92,16 @@ class DensityEditorView(tk.Frame):
         self._weighs_label = tk.Label(master=self, text=" weighs ")
         self.mass_value_entry = gui.SmartEntryWidget(master=self, width=10, invalid_bg=gui.configs.invalid_bg_colour)
         self.mass_unit_dropdown = gui.SmartDropdownWidget(master=self, width=8)
+        self.set_button = tk.Button(master=self, text="Set")
+        self.clear_button = tk.Button(master=self, text="Clear")
         self._widget_label.grid(row=0, column=0)
         self.vol_value_entry.grid(row=0, column=1)
         self.vol_unit_dropdown.grid(row=0, column=2)
         self._weighs_label.grid(row=0, column=3)
         self.mass_value_entry.grid(row=0, column=4)
         self.mass_unit_dropdown.grid(row=0, column=5)
+        self.set_button.grid(row=0, column=6)
+        self.clear_button.grid(row=0, column=7)
 
 
 class DensityEditorController(gui.HasSubject, gui.SupportsValidity, gui.SupportsDefinition):
@@ -107,10 +115,8 @@ class DensityEditorController(gui.HasSubject, gui.SupportsValidity, gui.Supports
         self.view.mass_unit_dropdown.set("g")
 
         # Bind to view changes;
-        self.view.vol_value_entry.bind("<<Value-Changed>>", self.process_view_changes)
-        self.view.vol_unit_dropdown.bind("<<Value-Changed>>", self.process_view_changes)
-        self.view.mass_value_entry.bind("<<Value-Changed>>", self.process_view_changes)
-        self.view.mass_unit_dropdown.bind("<<Value-Changed>>", self.process_view_changes)
+        self.view.set_button.bind("<Button-1>", self.process_view_changes)
+        self.view.clear_button.bind("<Button-1>", self._on_clear_view)
 
     @property
     def vol_value(self) -> Optional[float]:
@@ -120,7 +126,7 @@ class DensityEditorController(gui.HasSubject, gui.SupportsValidity, gui.Supports
     @vol_value.setter
     def vol_value(self, vol_value: Optional[float]) -> None:
         """Sets the volume value."""
-        gui.set_noneable_qty_entry(self.view.vol_value_entry, round(vol_value, 3))
+        gui.set_noneable_qty_entry(self.view.vol_value_entry, vol_value)
 
     @property
     def vol_unit(self) -> str:
@@ -140,7 +146,7 @@ class DensityEditorController(gui.HasSubject, gui.SupportsValidity, gui.Supports
     @mass_value.setter
     def mass_value(self, mass_value: Optional[float]) -> None:
         """Sets the mass value."""
-        gui.set_noneable_qty_entry(self.view.mass_value_entry, round(mass_value, 3))
+        gui.set_noneable_qty_entry(self.view.mass_value_entry, mass_value)
 
     @property
     def mass_unit(self) -> str:
@@ -178,10 +184,16 @@ class DensityEditorController(gui.HasSubject, gui.SupportsValidity, gui.Supports
             self.mass_value = self.subject.g_per_ml * 100
             self.view.mass_unit_dropdown.set("g")
 
+    def _on_clear_view(self, _) -> None:
+        """Handler for press on the clear button."""
+        self.vol_value = None
+        self.mass_value = None
+        self.process_view_changes()
+
     def process_view_changes(self, *args, **kwargs) -> None:
         gui.validate_qty_entry(self.view.mass_value_entry)
         gui.validate_qty_entry(self.view.vol_value_entry)
-        if self.is_defined and self.is_valid:
+        if self.is_valid:
             self.subject.set_density(
                 mass_qty=self.mass_value,
                 mass_unit=self.mass_unit,
