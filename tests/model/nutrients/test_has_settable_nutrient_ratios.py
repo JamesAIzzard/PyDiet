@@ -1,5 +1,6 @@
 from unittest import TestCase
 
+import model
 from model import nutrients, quantity, ingredients
 
 
@@ -91,5 +92,15 @@ class TestSetNutrientRatio(TestCase):
                 nutrient_qty=0.4,
                 nutrient_qty_unit='g',
                 subject_qty=1,
+                subject_qty_unit='g'
+            )
+
+    def test_prevents_zero_subject_mass(self):
+        with self.assertRaises(model.quantity.exceptions.ZeroQtyError):
+            self.ingredient.set_nutrient_ratio(
+                nutrient_name="carbohydrate",
+                nutrient_qty=0,
+                nutrient_qty_unit='g',
+                subject_qty=0,
                 subject_qty_unit='g'
             )

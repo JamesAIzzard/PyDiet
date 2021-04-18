@@ -225,6 +225,10 @@ class HasSettableNutrientRatios(HasNutrientRatios, abc.ABC):
         # Take a backup in case we need to revert;
         backup_g_per_subject_g = nutrient_ratio.g_per_subject_g
 
+        # Catch zero subject quantity;
+        if subject_qty == 0:
+            raise model.quantity.exceptions.ZeroQtyError()
+
         # If we are setting to None:
         if nutrient_qty is None:
             nutrient_ratio.g_per_subject_g = None

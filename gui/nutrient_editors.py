@@ -116,7 +116,8 @@ class NutrientRatioEditorController(gui.BaseController, gui.SupportsValidity, gu
 
     @property
     def is_valid(self) -> bool:
-        return self.view.subject_qty_value_entry.is_valid and self.view.nutrient_mass_value_entry.is_valid
+        return self.view.subject_qty_value_entry.is_valid and self.view.nutrient_mass_value_entry.is_valid and \
+               self.subject_qty_value is not None
 
     @property
     def is_defined(self) -> bool:

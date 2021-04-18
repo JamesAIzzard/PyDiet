@@ -29,8 +29,16 @@ class DensityNotConfiguredError(UnitNotConfiguredError):
     """The density data is not fully defined."""
 
 
+class DensityInUseError(PyDietException):
+    """Indicating the action cannot occur because the density is in use."""
+
+
 class PcMassNotConfiguredError(UnitNotConfiguredError):
     """The piece mass data is not fully defined."""
+
+
+class PcMassInUseError(PyDietException):
+    """Indicating the action cannot occur because the peice mass is in use."""
 
 
 class InvalidQtyError(PyDietException, ValueError):

@@ -10,12 +10,13 @@ class IngredientSearchResultView(tk.Frame):
     def __init__(self, ingredient_name: str, **kwargs):
         super().__init__(**kwargs)
         self.ingredient_name = ingredient_name
-        self._ingredient_name_label = tk.Label(master=self, text=ingredient_name, width=60, background="#c0c0c0",
+        self._ingredient_name_label = tk.Label(master=self, text=ingredient_name, width=55, background="#c0c0c0",
                                                anchor="w")
         self.edit_button = tk.Button(master=self, text="Edit")
         self.delete_button = tk.Button(master=self, text="Delete")
         self._ingredient_name_label.grid(row=0, column=0, sticky="ew")
-        self.edit_button.grid(row=0, column=1, sticky="ew")
+        self.edit_button.grid(row=0, column=1)
+        self.delete_button.grid(row=0, column=2)
 
         # Bind handlers
         self.edit_button.bind("<Button-1>", lambda _: self.event_generate("<Button-1>"))

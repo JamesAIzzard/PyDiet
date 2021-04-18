@@ -144,7 +144,7 @@ class HasSettableBulk(HasBulk, abc.ABC):
 
     @HasBulk.ref_qty.setter
     def ref_qty(self, value: float) -> None:
-        value = quantity.validation.validate_quantity(value)
+        value = quantity.validation.validate_nonzero_quantity(value)
         self._ref_qty = value
 
     @HasBulk.pref_unit.setter
@@ -169,11 +169,13 @@ class HasSettableBulk(HasBulk, abc.ABC):
         """Implements gram/ml setting."""
         # If density is being unset;
         if g_per_ml is None:
+            # Check it isn't in use;
+            if self.density_units_in_use:
+                raise model.quantity.exceptions.DensityInUseError()
             self._density_reset_cleanup()
             self._g_per_ml = None
-        # Otherwise, sent density;
         else:
-            self._g_per_ml = quantity.validation.validate_quantity(g_per_ml)
+            self._g_per_ml = quantity.validation.validate_nonzero_quantity(g_per_ml)
 
     def set_density(self, mass_qty: Optional[float], mass_unit: str, vol_qty: Optional[float], vol_unit: str) -> None:
         """Sets the substance's density."""
@@ -194,14 +196,28 @@ class HasSettableBulk(HasBulk, abc.ABC):
                 piece_mass_g=self.piece_mass_g
             )
 
+    def unset_density(self) -> None:
+        """Unsets the density properties on the instance."""
+        self.set_density(
+            mass_qty=None,
+            mass_unit='g',
+            vol_qty=None,
+            vol_unit='ml'
+        )
+
     @HasBulk.piece_mass_g.setter
     def piece_mass_g(self, piece_mass_g: Optional[float]) -> None:
         """Implements piece mass setting."""
+        # If unsetting
         if piece_mass_g is None:
+            # Check it isn't in use;
+            if self.piece_mass_units_in_use:
+                raise model.quantity.exceptions.DensityInUseError()
             self._piece_mass_reset_cleanup()
             self._piece_mass_g = None
+        # All OK, go ahead;
         else:
-            self._piece_mass_g = quantity.validation.validate_quantity(piece_mass_g)
+            self._piece_mass_g = quantity.validation.validate_nonzero_quantity(piece_mass_g)
 
     def set_piece_mass(self, num_pieces: Optional[float], mass_qty: Optional[float], mass_unit: str) -> None:
         """Sets the mass of num_pieces of the substance."""
@@ -223,6 +239,14 @@ class HasSettableBulk(HasBulk, abc.ABC):
                 single_pc_mass, mass_unit, 'g')
 
             self._piece_mass_g = piece_mass_g
+
+    def unset_piece_mass(self) -> None:
+        """Unsets the piece mass data on the instance."""
+        self.set_piece_mass(
+            num_pieces=None,
+            mass_qty=None,
+            mass_unit='g'
+        )
 
     def set_bulk_data(self, data: 'quantity.BulkData') -> None:
         """Sets the bulk properties on the instance from a BulkData dict."""

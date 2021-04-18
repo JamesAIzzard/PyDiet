@@ -25,18 +25,12 @@ class Ingredient(persistence.SupportsPersistence,
     def density_units_in_use(self) -> bool:
         if self.pref_unit in model.quantity.get_recognised_vol_units():
             return True
-        for nutrient_ratio in self.nutrient_ratios.values():
-            if nutrient_ratio.pref_unit in model.quantity.get_recognised_mass_units():
-                return True
         return False
 
     @property
     def piece_mass_units_in_use(self) -> bool:
         if self.pref_unit in model.quantity.get_recognised_pc_units():
             return True
-        for nutrient_ratio in self.nutrient_ratios.values():
-            if nutrient_ratio.pref_unit in model.quantity.get_recognised_pc_units():
-                return True
         return False
 
     def __init__(self, ingredient_data: Optional[IngredientData] = None, **kwargs):
