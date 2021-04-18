@@ -3,7 +3,7 @@
     "g_per_ml": null,
     "piece_mass_g": null,
     "pref_unit": "g",
-    "ref_qty": 100
+    "ref_qty": 100.0
   },
   "cost_per_g": 0.02,
   "flags": {
@@ -26,7 +26,7 @@
       "nutrient_pref_units": "g"
     },
     "alcohol": {
-      "nutrient_g_per_subject_g": 0,
+      "nutrient_g_per_subject_g": 0.0,
       "nutrient_pref_units": "g"
     },
     "amylopectin": {
@@ -74,7 +74,7 @@
       "nutrient_pref_units": "g"
     },
     "caffeine": {
-      "nutrient_g_per_subject_g": 0,
+      "nutrient_g_per_subject_g": 0.0,
       "nutrient_pref_units": "g"
     },
     "calcium": {
@@ -190,7 +190,7 @@
       "nutrient_pref_units": "g"
     },
     "gluten": {
-      "nutrient_g_per_subject_g": 0,
+      "nutrient_g_per_subject_g": 0.0,
       "nutrient_pref_units": "g"
     },
     "glycine": {
@@ -218,7 +218,7 @@
       "nutrient_pref_units": "g"
     },
     "lactose": {
-      "nutrient_g_per_subject_g": 0,
+      "nutrient_g_per_subject_g": 0.0,
       "nutrient_pref_units": "g"
     },
     "lauric_acid": {

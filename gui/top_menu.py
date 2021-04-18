@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import messagebox
 
 import gui
 import model.ingredients
@@ -72,15 +73,30 @@ class TopMenuController:
         self._app.root.bind("<<Edit-Meal-Goals-Click>>", self._on_edit_meal_goals_click)
         self._app.root.bind("<<Solve-Click>>", self._on_solve_click)
 
+    def _check_save(self) -> bool:
+        if isinstance(self._app.current_view, gui.IngredientEditorView):
+            if self._app.ingredient_editor.subject is None:
+                return True
+            elif self._app.ingredient_editor.subject.has_unsaved_changes:
+                response = messagebox.askyesno(title="PyDiet", message="Save changes to ingredient?")
+                if response is True:
+                    return self._app.ingredient_editor._on_save_clicked(None)
+        return True
+
     def _on_new_ingredient_click(self, _):
-        self._app.ingredient_editor.set_subject(model.ingredients.Ingredient())
-        self._app.set_current_view(self._app.ingredient_editor.view, "New Ingredient")
+        if self._check_save():
+            self._app.ingredient_editor.set_subject(model.ingredients.Ingredient())
+            self._app.set_current_view(self._app.ingredient_editor.view, "New Ingredient")
 
     def _on_edit_ingredient_click(self, _):
-        self._app.set_current_view(self._app.ingredient_search.view, "Ingredient Search")
+        if self._check_save():
+            self._app.set_current_view(self._app.ingredient_search.view, "Ingredient Search")
+            self._app.ingredient_search.process_view_changes()
 
     def _on_view_ingredients_click(self, _):
-        self._app.set_current_view(self._app.ingredient_search.view, "Ingredient Search")
+        if self._check_save():
+            self._app.set_current_view(self._app.ingredient_search.view, "Ingredient Search")
+            self._app.ingredient_search.process_view_changes()
 
     @staticmethod
     def _on_new_recipe_click(_):

@@ -18,6 +18,9 @@ class App:
         self._view_pane = tk.Frame(master=self._root)
         self._view_pane.pack(expand=True, fill=tk.BOTH)
 
+        # Ref to current view;
+        self.current_view = None
+
         # Top menu bar;
         self.top_menu_view = gui.TopMenuWidget(root=self._root)
         self.top_menu = gui.TopMenuController(app=self, view=self.top_menu_view)
@@ -47,6 +50,7 @@ class App:
         # Clear the old view;
         for child_view in self._view_pane.winfo_children():
             child_view.pack_forget()
+        self.current_view = view
         view.pack(expand=True, fill=tk.BOTH)
         # Set the window title;
         self._root.title(f"PyDiet - {title}")

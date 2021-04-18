@@ -66,8 +66,8 @@ class SupportsPersistence(abc.ABC):
         if not self.datafile_exists:
             return True
         # Otherwise, compare the current data with the saved data.
-        saved_version = persistence.load(self.__class__, self.datafile_name)
-        return self.persistable_data == saved_version.persistable_data
+        saved_version = persistence.load(self.__class__, datafile_name=self.datafile_name)
+        return not self.persistable_data == saved_version.persistable_data
 
     @property
     def datafile_exists(self) -> bool:
