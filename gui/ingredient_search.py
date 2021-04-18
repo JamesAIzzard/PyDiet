@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import messagebox
 from typing import List, Dict, Callable, Optional
 
 import gui
@@ -17,24 +18,8 @@ class IngredientSearchResultView(tk.Frame):
         self._ingredient_name_label.grid(row=0, column=0, sticky="ew")
         self.edit_button.grid(row=0, column=1)
         self.delete_button.grid(row=0, column=2)
-
-        # Bind handlers
-        self.edit_button.bind("<Button-1>", lambda _: self.event_generate("<Button-1>"))
-
-
-class IngredientSearchResultController(gui.BaseController):
-    def __init__(self, view: 'IngredientSearchResultView', **kwargs):
-        super().__init__(view=view, **kwargs)
-
-    @property
-    def view(self) -> 'IngredientSearchResultView':
-        return self.view
-
-    def update_view(self, *args, **kwargs) -> None:
-        pass
-
-    def process_view_changes(self, *args, **kwargs) -> None:
-        pass
+        self.edit_button.bind("<Button-1>", lambda _: self.event_generate("<<Edit-Pressed>>"))
+        self.delete_button.bind("<Button-1>", lambda _: self.event_generate("<<Delete-Pressed>>"))
 
 
 class IngredientSearchView(tk.Frame):
@@ -56,7 +41,7 @@ class IngredientSearchView(tk.Frame):
         # Place to store name of currently selected result;
         self.current_ingredient_name: Optional[str] = None
 
-    def add_result(self, ingredient_name: str, on_edit_callback=Callable) -> None:
+    def add_result(self, ingredient_name: str, on_edit_callback: Callable, on_delete_callback: Callable) -> None:
         """Adds an ingredient search result widget to the UI."""
         # Check the ingredient isn't listed already;
         if ingredient_name in self.search_results.keys():
@@ -64,8 +49,11 @@ class IngredientSearchView(tk.Frame):
         # Create the widget;
         ingredient_result_widget = IngredientSearchResultView(master=self.results_frame.scrollable_frame,
                                                               ingredient_name=ingredient_name)
-        # Bind the edit callback
-        ingredient_result_widget.bind("<Button-1>", on_edit_callback)
+        # Bind buttons to callbacks;
+        ingredient_result_widget.bind("<<Edit-Pressed>>", on_edit_callback)
+        ingredient_result_widget.bind("<<Delete-Pressed>>", on_delete_callback)
+
+        # Pack the result;
         ingredient_result_widget.pack()
 
     def clear_results(self) -> None:
@@ -100,6 +88,18 @@ class IngredientSearchController(gui.BaseController):
     def update_view(self, *args, **kwargs) -> None:
         pass
 
+    def _on_result_delete(self, event) -> None:
+        """Handler for result delete button."""
+        ingredient_name = event.widget.ingredient_name
+        response = messagebox.askyesno(title="PyDiet",
+                                       message=f"Are you sure you want to delete {ingredient_name}")
+        if response is True:
+            persistence.delete(
+                cls=model.ingredients.Ingredient,
+                name=ingredient_name
+            )
+            self.process_view_changes()
+
     def process_view_changes(self, *args, **kwargs) -> None:
         # If the search bar is empty, just show all the ingredients;
         if self.view.search_entry.get() == "":
@@ -116,4 +116,4 @@ class IngredientSearchController(gui.BaseController):
         """Load search results into the widget."""
         self.view.clear_results()
         for ingredient_name in ingredient_names:
-            self.view.add_result(ingredient_name, self._on_result_edit_callback)
+            self.view.add_result(ingredient_name, self._on_result_edit_callback, self._on_result_delete)
