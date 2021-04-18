@@ -33,5 +33,9 @@ class PcMassNotConfiguredError(UnitNotConfiguredError):
     """The piece mass data is not fully defined."""
 
 
-class InvalidQtyError(PyDietException):
+class InvalidQtyError(PyDietException, ValueError):
     """The qty is not a valid qty."""
+
+
+class ZeroQtyError(InvalidQtyError):
+    """Indicates the qty value cannot be zero."""

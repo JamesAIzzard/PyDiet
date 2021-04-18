@@ -20,7 +20,7 @@ class HasFlags(abc.ABC):
         # Build a dict for all flags which are not direct_alias
         self._flag_dofs: Dict[str, Optional[bool]] = {}
         for flag_name, flag in flags.all_flags.items():
-            if flag.direct_alias:
+            if not flag.direct_alias:
                 self._flag_dofs[flag_name] = None
 
         # Note, this implementation is good, becuase it means if we add a flag to the global list
@@ -43,6 +43,14 @@ class HasFlags(abc.ABC):
     def flags_dof_data(self) -> Dict[str, Optional[bool]]:
         """Returns a dictionary of the flag names and their dof states"""
         return {flag_name: flag_dof_value for flag_name, flag_dof_value in self._flag_dofs.items()}
+
+    def get_flag_dof(self, flag_name: str) -> Optional[bool]:
+        """Returns the flag's DOF."""
+        flag_name = flags.validation.validate_flag_name(flag_name)
+        if flag_name not in self._flag_dofs.keys():
+            raise flags.exceptions.FlagHasNoDOFError(flag_name)
+        else:
+            return self._flag_dofs[flag_name]
 
     def gather_related_nutrient_ratios(self, flag_name: str) -> List['nutrients.NutrientRatio']:
         """Returns a list of nutrient ratios, from this instance, that are related to the named flag."""
@@ -78,6 +86,10 @@ class HasFlags(abc.ABC):
 
         # Grab related nutrient ratios;
         related_nutrient_ratios = self.gather_related_nutrient_ratios(flag_name)
+
+        # If there are no related nutrients, return the flag DOF;
+        if len(related_nutrient_ratios) == 0:
+            return self.get_flag_dof(flag_name)
 
         # Loop through the nutrients and check for mismatch or undefined nutrients;
         for related_nutrient_ratio in related_nutrient_ratios:

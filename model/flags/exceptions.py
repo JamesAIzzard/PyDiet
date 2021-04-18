@@ -20,6 +20,13 @@ class UnexpectedFlagDOFError(PyDietException):
         self.flag_name = flag_name
 
 
+class FlagHasNoDOFError(PyDietException):
+    """Indicates the flag does not have a DOF."""
+
+    def __init__(self, flag_name: str):
+        self.flag_name = flag_name
+
+
 class NutrientRatioConflictError(PyDietException):
     """Base exception which indicates setting a flag to a specific value would
     cause conflict between flags and nutrients ratios on the instance."""

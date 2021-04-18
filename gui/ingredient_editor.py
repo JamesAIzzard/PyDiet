@@ -274,6 +274,7 @@ class IngredientEditorController(gui.HasSubject):
                 subject_qty=subject_qty,
                 subject_qty_unit=subject_qty_unit
             )
+            self.subject.set_nutrient_pref_unit(nutrient_name, nutrient_qty_unit)
         except model.nutrients.exceptions.ChildNutrientQtyExceedsParentNutrientQtyError as err:
             self.nutrient_flag_status.show_conflict(
                 f"The nutrients in the {err.nutrient_group_name} group exceed its mass."
@@ -316,7 +317,8 @@ class IngredientEditorController(gui.HasSubject):
         except (model.flags.exceptions.NonZeroNutrientRatioConflictError,
                 model.flags.exceptions.UndefineMultipleNutrientRatiosError) as e:
             self.nutrient_flag_status.show_conflict(
-                f"'{flag_name.replace('_', ' ')}' flag conflicts with {e.conflicting_nutrient_ratios[0].nutrient.primary_name} nutrient ratio" # noqa
+                f"'{flag_name.replace('_', ' ')}' flag conflicts with {e.conflicting_nutrient_ratios[0].nutrient.primary_name} nutrient ratio"
+                # noqa
             )
             # Reset the circular dependency flag;
             self.editing_flags = False

@@ -44,6 +44,16 @@ def validate_qty_entry(entry_widget: 'gui.SmartEntryWidget') -> None:
         entry_widget.make_valid()
 
 
+def validate_nonzero_qty_entry(entry_widget: 'gui.SmartEntryWidget') -> None:
+    validate_qty_entry(entry_widget)
+    if entry_widget.is_valid and not entry_widget.get() == "":
+        try:
+            _ = model.quantity.validation.validate_nonzero_quantity(float(entry_widget.get()))
+            entry_widget.make_valid()
+        except model.quantity.exceptions.ZeroQtyError:
+            entry_widget.make_invalid()
+
+
 def configure_qty_units(dropdown: 'gui.SmartDropdownWidget', subject: 'model.quantity.HasBulk') -> None:
     """Configures the dropdown widget to match the subject's configured units."""
     # Save the old value;

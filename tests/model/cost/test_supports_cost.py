@@ -2,6 +2,7 @@ from unittest import TestCase
 
 import model
 
+
 class TestCostPerG(TestCase):
     def setUp(self) -> None:
         self.ingredient = model.ingredients.Ingredient()
@@ -12,7 +13,8 @@ class TestCostPerG(TestCase):
             qty=1,
             unit="kg"
         )
-        self.ingredient.pref_unit = 'g'  # noqa
+        # noinspection PyPropertyAccess
+        self.ingredient.pref_unit = 'g'
         self.assertEqual(self.ingredient.cost_per_g, 1)
 
         self.ingredient.set_cost(
@@ -20,8 +22,10 @@ class TestCostPerG(TestCase):
             qty=1,
             unit="kg"
         )
-        self.ingredient.pref_unit = 'g'  # noqa
+        # noinspection PyPropertyAccess
+        self.ingredient.pref_unit = 'g'
         self.assertEqual(self.ingredient.cost_per_g, 2)
+
 
 class TestCostPerPrefUnit(TestCase):
     def setUp(self) -> None:
@@ -33,7 +37,8 @@ class TestCostPerPrefUnit(TestCase):
             qty=1,
             unit="g"
         )
-        self.ingredient.pref_unit = 'kg'  # noqa
+        # noinspection PyPropertyAccess
+        self.ingredient.pref_unit = 'kg'
         self.assertEqual(self.ingredient.cost_per_pref_unit, 1000)
 
         self.ingredient.set_cost(
@@ -55,8 +60,10 @@ class TestCostOfRefQty(TestCase):
             qty=1,
             unit="kg"
         )
-        self.ingredient.ref_qty = 100  # noqa
-        self.ingredient.pref_unit = 'g'  # noqa
+        # noinspection PyPropertyAccess
+        self.ingredient.ref_qty = 100
+        # noinspection PyPropertyAccess
+        self.ingredient.pref_unit = 'g'
         self.assertEqual(self.ingredient.cost_of_ref_qty, 0.10)
 
         self.ingredient.set_cost(
@@ -64,8 +71,10 @@ class TestCostOfRefQty(TestCase):
             qty=1,
             unit="kg"
         )
-        self.ingredient.ref_qty = 500  # noqa
-        self.ingredient.pref_unit = 'g'  # noqa
+        # noinspection PyPropertyAccess
+        self.ingredient.ref_qty = 500
+        # noinspection PyPropertyAccess
+        self.ingredient.pref_unit = 'g'
         self.assertEqual(self.ingredient.cost_of_ref_qty, 6.25)
 
         self.ingredient.set_cost(

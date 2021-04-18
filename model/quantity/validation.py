@@ -11,9 +11,21 @@ def validate_quantity(qty: float) -> float:
     try:
         qty = float(qty)
     except ValueError:
-        raise quantity.exceptions.InvalidQtyError
+        raise quantity.exceptions.InvalidQtyError()
     if qty < 0:
-        raise quantity.exceptions.InvalidQtyError
+        raise quantity.exceptions.InvalidQtyError()
+    else:
+        return qty
+
+
+def validate_nonzero_quantity(qty: Any) -> float:
+    """Ensures the quantity value is valid and nonzero, and returns it.
+    Raises:
+        InvalidQtyError: Indicating the quantity is invalid.
+    """
+    qty = validate_quantity(qty)
+    if qty == 0:
+        raise quantity.exceptions.ZeroQtyError()
     else:
         return qty
 

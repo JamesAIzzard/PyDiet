@@ -151,7 +151,7 @@ class NutrientRatioEditorController(gui.BaseController, gui.SupportsValidity, gu
 
         # Validate the fields;
         gui.validate_qty_entry(self.view.nutrient_mass_value_entry)
-        gui.validate_qty_entry(self.view.subject_qty_value_entry)
+        gui.validate_nonzero_qty_entry(self.view.subject_qty_value_entry)
 
         # If all looks OK, try and fire the callback;
         if self.is_valid:

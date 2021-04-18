@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import messagebox
 from typing import Optional
 
 import gui
@@ -73,7 +74,7 @@ class RefQtyEditorController(gui.HasSubject, gui.SupportsValidity, gui.SupportsD
         self.pref_unit = self.subject.pref_unit
 
     def process_view_changes(self, *args, **kwargs) -> None:
-        gui.validate_qty_entry(self.view.ref_qty_value_entry)
+        gui.validate_nonzero_qty_entry(self.view.ref_qty_value_entry)
         if self.is_defined and self.is_valid:
             self.subject.ref_qty = self.ref_qty_value
             self.subject.pref_unit = self.pref_unit
@@ -115,8 +116,10 @@ class DensityEditorController(gui.HasSubject, gui.SupportsValidity, gui.Supports
         self.view.mass_unit_dropdown.set("g")
 
         # Bind to view changes;
-        self.view.set_button.bind("<Button-1>", self.process_view_changes)
-        self.view.clear_button.bind("<Button-1>", self._on_clear_view)
+        self.view.vol_value_entry.bind("<<Value-Changed>>", self.process_view_changes)
+        self.view.mass_value_entry.bind("<<Value-Changed>>", self.process_view_changes)
+        self.view.set_button.bind("<Button-1>", self._on_set_density)
+        self.view.clear_button.bind("<Button-1>", self._on_clear_density)
 
     @property
     def vol_value(self) -> Optional[float]:
@@ -184,23 +187,39 @@ class DensityEditorController(gui.HasSubject, gui.SupportsValidity, gui.Supports
             self.mass_value = self.subject.g_per_ml * 100
             self.view.mass_unit_dropdown.set("g")
 
-    def _on_clear_view(self, _) -> None:
+    def _on_set_density(self, _) -> None:
+        """Handler for press on density set."""
+        # Catch invalid fields.
+        if self.is_invalid:
+            messagebox.showinfo(title="PyDiet", message="Density fields are invald.")
+            self.update_view()  # Return view back to model.
+            return
+
+        # Catch unsetting when density is in use;
+        if self.mass_value is None or self.vol_value is None:
+            if self.subject.density_units_in_use:
+                messagebox.showinfo(title="PyDiet", message="Cannot unset density, density values are in use.")
+                self.update_view()  # Return view back to model.
+                return
+
+        # All OK, go ahead;
+        self.subject.set_density(
+            mass_qty=self.mass_value,
+            mass_unit=self.mass_unit,
+            vol_qty=self.vol_value,
+            vol_unit=self.vol_unit
+        )
+        self.view.event_generate("<<Density-Changed>>")
+
+    def _on_clear_density(self, event) -> None:
         """Handler for press on the clear button."""
         self.vol_value = None
         self.mass_value = None
-        self.process_view_changes()
+        self._on_set_density(event)
 
     def process_view_changes(self, *args, **kwargs) -> None:
-        gui.validate_qty_entry(self.view.mass_value_entry)
-        gui.validate_qty_entry(self.view.vol_value_entry)
-        if self.is_valid:
-            self.subject.set_density(
-                mass_qty=self.mass_value,
-                mass_unit=self.mass_unit,
-                vol_qty=self.vol_value,
-                vol_unit=self.vol_unit
-            )
-            self.view.event_generate("<<Density-Changed>>")
+        gui.validate_nonzero_qty_entry(self.view.mass_value_entry)
+        gui.validate_nonzero_qty_entry(self.view.vol_value_entry)
 
 
 class PieceMassEditorView(tk.Frame):
@@ -217,6 +236,8 @@ class PieceMassEditorView(tk.Frame):
             invalid_bg=gui.configs.invalid_bg_colour
         )
         self.pieces_mass_units_dropdown = gui.SmartDropdownWidget(master=self, width=8)
+        self.set_button = tk.Button(master=self, text="Set")
+        self.clear_button = tk.Button(master=self, text="Clear")
 
         # Place the elements;
         self._widget_label.grid(row=0, column=0)
@@ -224,6 +245,8 @@ class PieceMassEditorView(tk.Frame):
         self._label.grid(row=0, column=2)
         self.pieces_mass_value_entry.grid(row=0, column=3)
         self.pieces_mass_units_dropdown.grid(row=0, column=4)
+        self.set_button.grid(row=0, column=5)
+        self.clear_button.grid(row=0, column=6)
 
 
 class PieceMassEditorController(gui.HasSubject, gui.SupportsValidity, gui.SupportsDefinition):
@@ -236,7 +259,8 @@ class PieceMassEditorController(gui.HasSubject, gui.SupportsValidity, gui.Suppor
 
         self.view.num_pieces_entry.bind("<<Value-Changed>>", self.process_view_changes)
         self.view.pieces_mass_value_entry.bind("<<Value-Changed>>", self.process_view_changes)
-        self.view.pieces_mass_units_dropdown.bind("<<Value-Changed>>", self.process_view_changes)
+        self.view.set_button.bind("<Button-1>", self._on_set_pc_mass)
+        self.view.clear_button.bind("<Button-1>", self._on_clear_pc_mass)
 
     @property
     def num_pieces(self) -> Optional[float]:
@@ -298,16 +322,37 @@ class PieceMassEditorController(gui.HasSubject, gui.SupportsValidity, gui.Suppor
                 self.pieces_mass = self.subject.piece_mass_g
                 self.piece_mass_units = 'g'
 
+    def _on_set_pc_mass(self, _) -> None:
+        """Handler for press on pc mass set."""
+        # Catch invalid fields;
+        if self.is_invalid:
+            messagebox.showinfo(title="PyDiet", message="Piece mass fields are invalid.")
+            self.update_view()  # Return view back to model
+            return
+
+        # Catch unsetting when pc mas is in use;
+        if self.num_pieces is None or self.pieces_mass is None:
+            if self.subject.piece_mass_units_in_use:
+                messagebox.showinfo(title="PyDiet", message="Cannot unset piece mass, piece unit is in use.")
+                self.update_view() # Return view back to model
+                return
+
+        # All OK, go ahead;
+        self.subject.set_piece_mass(
+            num_pieces=self.num_pieces,
+            mass_qty=self.pieces_mass,
+            mass_unit=self.piece_mass_units
+        )
+        self.view.event_generate("<<Piece-Mass-Changed>>")
+
+    def _on_clear_pc_mass(self, event) -> None:
+        self.pieces_mass = None
+        self.num_pieces = None
+        self._on_set_pc_mass(event)
+
     def process_view_changes(self, *args, **kwargs) -> None:
-        gui.validate_qty_entry(self.view.pieces_mass_value_entry)
-        gui.validate_qty_entry(self.view.num_pieces_entry)
-        if self.is_defined and self.is_valid:
-            self.subject.set_piece_mass(
-                num_pieces=self.num_pieces,
-                mass_qty=self.pieces_mass,
-                mass_unit=self.piece_mass_units
-            )
-            self.view.event_generate("<<Piece-Mass-Changed>>")
+        gui.validate_nonzero_qty_entry(self.view.pieces_mass_value_entry)
+        gui.validate_nonzero_qty_entry(self.view.num_pieces_entry)
 
 
 class BulkEditorView(tk.LabelFrame):

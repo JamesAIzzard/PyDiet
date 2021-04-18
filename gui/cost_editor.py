@@ -97,7 +97,7 @@ class CostEditorController(gui.HasSubject, gui.SupportsDefinition, gui.SupportsV
     def process_view_changes(self, _) -> None:
         """Handler for view changes."""
         gui.validate_qty_entry(self.view.cost_entry)
-        gui.validate_qty_entry(self.view.qty_entry)
+        gui.validate_nonzero_qty_entry(self.view.qty_entry)
         if self.is_defined and self.is_valid:
             self.subject.set_cost(
                 cost_gbp=self.cost_value,

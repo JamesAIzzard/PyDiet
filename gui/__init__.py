@@ -1,6 +1,6 @@
 from gui import configs
 from gui.main import set_noneable_qty_entry, get_noneable_qty_entry, validate_qty_entry, configure_qty_units, \
-    entry_is_defined
+    entry_is_defined, validate_nonzero_qty_entry
 from gui.app import App
 from gui.base_controllers import BaseController, HasSubject, SupportsValidity, SupportsDefinition
 from gui.entry_widgets import SmartEntryWidget

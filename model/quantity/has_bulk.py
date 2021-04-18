@@ -127,10 +127,20 @@ class HasSettableBulk(HasBulk, abc.ABC):
         """Does any custom density data/reference removal on the instance."""
         raise NotImplementedError
 
+    @property
+    @abc.abstractmethod
+    def density_units_in_use(self) -> bool:
+        """Returns True/False to indicate if the subject uses density units anywhere."""
+
     @abc.abstractmethod
     def _piece_mass_reset_cleanup(self) -> None:
         """Does any custom piece mass data/reference removal on the instance."""
         raise NotImplementedError
+
+    @property
+    @abc.abstractmethod
+    def piece_mass_units_in_use(self) -> bool:
+        """Returns True/False to indicate if piece mass units are in use."""
 
     @HasBulk.ref_qty.setter
     def ref_qty(self, value: float) -> None:
@@ -157,16 +167,23 @@ class HasSettableBulk(HasBulk, abc.ABC):
     @HasBulk.g_per_ml.setter
     def g_per_ml(self, g_per_ml: Optional[float]) -> None:
         """Implements gram/ml setting."""
+        # If density is being unset;
         if g_per_ml is None:
             self._density_reset_cleanup()
             self._g_per_ml = None
+        # Otherwise, sent density;
         else:
             self._g_per_ml = quantity.validation.validate_quantity(g_per_ml)
 
     def set_density(self, mass_qty: Optional[float], mass_unit: str, vol_qty: Optional[float], vol_unit: str) -> None:
         """Sets the substance's density."""
-        if mass_qty is None and vol_qty is None:
+        # Unset density if we have None values;
+        if mass_qty is None or vol_qty is None:
             self.g_per_ml = None
+        # Dissallow zero values;
+        elif vol_qty == 0 or mass_qty == 0:
+            raise model.quantity.exceptions.ZeroQtyError()
+        # Otherwise just set as normal;
         else:
             self.g_per_ml = quantity.convert_density_unit(
                 qty=mass_qty / vol_qty,
@@ -186,18 +203,26 @@ class HasSettableBulk(HasBulk, abc.ABC):
         else:
             self._piece_mass_g = quantity.validation.validate_quantity(piece_mass_g)
 
-    def set_piece_mass(self, num_pieces: float, mass_qty: float, mass_unit: str) -> None:
+    def set_piece_mass(self, num_pieces: Optional[float], mass_qty: Optional[float], mass_unit: str) -> None:
         """Sets the mass of num_pieces of the substance."""
-        mass_unit = quantity.validation.validate_mass_unit(mass_unit)
-        mass_qty = quantity.validation.validate_quantity(mass_qty)
-        num_pieces = quantity.validation.validate_quantity(num_pieces)
-        # Calc the mass of a single piece;
-        single_pc_mass = mass_qty / num_pieces
-        # Convert single piece mass to g;
-        piece_mass_g = quantity.convert_qty_unit(
-            single_pc_mass, mass_unit, 'g')
+        # If we are trying to unset;
+        if num_pieces is None or mass_qty is None:
+            self.piece_mass_g = None
+        # Dissallow zero values;
+        elif num_pieces == 0 or mass_qty == 0:
+            raise model.quantity.exceptions.ZeroQtyError()
+        # Otherwise, set as normal;
+        else:
+            mass_unit = quantity.validation.validate_mass_unit(mass_unit)
+            mass_qty = quantity.validation.validate_quantity(mass_qty)
+            num_pieces = quantity.validation.validate_quantity(num_pieces)
+            # Calc the mass of a single piece;
+            single_pc_mass = mass_qty / num_pieces
+            # Convert single piece mass to g;
+            piece_mass_g = quantity.convert_qty_unit(
+                single_pc_mass, mass_unit, 'g')
 
-        self._piece_mass_g = piece_mass_g
+            self._piece_mass_g = piece_mass_g
 
     def set_bulk_data(self, data: 'quantity.BulkData') -> None:
         """Sets the bulk properties on the instance from a BulkData dict."""
