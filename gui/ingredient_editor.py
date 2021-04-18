@@ -307,6 +307,7 @@ class IngredientEditorController(gui.HasSubject):
 
         # Reset the conflict message;
         self.nutrient_flag_status.show_ok()
+        return
 
     def _on_flag_value_changed(self, event) -> None:
         """Handler for changes to flag values."""

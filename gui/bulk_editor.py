@@ -321,6 +321,10 @@ class PieceMassEditorController(gui.HasSubject, gui.SupportsValidity, gui.Suppor
             else:
                 self.pieces_mass = self.subject.piece_mass_g
                 self.piece_mass_units = 'g'
+        else:
+            self.num_pieces = None
+            self.pieces_mass = None
+            self.piece_mass_units = 'g'
 
     def _on_set_pc_mass(self, _) -> None:
         """Handler for press on pc mass set."""

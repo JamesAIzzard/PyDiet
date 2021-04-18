@@ -157,11 +157,11 @@ class NutrientRatioEditorController(gui.BaseController, gui.SupportsValidity, gu
         # If all looks OK, try and fire the callback;
         if self.is_valid:
             self._on_values_change_callback(
-                nutrient_name=self.nutrient_name,
-                nutrient_qty=self.nutrient_mass_value,
-                nutrient_qty_unit=self.nutrient_mass_unit,
-                subject_qty=self.subject_qty_value,
-                subject_qty_unit=self.subject_qty_unit
+                    nutrient_name=self.nutrient_name,
+                    nutrient_qty=self.nutrient_mass_value,
+                    nutrient_qty_unit=self.nutrient_mass_unit,
+                    subject_qty=self.subject_qty_value,
+                    subject_qty_unit=self.subject_qty_unit
             )
 
 
