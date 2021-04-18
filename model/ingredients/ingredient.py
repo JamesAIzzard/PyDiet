@@ -119,6 +119,7 @@ class Ingredient(persistence.SupportsPersistence,
     def get_path_into_db() -> str:
         return persistence.configs.ingredient_db_path
 
+    @property
     def persistable_data(self) -> Dict[str, IngredientData]:
         # Compile the nutrients data;
         nutrients_data: Dict[str, 'nutrients.NutrientRatioData'] = {}

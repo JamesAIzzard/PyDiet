@@ -233,6 +233,11 @@ class IngredientEditorController(gui.HasSubject):
             show_save_message("Piece mass field must be valid or empty.")
             return
 
+        # Now check flag nutrient relations;
+        if self.nutrient_flag_status.has_conflict:
+            show_save_message("Nutrient-flag conflicts must be resolved before saving.")
+            return
+
         for nutrient_name in self.basic_nutrient_ratio_editor.nutrient_names:
             nutrient_editor = self.basic_nutrient_ratio_editor.get_nutrient_ratio_editor(nutrient_name)
             if nutrient_editor.is_invalid:
@@ -248,6 +253,9 @@ class IngredientEditorController(gui.HasSubject):
                 show_save_message(f"{nutrient_name.replace('_', ' ')} cannot be invalid.")
                 return
 
+        # All OK, go ahead and save;
+        persistence.save(self.subject)
+        gui.app.root.title("Ingredient Editor")
         show_save_message(f"{self.subject.name} saved!")
 
     def _on_nutrient_values_changed(self,
