@@ -1,4 +1,4 @@
-from typing import Union, Optional
+from typing import Union, Optional, Any
 
 import model
 
@@ -29,8 +29,9 @@ class UndefinedCostError(BaseCostError):
         super().__init__(**kwargs)
 
 
-class CostValueError(BaseCostError, ValueError):
+class InvalidCostError(BaseCostError, ValueError):
     """Indicating the qty provided is not a valid cost."""
 
-    def __init__(self, **kwargs):
+    def __init__(self, invalid_value: Any, **kwargs):
         super().__init__(**kwargs)
+        self.invalid_value = invalid_value

@@ -120,7 +120,8 @@ class HasBulk(persistence.CanLoadData):
 
     def load_data(self, data: Dict[str, Any]) -> None:
         super().load_data(data)
-        self._bulk_data = data['bulk_data']
+        if 'bulk_data' in data.keys():
+            self._bulk_data = data['bulk_data']
 
     @property
     def persistable_data(self) -> Dict[str, Any]:

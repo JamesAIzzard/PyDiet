@@ -86,7 +86,7 @@ class SupportsCost(model.quantity.HasBulk, persistence.YieldsPersistableData, ab
         return data
 
 
-class SupportsSettableCost(SupportsCost, abc.ABC):
+class SupportsSettableCost(SupportsCost, persistence.CanLoadData):
     """ABC for objects supporting settable abstract cost (costs per qty)."""
 
     def __init__(self, cost_data: Optional['CostData'] = None, **kwargs):
@@ -101,13 +101,38 @@ class SupportsSettableCost(SupportsCost, abc.ABC):
         if cost_data is not None:
             self.load_data({'cost_data': cost_data})
 
+    @property
+    def _cost_data(self) -> 'CostData':
+        return self._cost_data_
+
     @SupportsCost.cost_per_g.setter
     def cost_per_g(self, cost_per_g: Optional[float]) -> None:
         """Validates and sets cost_per_g"""
-        if cost_per_g is None:
-            self._cost_data_['cost_per_g'] = None
+        try:
+            if cost_per_g is None:
+                self._cost_data_['cost_per_g'] = None
+            else:
+                self._cost_data_['cost_per_g'] = model.cost.validation.validate_cost(cost_per_g)
+        # OK, the cost wasn't valid, so attach a reference for this instance to the error object.
+        except model.cost.exceptions.InvalidCostError as err:
+            err.subject = self
+            raise err
+
+    @SupportsCost.cost_ref_qty.setter
+    def cost_ref_qty(self, ref_qty: float) -> None:
+        """Validates and sets the reference quantity associated with the cost."""
+        self._cost_data['ref_qty'] = model.quantity.validation.validate_nonzero_quantity(ref_qty)
+
+    @SupportsCost.cost_pref_unit.setter
+    def cost_pref_unit(self, pref_unit: str) -> None:
+        """Validates and sets the reference unit associated with the cost."""
+        if self.units_are_configured(pref_unit):
+            self._cost_data['pref_unit'] = pref_unit
         else:
-            self._cost_data_['cost_per_g'] = model.cost.validation.validate_cost(cost_per_g)
+            if model.quantity.units_are_volumes(pref_unit):
+                raise model.quantity.exceptions.UndefinedDensityError(subject=self)
+            elif model.quantity.units_are_pieces(pref_unit):
+                raise model.quantity.exceptions.UndefinedPcMassError(subject=self)
 
     def set_cost(self, cost_gbp: Optional[float], qty: Optional[float], unit: str) -> None:
         """Sets the cost in gbp of any quanitity of any unit."""
@@ -137,6 +162,8 @@ class SupportsSettableCost(SupportsCost, abc.ABC):
 
         # Set the value;
         self.cost_per_g = cost_per_g
+        self.cost_ref_qty = qty
+        self.cost_pref_unit = unit
 
     def load_data(self, data: Dict[str, Any]) -> None:
         super().load_data(data)
