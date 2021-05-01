@@ -1,12 +1,6 @@
-from enum import Enum
+from .main import FlagImpliesNutrient
 
-
-class FlagImpliesNutrient(Enum):
-    zero = 1
-    non_zero = 2
-
-
-flag_data = {
+FLAG_DATA = {
     "alcohol_free": {
         "nutrient_relations": {
             "alcohol": FlagImpliesNutrient.zero

@@ -1,12 +1,16 @@
-from .main import (get_recognised_mass_units,
-                   get_recognised_vol_units,
-                   get_recognised_pc_units,
-                   get_recognised_qty_units,
-                   units_are_volumes,
-                   units_are_pieces,
-                   units_are_masses,
-                   convert_qty_unit,
-                   convert_density_unit)
-from .has_bulk import HasBulk, BulkData, HasSettableBulk
-from .has_quantity import HasQuantity, HasSettableQuantity
+from .configs import (
+    MASS_UNITS,
+    VOL_UNITS,
+    PC_UNITS,
+    QTY_UNITS
+)
 from . import validation, exceptions
+from .has_bulk import HasBulk, BulkData, HasSettableBulk
+from .has_quantity import HasQuantity, HasSettableQuantity, QuantityData
+from .main import (
+    units_are_volumes,
+    units_are_pieces,
+    units_are_masses,
+    convert_qty_unit,
+    convert_density_unit
+)

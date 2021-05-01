@@ -1,1 +1,2 @@
-from . import configs, exceptions, supports_tags
+from . import configs, exceptions, validation
+from .supports_tags import HasTags, HasSettableTags

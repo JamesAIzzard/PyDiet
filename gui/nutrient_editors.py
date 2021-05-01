@@ -384,7 +384,7 @@ class DynamicNutrientRatiosEditorController(BaseNutrientRatiosEditorController):
         """Adds a nutrient ratio editor."""
         # Catch trying to add a basic nutrient;
         nutrient_name = model.nutrients.validation.validate_nutrient_name(nutrient_name)
-        if nutrient_name in model.nutrients.mandatory_nutrient_names:
+        if nutrient_name in model.nutrients.MANDATORY_NUTRIENT_NAMES:
             return
 
         # Add as normal;

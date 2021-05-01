@@ -1,164 +1,145 @@
 import abc
-from typing import Dict, List, Union, TypedDict, Optional
+from typing import Dict, List, Union, Optional, Any
 
-from model import nutrients, flags
-
-
-class NRConflicts(TypedDict):
-    need_zero: List['nutrients.NutrientRatio']
-    need_none: List['nutrients.NutrientRatio']
-    need_non_zero: List['nutrients.NutrientRatio']
-    preventing_undefine: List['nutrients.NutrientRatio']
+import model
+import persistence
 
 
-class HasFlags(abc.ABC):
-    """Models an object which has flag_data to characterise its content."""
+class HasFlags(persistence.HasPersistableData, abc.ABC):
+    """Models an object which has flag_data to characterise its content.
+    Flags are either direct alias or not. A direct alias flag will derive its value entirely from a
+    nutrient ratio on the same instance. For example, "caffiene-free" derives its value entirely from
+    the presence of caffiene in the nutrient ratios list. However, flags such as "vegan" are not
+    direct aliases, and therefore have a "degree of freedom" or DOF. This allows them to store their
+    True/False/None value independently of any nutrient ratios.
+    """
 
     def __init__(self, flag_data: Optional[Dict[str, Optional[bool]]] = None, **kwargs):
         super().__init__(**kwargs)
 
-        # Build a dict for all flags which are not direct_alias
+        # Check that this isntance also has nutrient ratios;
+        if not isinstance(self, model.nutrients.HasNutrientRatios):
+            raise TypeError('HasFlags requires NutrientRatios to function.')
+        s: Union['model.flags.HasFlags', 'model.nutrients.HasNutrientRatios'] = self  # Hack for PyCharm intellisense.
+
+        # Create dict to store DOFs for non-direct alias flags;
         self._flag_dofs: Dict[str, Optional[bool]] = {}
-        for flag_name, flag in flags.all_flags.items():
+
+        # Init with None for all no-direct alias flags in the system;
+        for flag_name, flag in model.flags.ALL_FLAGS.items():
             if not flag.direct_alias:
                 self._flag_dofs[flag_name] = None
 
-        # Note, this implementation is good, becuase it means if we add a flag to the global list
+        # Note: this implementation is good, becuase it means if we add a flag to the global list
         # after this instance has been saved, the new flag will automatically be added when this
         # instance is re-saved.
 
         # Now import the values, if present;
         if flag_data is not None:
-            for flag_name, flag_value in flag_data.items():
-                # Catch error where flag name is not recognised;
-                if flag_name not in self._flag_dofs.keys():
-                    raise ValueError(f"{flag_name} is not a recognised flag name.")
-                # Catch dofs for flags which are direct aliases;
-                if flags.all_flags[flag_name].direct_alias:
-                    raise flags.exceptions.UnexpectedFlagDOFError(flag_name=flag_name)
-                # Go ahead and assign the value;
-                self._flag_dofs[flag_name] = flag_value
+            s.load_data(data={'flag_data': flag_data})
 
-    @property
-    def flags_dof_data(self) -> Dict[str, Optional[bool]]:
-        """Returns a dictionary of the flag names and their dof states"""
-        return {flag_name: flag_dof_value for flag_name, flag_dof_value in self._flag_dofs.items()}
+    def get_flag_dof(self, flag_name: str) -> bool:
+        """Returns the degree of freedom associated with the flag. See notes in class docstring for brief
+        description of flag degrees of freedom."""
 
-    def get_flag_dof(self, flag_name: str) -> Optional[bool]:
-        """Returns the flag's DOF."""
-        flag_name = flags.validation.validate_flag_name(flag_name)
-        if flag_name not in self._flag_dofs.keys():
-            raise flags.exceptions.FlagHasNoDOFError(flag_name)
-        else:
-            return self._flag_dofs[flag_name]
+        # Check the name is valid;
+        flag_name = model.flags.validation.validate_flag_name(flag_name)
 
-    def gather_related_nutrient_ratios(self, flag_name: str) -> List['nutrients.NutrientRatio']:
-        """Returns a list of nutrient ratios, from this instance, that are related to the named flag."""
+        # Check the flag has a DOF;
+        if flag_name not in model.flags.FLAGS_WITH_DOF:
+            raise model.flags.exceptions.FlagHasNoDOFError(
+                subject=self,
+                flag_name=flag_name
+            )
 
-        # Check that we have nutrient ratios on this instance;
-        # Confirm we have settable nutrient ratios too;
-        if not isinstance(self, nutrients.HasSettableNutrientRatios):
-            raise AttributeError('Readable nutrient ratios are required to use flags.')
+        # If the value is unset, raise an exception;
+        if self._flag_dofs[flag_name] is None:
+            raise model.flags.exceptions.UndefinedFlagError(
+                subject=self,
+                flag_name=flag_name,
+                reason=f"The degree of freedom associated with the {flag_name.replace('_', ' ')} flag is set to None."
+            )
+
+        # All is OK, just return the flag;
+        return self._flag_dofs[flag_name]
+
+    def gather_all_related_nutrient_ratios(self, flag_name: str) -> List['model.nutrients.NutrientRatio']:
+        """Returns a list of nutrient ratios, *from this instance* (hence this method is not a function
+        on main), that are related to the named flag."""
 
         # Validate the flag name;
-        flag_name = flags.validation.validate_flag_name(flag_name)
-        # Grab a reference to the global flag;
-        flag = flags.all_flags[flag_name]
-        # Now build up a list of this instance's related nutrient ratios;
-        related_nutrient_names = flag.related_nutrient_names
-        # Grab related nutrient ratios;
-        related_nutrient_ratios: List['nutrients.NutrientRatio'] = []
-        for related_nutrient_name in related_nutrient_names:
-            related_nutrient_ratios.append(self.get_nutrient_ratio(related_nutrient_name))
+        flag_name = model.flags.validation.validate_flag_name(flag_name)
 
+        # Grab a reference to the global flag;
+        flag = model.flags.ALL_FLAGS[flag_name]
+
+        # Grab related nutrient ratios;
+        # We already checked we had nutrient ratios in the constructor, so we can pass a reference for
+        # intellisense safely here;
+        s: Union['model.flags.HasFlags', 'model.nutrients.HasNutrientRatios'] = self
+        related_nutrient_ratios: List['model.nutrients.NutrientRatio'] = []
+        for related_nutrient_name in flag.related_nutrient_names:
+            related_nutrient_ratios.append(s.get_nutrient_ratio(related_nutrient_name))
+
+        # Return the compiled list;
         return related_nutrient_ratios
 
-    def get_flag_value(self, flag_name: str) -> Optional[bool]:
+    def get_flag_value(self, flag_name: str) -> bool:
         """Get the value of a particular flag by name."""
 
-        # First, check that I also have readable nutrient ratios;
-        if not isinstance(self, (nutrients.HasNutrientRatios, HasFlags)):
-            raise AttributeError('Readable nutrient ratios are requried to use flags.')
-
         # Validate the flag name, and grab a reference to the flag;
-        flag_name = flags.validation.validate_flag_name(flag_name)
-        flag = flags.all_flags[flag_name]
+        flag_name = model.flags.validation.validate_flag_name(flag_name)
+        flag = model.flags.ALL_FLAGS[flag_name]
 
-        # Grab related nutrient ratios;
-        related_nutrient_ratios = self.gather_related_nutrient_ratios(flag_name)
-
-        # If there are no related nutrients, return the flag DOF;
-        if len(related_nutrient_ratios) == 0:
+        # If the flag is a not direct alias, return its DOF;
+        if not flag.direct_alias:
             return self.get_flag_dof(flag_name)
+
+        # Grab defined related nutrient ratios;
+        try:
+            related_nutrient_ratios = self.gather_all_related_nutrient_ratios(flag_name)
+        # If any of the related nutrient ratio's aren't set, then this flag isn't set, so raise an exception;
+        except model.nutrients.exceptions.UndefinedNutrientRatioError as err:
+            raise model.flags.exceptions.UndefinedFlagError(
+                subject=self,
+                flag_name=flag_name,
+                reason=f"{flag_name.replace('_', ' ')} is not defined because the {err.nutrient_name} ratio is not "
+                       f"defined. "
+            )
 
         # Loop through the nutrients and check for mismatch or undefined nutrients;
         for related_nutrient_ratio in related_nutrient_ratios:
-            if flag.nutrient_ratio_matches_relation(related_nutrient_ratio) is True:
-                continue
-            elif flag.nutrient_ratio_matches_relation(related_nutrient_ratio) is False:
+            if flag.nutrient_ratio_matches_relation(related_nutrient_ratio) is False:
                 return False
-            elif flag.nutrient_ratio_matches_relation(related_nutrient_ratio) is None:
-                if flag.direct_alias:
-                    return None
-                else:
-                    continue
-
         # Finished looping through all related nutrients, so flag must match nutrient states;
         return True
 
-    @property
-    def all_flag_values(self) -> Dict[str, Optional[bool]]:
-        """Returns a dictionary of all flag names and their current values."""
-        values = {}
-        for flag_name in flags.all_flags.keys():
-            values[flag_name] = self.get_flag_value(flag_name)
-        return values
+    def get_undefined_flag_names(self) -> List[str]:
+        """Returns a list of all flag names that are undefined."""
+        undefined_flags = []
+        for flag_name in model.flags.ALL_FLAG_NAMES:
+            try:
+                _ = self.get_flag_value(flag_name)
+            except model.flags.exceptions.UndefinedFlagError:
+                undefined_flags.append(flag_name)
+        return undefined_flags
 
-    def _filter_flags(self, filter_value: Optional[bool]) -> List[str]:
-        """Gets flag_data names by value."""
-        return_flag_names = []
-        for flag_name in flags.all_flags.keys():
-            if self.get_flag_value(flag_name) == filter_value:
-                return_flag_names.append(flag_name)
-        return return_flag_names
+    def load_data(self, data: Dict[str, Any]) -> None:
+        # Pass the data on for sibling classes to load it;
+        super().load_data(data)
+        # Now load the flag DOF's into this instance;
+        for flag_name, flag_value in data['flag_data'].items():
+            # Only import the flag if it has a DOF. This is important for importing legacy data;
+            if flag_value not in model.flags.FLAGS_WITH_DOF:
+                continue
+            # Go ahead and assign the value;
+            self._flag_dofs[flag_name] = flag_value
 
-    @property
-    def true_flags(self) -> List[str]:
-        """Returns a list of all flag_data with value set to True."""
-        return self._filter_flags(True)
-
-    @property
-    def false_flags(self) -> List[str]:
-        """Returns a list of all flag_data with value set to False."""
-        return self._filter_flags(False)
-
-    @property
-    def unset_flags(self) -> List[str]:
-        """Returns a list of all flag_data which are undefined."""
-        return self._filter_flags(None)
-
-    @property
-    def all_flags_undefined(self) -> bool:
-        """Returns True/False to indicate if all flag_data are undefined."""
-        values = self.all_flag_values.values()
-        return True not in values and False not in values
-
-    @property
-    def any_flag_undefined(self) -> bool:
-        """Returns True/False to indicate if any flag is undefined."""
-        return None in self.all_flag_values.values()
-
-    def flag_is_defined(self, flag_name: str) -> bool:
-        """Returns True/False to indicate if a flag is undefined by name."""
-        return self.get_flag_value(flag_name) is not None
-
-    def flag_is_true(self, flag_name: str) -> bool:
-        """Returns True/False to indicate if the named flag is True."""
-        return self.get_flag_value(flag_name) is True
-
-    def flag_is_false(self, flag_name: str) -> bool:
-        """Returns True/False to indicate if the named flag is False."""
-        return self.get_flag_value(flag_name) is False
+    def persistable_data(self) -> Dict[str, Any]:
+        # Grab the peristable data from the sibling classes;
+        data = super().persistable_data
+        data['flag_data'] = self._flag_dofs
+        return data
 
 
 class HasSettableFlags(HasFlags, abc.ABC):
@@ -167,154 +148,208 @@ class HasSettableFlags(HasFlags, abc.ABC):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-    def analyse_nutrient_ratio_conflicts(self, flag_name: str, flag_value: Optional[bool]) -> 'NRConflicts':
+        # Since we are dealing with setting flags now, we also need to make sure this
+        # instance also has settable nutrient ratios, or the correction algorithms won't work.
+        if not isinstance(self, model.nutrients.HasSettableNutrientRatios):
+            raise TypeError('HasSettableFlags requires SettableNutrientRatios to function.')
+
+    def _collect_nutrient_ratio_conflicts(self, flag_name: str,
+                                          flag_value: Optional[bool]) -> 'model.flags.NRConflicts':
         """Collects and groups any conflicts which would arise between the proposed flag
         and value, and the current nutrient ratio data on the instance.
 
         Returns:
-            conflicts (NRConfclicts): Dict containing three lists of nutrient ratios which
-            would conflict, grouped into three different lists. The lists are:
-                - need_zero -> These nutrients ratios would need to be zero for the flag to apply.
-                - need_none -> The single nutrient ratio associated with a flag being set to None.
-                - need_non_zero -> These nutrient ratios would need to be non zero for the flag to apply.
-                - preventing_undefine -> The multiple nutrient ratios that mean we can't set the flag to be undefined.
+            conflicts (NRConflicts): Dict containing four lists of nutrient ratios which
+            would conflict, see NRConflicts class docstring for more info.
         Notes:
-            If the related flag is a direct alias, associated nutrients that are not defined will be
+            If the flag is a direct alias, associated nutrients that are not defined will be
             returned as conflicts. If the flag is not a direct alias, associated nutrients that are
             not defined are not counted as conflicts, because the flag's DOF can override them.
         """
 
-        # Check we also have nutrient ratios;
-        # Confirm we have settable nutrient ratios too;
-        if not isinstance(self, nutrients.HasSettableNutrientRatios):
-            raise AttributeError('Readable nutrient ratios are required to analyse flag conflicts.')
-        self: Union['HasSettableFlags', 'nutrients.HasNutrientRatios']  # Force mixin code analysis.
-
         # Validate the params;
-        flag_name = flags.validation.validate_flag_name(flag_name)
-        flag_value = flags.validation.validate_flag_value(flag_value)
+        flag_name = model.flags.validation.validate_flag_name(flag_name)
+        flag_value = model.flags.validation.validate_flag_value(flag_value)
 
         # Init the conflits dict structure;
-        conflicts = NRConflicts(
-            need_none=[],
+        conflicts = model.flags.NRConflicts(
             need_zero=[],
             need_non_zero=[],
-            preventing_undefine=[]
+            need_undefining=[],
+            preventing_flag_undefine=[]
         )
 
-        # Analyse nutrients related to this flag, grouping any conflicts;
-        flag = flags.all_flags[flag_name]
-        related_nutrient_names = flag.related_nutrient_names
-        for related_nutrient_name in related_nutrient_names:
-            nutrient_ratio = self.get_nutrient_ratio(nutrient_name=related_nutrient_name)
-            implication = flag.get_implication_for_nutrient(related_nutrient_name)
-            if flag_value is None:
-                if nutrient_ratio.defined:
+        # Tell intellisense we have both settable flags and nutrient ratios;
+        s: Union['model.flags.HasSettableFlags', 'model.nutrients.HasNutrientRatios'] = self
+
+        # Grab a reference to the flag thats involved;
+        flag = model.flags.ALL_FLAGS[flag_name]
+
+        # OK, lets split into the three main scenarios now. There is a different scenario for each
+        # possible proposed value for the flag to be set to. This is going to be complicated, so take a
+        # few deep breaths.
+
+        # 1. Flag is being set to True:
+        if flag_value is True:
+            # OK, lets loop through the related nutrient names, and try to grab their ratios;
+            for related_nutrient_name in flag.related_nutrient_names:
+                # Grab the implication for this nutrient;
+                implication = flag.get_implication_for_nutrient(related_nutrient_name)
+
+                # Go ahead and grab the nutrient ratio;
+                try:
+                    nutrient_ratio = s.get_nutrient_ratio(nutrient_name=related_nutrient_name)
+
+                # Hmmmm, that nutrient ratio wasn't defined;
+                except model.nutrients.exceptions.UndefinedNutrientRatioError:
+                    # Well, that's only a problem if the flag is a direct alias;
                     if flag.direct_alias:
-                        # If we have only found one nutrient which needs undefining, add it to the
-                        # need_none list.
-                        if len(conflicts['need_none']) == 0 and len(conflicts['preventing_undefine']) == 0:
-                            conflicts['need_none'].append(nutrient_ratio)
-                        # If there is already a nutrient in the undefine list, move it to preventing_undefine
-                        # and add this next one to preventing_undefine;
-                        elif len(conflicts['need_none']) == 1 and len(conflicts['preventing_undefine']) == 0:
-                            conflicts['preventing_undefine'].append(conflicts['need_none'].pop())
-                            conflicts['preventing_undefine'].append(nutrient_ratio)
-                        # If we already have one on preventing_undefine, then just keep adding to it.
-                        elif len(conflicts['need_none']) == 0 and len(conflicts['preventing_undefine']) > 0:
-                            conflicts['preventing_undefine'].append(nutrient_ratio)
-            elif flag_value is True:
-                if implication is implication.zero:
-                    if nutrient_ratio.is_non_zero:
-                        conflicts['need_zero'].append(nutrient_ratio)
-                    elif nutrient_ratio.undefined and flag.direct_alias:
-                        conflicts['need_zero'].append(nutrient_ratio)
-                elif implication is implication.non_zero:
-                    if nutrient_ratio.is_zero:
-                        conflicts['need_non_zero'].append(nutrient_ratio)
-                    elif nutrient_ratio.undefined and flag.direct_alias:
-                        conflicts['need_non_zero'].append(nutrient_ratio)
-            elif flag_value is False:
-                if implication is implication.zero:
-                    if nutrient_ratio.is_zero:
-                        conflicts['need_non_zero'].append(nutrient_ratio)
-                    elif nutrient_ratio.undefined and flag.direct_alias:
-                        conflicts['need_non_zero'].append(nutrient_ratio)
-                elif implication is implication.non_zero:
-                    if nutrient_ratio.is_non_zero:
-                        conflicts['need_zero'].append(nutrient_ratio)
-                    elif nutrient_ratio.undefined and flag.direct_alias:
-                        conflicts['need_zero'].append(nutrient_ratio)
+                        # OK, it was a direct alias, so we have to count this as a conflict;
+                        # Remember - our flag value is True here, so the nutrient name goes in the list
+                        # that MATCHES the implication.
+                        if implication is model.flags.FlagImpliesNutrient.zero:
+                            conflicts["need_zero"].append(related_nutrient_name)
+                        elif implication is model.flags.FlagImpliesNutrient.non_zero:
+                            conflicts["need_non_zero"].append(related_nutrient_name)
+                    continue
 
+                # We got this far, so we must have got the nutrient ratio instance.
+                # We only need to worry now if the nutrient ratio doesn't match the implication;
+                # Again, the proposed flag value is True here, so any conflicts go in the lists
+                # that MATCH their implications.
+                # noinspection PyUnboundLocalVariable
+                if flag.nutrient_ratio_matches_relation(nutrient_ratio) is False:
+                    if implication is model.flags.FlagImpliesNutrient.zero:
+                        conflicts["need_zero"].append(related_nutrient_name)
+                    elif implication is model.flags.FlagImpliesNutrient.non_zero:
+                        conflicts["need_non_zero"].append(related_nutrient_name)
+
+        # 2. Flag is being set to False:
+        if flag_value is False:
+            # OK, lets loop through the related nutrient names, and try to grab their ratios;
+            for related_nutrient_name in flag.related_nutrient_names:
+                # Grab the implication for this nutrient;
+                implication = flag.get_implication_for_nutrient(related_nutrient_name)
+
+                # Go ahead and grab the nutrient ratio;
+                try:
+                    nutrient_ratio = s.get_nutrient_ratio(nutrient_name=related_nutrient_name)
+
+                # Hmmmm, that nutrient ratio wasn't defined;
+                except model.nutrients.exceptions.UndefinedNutrientRatioError:
+                    # Well, that's only a problem if the flag is a direct alias;
+                    if flag.direct_alias:
+                        # OK, it was a direct alias, so we have to count this as a conflict;
+                        # Remember - our flag value is False now, so the nutrient name goes in the list
+                        # that is OPPOSITE to the implication.
+                        if implication is model.flags.FlagImpliesNutrient.zero:
+                            conflicts["need_non_zero"].append(related_nutrient_name)
+                        elif implication is model.flags.FlagImpliesNutrient.non_zero:
+                            conflicts["need_zero"].append(related_nutrient_name)
+                    continue
+
+                # We got this far, so we must have got the nutrient ratio instance.
+                # Because we are setting the flag to False, we only have a problem if the flag DOES
+                # match the implication. This also means any conflicts go in the lists that OPPOSE
+                # their implications.
+                # noinspection PyUnboundLocalVariable
+                if flag.nutrient_ratio_matches_relation(nutrient_ratio) is True:
+                    if implication is model.flags.FlagImpliesNutrient.zero:
+                        conflicts["need_non_zero"].append(related_nutrient_name)
+                    elif implication is model.flags.FlagImpliesNutrient.non_zero:
+                        conflicts["need_zero"].append(related_nutrient_name)
+
+        # 3. Flag is being undefined:
+        if flag_value is None:
+            # OK, lets loop through the related nutrient names, and try to grab their ratios;
+            for related_nutrient_name in flag.related_nutrient_names:
+                # Go ahead and grab the nutrient ratio;
+                try:
+                    nutrient_ratio = s.get_nutrient_ratio(nutrient_name=related_nutrient_name)
+
+                # That nutrient ratio wasn't defined;
+                except model.nutrients.exceptions.UndefinedNutrientRatioError:
+                    # Thats good! we're undefining the flag too, so we don't need to worry.
+                    continue
+
+                # Ahhh, that nutrient ratio is actually defined.
+                # OK, what we do now depends on wether or not the flag is a direct alias. If it is a direct
+                # alias, we'll definately need to undefine the nutriet ratio if our flag is to be undefined.
+                if flag.direct_alias:
+                    # OK, so it is a direct alias. We'll need to count this as a conflict. It needs
+                    # to be undefined.
+                    conflicts['need_undefining'].append(related_nutrient_name)
+
+                # On the other hand, if it isn't a direct alias, we just need to check it doesn't disagree
+                # with the flag;
+                if flag.nutrient_ratio_matches_relation(nutrient_ratio) is False:
+                    # Ahh OK, it does collide. We'll need to unset this nutrient ratio then.
+                    conflicts['need_undefining'].append(related_nutrient_name)
+
+                # If we logged our related nutrient as needing undefining, we need to check we don't have a
+                # further problem. If we have more than one nutrient ratio that would need undefining, we
+                # actually can't correct this situation, because we don't know which one(s) we actually
+                # need to undefine. In this situation, In this situation, we also need to add this situation
+                # to the preventing undefine list;
+                if related_nutrient_name in conflicts['need_undefining'] and len(conflicts['need_undefining']) > 1:
+                    conflicts['preventing_flag_undefine'].append(related_nutrient_name)
+
+        # Thats it! That was complicated. All you have to do now is return the conflicts object,
+        # then you can go and have a rest.
         return conflicts
-
-    def set_flag_data(self, flag_data: Dict[str, Optional[bool]]):
-        """Sets flag_data values on the object."""
-        for flag_name, flag_value in flag_data.items():
-            self.set_flag_value(flag_name, flag_value)
 
     def set_flag_value(self, flag_name: str,
                        flag_value: Optional[bool],
                        can_modify_nutrients: bool = False) -> None:
         """Sets a flag value by name."""
 
-        # Confirm we have settable nutrient ratios too;
-        if not isinstance(self, nutrients.HasSettableNutrientRatios):
-            raise AttributeError('Writeable nutrient ratios are required to set flags.')
-        self: Union['HasSettableFlags', 'nutrients.HasSettableNutrientRatios']  # Force mixin code analysis.
-
         # Start by validating the inputs;
-        flag_name = flags.validation.validate_flag_name(flag_name)
-        flag_value = flags.validation.validate_flag_value(flag_value)
+        flag_name = model.flags.validation.validate_flag_name(flag_name)
+        flag_value = model.flags.validation.validate_flag_value(flag_value)
 
         # Grab the flag instance;
-        flag = flags.all_flags[flag_name]
+        flag = model.flags.ALL_FLAGS[flag_name]
 
         # If flag_value matches the current state, do nothing;
-        if flag_value is self.get_flag_value(flag_name):
-            return None
+        try:
+            if flag_value is self.get_flag_value(flag_name):
+                return None
+        except model.flags.exceptions.UndefinedFlagError:
+            # OK, the flag hasn't been set yet, so don't worry about checking its current state;
+            pass
 
-        # Classify nutrient conflict state;
-        nr_conflicts = self.analyse_nutrient_ratio_conflicts(flag_name, flag_value)
+        # Classify the nutrient conflict state;
+        nr_conflicts = self._collect_nutrient_ratio_conflicts(flag_name, flag_value)
 
-        # Catch the non-fixable error states;
+        # Raise exceptions for the non-fixable error states;
         if len(nr_conflicts['need_non_zero']):
-            raise flags.exceptions.NonZeroNutrientRatioConflictError(
+            raise model.exceptions.NonZeroNutrientRatioConflictError(
                 flag_name=flag_name,
                 flag_value=flag_value,
                 conflicting_nutrient_ratios=nr_conflicts['need_non_zero']
             )
-        if len(nr_conflicts['preventing_undefine']):
-            raise flags.exceptions.UndefineMultipleNutrientRatiosError(
+        if len(nr_conflicts['preventing_flag_undefine']):
+            raise model.exceptions.UndefineMultipleNutrientRatiosError(
                 flag_name=flag_name,
                 flag_value=flag_value,
-                conflicting_nutrient_ratios=nr_conflicts['preventing_undefine']
+                conflicting_nutrient_ratios=nr_conflicts['preventing_flag_undefine']
             )
 
         # Get permission to address fixable error states;
-        if (len(nr_conflicts['need_zero']) or len(nr_conflicts['need_none'])) and not can_modify_nutrients:
-            raise flags.exceptions.FixableNutrientRatioConflictError(
+        if (len(nr_conflicts['need_zero']) or len(nr_conflicts['need_undefining'])) and not can_modify_nutrients:
+            raise model.exceptions.FixableNutrientRatioConflictError(
                 flag_name=flag_name,
                 flag_value=flag_value,
-                conflicting_nutrient_ratios=nr_conflicts['need_zero'] + nr_conflicts['need_none']
+                conflicting_nutrient_ratios=nr_conflicts['need_zero'] + nr_conflicts['need_undefining']
             )
 
         # Correct the error states and make the change;
-        for nr in nr_conflicts['need_none']:
-            self.undefine_nutrient_ratio(nr.nutrient.primary_name)
-        for nr in nr_conflicts['need_zero']:
-            self.zero_nutrient_ratio(nr.nutrient.primary_name)
+        s: Union['HasSettableFlags', 'model.nutrients.HasSettableNutrientRatios'] = self
+        for nutrient_ratio_name in nr_conflicts['need_undefining']:
+            s.undefine_nutrient_ratio(nutrient_ratio_name)
+        for nutrient_ratio_name in nr_conflicts['need_zero']:
+            s.zero_nutrient_ratio(nutrient_ratio_name)
 
         # Finally, set the flag's dof if flag is not a direct alias;
         if not flag.direct_alias:
             self._flag_dofs[flag_name] = flag_value
-
-    def set_all_flags_true(self) -> None:
-        """Sets all flag_data to be True."""
-        for flag_name in self._flag_dofs:
-            self.set_flag_value(flag_name, True)
-
-    def set_all_flags_false(self) -> None:
-        """Sets all flag_data to be False."""
-        for flag_name in self._flag_dofs:
-            self.set_flag_value(flag_name, False)

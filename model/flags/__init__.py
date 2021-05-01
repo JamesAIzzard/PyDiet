@@ -1,5 +1,23 @@
 from . import configs, validation, exceptions
-from .configs import FlagImpliesNutrient
-from .has_flags import HasFlags, HasSettableFlags
 from .flag import Flag
-from .main import all_flags, init_global_flags, all_flag_names
+from .has_flags import HasFlags, HasSettableFlags
+from .main import ALL_FLAGS, ALL_FLAG_NAMES, FLAGS_WITH_DOF, FLAGS_WITHOUT_DOF, FlagImpliesNutrient, NRConflicts
+
+# Initialise the derived globals;
+for flag_name, data in configs.FLAG_DATA.items():
+
+    # Initialise the flag instance;
+    ALL_FLAGS[flag_name] = Flag(
+        name=flag_name,
+        nutrient_relations=data['nutrient_relations'],
+        direct_alias=data['direct_alias']
+    )
+
+    # Add the name to the list of all flag names;
+    ALL_FLAG_NAMES.append(flag_name)
+
+    # If it has DOF;
+    if data['direct_alias'] is True:
+        FLAGS_WITHOUT_DOF.append(flag_name)
+    else:
+        FLAGS_WITH_DOF.append(flag_name)

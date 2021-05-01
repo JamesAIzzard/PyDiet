@@ -1,11 +1,43 @@
-from . import configs, exceptions, validation
+import copy
+
+from . import configs, exceptions, validation, main
+from .configs import ALL_PRIMARY_NUTRIENT_NAMES, MANDATORY_NUTRIENT_NAMES
 from .main import (get_nutrient_primary_name,
-                   get_all_primary_and_alias_nutrient_names,
-                   global_nutrients,
-                   init_global_nutrients,
+                   PRIMARY_AND_ALIAS_NUTRIENT_NAMES,
+                   GLOBAL_NUTRIENTS,
+                   NUTRIENT_GROUP_NAMES,
+                   OPTIONAL_NUTRIENT_NAMES,
+                   get_nutrient_alias_names,
+                   get_calories_per_g,
+                   validate_nutrient_family_masses,
                    get_n_closest_nutrient_names)
-from .nutrient_ratios import NutrientRatioData, NutrientRatio, SettableNutrientRatio, HasNutrientRatios, \
-    HasSettableNutrientRatios
-from .nutrient_mass import NutrientMassData, SettableNutrientMass
 from .nutrient import Nutrient
-from .configs import all_primary_nutrient_names, mandatory_nutrient_names
+from .nutrient_mass import (
+    NutrientMass,
+    SettableNutrientMass,
+    NutrientMassData
+)
+from .nutrient_ratios import (
+    NutrientRatioData,
+    NutrientRatio,
+    SettableNutrientRatio,
+    HasNutrientRatios,
+    HasSettableNutrientRatios
+)
+
+# Check the configs are OK;
+validation.validate_configs()
+
+# Initialise the nutrient group names list;
+main.NUTRIENT_GROUP_NAMES = configs.NUTRIENT_GROUP_DEFINITIONS.keys()
+
+# Initialise the optional nutrients list;
+main.OPTIONAL_NUTRIENT_NAMES = set(ALL_PRIMARY_NUTRIENT_NAMES).difference(set(MANDATORY_NUTRIENT_NAMES))
+
+# Initialise the all known nutrients name list;
+main.PRIMARY_AND_ALIAS_NUTRIENT_NAMES = copy.copy(ALL_PRIMARY_NUTRIENT_NAMES)
+main.PRIMARY_AND_ALIAS_NUTRIENT_NAMES += list(configs.NUTRIENT_ALIASES.keys())
+
+# Initialise the global nutrient list;
+for primary_nutrient_name in ALL_PRIMARY_NUTRIENT_NAMES:
+    GLOBAL_NUTRIENTS[primary_nutrient_name] = Nutrient(primary_nutrient_name)

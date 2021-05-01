@@ -8,8 +8,8 @@ import persistence
 
 
 class IngredientEditorView(tk.Frame):
-    def __init__(self, master, **kwargs):
-        super().__init__(master=master, **kwargs)
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
         self.columnconfigure(0, weight=1)  # Make the 0th col expand to fill full width of self.
 
@@ -145,7 +145,7 @@ class IngredientEditorController(gui.HasSubject):
         self.basic_nutrient_ratio_editor = gui.FixedNutrientRatiosEditorController(
             view=view.basic_nutrient_ratios_editor,
             on_nutrient_values_change_callback=self._on_nutrient_values_changed,
-            primary_nutrient_names=model.nutrients.mandatory_nutrient_names,
+            primary_nutrient_names=model.nutrients.MANDATORY_NUTRIENT_NAMES,
             **kwargs
         )
         self.extended_nutrient_ratio_editor = gui.DynamicNutrientRatiosEditorController(
@@ -305,7 +305,7 @@ class IngredientEditorController(gui.HasSubject):
 
             # Reset the conflict message;
             self.nutrient_flag_status.show_ok()
-        except model.nutrients.exceptions.ChildNutrientQtyExceedsParentNutrientQtyError as err:
+        except model.nutrients.exceptions.NutrientFamilyRatioConflictError as err:
             self.nutrient_flag_status.show_conflict(
                 f"The nutrients in the {err.nutrient_group_name} group exceed its mass."
             )
@@ -330,11 +330,12 @@ class IngredientEditorController(gui.HasSubject):
             self.editing_flags = True
 
         # Try and move the flag values into the model;
+        flag_name = None
         try:
             for flag_name, flag_value in self.flag_editor.flag_values.items():
                 self.subject.set_flag_value(flag_name, self.view.flag_editor.get_flag_value(flag_name), True)
-        except (model.flags.exceptions.NonZeroNutrientRatioConflictError,
-                model.flags.exceptions.UndefineMultipleNutrientRatiosError) as e:
+        except (model.exceptions.NonZeroNutrientRatioConflictError,
+                model.exceptions.UndefineMultipleNutrientRatiosError) as e:
             self.nutrient_flag_status.show_conflict(
                 f"'{flag_name.replace('_', ' ')}' flag conflicts with {e.conflicting_nutrient_ratios[0].nutrient.primary_name} nutrient ratio"
                 # noqa

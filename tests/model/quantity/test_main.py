@@ -1,5 +1,6 @@
 from unittest import TestCase
 
+import model.quantity.exceptions
 from model import quantity
 
 
@@ -82,19 +83,19 @@ class TestConvertQtyUnit(TestCase):
         self.assertAlmostEqual(result, 2, delta=0.001)
 
     def test_error_if_g_per_ml_missing(self):
-        with self.assertRaises(ValueError):
+        with self.assertRaises(model.quantity.exceptions.UndefinedDensityError):
             quantity.main.convert_qty_unit(
                 qty=2,
                 start_unit='ml',
                 end_unit='g'
             )
-        with self.assertRaises(ValueError):
+        with self.assertRaises(model.quantity.exceptions.UndefinedDensityError):
             quantity.main.convert_qty_unit(
                 qty=2,
                 start_unit='kg',
                 end_unit='L'
             )
-        with self.assertRaises(ValueError):
+        with self.assertRaises(model.quantity.exceptions.UndefinedDensityError):
             quantity.main.convert_qty_unit(
                 qty=2,
                 start_unit='L',
@@ -103,13 +104,13 @@ class TestConvertQtyUnit(TestCase):
             )
 
     def test_error_if_piece_mass_g_missing(self):
-        with self.assertRaises(ValueError):
+        with self.assertRaises(model.quantity.exceptions.UndefinedPcMassError):
             quantity.main.convert_qty_unit(
                 qty=2,
                 start_unit='kg',
                 end_unit='pc'
             )
-        with self.assertRaises(ValueError):
+        with self.assertRaises(model.quantity.exceptions.UndefinedPcMassError):
             quantity.main.convert_qty_unit(
                 qty=2,
                 start_unit='L',

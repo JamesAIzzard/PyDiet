@@ -1,6 +1,6 @@
 import abc
 import tkinter as tk
-from typing import List, Any
+from typing import List, Callable, Any
 
 
 class BaseController:
@@ -26,6 +26,17 @@ class BaseController:
     def process_view_changes(self, *args, **kwargs) -> None:
         """Push data from the view to the model."""
         raise NotImplementedError
+
+
+class AppPage(BaseController, abc.ABC):
+    """Base class for controllers that the app can handle as main pages."""
+
+    def __init__(self, title: str, on_page_load: Callable[..., None], on_page_close: Callable[..., None], **kwargs):
+        super().__init__(**kwargs)
+        self.title = title
+        self.on_page_load = on_page_load
+        self.on_page_close = on_page_close
+
 
 
 class HasSubject(BaseController, abc.ABC):

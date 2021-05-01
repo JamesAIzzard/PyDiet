@@ -1,6 +1,6 @@
 from typing import List, Dict
 
-all_primary_nutrient_names: List[str] = [
+ALL_PRIMARY_NUTRIENT_NAMES: List[str] = [
     "a_carotene",
     "a_linolenic_acid",
     "alanine",
@@ -121,7 +121,7 @@ all_primary_nutrient_names: List[str] = [
     "zinc"
 ]
 
-mandatory_nutrient_names: List[str] = [
+MANDATORY_NUTRIENT_NAMES: List[str] = [
     "carbohydrate",
     "fat",
     "saturated_fat",
@@ -131,7 +131,7 @@ mandatory_nutrient_names: List[str] = [
     "sodium"
 ]
 
-nutrient_aliases: Dict[str, List[str]] = {
+NUTRIENT_ALIASES: Dict[str, List[str]] = {
     "a_carotene": ["alpha_carotene"],
     "a_linolenic_acid": ["alpha_linolenic_acid", "ALA"],
     "amylose": ["starch"],
@@ -170,7 +170,7 @@ nutrient_aliases: Dict[str, List[str]] = {
     "vitamin_k2": ["menaquinone"],
 }
 
-nutrient_group_definitions: Dict[str, List[str]] = {
+NUTRIENT_GROUP_DEFINITIONS: Dict[str, List[str]] = {
     "carbohydrate": ["glucose", "sucrose", "ribose", "amylose", "amylopectin", "maltose", "galactose", "fructose",
                      "lactose"],
     "cartenoids": ["a_carotene", "b_carotene", "cryptoxanthin", "lutein", "lycopene", "zeaxanthin"],
@@ -193,7 +193,7 @@ nutrient_group_definitions: Dict[str, List[str]] = {
     "vitamin_k": ["vitamin_k1", "vitamin_k2"],
 }
 
-calorie_nutrients: Dict[str, float] = {
+CALORIE_NUTRIENTS: Dict[str, float] = {
     "protein": 4,
     "fat": 9,
     "carbohydrate": 4,

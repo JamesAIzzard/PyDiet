@@ -5,7 +5,7 @@ import gui
 import model.ingredients
 
 
-class TopMenuWidget(tk.Menu):
+class TopMenuView(tk.Menu):
     def __init__(self, root, **kwargs):
         super().__init__(master=root, **kwargs)
         self._root = root
@@ -57,7 +57,7 @@ class TopMenuWidget(tk.Menu):
 
 
 class TopMenuController:
-    def __init__(self, app: 'gui.App', view: 'TopMenuWidget'):
+    def __init__(self, app: 'gui.AppView', view: 'TopMenuView'):
         self._app = app
         self._view = view
         self._app.root.bind("<<New-Ingredient-Click>>", self._on_new_ingredient_click)

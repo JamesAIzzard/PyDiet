@@ -13,14 +13,12 @@ T = TypeVar('T')
 def save(subject: 'persistence.SupportsPersistence') -> None:
     """Saves the subject."""
 
-    # Check the name is filled in and available;
-    if not subject.unique_value_defined:
-        raise persistence.exceptions.UniqueValueUndefinedError
+    # Check the name is available;
     if check_unique_value_available(subject.__class__, subject.unique_value, subject.datafile_name) is False:
         raise persistence.exceptions.UniqueValueDuplicatedError
 
     # If exists already, we are updating;
-    if subject.datafile_exists:
+    if subject.datafile_name_is_defined:
         _update_datafile(subject)
     # Otherwise, save in a new datafile;
     else:
@@ -44,7 +42,7 @@ def load(cls: Type[T], unique_value: Optional[str] = None,
 
     # Load & return;
     data = _read_datafile(cls.get_path_into_db() + datafile_name + '.json')
-    loaded_instance = cls(unique_value=unique_value, datafile_name=datafile_name)
+    loaded_instance = cls(datafile_name=datafile_name)
     loaded_instance.load_data(data)
     return loaded_instance
 
@@ -83,7 +81,7 @@ def check_unique_value_available(cls: Type['persistence.SupportsPersistence'], p
 
     # Check proposed name was provided;
     if proposed_name is None:
-        raise persistence.exceptions.UniqueValueUndefinedError
+        raise persistence.exceptions.UndefinedUniqueValueError
 
     # Grab the index data;
     index_data = _read_index(cls)
@@ -118,7 +116,7 @@ def get_datafile_name_for_unique_value(cls: Type['persistence.SupportsPersistenc
     for df_name, u_name in index.items():
         if u_name == unique_value:
             return df_name
-    raise persistence.exceptions.UniqueValueNotFoundError
+    raise persistence.exceptions.UniqueValueNotFoundError(missing_unique_value=unique_value)
 
 
 def get_unique_value_from_datafile_name(cls: Type['persistence.SupportsPersistence'], datafile_name: str) -> str:

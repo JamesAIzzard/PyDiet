@@ -1,5 +1,6 @@
 from unittest import TestCase
 
+import model.exceptions
 from model import ingredients, flags
 
 
@@ -17,7 +18,7 @@ class TestSetFlag(TestCase):
 
     def test_sets_flag_and_zeros_single_nutrient(self) -> None:
         # Check we get a fixable nr error if we don't pass the modify flag;
-        with self.assertRaises(flags.exceptions.FixableNutrientRatioConflictError):
+        with self.assertRaises(model.exceptions.FixableNutrientRatioConflictError):
             self.ingredient.set_flag_value(
                 flag_name="alcohol_free",
                 flag_value=True

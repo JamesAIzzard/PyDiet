@@ -1,6 +1,6 @@
 from typing import Any
 
-from model import quantity
+import model
 
 
 def validate_quantity(qty: float) -> float:
@@ -11,9 +11,9 @@ def validate_quantity(qty: float) -> float:
     try:
         qty = float(qty)
     except ValueError:
-        raise quantity.exceptions.InvalidQtyError()
+        raise model.quantity.exceptions.InvalidQtyError(quantity=qty)
     if qty < 0:
-        raise quantity.exceptions.InvalidQtyError()
+        raise model.quantity.exceptions.InvalidQtyError(quantity=qty)
     else:
         return qty
 
@@ -25,30 +25,59 @@ def validate_nonzero_quantity(qty: Any) -> float:
     """
     qty = validate_quantity(qty)
     if qty == 0:
-        raise quantity.exceptions.ZeroQtyError()
+        raise model.quantity.exceptions.ZeroQtyError()
     else:
         return qty
 
 
 def validate_qty_unit(unit: str) -> str:
     """Ensures the unit is a unit which the system recognises, and returns it."""
-    for recognised_unit in quantity.get_recognised_qty_units():
-        if unit.lower() == recognised_unit.lower():
-            return recognised_unit
-    raise quantity.exceptions.UnknownUnitError
+    # All units are in lowercase;
+    unit = unit.lower()
+    # Raise an exception if the unit isn't in the system;
+    if unit not in model.quantity.QTY_UNITS:
+        raise model.quantity.exceptions.UnknownUnitError(unit=unit)
+    # All must be OK, return it;
+    return unit
 
 
 def validate_mass_unit(unit: str) -> str:
     """Ensures the unit is a recognised mass unit, and returns it."""
-    for recognised_unit in quantity.get_recognised_mass_units():
-        if unit.lower() == recognised_unit.lower():
-            return recognised_unit
-    raise quantity.exceptions.UnknownUnitError
+    # All units are in lowercase;
+    unit = unit.lower()
+    # Raise an exception if the unit isn't in the system;
+    if unit not in model.quantity.QTY_UNITS:
+        raise model.quantity.exceptions.UnknownUnitError(unit=unit)
+    # Raise an exception if the unit is in the system, but isn't a mass;
+    if unit not in model.quantity.MASS_UNITS:
+        raise model.quantity.exceptions.IncorrectUnitTypeError(unit=unit)
+    # All must be OK, return it;
+    return unit
 
 
 def validate_vol_unit(unit: str) -> str:
     """Ensures the unit is a recognised volume unit, and returns it."""
-    for recognised_unit in quantity.get_recognised_vol_units():
-        if unit.lower() == recognised_unit.lower():
-            return recognised_unit
-    raise quantity.exceptions.UnknownUnitError
+    # All units are in lowercase;
+    unit = unit.lower()
+    # Raise an exception if the unit isn't in the system;
+    if unit not in model.quantity.QTY_UNITS:
+        raise model.quantity.exceptions.UnknownUnitError(unit=unit)
+    # Raise an exception if the unit is in the system, but isn't a volume;
+    if unit not in model.quantity.VOL_UNITS:
+        raise model.quantity.exceptions.IncorrectUnitTypeError(unit=unit)
+    # All must be OK, return it;
+    return unit
+
+
+def validate_pc_unit(unit: str) -> str:
+    """Ensures the unit is a recognised pc mass unit, and returns it."""
+    # All units are in lowercase;
+    unit = unit.lower()
+    # Raise an exception if the unit isn't in the system;
+    if unit not in model.quantity.QTY_UNITS:
+        raise model.quantity.exceptions.UnknownUnitError(unit=unit)
+    # Raise an exception if the unit is in the system, but isn't a volume;
+    if unit not in model.quantity.PC_UNITS:
+        raise model.quantity.exceptions.IncorrectUnitTypeError(unit=unit)
+    # All must be OK, return it;
+    return unit

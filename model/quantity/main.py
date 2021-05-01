@@ -1,32 +1,12 @@
-from typing import List, Optional
+from typing import Optional
 
-from model.quantity import validation, configs
-
-
-def get_recognised_mass_units() -> List[str]:
-    """Returns a list of all recognised mass units."""
-    return list(configs.G_CONVERSIONS.keys())
-
-
-def get_recognised_vol_units() -> List[str]:
-    """Returns a list of all recognised volumetric units."""
-    return list(configs.ML_CONVERSIONS.keys())
-
-
-def get_recognised_pc_units() -> List[str]:
-    """Returns a list of all pc mass units."""
-    return ['pc']
-
-
-def get_recognised_qty_units() -> List[str]:
-    """Returns a list of all recognised quantity units."""
-    return get_recognised_mass_units() + get_recognised_vol_units() + get_recognised_pc_units()
+import model.quantity
 
 
 def units_are_masses(*units: str) -> bool:
     """Returns True/False to indicate if EVERY parameter is a mass unit."""
     for unit in units:
-        if unit not in get_recognised_mass_units():
+        if unit.lower() not in model.quantity.MASS_UNITS:
             return False
     return True
 
@@ -34,7 +14,7 @@ def units_are_masses(*units: str) -> bool:
 def units_are_volumes(*units: str) -> bool:
     """Returns True/False to indicate if EVERY parameter is a volumetric unit."""
     for unit in units:
-        if unit not in get_recognised_vol_units():
+        if unit.lower() not in model.quantity.VOL_UNITS:
             return False
     return True
 
@@ -42,7 +22,7 @@ def units_are_volumes(*units: str) -> bool:
 def units_are_pieces(*units: str) -> bool:
     """Returns True or false to indicate if EVERY unit is the piece unit."""
     for unit in units:
-        if not unit.lower() == 'pc':
+        if unit.lower() not in model.quantity.PC_UNITS:
             return False
     return True
 
@@ -50,11 +30,11 @@ def units_are_pieces(*units: str) -> bool:
 def _convert_like2like(qty: float, start_unit: str, end_unit: str) -> float:
     """Handles mass<->mass and vol<->vol"""
     if units_are_masses(start_unit, end_unit):
-        u_i = configs.G_CONVERSIONS[start_unit]
-        u_o = configs.G_CONVERSIONS[end_unit]
+        u_i = model.quantity.configs.G_CONVERSIONS[start_unit]
+        u_o = model.quantity.configs.G_CONVERSIONS[end_unit]
     elif units_are_volumes(start_unit, end_unit):
-        u_i = configs.ML_CONVERSIONS[start_unit]
-        u_o = configs.ML_CONVERSIONS[end_unit]
+        u_i = model.quantity.configs.ML_CONVERSIONS[start_unit]
+        u_o = model.quantity.configs.ML_CONVERSIONS[end_unit]
     else:  # Units are pieces.
         u_i = 1
         u_o = 1
@@ -101,37 +81,45 @@ def convert_qty_unit(qty: float,
                      g_per_ml: Optional[float] = None,
                      piece_mass_g: Optional[float] = None) -> float:
     """Converts any quantity unit to any other quantity unit."""
-    # Validate all units to correct any case issues;
-    start_unit = validation.validate_qty_unit(start_unit)
-    end_unit = validation.validate_qty_unit(end_unit)
 
-    # like2like
+    # Catch any invalid quantities;
+    qty = model.quantity.validation.validate_quantity(qty)
+    if g_per_ml is not None:
+        g_per_ml = model.quantity.validation.validate_quantity(g_per_ml)
+    if piece_mass_g is not None:
+        piece_mass_g = model.quantity.validation.validate_quantity(piece_mass_g)
+
+    # Correct unit case issues and raise an exception if the unit isn't recognised;
+    start_unit = model.quantity.validation.validate_qty_unit(start_unit)
+    end_unit = model.quantity.validation.validate_qty_unit(end_unit)
+
+    # like2like;
     if units_are_masses(start_unit, end_unit) or \
             units_are_volumes(start_unit, end_unit) or \
             units_are_pieces(start_unit, end_unit):
         return _convert_like2like(qty, start_unit, end_unit)
 
-    # mass<->vol
+    # mass<->vol;
     elif (units_are_masses(start_unit) and units_are_volumes(end_unit)) or \
             (units_are_volumes(start_unit) and units_are_masses(end_unit)):
         if g_per_ml is None:
-            raise ValueError('g_per_ml cannot be None for mass<->vol conversions.')
+            raise model.quantity.exceptions.UndefinedDensityError()
         return _convert_mass_and_vol(qty, start_unit, end_unit, g_per_ml)
 
-    # pc<->mass
+    # pc<->mass;
     elif (units_are_pieces(start_unit) and units_are_masses(end_unit)) or \
             (units_are_masses(start_unit) and units_are_pieces(end_unit)):
         if piece_mass_g is None:
-            raise ValueError('piece_mass_g cannot be None for pc<->mass conversions.')
+            raise model.quantity.exceptions.UndefinedPcMassError()
         return _convert_pc_and_mass(qty, start_unit, end_unit, piece_mass_g)
 
-    # pc->vol
+    # pc->vol;
     elif (units_are_pieces(start_unit) and units_are_volumes(end_unit)) or \
             (units_are_volumes(start_unit) and units_are_pieces(end_unit)):
         if piece_mass_g is None:
-            raise ValueError('piece_mass_g cannot be None for pc<->vol conversions.')
+            raise model.quantity.exceptions.UndefinedPcMassError()
         if g_per_ml is None:
-            raise ValueError('g_per_ml cannot be None pc<->vol conversions.')
+            raise model.quantity.exceptions.UndefinedDensityError()
         return _convert_pc_and_vol(qty, start_unit, end_unit, piece_mass_g, g_per_ml)
 
     else:
@@ -145,6 +133,12 @@ def convert_density_unit(qty: float,
                          end_vol_unit: str,
                          piece_mass_g: Optional[float] = None) -> float:
     """Converts any density unit to any other density unit."""
+
+    # Catch any invalid quantities;
+    qty = model.quantity.validation.validate_quantity(qty)
+    if piece_mass_g is not None:
+        piece_mass_g = model.quantity.validation.validate_quantity(piece_mass_g)
+
     # Handle pc being used as the start mass unit;
     if units_are_pieces(start_mass_unit):
         start_mass_unit = 'g'
@@ -156,15 +150,15 @@ def convert_density_unit(qty: float,
         qty = qty / piece_mass_g
 
     # Validate all units to correct any case issues;
-    start_mass_unit = validation.validate_mass_unit(start_mass_unit)
-    start_vol_unit = validation.validate_vol_unit(start_vol_unit)
-    end_mass_unit = validation.validate_mass_unit(end_mass_unit)
-    end_vol_unit = validation.validate_vol_unit(end_vol_unit)
+    start_mass_unit = model.quantity.validation.validate_mass_unit(start_mass_unit)
+    start_vol_unit = model.quantity.validation.validate_vol_unit(start_vol_unit)
+    end_mass_unit = model.quantity.validation.validate_mass_unit(end_mass_unit)
+    end_vol_unit = model.quantity.validation.validate_vol_unit(end_vol_unit)
 
     # m_in/v_in = k(m_out/v_out) => k = (m_in*v_out)/(v_in*m_out)
     # Shortcut the conversion tables;
-    g_convs = configs.G_CONVERSIONS
-    ml_convs = configs.ML_CONVERSIONS
+    g_convs = model.quantity.configs.G_CONVERSIONS
+    ml_convs = model.quantity.configs.ML_CONVERSIONS
     # Set the conversion factors;
     m_in = g_convs[start_mass_unit]
     m_out = g_convs[end_mass_unit]

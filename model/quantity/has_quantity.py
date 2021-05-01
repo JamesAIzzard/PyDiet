@@ -1,21 +1,29 @@
 import abc
-from typing import TypedDict, Optional
+from typing import Dict, TypedDict, Optional, Any
 
-from model import quantity
+import model
+import persistence
 
 
 class QuantityData(TypedDict):
     quantity_in_g: Optional[float]
-    quantity_units: Optional[str]
+    quantity_pref_unit: str
 
 
-class HasQuantity(quantity.HasBulk, abc.ABC):
-    """Models a quantity of substance with mass or volume."""
+class HasQuantity(abc.ABC):
+    """Models a quantity of substance with mass or volume.
+    Notes:
+        We don't store the values on this class, because some implementations, such as RecipeQuantity
+        will derive their quantity information from the IngredientQuantities stored against it.
 
-    def __init__(self, **kwargs):
-        """Don't initialise values here because different child classes will implement
-        these values in different ways."""
+        I did consider adding SupportsDefinition as a parent class, but it seems too much. Lots of things
+        are going to subclass this, and its not clear to me they will always support the concept of
+        being defined.
+    """
+
+    def __init__(self, subject: 'model.quantity.HasBulk', **kwargs):
         super().__init__(**kwargs)
+        self._subject = subject
 
     @abc.abstractmethod
     def _get_quantity_in_g(self) -> Optional[float]:
@@ -23,69 +31,112 @@ class HasQuantity(quantity.HasBulk, abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def _get_quantity_pref_units(self) -> Optional[str]:
-        """Implements the way the concrete class stores/retrieves the preferred units of qty."""
+    def _get_quantity_pref_unit(self) -> str:
+        """Implements they quantity pref unit retrival on the concrete class."""
         raise NotImplementedError
 
     @property
-    def quantity_in_g(self) -> Optional[float]:
+    def quantity_in_g(self) -> float:
         """Returns the object's quantity in grams."""
-        return self._get_quantity_in_g()
+        if self._get_quantity_in_g() is None:
+            raise model.quantity.exceptions.UndefinedQuantityError()
+        else:
+            return self._get_quantity_in_g()
 
     @property
-    def quantity_pref_units(self) -> Optional[str]:
-        """Returns the object's quantity units."""
-        return self._get_quantity_pref_units()
+    def quantity_pref_unit(self) -> str:
+        """Returns the subject's preferred unit."""
+        return self._get_quantity_pref_unit()
 
     @property
-    def quantity_is_defined(self) -> bool:
-        """Returns True/False to indicate quantity has been defined."""
-        return self.quantity_in_g is not None and self.quantity_pref_units is not None
+    def quantity_in_pref_units(self) -> float:
+        """Returns the isntance's quantity in its preferred units."""
+        return model.quantity.convert_qty_unit(
+            qty=self.quantity_in_g,
+            start_unit='g',
+            end_unit=self.quantity_pref_unit,
+            g_per_ml=self._subject.g_per_ml if self._subject.density_is_defined else None,
+            piece_mass_g=self._subject.piece_mass_g if self._subject.piece_mass_defined else None
+        )
 
 
-class HasSettableQuantity(HasQuantity):
-    """Models a quantity of substance with a settable mass or volume."""
+class HasSettableQuantity(HasQuantity, persistence.HasPersistableData):
+    """Models a quantity of substance with a settable mass or volume.
+    Notes:
+        Since the quantity is settable on this instance, it is safe to assume the values
+        are stored on this instance. It also means we can export the persistable data from this
+        instance, hence we inherit HasPersistableData.
+    """
 
-    def __init__(self, **kwargs):
+    def __init__(self, quantity_data: Optional['QuantityData'] = None, **kwargs):
         super().__init__(**kwargs)
 
-    @abc.abstractmethod
-    def _set_validated_pref_quantity_units(self, validated_unit: str) -> None:
-        """Implements the way the concrete class sets the validated quantity units on the instance."""
-        raise NotImplementedError
+        self._quantity_in_g = None
+        self._quantity_pref_unit = 'g'
 
-    @abc.abstractmethod
-    def _set_validated_quantity_in_g(self, validated_quantity_in_g: Optional[float]) -> None:
-        """Implmeents the way the concrete class sets the validated quantity in grams on the instance."""
-        raise NotImplementedError
+        if quantity_data is not None:
+            self.load_data(quantity_data)
+
+    def _get_quantity_in_g(self) -> Optional[float]:
+        return self._quantity_in_g
 
     @HasQuantity.quantity_in_g.setter
-    def quantity_in_g(self, quantity_g: Optional[float]) -> None:
+    def quantity_in_g(self, value: Optional[float]) -> None:
         """Sets the quantity of the instance in g."""
-        if quantity is not None:
-            quantity_g = quantity.validation.validate_quantity(quantity_g)
-        self._set_validated_quantity_in_g(quantity_g)
-
-    @HasQuantity.quantity_pref_units.setter
-    def quantity_pref_units(self, units: str) -> None:
-        """Sets the units of the instance quantity."""
-        if quantity.units_are_volumes(units) and not self.density_is_defined:
-            raise quantity.exceptions.DensityNotConfiguredError
-        elif quantity.units_are_pieces(units) and not self.piece_mass_defined:
-            raise quantity.exceptions.PcMassNotConfiguredError
+        if value is None:
+            self._quantity_in_g = None
         else:
-            self._set_validated_pref_quantity_units(quantity.validation.validate_qty_unit(units))
+            value = model.quantity.validation.validate_quantity(value)
+            self._quantity_in_g = value
 
-    def set_quantity(self, qty: float, units: str) -> None:
+    def _get_quantity_pref_unit(self) -> str:
+        return self._quantity_pref_unit
+
+    @HasQuantity.quantity_pref_unit.setter
+    def quantity_pref_unit(self, unit: str) -> None:
+        """Sets the quantity pref unit."""
+        # First, validate the unit;
+        unit = model.quantity.validation.validate_qty_unit(unit)
+        # Only allow a volume unit if the subject's density is configured;
+        if model.quantity.units_are_volumes(unit):
+            if not self._subject.density_is_defined:
+                raise model.quantity.exceptions.UndefinedDensityError(subject=self)
+        elif model.quantity.units_are_pieces(unit):
+            if not self._subject.piece_mass_defined:
+                raise model.quantity.exceptions.UndefinedPcMassError(subject=self)
+        # No issues, go ahead and set;
+        self._quantity_pref_unit = unit
+
+    def set_quantity(self, qty: float, unit: str) -> None:
         """Set's the substance's quantity in arbitrary units."""
-        # Validate & convert;
-        units = quantity.validation.validate_qty_unit(units)
-        quantity_in_g = quantity.convert_qty_unit(qty=qty,
-                                                  start_unit=units,
-                                                  end_unit='g',
-                                                  g_per_ml=self.g_per_ml,
-                                                  piece_mass_g=self.piece_mass_g)
+        # Convert the value into grams;
+        quantity_in_g = model.quantity.convert_qty_unit(
+            qty=qty,
+            start_unit=unit,
+            end_unit='g',
+            g_per_ml=self._subject.g_per_ml if self._subject.density_is_defined else None,
+            piece_mass_g=self._subject.piece_mass_g if self._subject.piece_mass_defined else None
+        )
 
-        # All is OK, so set the values;
-        self._set_validated_quantity_in_g(validated_quantity_in_g=quantity_in_g)
-        self._set_validated_pref_quantity_units(validated_unit=units)
+        # Set the values;
+        self.quantity_in_g = quantity_in_g
+        self.quantity_pref_unit = unit
+
+    def load_data(self, data: 'QuantityData') -> None:
+        super().load_data(data)
+        self.quantity_in_g = data['quantity_in_g']
+        # To repair data which does't have the pref unit considered, we'll revert to grams if
+        # the unit isn't configured on the subject;
+        if not self._subject.units_are_configured(data['quantity_pref_unit']):
+            self.quantity_pref_unit = 'g'
+        else:
+            self.quantity_pref_unit = data['quantity_pref_unit']
+
+    @property
+    def persistable_data(self) -> Dict[str, Any]:
+        """Just put in the quantity data here. Don't put in the subject's bulk data,
+        that will be saved in the subject's datafile, so we don't want to duplicate it."""
+        data = super().persistable_data
+        data['quantity_in_g'] = self._quantity_in_g
+        data['quantity_pref_unit'] = self._quantity_pref_unit
+        return data

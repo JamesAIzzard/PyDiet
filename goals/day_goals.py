@@ -1,77 +1,90 @@
 from typing import Optional, List, Dict
 
-from model import nutrients, quantity
-import persistence
 import goals
+import model
+import persistence
 
 
 class DayGoalsData(goals.GoalsData):
     name: Optional[str]
-    solution_datafile_names: List[str]
     meal_goals: Dict[str, 'goals.MealGoalsData']
 
 
-class DayGoals(goals.HasSettableGoals, persistence.SupportsPersistence):
-    """Models a set of nutrient goals associated with a day."""
+class DayGoals(goals.HasSettableGoals, persistence.SupportsPersistence, model.HasSettableName):
+    """Models a set of nutrient goals associated with a day.
+    A DayGoals instance may have its own set of goals, and also a collection of MealGoals instances
+    which my have their own sets of goals.
+    Notes:
+        Part of the validation task here is to ensure the DayGoals data and the associated MealGoals data
+        cannot be set into a conflicting state.
+    """
 
     def __init__(self, day_goals_data: Optional['DayGoalsData'] = None, **kwargs):
         super().__init__(**kwargs)
+
         self._meal_goals: Dict[str, 'goals.MealGoals'] = {}
 
-    @property
-    def name(self) -> str:
-        """Returns the unique name of the DayGoals instance."""
-        return self.unique_value
+        # Load any data that is provided;
+        if day_goals_data is not None:
+            self.load_data(day_goals_data)
 
-    @name.setter
+    @model.HasSettableName.name.setter
     def name(self, name: Optional[str]) -> None:
-        self.unique_value = name
+        # Extend to check for uniqueness, since we are using the name as the unique value;
+        # If the name is None, we are unsetting, so not worried, crack on;
+        if name is None:
+            super().name = None
 
-    def set_nutrient_mass_goal(self, nutrient_name: str, nutrient_mass: Optional[float] = None,
-                               nutrient_mass_unit: str = 'g') -> None:
-        """Extends the ABC's nutrient mass goal setter to also check that the
-        sum of any child MealGoal targets for the same nutrient is not lower."""
-        # Validate inputs;
-        nutrient_name = nutrients.validation.validate_nutrient_name(nutrient_name)
+        # Otherwise, check the name is unique;
+        super().name = self.validate_unique_value(name)
 
-        # If we are unsetting;
-        if nutrient_mass is None:
-            super().set_nutrient_mass_goal(nutrient_name, None)
+    @property
+    def unique_value(self) -> str:
+        # We are using the name as the unique value here;
+        try:
+            return self.name
+        # If we get an undefined name error, convert it to an undefined unique value error.
+        except model.exceptions.UndefinedNameError:
+            raise persistence.exceptions.UndefinedUniqueValueError(subject=self)
+
+    def get_total_nutrient_mass_goal_g_from_all_meal_goals(self, nutrient_name: str) -> float:
+        """Returns the sum total mass of the nutrient from all attached MealGoal instances."""
+        # Init the rolling total;
+        rolling_total: float = 0
+        # Create a flag to indicate if any MealGoals actually defined the nutrient;
+        defined = False
+        # Cycle through the mealgoals and try and roll up the total if defined;
+        for meal_goal in self.meal_goals.values():
+            try:
+                rolling_total = rolling_total + meal_goal.get_nutrient_mass_goal(nutrient_name).nutrient_mass_g
+                defined = True
+            # If not defined, just go onto the next one;
+            except goals.exceptions.UndefinedNutrientMassGoalError:
+                continue
+        # If not a single one was set, then raise an exception;
+        if defined is False:
+            raise goals.exceptions.UndefinedNutrientMassGoalError(nutrient_name=nutrient_name)
+        # Otherwise just return the total;
+        return rolling_total
+
+    def validate_nutrient_mass_goal(self, nutrient_name: str) -> None:
+        """Extends the local nutrient mass goal validation to check the nutrient mass goal is does not
+        conflict with defined family values including those in any attached MealGoals instances.
+        """
+
+        # First check there are no conflicts on the locally defined goals;
+        super().validate_nutrient_mass_goal(nutrient_name)
+
+        # If we don't have child MealGoals, the can just exit here;
+        if len(self.meal_goals) == 0:
             return
 
-        # We are not unsetting, so validate the quantity parameters;
-        nutrient_mass = quantity.validation.validate_quantity(nutrient_mass)
-        nutrient_mass_unit = quantity.validation.validate_mass_unit(nutrient_mass_unit)
-
-        # Check we can set without overconstraining MealGoals;
-        if len(self.meal_goals):  # Only required if we actually have child MealGoals.
-            unconstrained: int = 0
-            for meal_goals in self.meal_goals.values():
-                if meal_goals.get_nutrient_mass_goal(nutrient_name) is None:
-                    unconstrained = unconstrained + 1
-            if unconstrained == 0:
-                raise goals.exceptions.OverConstrainedNutrientMassGoalError()
-
-        # Convert mass target to grams;
-        nutrient_mass_g = quantity.convert_qty_unit(
-            qty=nutrient_mass,
-            start_unit=nutrient_mass_unit,
-            end_unit='g'
+        # OK, run the validation but now including values from all the MealGoals.
+        _ = model.nutrients.validate_nutrient_family_masses(
+            nutrient_name=nutrient_name,
+            nutrient_mass_g=self.get_nutrient_mass_goal(nutrient_name).nutrient_mass_g,
+            get_nutrient_mass_g=self.get_total_nutrient_mass_goal_g_from_all_meal_goals
         )
-
-        # Sum up any meal goal nutrient masses;
-        total_mg_mass = 0
-        for meal_goal in self._meal_goals.values():
-            mg_mass = meal_goal.get_nutrient_mass_goal(nutrient_name, 'g')
-            if mg_mass is not None:
-                total_mg_mass = total_mg_mass + mg_mass
-
-        # Exception if MealGoals total mass exceeds DayGoal target mass;
-        if total_mg_mass > nutrient_mass_g:
-            raise goals.exceptions.ConflictingNutrientMassGoalError()
-
-        # No issues, so go ahead and set;
-        super().set_nutrient_mass_goal(nutrient_name, nutrient_mass, nutrient_mass_unit)
 
     @property
     def meal_goals(self) -> Dict[str, 'goals.MealGoals']:
@@ -86,10 +99,10 @@ class DayGoals(goals.HasSettableGoals, persistence.SupportsPersistence):
         for meal_goal in meal_goals:
             # Catch absent name;
             if meal_goal.name is None:
-                raise goals.exceptions.UnnamedMealGoalError()
+                raise goals.exceptions.UndefinedMealGoalNameError(subject=self)
             # Catch duplicated name;
             if meal_goal.name in self._meal_goals.keys():
-                raise goals.exceptions.MealGoalNameClashError()
+                raise goals.exceptions.MealGoalNameClashError(subject=self, clashing_name=meal_goal.name)
 
         # All OK, go ahead and add references and add to list;
         for meal_goal in meal_goals:
@@ -98,21 +111,28 @@ class DayGoals(goals.HasSettableGoals, persistence.SupportsPersistence):
             # Add the MealGoal instance;
             self._meal_goals[meal_goal.name] = meal_goal
 
+    def meal_goals_persistable_data(self) -> Dict[str, 'goals.MealGoalsData']:
+        """Returns a dict of persistable data for the meal goals instances."""
+        data = {}
+        for meal_goal_name, meal_goal in self.meal_goals.items():
+            data[meal_goal_name] = meal_goal.persistable_data
+        return data
+
     @staticmethod
     def get_path_into_db() -> str:
         return persistence.configs.day_goals_db_path
 
     @property
     def persistable_data(self) -> 'DayGoalsData':
-        return DayGoalsData(
-            name=self.name,
-            solution_datafile_names=[],
-            flags={},
-            max_cost_gbp_target=30.00,
-            calorie_target=3000,
-            nutrient_mass_targets={},
-            meal_goals={}
-        )
+        # Grab the data from the superclass;
+        data = super().persistable_data
+        data['meal_goals'] = self.meal_goals_persistable_data
+        return data
 
-    def load_data(self, day_goals_data: 'DayGoalsData') -> None:
-        self.unique_value = day_goals_data["name"]
+    def load_data(self, data: 'DayGoalsData') -> None:
+        # Load the local goals;
+        super().load_data(data)
+
+        # Load in the MealGoals;
+        for meal_goal_name, meal_goals_data in data['meal_goals'].items():
+            self._meal_goals[meal_goal_name] = goals.MealGoals(meal_goals_data=meal_goals_data)

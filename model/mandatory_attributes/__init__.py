@@ -1,1 +1,0 @@
-from .has_mandatory_attributes import HasMandatoryAttributes

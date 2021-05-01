@@ -1,5 +1,17 @@
-from model.exceptions import PyDietException
+import model
 
 
-class IngredientNotInRecipeError(PyDietException):
-    """Indicates the ingredient is not included in the recipe's ingredient amount list."""
+class BaseRecipeError(model.exceptions.PyDietModelError):
+    """Base error for the recipe module"""
+
+    def __init__(self, subject: 'model.recipes.Recipe', **kwargs):
+        super().__init__(**kwargs)
+        self.subject = subject
+
+
+class IngredientNotInRecipeError(BaseRecipeError):
+    """Indicates the ingredient specified is not included in the recipe's ingredient amount list."""
+
+    def __init__(self, ingredient_name: str, **kwargs):
+        super().__init__(**kwargs)
+        self.ingredient_name = ingredient_name

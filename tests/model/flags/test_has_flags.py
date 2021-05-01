@@ -1,11 +1,11 @@
 from unittest import TestCase
 
-from model import ingredients
+import model
 
 
 class TestGetFlagValue(TestCase):
     def setUp(self) -> None:
-        self.ingredient = ingredients.Ingredient()
+        self.ingredient = model.ingredients.Ingredient()
         self.ingredient.set_nutrient_ratio(
             nutrient_name="alcohol",
             nutrient_qty=0,
@@ -21,7 +21,8 @@ class TestGetFlagValue(TestCase):
     def test_gets_unrelated_non_direct_alias_correctly(self) -> None:
         self.assertTrue(self.ingredient.get_flag_value("vegan"))
 
-    def test_flag_value_starts_as_undefined(self) -> None:
-        i = ingredients.Ingredient()
-        for flag_name, flag_value in i.all_flag_values.items():
-            self.assertEqual(flag_value, None)
+    def test_flag_values_start_as_undefined(self) -> None:
+        i = model.ingredients.Ingredient()
+        for flag_name in model.flags.ALL_FLAG_NAMES:
+            with self.assertRaises(model.flags.exceptions.UndefinedFlagError):
+                _ = i.get_flag_value(flag_name)

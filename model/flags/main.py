@@ -1,20 +1,27 @@
-from typing import Dict, List
+import enum
+from typing import Dict, List, TypedDict
 
-from model import flags
+import model
 
-all_flags: Dict[str, 'flags.Flag'] = {}
-
-
-def init_global_flags():
-    """Build the global flags dictionary"""
-    for flag_name, data in flags.configs.flag_data.items():
-        all_flags[flag_name] = flags.Flag(
-            name=flag_name,
-            nutrient_relations=data["nutrient_relations"],
-            direct_alias=data["direct_alias"]
-        )
+ALL_FLAGS: Dict[str, 'model.flags.Flag'] = {}
+ALL_FLAG_NAMES: List[str] = []
+FLAGS_WITH_DOF: List[str] = []
+FLAGS_WITHOUT_DOF: List[str] = []
 
 
-def all_flag_names() -> List[str]:
-    """Return a list of all flag names."""
-    return list(all_flags.keys())
+class FlagImpliesNutrient(enum.Enum):
+    zero = 1
+    non_zero = 2
+
+
+class NRConflicts(TypedDict):
+    """The four fields represent the following:
+        - need_zero -> These nutrients ratios would need to be zero for the flag to apply.
+        - need_non_zero -> These nutrient ratios would need to be non zero for the flag to apply.
+        - needs_undefining -> The single nutrient ratio associated with the flag needs to be undefined.
+        - preventing_undefine -> The multiple nutrient ratios that mean we can't set the flag to be undefined.
+    """
+    need_zero: List[str]
+    need_non_zero: List[str]
+    need_undefining: List[str]
+    preventing_flag_undefine: List[str]

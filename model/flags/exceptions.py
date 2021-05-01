@@ -1,52 +1,57 @@
-from typing import List, Optional
+from typing import Union, Optional, Any
 
-from model import nutrients
-from model.exceptions import PyDietException
+import model
 
 
-class FlagNameError(PyDietException):
+class BaseFlagError(model.exceptions.PyDietModelError):
+    """Base class for flag related exceptions."""
+
+    def __init__(self,
+                 subject: Optional[Union[
+                     'model.flags.HasFlags',
+                     'model.flags.HasSettableFlags']
+                 ] = None, **kwargs):
+        super().__init__(**kwargs)
+        self.subject = subject
+
+
+class FlagNameError(BaseFlagError):
     """The flag name is not recognised."""
 
+    def __init__(self, flag_name: str, **kwargs):
+        super().__init__(**kwargs)
+        self.flag_name = flag_name
 
-class FlagValueError(PyDietException):
+
+class FlagValueError(BaseFlagError, ValueError):
     """The flag qty is not True, False or None."""
 
+    def __init__(self, value: Any, **kwargs):
+        super().__init__(**kwargs)
+        self.flag_value = value
 
-class UnexpectedFlagDOFError(PyDietException):
+
+class UnexpectedFlagDOFError(BaseFlagError):
     """Indicates data is stored against a flag DOF where the flag is a direct alias, and therefore
     should only rely on the state of nutrient ratios."""
 
-    def __init__(self, flag_name: str):
+    def __init__(self, flag_name: str, **kwargs):
+        super().__init__(**kwargs)
         self.flag_name = flag_name
 
 
-class FlagHasNoDOFError(PyDietException):
-    """Indicates the flag does not have a DOF."""
+class FlagHasNoDOFError(BaseFlagError):
+    """Indicates the flag is unexpectedly missing a degree of freedom."""
 
-    def __init__(self, flag_name: str):
+    def __init__(self, flag_name: str, **kwargs):
+        super().__init__(**kwargs)
         self.flag_name = flag_name
 
 
-class NutrientRatioConflictError(PyDietException):
-    """Base exception which indicates setting a flag to a specific value would
-    cause conflict between flags and nutrients ratios on the instance."""
+class UndefinedFlagError(BaseFlagError):
+    """Indicates the flag value is not defined;"""
 
-    def __init__(self, flag_name: str, flag_value: Optional[bool],
-                 conflicting_nutrient_ratios: List['nutrients.NutrientRatio']):
+    def __init__(self, flag_name: str, reason: str, **kwargs):
+        super().__init__(**kwargs)
         self.flag_name = flag_name
-        self.flag_value = flag_value
-        self.conflicting_nutrient_ratios = conflicting_nutrient_ratios
-
-
-class NonZeroNutrientRatioConflictError(NutrientRatioConflictError):
-    """Indicates nutrient ratios have to be non-zero for a flag to apply. We can't set them to non-zero
-    because we don't know what their specific values are."""
-
-
-class UndefineMultipleNutrientRatiosError(NutrientRatioConflictError):
-    """Indicates the flag being undefined is a direct alias for a group of nutrient ratios that are all
-    defined. We don't know which to undefine to release the flag value to undefined."""
-
-
-class FixableNutrientRatioConflictError(NutrientRatioConflictError):
-    """Indicates there are conflicts with the nutrient ratios that can be fixed automatically."""
+        self.reason = reason

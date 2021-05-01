@@ -1,13 +1,10 @@
+from typing import Optional
+
 import model
 
 
-class DuplicateIngredientNameError(model.exceptions.PyDietException):
-    pass
+class BaseIngredientError(model.exceptions.PyDietModelError):
+    """Base exception for all ingredient errors."""
 
-
-class IngredientNameUndefinedError(model.exceptions.PyDietException):
-    pass
-
-
-class IngredientNotFoundError(model.exceptions.PyDietException):
-    pass
+    def __init__(self, ingredient: Optional['model.ingredients.Ingredient'] = None):
+        self.ingredient = ingredient

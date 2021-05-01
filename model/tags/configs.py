@@ -1,6 +1,6 @@
 from typing import List
 
-TAGS: List[str] = [
+ALL_TAGS: List[str] = [
     "main",
     "side",
     "sweet",
