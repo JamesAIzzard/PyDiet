@@ -4,7 +4,7 @@ from . import SupportsCost
 import model
 
 
-class HasPricetag(SupportsCost, model.quantity.HasQuantity, abc.ABC):
+class HasPricetagOf(SupportsCost, model.quantity.HasQuantityOf, abc.ABC):
     """Returns the prince of the amount of the instance."""
 
     @property

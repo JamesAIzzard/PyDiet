@@ -7,35 +7,35 @@ import persistence
 
 class NutrientRatioData(TypedDict):
     """Persisted data format for NutrientRatio instances."""
-    nutrient_g_per_subject_g: Optional[float]
-    nutrient_pref_units: str
+    nutrient_qty_data: model.quantity.QuantityData
+    subject_ref_qty_data: model.quantity.RefQtyData
 
 
 NutrientRatiosData = Dict[str, 'NutrientRatioData']
 
 
-class NutrientRatio(model.SupportsDefinition, model.HasName, persistence.CanLoadData):
+class NutrientRatio(model.SupportsDefinition, persistence.CanLoadData):
     """Models an amount of nutrient per substance."""
 
     def __init__(self, nutrient_name: str, nutrient_ratio_data: Optional['NutrientRatioData'] = None, **kwargs):
         super().__init__(**kwargs)
         # Make sure we are using the primary name;
         nutrient_name = model.nutrients.get_nutrient_primary_name(nutrient_name)
-        # Grab a reference to the associated nutrient;
-        self._nutrient: 'model.nutrients.Nutrient' = model.nutrients.GLOBAL_NUTRIENTS[nutrient_name]
 
-        # Create somewhere to stash the instance data;
-        self._nutrient_ratio_data: 'NutrientRatioData' = NutrientRatioData(
-            nutrient_g_per_subject_g=None,
-            nutrient_pref_units='g'
+        self._nutrient_mass = model.nutrients.NutrientMass(
+            nutrient_name=nutrient_name,
+            mass_data=model.quantity.QuantityData(
+                quantity_in_g=None,
+                pref_unit='g'
+            )
+        )
+        self._subject_ref_qty = model.quantity.RefQuantity(
+
         )
 
         # If data was provided, go ahead and load it;
         if nutrient_ratio_data is not None:
             self.load_data(nutrient_ratio_data)
-
-    def _get_name(self) -> Optional[str]:
-        return self.nutrient.primary_name
 
     @property
     def nutrient(self) -> 'model.nutrients.Nutrient':

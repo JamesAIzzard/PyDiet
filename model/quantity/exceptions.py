@@ -9,8 +9,8 @@ class BaseQuantityError(model.exceptions.PyDietModelError):
     def __init__(self, subject: Optional[Union[
         'model.quantity.HasBulk',
         'model.quantity.HasSettableBulk',
-        'model.quantity.HasQuantity',
-        'model.quantity.HasSettableQuantity'
+        'model.quantity.HasQuantityOf',
+        'model.quantity.HasSettableQuantityOf'
     ]] = None, **kwargs):
         super().__init__(**kwargs)
         self.subject = subject

@@ -41,8 +41,21 @@ class TestCostPerG(TestCase):
 
 class TestCostRefQty(TestCase):
     def test_sets_ref_qty_correctly(self):
-        raise NotImplementedError
+        sc = model.cost.SupportsSettableCost()
+        sc.cost_ref_qty = 122
+        self.assertTrue(sc._cost_data['ref_qty'] == 122)
 
+    def test_raises_exception_if_qty_zero(self):
+        sc = model.cost.SupportsSettableCost()
+        with self.assertRaises(model.cost.exceptions.InvalidCostError):
+            sc.cost_ref_qty = 0
+
+    def test_raises_exception_if_qty_invalid(self):
+        sc = model.cost.SupportsSettableCost()
+        with self.assertRaises(model.cost.exceptions.InvalidCostError):
+            sc.cost_ref_qty = "hello"
+        with self.assertRaises(model.cost.exceptions.InvalidCostError):
+            sc.cost_ref_qty = -1
 
 class TestSetCost(TestCase):
     def test_sets_cost_correctly(self):

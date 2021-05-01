@@ -121,7 +121,13 @@ class SupportsSettableCost(SupportsCost, persistence.CanLoadData):
     @SupportsCost.cost_ref_qty.setter
     def cost_ref_qty(self, ref_qty: float) -> None:
         """Validates and sets the reference quantity associated with the cost."""
-        self._cost_data['ref_qty'] = model.quantity.validation.validate_nonzero_quantity(ref_qty)
+        try:
+            self._cost_data['ref_qty'] = model.quantity.validation.validate_nonzero_quantity(ref_qty)
+        except (
+                model.quantity.exceptions.ZeroQtyError,
+                model.quantity.exceptions.InvalidQtyError
+        ):
+            raise model.cost.exceptions.InvalidCostError(subject=self, invalid_value=ref_qty)
 
     @SupportsCost.cost_pref_unit.setter
     def cost_pref_unit(self, pref_unit: str) -> None:

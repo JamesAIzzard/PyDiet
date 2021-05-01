@@ -19,21 +19,21 @@ def get_has_bulk_with_30_pc_mass() -> 'model.quantity.HasBulk':
     ))
 
 
-def get_undefined_has_quantity() -> 'model.quantity.HasQuantity':
-    return model.quantity.HasQuantity(
+def get_undefined_has_quantity() -> 'model.quantity.HasQuantityOf':
+    return model.quantity.HasQuantityOf(
         subject=model.quantity.HasBulk(),
         get_quantity_in_g=lambda: None,
         get_quantity_pref_unit=lambda: 'g'
     )
 
 
-def get_has_3kg() -> 'model.quantity.HasQuantity':
-    return model.quantity.HasQuantity(
+def get_has_3kg() -> 'model.quantity.HasQuantityOf':
+    return model.quantity.HasQuantityOf(
         subject=model.quantity.HasBulk(),
         get_quantity_in_g=lambda: 3000,
         get_quantity_pref_unit=lambda: 'kg'
     )
 
 
-def get_undefined_has_settable_quantity() -> 'model.quantity.HasSettableQuantity':
-    return model.quantity.HasSettableQuantity(subject=model.quantity.HasBulk())
+def get_undefined_has_settable_quantity() -> 'model.quantity.HasSettableQuantityOf':
+    return model.quantity.HasSettableQuantityOf(subject=model.quantity.HasBulk())

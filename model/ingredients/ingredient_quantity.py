@@ -4,7 +4,7 @@ import model
 import persistence
 
 
-class IngredientQuantity(model.quantity.HasQuantity, model.SupportsDefinition):
+class IngredientQuantityOf(model.quantity.HasQuantityOf, model.SupportsDefinition):
     """Models a readonly quantity of an ingredient."""
 
     def __init__(self, ingredient: 'model.ingredients.Ingredient', **kwargs):
@@ -21,20 +21,20 @@ class IngredientQuantity(model.quantity.HasQuantity, model.SupportsDefinition):
         return self._get_quantity_in_g() is not None
 
 
-class SettableIngredientQuantity(IngredientQuantity, model.quantity.HasSettableQuantity):
+class SettableIngredientQuantity(IngredientQuantityOf, model.quantity.HasSettableQuantityOf):
     """Models a settable quantity of an ingredient."""
 
 
 class HasIngredientQuantities:
     """Models an object which has readonly quantities of ingredients."""
 
-    def __init__(self, get_ingredient_quantities: Callable[[], Dict[str, 'IngredientQuantity']], **kwargs):
+    def __init__(self, get_ingredient_quantities: Callable[[], Dict[str, 'IngredientQuantityOf']], **kwargs):
         super().__init__(**kwargs)
 
         self._get_ingredient_quantities = get_ingredient_quantities
 
     @property
-    def ingredient_quantities(self) -> Dict[str, 'model.ingredients.IngredientQuantity']:
+    def ingredient_quantities(self) -> Dict[str, 'model.ingredients.IngredientQuantityOf']:
         """Returns a dictionary of all ingredient amounts assigned to the instance.
         The dictionary key is the ingredient amount datafile name."""
         return self._get_ingredient_quantities()
