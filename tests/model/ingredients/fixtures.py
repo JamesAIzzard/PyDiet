@@ -13,6 +13,7 @@ def get_undefined_honey_quantity() -> 'model.ingredients.IngredientQuantity':
     return model.ingredients.IngredientQuantity(ingredient=get_honey())
 
 
+
 def get_10g_of_honey() -> 'model.ingredients.IngredientQuantity':
     return model.ingredients.IngredientQuantity(
         ingredient=get_honey(),

@@ -13,13 +13,25 @@ class IngredientData(TypedDict):
     bulk: model.quantity.BulkData
 
 
-class Ingredient(persistence.SupportsPersistence,
-                 model.HasSettableName,
-                 model.HasMandatoryAttributes,
-                 model.quantity.HasSettableBulk,
-                 model.cost.SupportsSettableCost,
-                 model.flags.HasSettableFlags,
-                 model.nutrients.HasSettableNutrientRatios):
+class Ingredient(
+    persistence.SupportsPersistence,
+    model.HasName,
+    model.HasMandatoryAttributes,
+    model.cost.SupportsCost,
+    model.flags.HasFlags,
+    model.nutrients.HasNutrientRatios
+):
+    def __init__(self, ingredient_data: Optional['IngredientData'] = None, **kwargs):
+        super().__init__(**kwargs)
+
+
+class SettableIngredient(persistence.SupportsPersistence,
+                         model.HasSettableName,
+                         model.HasMandatoryAttributes,
+                         model.quantity.HasSettableBulk,
+                         model.cost.SupportsSettableCost,
+                         model.flags.HasSettableFlags,
+                         model.nutrients.HasSettableNutrientRatios):
 
     def __init__(self, ingredient_data: Optional[IngredientData] = None, **kwargs):
         super().__init__(**kwargs)

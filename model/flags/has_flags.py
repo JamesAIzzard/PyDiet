@@ -5,7 +5,7 @@ import model
 import persistence
 
 
-class HasFlags(persistence.HasPersistableData, abc.ABC):
+class HasFlags(persistence.CanLoadData, abc.ABC):
     """Models an object which has flag_data to characterise its content.
     Flags are either direct alias or not. A direct alias flag will derive its value entirely from a
     nutrient ratio on the same instance. For example, "caffiene-free" derives its value entirely from

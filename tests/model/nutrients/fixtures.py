@@ -5,22 +5,23 @@ def get_protein() -> 'model.nutrients.Nutrient':
     return model.nutrients.Nutrient('protein')
 
 
+def get_vitamin_b12() -> 'model.nutrients.Nutrient':
+    return model.nutrients.Nutrient('vitamin_b12')
+
+
 def get_undefined_protein_mass() -> 'model.nutrients.NutrientMass':
-    return model.nutrients.NutrientMass(nutrient=get_protein())
+    return model.nutrients.NutrientMass(
+        nutrient=get_protein(),
+        get_quantity_in_g=lambda: None,
+        get_quantity_pref_unit='g'
+    )
 
 
 def get_32g_protein() -> 'model.nutrients.NutrientMass':
     return model.nutrients.NutrientMass(
         nutrient=get_protein(),
-        nutrient_mass_data=model.nutrients.NutrientMassData(
-            bulk_data=model.quantity.BulkData(
-                pref_unit='g',
-                ref_qty=100,
-                g_per_ml=None,
-                piece_mass_g=None
-            ),
-            quantity_in_g=32
-        )
+        get_quantity_in_g=lambda: 32,
+        get_quantity_pref_unit='g'
     )
 
 

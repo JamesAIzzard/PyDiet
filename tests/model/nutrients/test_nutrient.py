@@ -1,6 +1,7 @@
 from unittest import TestCase
 
 import model
+from tests.model.nutrients import fixtures as fx
 from tests.model.nutrients import nutrient_configs_for_testing
 
 
@@ -37,3 +38,11 @@ class TestConstructor(TestCase):
         self.assertTrue(
             model.nutrients.GLOBAL_NUTRIENTS["protein"] in nutrient.direct_parent_nutrients.values()
         )
+
+
+class TestPrimaryName(TestCase):
+    def test_primary_name_is_correct(self):
+        self.assertTrue(fx.get_protein().primary_name == 'protein')
+
+    def test_primary_name_is_correct_when_created_with_alias(self):
+        self.assertTrue(fx.get_vitamin_b12().primary_name == 'cobalamin')

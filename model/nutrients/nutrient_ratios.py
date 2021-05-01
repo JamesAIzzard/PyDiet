@@ -14,7 +14,7 @@ class NutrientRatioData(TypedDict):
 NutrientRatiosData = Dict[str, 'NutrientRatioData']
 
 
-class NutrientRatio(model.SupportsDefinition, model.HasName, persistence.HasPersistableData):
+class NutrientRatio(model.SupportsDefinition, model.HasName, persistence.CanLoadData):
     """Models an amount of nutrient per substance."""
 
     def __init__(self, nutrient_name: str, nutrient_ratio_data: Optional['NutrientRatioData'] = None, **kwargs):
@@ -228,7 +228,7 @@ class HasNutrientRatios(model.quantity.HasBulk, abc.ABC):
         )
 
 
-class HasSettableNutrientRatios(HasNutrientRatios, persistence.HasPersistableData, abc.ABC):
+class HasSettableNutrientRatios(HasNutrientRatios, persistence.CanLoadData, abc.ABC):
     """Abstract class to model objects with settable nutrient ratios.
     Notes:
         To make sure any changes to NutrientRatio instances pass through the family validation

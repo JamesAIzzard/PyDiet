@@ -5,7 +5,7 @@ from .configs import (
     QTY_UNITS
 )
 from . import validation, exceptions
-from .has_bulk import HasBulk, BulkData, HasSettableBulk
+from .has_bulk import HasBulk, BulkData, HasSettableBulk, RefQtyData
 from .has_quantity import HasQuantity, HasSettableQuantity, QuantityData
 from .main import (
     units_are_volumes,

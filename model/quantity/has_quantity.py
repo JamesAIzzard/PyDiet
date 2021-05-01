@@ -1,5 +1,4 @@
-import abc
-from typing import Dict, TypedDict, Optional, Any
+from typing import Dict, TypedDict, Callable, Optional, Any
 
 import model
 import persistence
@@ -10,7 +9,7 @@ class QuantityData(TypedDict):
     quantity_pref_unit: str
 
 
-class HasQuantity(abc.ABC):
+class HasQuantity(persistence.YieldsPersistableData):
     """Models a quantity of substance with mass or volume.
     Notes:
         We don't store the values on this class, because some implementations, such as RecipeQuantity
@@ -21,19 +20,14 @@ class HasQuantity(abc.ABC):
         being defined.
     """
 
-    def __init__(self, subject: 'model.quantity.HasBulk', **kwargs):
+    def __init__(self, subject: 'model.quantity.HasBulk',
+                 get_quantity_in_g: Callable[[], Optional[float]],
+                 get_quantity_pref_unit: Callable[[], str],
+                 **kwargs):
         super().__init__(**kwargs)
+        self._get_quantity_in_g = get_quantity_in_g
+        self._get_quantity_pref_unit = get_quantity_pref_unit
         self._subject = subject
-
-    @abc.abstractmethod
-    def _get_quantity_in_g(self) -> Optional[float]:
-        """Implements the way the concrete class stores/retrieves the quantity in grams"""
-        raise NotImplementedError
-
-    @abc.abstractmethod
-    def _get_quantity_pref_unit(self) -> str:
-        """Implements they quantity pref unit retrival on the concrete class."""
-        raise NotImplementedError
 
     @property
     def quantity_in_g(self) -> float:
@@ -59,8 +53,17 @@ class HasQuantity(abc.ABC):
             piece_mass_g=self._subject.piece_mass_g if self._subject.piece_mass_defined else None
         )
 
+    @property
+    def persistable_data(self) -> Dict[str, Any]:
+        """Just put in the quantity data here. Don't put in the subject's bulk data,
+        that will be saved in the subject's datafile, so we don't want to duplicate it."""
+        return {
+            'quantity_in_g': self._get_quantity_in_g(),
+            'quantity_pref_unit': self._get_quantity_pref_unit()
+        }
 
-class HasSettableQuantity(HasQuantity, persistence.HasPersistableData):
+
+class HasSettableQuantity(HasQuantity, persistence.CanLoadData):
     """Models a quantity of substance with a settable mass or volume.
     Notes:
         Since the quantity is settable on this instance, it is safe to assume the values
@@ -69,7 +72,13 @@ class HasSettableQuantity(HasQuantity, persistence.HasPersistableData):
     """
 
     def __init__(self, quantity_data: Optional['QuantityData'] = None, **kwargs):
-        super().__init__(**kwargs)
+        # We are now storing the quantity data locally to this instance, so wire the retrieval
+        # callbacks up to the new instance variables;
+        super().__init__(
+            get_quantity_in_g=lambda: self._quantity_in_g,
+            get_quantity_pref_unit=lambda: self._quantity_pref_unit,
+            **kwargs
+        )
 
         self._quantity_in_g = None
         self._quantity_pref_unit = 'g'
@@ -131,12 +140,3 @@ class HasSettableQuantity(HasQuantity, persistence.HasPersistableData):
             self.quantity_pref_unit = 'g'
         else:
             self.quantity_pref_unit = data['quantity_pref_unit']
-
-    @property
-    def persistable_data(self) -> Dict[str, Any]:
-        """Just put in the quantity data here. Don't put in the subject's bulk data,
-        that will be saved in the subject's datafile, so we don't want to duplicate it."""
-        data = super().persistable_data
-        data['quantity_in_g'] = self._quantity_in_g
-        data['quantity_pref_unit'] = self._quantity_pref_unit
-        return data

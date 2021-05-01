@@ -6,30 +6,16 @@ from tests.model.nutrients import fixtures as fx
 
 class TestConstructor(TestCase):
     def test_constructor_returns_instance(self):
-        nm = model.nutrients.NutrientMass(nutrient=fx.get_protein())
-        self.assertTrue(isinstance(nm, model.nutrients.NutrientMass))
-
-    def test_constructor_loads_quantity_data(self):
-        nm = model.nutrients.NutrientMass(
-            nutrient=fx.get_protein(),
-            nutrient_mass_data=model.nutrients.NutrientMassData(
-                bulk_data=model.quantity.BulkData(
-                    pref_unit='g',
-                    ref_qty=100,
-                    g_per_ml=None,
-                    piece_mass_g=None
-                ),
-                quantity_in_g=32
-            )
-        )
-        self.assertTrue(nm.quantity_in_g == 32)
-        self.assertTrue(nm.pref_unit == 'g')
-        self.assertTrue(nm.ref_qty == 100)
-        self.assertFalse(nm.density_is_defined)
-        self.assertFalse(nm.piece_mass_defined)
+        self.assertTrue(isinstance(fx.get_undefined_protein_mass(), model.nutrients.NutrientMass))
 
     def test_constructor_loads_nutrient_correctly(self):
         self.assertEqual(fx.get_32g_protein().nutrient, model.nutrients.GLOBAL_NUTRIENTS['protein'])
+
+
+class TestNutrient(TestCase):
+    def test_nutrient_returned_correctly(self):
+        nm = fx.get_32g_protein()
+        self.assertTrue(nm.nutrient is model.nutrients.GLOBAL_NUTRIENTS['protein'])
 
 
 class TestIsDefined(TestCase):

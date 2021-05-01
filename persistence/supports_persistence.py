@@ -4,18 +4,8 @@ from typing import Dict, Any, Optional
 import persistence
 
 
-class HasPersistableData(abc.ABC):
-    """Base class for objects that have persistable data.
-    Notes:
-        Interestingly, both of these methods can only exist at the same time. If an item doesn't have
-        the facility to load data, i.e its data is coming from a source external the subclass, it
-        stands to reason, that whatever is storing the data is also responsible for persisting it.
-    """
-
-    @abc.abstractmethod
-    def load_data(self, data: Dict[str, Any]) -> None:
-        """Loads the classes persistable data type into the object."""
-        pass
+class YieldsPersistableData(abc.ABC):
+    """Base class for objects that can output persistable data."""
 
     @property
     @abc.abstractmethod
@@ -25,7 +15,16 @@ class HasPersistableData(abc.ABC):
         return {}
 
 
-class SupportsPersistence(HasPersistableData, abc.ABC):
+class CanLoadData(YieldsPersistableData, abc.ABC):
+    """Base class for objects that can load persistable data."""
+
+    @abc.abstractmethod
+    def load_data(self, data: Dict[str, Any]) -> None:
+        """Loads the classes persistable data type into the object."""
+        pass
+
+
+class SupportsPersistence(CanLoadData, abc.ABC):
     """ABC for object persistence functionality."""
 
     def __init__(self, datafile_name: Optional[str] = None, **kwargs):

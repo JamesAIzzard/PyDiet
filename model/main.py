@@ -5,12 +5,13 @@ import model
 import persistence
 
 
-class HasName(persistence.HasPersistableData, abc.ABC):
+class HasName(persistence.CanLoadData):
     """Abstract class to define readonly name functionality."""
 
     def __init__(self, name: Optional[str] = None, **kwargs):
         super().__init__(**kwargs)
 
+        # Always stores name locally;
         self._name: Optional[str] = None
 
         if name is not None:
@@ -37,7 +38,7 @@ class HasName(persistence.HasPersistableData, abc.ABC):
         return data
 
 
-class HasSettableName(HasName, abc.ABC):
+class HasSettableName(HasName):
     """Abstract class to define writeable name functionality."""
 
     def __init__(self, **kwargs):

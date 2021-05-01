@@ -4,7 +4,7 @@ import model
 import persistence
 
 
-class HasTags(persistence.HasPersistableData):
+class HasTags(persistence.CanLoadData):
     """Class to implement tag functionality.
     Tags are the descriptive terms used to categories meals. So things like "main", "side", "drink" etc.
     """

@@ -4,14 +4,17 @@ import model
 import persistence
 
 
-class BulkData(TypedDict):
+class RefQtyData(TypedDict):
     pref_unit: str
     ref_qty: float
+
+
+class BulkData(RefQtyData):
     g_per_ml: Optional[float]
     piece_mass_g: Optional[float]
 
 
-class HasBulk(persistence.HasPersistableData):
+class HasBulk(persistence.CanLoadData):
     """Models substances with bulk properties, such as density and mass."""
 
     def __init__(self, bulk_data: Optional['BulkData'] = None, **kwargs):
@@ -119,6 +122,7 @@ class HasBulk(persistence.HasPersistableData):
         super().load_data(data)
         self._bulk_data = data['bulk_data']
 
+    @property
     def persistable_data(self) -> Dict[str, Any]:
         data = super().persistable_data
         data['bulk_data'] = self._bulk_data
