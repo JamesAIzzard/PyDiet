@@ -1,15 +1,10 @@
-from typing import Optional
-
 import model
-import persistence
 
 
-class NutrientMass(model.quantity.HasQuantityOf, model.SupportsDefinition, persistence.CanLoadData):
+class NutrientMass(model.quantity.QuantityOf):
     """Models a mass of a nutrient."""
 
-    def __init__(self, nutrient_name: str,
-                 mass_data: Optional['model.quantity.QuantityData'] = None,
-                 **kwargs):
+    def __init__(self, nutrient_name: str, **kwargs):
         # Grab the primary version of the nutrient name;
         nutrient_name = model.nutrients.get_nutrient_primary_name(nutrient_name)
 
@@ -18,30 +13,10 @@ class NutrientMass(model.quantity.HasQuantityOf, model.SupportsDefinition, persi
             **kwargs
         )
 
-        self._quantity_data_ = model.quantity.QuantityData(
-            quantity_in_g=None,
-            pref_unit='g'
-        )
-
-        if mass_data is not None:
-            self.load_data(mass_data)
-
-    @property
-    def _quantity_data(self) -> 'model.quantity.QuantityData':
-        return self._quantity_data_
-
     @property
     def nutrient(self) -> 'model.nutrients.Nutrient':
         return self._subject
 
-    @property
-    def is_defined(self) -> bool:
-        """Returns True/False to indicate if the nutrient mass is defined."""
-        return self._quantity_data_['quantity_in_g'] is not None
 
-    def load_data(self, data: 'model.quantity.QuantityData') -> None:
-        self._quantity_data_ = data
-
-
-class SettableNutrientMass(NutrientMass, model.quantity.HasSettableQuantityOf):
+class SettableNutrientMass(NutrientMass, model.quantity.SettableQuantityOf):
     """Models a settable nutrient mass."""

@@ -18,7 +18,7 @@ class Recipe(persistence.SupportsPersistence,
              model.HasSettableName,
              model.HasMandatoryAttributes,
              model.quantity.HasSettableBulk,
-             model.cost.SupportsCost,
+             model.cost.SupportsCostPerQuantity,
              model.flags.HasFlags,
              model.nutrients.HasNutrientRatios,
              model.ingredients.HasSettableIngredientQuantities):

@@ -1,4 +1,4 @@
-from typing import Any, Union, Optional
+from typing import Any
 
 import model
 
@@ -6,12 +6,7 @@ import model
 class BaseQuantityError(model.exceptions.PyDietModelError):
     """Base exception for the quantity module."""
 
-    def __init__(self, subject: Optional[Union[
-        'model.quantity.HasBulk',
-        'model.quantity.HasSettableBulk',
-        'model.quantity.HasQuantityOf',
-        'model.quantity.HasSettableQuantityOf'
-    ]] = None, **kwargs):
+    def __init__(self, subject: Any = None, **kwargs):
         super().__init__(**kwargs)
         self.subject = subject
 

@@ -1,10 +1,10 @@
 import abc
 
-from . import SupportsCost
+from . import SupportsCostPerQuantity
 import model
 
 
-class HasPricetagOf(SupportsCost, model.quantity.HasQuantityOf, abc.ABC):
+class HasPricetagOf(SupportsCostPerQuantity, model.quantity.HasQuantityOf, abc.ABC):
     """Returns the prince of the amount of the instance."""
 
     @property

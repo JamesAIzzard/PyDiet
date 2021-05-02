@@ -12,16 +12,10 @@ from .main import (
     convert_qty_unit,
     convert_density_unit
 )
-from .has_quantity_of import (
-    HasQuantityOf,
-    HasSettableQuantityOf,
+from .quantity_of import (
+    QuantityOf,
+    SettableQuantityOf,
     QuantityData
-)
-from .ref_quantity import (
-    RefQuantity,
-    SettableRefQuantity,
-    HasRefQty,
-    RefQtyData
 )
 from .supports_extended_units import (
     ExtendedUnitData,

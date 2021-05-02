@@ -64,13 +64,13 @@ class NutrientQtyExceedsSubjectQtyError(NamedNutrientError):
     """Indicates the nutrient quantity exceeds the ingredient quantity."""
 
     def __init__(self,
-                 nutrient_qty: float,
-                 nutrient_qty_units: str,
+                 nutrient_mass: float,
+                 nutrient_mass_units: str,
                  subject_qty: float,
                  subject_qty_units: str, **kwargs):
         super().__init__(**kwargs)
-        self.nutrient_qty = nutrient_qty
-        self.nutrient_qty_units = nutrient_qty_units
+        self.nutrient_mass = nutrient_mass
+        self.nutrient_mass_units = nutrient_mass_units
         self.subject_qty = subject_qty
         self.subject_qty_units = subject_qty_units
 

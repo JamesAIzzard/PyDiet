@@ -67,7 +67,7 @@ class TestSetQuantity(TestCase):
     def test_sets_quantity_correctly(self):
         # Try with a mass;
         hq = model.quantity.HasSettableQuantityOf(subject=model.quantity.HasBulk())
-        hq.set_quantity(
+        hq.set(
             qty=1.5,
             unit='kg'
         )
@@ -75,7 +75,7 @@ class TestSetQuantity(TestCase):
 
         # Try with a volume;
         hq = model.quantity.HasSettableQuantityOf(subject=fx.get_has_bulk_with_09_density())
-        hq.set_quantity(
+        hq.set(
             qty=1.5,
             unit='L'
         )
@@ -83,7 +83,7 @@ class TestSetQuantity(TestCase):
 
         # Try with piece mass;
         hq = model.quantity.HasSettableQuantityOf(subject=fx.get_has_bulk_with_30_pc_mass())
-        hq.set_quantity(
+        hq.set(
             qty=1.5,
             unit='pc'
         )
@@ -92,7 +92,7 @@ class TestSetQuantity(TestCase):
     def test_raises_exception_if_density_not_configured(self):
         hq = model.quantity.HasSettableQuantityOf(subject=model.quantity.HasBulk())
         with self.assertRaises(model.quantity.exceptions.UndefinedDensityError):
-            hq.set_quantity(
+            hq.set(
                 qty=1.5,
                 unit='L'
             )
@@ -100,7 +100,7 @@ class TestSetQuantity(TestCase):
     def test_raises_exception_if_piece_mass_not_configured(self):
         hq = model.quantity.HasSettableQuantityOf(subject=model.quantity.HasBulk())
         with self.assertRaises(model.quantity.exceptions.UndefinedPcMassError):
-            hq.set_quantity(
+            hq.set(
                 qty=1.5,
                 unit='pc'
             )

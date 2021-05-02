@@ -17,7 +17,7 @@ class Ingredient(
     persistence.SupportsPersistence,
     model.HasName,
     model.HasMandatoryAttributes,
-    model.cost.SupportsCost,
+    model.cost.SupportsCostPerQuantity,
     model.flags.HasFlags,
     model.nutrients.HasNutrientRatios
 ):
@@ -29,7 +29,7 @@ class SettableIngredient(persistence.SupportsPersistence,
                          model.HasSettableName,
                          model.HasMandatoryAttributes,
                          model.quantity.HasSettableBulk,
-                         model.cost.SupportsSettableCost,
+                         model.cost.SupportsSettableCostPerQuantity,
                          model.flags.HasSettableFlags,
                          model.nutrients.HasSettableNutrientRatios):
 

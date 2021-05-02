@@ -26,7 +26,7 @@ class CostEditorView(tk.Frame):
 class CostEditorController(gui.HasSubject, gui.SupportsDefinition, gui.SupportsValidity):
 
     def __init__(self, view: 'gui.CostEditorView', **kwargs):
-        super().__init__(view=view, subject_type=model.cost.SupportsSettableCost, **kwargs)
+        super().__init__(view=view, subject_type=model.cost.SupportsSettableCostPerQuantity, **kwargs)
         self.view.cost_entry.bind("<<Value-Changed>>", self.process_view_changes)
         self.view.qty_entry.bind("<<Value-Changed>>", self.process_view_changes)
         self.view.qty_units_dropdown.bind("<<Value-Changed>>", self.process_view_changes)
@@ -74,10 +74,10 @@ class CostEditorController(gui.HasSubject, gui.SupportsDefinition, gui.SupportsV
         return True
 
     @property
-    def subject(self) -> 'model.cost.SupportsSettableCost':
+    def subject(self) -> 'model.cost.SupportsSettableCostPerQuantity':
         return super().subject
 
-    def set_subject(self, subject: 'model.cost.SupportsSettableCost') -> None:
+    def set_subject(self, subject: 'model.cost.SupportsSettableCostPerQuantity') -> None:
         super().set_subject(subject)
 
     def update_view(self) -> None:
