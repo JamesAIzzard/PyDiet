@@ -109,7 +109,7 @@ class SupportsSettableCostPerQuantity(SupportsCostPerQuantity, persistence.CanLo
         # Override to return the local instance, now we have one;
         return self._subject_quantity
 
-    def set_cost(self, cost_gbp: Optional[float], qty: Optional[float], unit: str) -> None:
+    def set_cost(self, cost_gbp: Optional[float], qty: Optional[float] = None, unit: str = 'g') -> None:
         """Sets the cost in gbp of any quanitity of any unit."""
 
         # If either of the values are None, just set to None;
