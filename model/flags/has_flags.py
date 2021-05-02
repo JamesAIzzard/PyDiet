@@ -4,39 +4,33 @@ from typing import Dict, List, Union, Optional, Any
 import model
 import persistence
 
+FlagDOFData = Dict[str, Optional[bool]]
 
-class HasFlags(persistence.CanLoadData, abc.ABC):
+
+class HasFlags(persistence.YieldsPersistableData, abc.ABC):
     """Models an object which has flag_data to characterise its content.
     Flags are either direct alias or not. A direct alias flag will derive its value entirely from a
     nutrient ratio on the same instance. For example, "caffiene-free" derives its value entirely from
     the presence of caffiene in the nutrient ratios list. However, flags such as "vegan" are not
     direct aliases, and therefore have a "degree of freedom" or DOF. This allows them to store their
-    True/False/None value independently of any nutrient ratios.
+    True/False/None value independently of any nutrient ratios. A flag which is not a direct
+    alias cannot have a True value if any related nutrients are conflicting. However, it may have a
+    False value even if all of its related nutrients do not conflict. Equally, it may have an undefined
+    value even if all of its related nutrients are defined.
     """
 
-    def __init__(self, flag_data: Optional[Dict[str, Optional[bool]]] = None, **kwargs):
+    def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
         # Check that this isntance also has nutrient ratios;
         if not isinstance(self, model.nutrients.HasNutrientRatios):
             raise TypeError('HasFlags requires NutrientRatios to function.')
-        s: Union['model.flags.HasFlags', 'model.nutrients.HasNutrientRatios'] = self  # Hack for PyCharm intellisense.
 
-        # Create dict to store DOFs for non-direct alias flags;
-        self._flag_dofs: Dict[str, Optional[bool]] = {}
-
-        # Init with None for all no-direct alias flags in the system;
-        for flag_name, flag in model.flags.ALL_FLAGS.items():
-            if not flag.direct_alias:
-                self._flag_dofs[flag_name] = None
-
-        # Note: this implementation is good, becuase it means if we add a flag to the global list
-        # after this instance has been saved, the new flag will automatically be added when this
-        # instance is re-saved.
-
-        # Now import the values, if present;
-        if flag_data is not None:
-            s.load_data(data={'flag_data': flag_data})
+    @property
+    @abc.abstractmethod
+    def _flag_dofs(self) -> 'FlagDOFData':
+        """Returns a dictionary of each non-direct alias flag."""
+        raise NotImplementedError
 
     def get_flag_dof(self, flag_name: str) -> bool:
         """Returns the degree of freedom associated with the flag. See notes in class docstring for brief
@@ -45,7 +39,7 @@ class HasFlags(persistence.CanLoadData, abc.ABC):
         # Check the name is valid;
         flag_name = model.flags.validation.validate_flag_name(flag_name)
 
-        # Check the flag has a DOF;
+        # Check the flag should have a DOF;
         if flag_name not in model.flags.FLAGS_WITH_DOF:
             raise model.flags.exceptions.FlagHasNoDOFError(
                 subject=self,
@@ -53,7 +47,16 @@ class HasFlags(persistence.CanLoadData, abc.ABC):
             )
 
         # If the value is unset, raise an exception;
-        if self._flag_dofs[flag_name] is None:
+        try:
+            if self._flag_dofs[flag_name] is None:
+                raise model.flags.exceptions.UndefinedFlagError(
+                    subject=self,
+                    flag_name=flag_name,
+                    reason=f"The degree of freedom associated with the {flag_name.replace('_', ' ')} flag is set to "
+                           f"None. "
+                )
+        except KeyError:
+            # Aha, it wasn't in the list we got, treat it as unset;
             raise model.flags.exceptions.UndefinedFlagError(
                 subject=self,
                 flag_name=flag_name,
@@ -124,17 +127,6 @@ class HasFlags(persistence.CanLoadData, abc.ABC):
                 undefined_flags.append(flag_name)
         return undefined_flags
 
-    def load_data(self, data: Dict[str, Any]) -> None:
-        # Pass the data on for sibling classes to load it;
-        super().load_data(data)
-        # Now load the flag DOF's into this instance;
-        for flag_name, flag_value in data['flag_data'].items():
-            # Only import the flag if it has a DOF. This is important for importing legacy data;
-            if flag_value not in model.flags.FLAGS_WITH_DOF:
-                continue
-            # Go ahead and assign the value;
-            self._flag_dofs[flag_name] = flag_value
-
     def persistable_data(self) -> Dict[str, Any]:
         # Grab the peristable data from the sibling classes;
         data = super().persistable_data
@@ -142,7 +134,7 @@ class HasFlags(persistence.CanLoadData, abc.ABC):
         return data
 
 
-class HasSettableFlags(HasFlags, abc.ABC):
+class HasSettableFlags(HasFlags, persistence.CanLoadData, abc.ABC):
     """Models an object with configurable flag_data to characterise its content."""
 
     def __init__(self, **kwargs):
@@ -352,4 +344,15 @@ class HasSettableFlags(HasFlags, abc.ABC):
 
         # Finally, set the flag's dof if flag is not a direct alias;
         if not flag.direct_alias:
+            self._flag_dofs[flag_name] = flag_value
+
+    def load_data(self, data: Dict[str, Any]) -> None:
+        # Pass the data on for sibling classes to load it;
+        super().load_data(data)
+        # Now load the flag DOF's into this instance;
+        for flag_name, flag_value in data['flag_data'].items():
+            # Only import the flag if it has a DOF. This is important for importing legacy data;
+            if flag_value not in model.flags.FLAGS_WITH_DOF:
+                continue
+            # Go ahead and assign the value;
             self._flag_dofs[flag_name] = flag_value
