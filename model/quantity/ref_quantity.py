@@ -1,5 +1,4 @@
-import abc
-from typing import TypedDict, Dict, Callable, Optional, Any
+from typing import TypedDict, Callable, Optional
 
 import model
 import persistence
@@ -108,46 +107,3 @@ class SettableRefQuantity(RefQuantity):
 
         # All must be OK, go ahead and set;
         self._data['pref_unit'] = unit
-
-
-class HasRefQty(persistence.YieldsPersistableData, abc.ABC):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-
-    @property
-    @abc.abstractmethod
-    def _ref_qty(self) -> 'RefQuantity':
-        """Instance implementation to return a readonly reference quantity instance."""
-        raise NotImplementedError
-
-    @property
-    def persistable_data(self) -> Dict[str, Any]:
-        data = super().persistable_data
-        data['ref_qty_data'] = self._ref_qty.persistable_data
-        return data
-
-
-class HasSettableRefQty(HasRefQty, persistence.CanLoadData):
-    def __init__(self, ref_qty_data: Optional['RefQtyData'] = None, **kwargs):
-        super().__init__(**kwargs)
-
-        if isinstance(self, model.quantity.SupportsExtendedUnits):
-            self._ref_qty_: 'SettableRefQuantity' = SettableRefQuantity(
-                data=ref_qty_data,
-                can_use_density_units=lambda: self.density_is_defined,  # noqa
-                can_use_piece_units=lambda: self.piece_mass_defined,  # noqa
-            )
-        else:
-            self._ref_qty_: 'SettableRefQuantity' = SettableRefQuantity(
-                data=ref_qty_data,
-                can_use_density_units=lambda: False,
-                can_use_piece_units=lambda: False,
-            )
-
-    @property
-    def _ref_qty(self) -> 'SettableRefQuantity':
-        return self._ref_qty_
-
-    def load_data(self, data: Dict[str, Any]) -> None:
-        super().load_data(data)
-        self._ref_qty_.load_data(data['ref_qty_data'])

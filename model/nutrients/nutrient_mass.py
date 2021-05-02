@@ -7,10 +7,16 @@ import persistence
 class NutrientMass(model.quantity.HasQuantityOf, model.SupportsDefinition, persistence.CanLoadData):
     """Models a mass of a nutrient."""
 
-    def __init__(self, nutrient: 'model.nutrients.Nutrient',
+    def __init__(self, nutrient_name: str,
                  mass_data: Optional['model.quantity.QuantityData'] = None,
                  **kwargs):
-        super().__init__(subject=nutrient, **kwargs)
+        # Grab the primary version of the nutrient name;
+        nutrient_name = model.nutrients.get_nutrient_primary_name(nutrient_name)
+
+        super().__init__(
+            subject=model.nutrients.GLOBAL_NUTRIENTS[nutrient_name],
+            **kwargs
+        )
 
         self._quantity_data_ = model.quantity.QuantityData(
             quantity_in_g=None,

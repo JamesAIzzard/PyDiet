@@ -1,5 +1,5 @@
 import abc
-from typing import Dict, List, Any, Optional, TypedDict
+from typing import Dict, List, Callable, Any, Optional, TypedDict
 
 import model
 import persistence
@@ -17,8 +17,13 @@ NutrientRatiosData = Dict[str, 'NutrientRatioData']
 class NutrientRatio(model.SupportsDefinition, persistence.CanLoadData):
     """Models an amount of nutrient per substance."""
 
-    def __init__(self, nutrient_name: str, nutrient_ratio_data: Optional['NutrientRatioData'] = None, **kwargs):
+    def __init__(self, nutrient_name: str,
+                 can_use_density_units: Callable[[], bool],
+                 can_use_piece_units: Callable[[], bool],
+                 nutrient_ratio_data: Optional['NutrientRatioData'] = None,
+                 **kwargs):
         super().__init__(**kwargs)
+
         # Make sure we are using the primary name;
         nutrient_name = model.nutrients.get_nutrient_primary_name(nutrient_name)
 
@@ -30,7 +35,12 @@ class NutrientRatio(model.SupportsDefinition, persistence.CanLoadData):
             )
         )
         self._subject_ref_qty = model.quantity.RefQuantity(
-
+            can_use_density_units=can_use_density_units,
+            can_use_piece_units=can_use_piece_units,
+            data=model.quantity.RefQtyData(
+                pref_unit='g',
+                ref_qty=100
+            )
         )
 
         # If data was provided, go ahead and load it;
@@ -40,7 +50,7 @@ class NutrientRatio(model.SupportsDefinition, persistence.CanLoadData):
     @property
     def nutrient(self) -> 'model.nutrients.Nutrient':
         """Returns the nutrient associated with the nutrient ratio."""
-        return self._nutrient
+        return self._nutrient_mass.nutrient
 
     @property
     def g_per_subject_g(self) -> Optional[float]:
