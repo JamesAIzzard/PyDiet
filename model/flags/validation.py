@@ -1,4 +1,4 @@
-import model
+from . import configs, exceptions
 
 
 def validate_flag_name(flag_name: str) -> str:
@@ -6,9 +6,9 @@ def validate_flag_name(flag_name: str) -> str:
     Raises:
         FlagNameError: To indicate the flag name is not recognised.
     """
-    if flag_name in model.flags.configs.FLAG_DATA.keys():
+    if flag_name in configs.FLAG_DATA.keys():
         return str(flag_name)
-    raise model.flags.exceptions.FlagNameError
+    raise exceptions.FlagNameError
 
 
 def validate_flag_value(flag_value: bool) -> bool:
@@ -18,4 +18,4 @@ def validate_flag_value(flag_value: bool) -> bool:
     """
     if flag_value in [True, False]:
         return flag_value
-    raise model.flags.exceptions.FlagValueError
+    raise exceptions.FlagValueError

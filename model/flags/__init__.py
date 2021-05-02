@@ -7,11 +7,7 @@ from .main import ALL_FLAGS, ALL_FLAG_NAMES, FLAGS_WITH_DOF, FLAGS_WITHOUT_DOF, 
 for flag_name, data in configs.FLAG_DATA.items():
 
     # Initialise the flag instance;
-    ALL_FLAGS[flag_name] = Flag(
-        name=flag_name,
-        nutrient_relations=data['nutrient_relations'],
-        direct_alias=data['direct_alias']
-    )
+    ALL_FLAGS[flag_name] = Flag(flag_name=flag_name)
 
     # Add the name to the list of all flag names;
     ALL_FLAG_NAMES.append(flag_name)

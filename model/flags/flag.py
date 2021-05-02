@@ -1,6 +1,7 @@
-from typing import Dict, List, Optional
+from typing import Dict, List
 
 import model
+from . import validation, configs
 
 
 class Flag:
@@ -12,30 +13,14 @@ class Flag:
         global definition of the flag.
     """
 
-    def __init__(self, name: str,
-                 nutrient_relations: Optional[Dict[str, 'model.flags.FlagImpliesNutrient']] = None,
-                 direct_alias: bool = False):
-        """
-        Args:
-            name: The flag name.
-            nutrient_relations (Dict[str, 'FlagImpliesNutrient']): Dictionary of related nutrient names,
-                and what the True flag would imply about the mass of the named nutrient in the subject.
-            direct_alias (bool): Indicates if the flag is completely defined by its nutrient relations.
-        """
+    def __init__(self, flag_name: str):
+        # Validate the flag name;
+        flag_name = validation.validate_flag_name(flag_name)
 
-        # Dissallow direct alias if there are no nutrient relations;
-        if direct_alias and len(nutrient_relations) == 0:
-            raise ValueError("A flag cannot be a direct alias without nutrient relations.")
-
-        self._name = name
-        self._nutrient_relations = {}
-        self._direct_alias = direct_alias
-
-        # Populate the nutrient relations info if provided;
-        if nutrient_relations is not None:
-            for nutrient_name, implication in nutrient_relations.items():
-                nutrient_name = model.nutrients.get_nutrient_primary_name(nutrient_name)
-                self._nutrient_relations[nutrient_name] = implication
+        self._name = flag_name
+        self._nutrient_relations: Dict[str, 'model.flags.FlagImpliesNutrient'] =\
+            configs.FLAG_DATA[flag_name]["nutrient_relations"]
+        self._direct_alias: bool = configs.FLAG_DATA[flag_name]["direct_alias"]
 
     @property
     def name(self) -> str:
@@ -52,14 +37,16 @@ class Flag:
 
     def get_implication_for_nutrient(self, nutrient_name: str) -> 'model.flags.FlagImpliesNutrient':
         """Returns the implication associated with the named nutrient."""
+        # Check we are using the primary nutrient name;
         nutrient_name = model.nutrients.get_nutrient_primary_name(nutrient_name)
+        # Return the relations for this name;
         return self._nutrient_relations[nutrient_name]
 
     def nutrient_ratio_matches_relation(self, nutrient_ratio: 'model.nutrients.NutrientRatio') -> bool:
         """Returns True/False/None to indicate if the nutrient relation
         matches the nutrient ratio supplied."""
         # Grab the implication first;
-        implication = self.get_implication_for_nutrient(nutrient_ratio.nutrient.primary_name)
+        implication = self.get_implication_for_nutrient(nutrient_ratio.nutrient_name)
 
         # If implication is zero;
         if implication is model.flags.FlagImpliesNutrient.zero:
