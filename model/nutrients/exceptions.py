@@ -53,6 +53,7 @@ class UndefinedNutrientRatioError(NamedNutrientError):
         super().__init__(**kwargs)
 
 
+
 class NutrientRatioNotSettableError(NamedNutrientError):
     """Indicating the subject does not support nutrient ratio setting."""
 
