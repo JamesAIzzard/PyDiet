@@ -6,7 +6,6 @@ import persistence
 
 class QuantityData(TypedDict):
     quantity_in_g: Optional[float]
-    ref_qty: float
     pref_unit: str
 
 
@@ -19,7 +18,6 @@ class QuantityOf(model.SupportsDefinition, persistence.CanLoadData):
         self._subject = subject
         self._quantity_data: 'QuantityData' = QuantityData(
             quantity_in_g=None,
-            ref_qty=100,
             pref_unit='g'
         )
 
@@ -28,7 +26,6 @@ class QuantityOf(model.SupportsDefinition, persistence.CanLoadData):
 
     def _reset_pref_unit(self) -> None:
         self._quantity_data['pref_unit'] = 'g'
-        self._quantity_data['ref_qty'] = 100
 
     def _sanitise_pref_unit(self) -> None:
         try:
@@ -89,7 +86,18 @@ class QuantityOf(model.SupportsDefinition, persistence.CanLoadData):
     def ref_qty(self) -> float:
         """Returns the reference quantity used to define the subject quantity."""
         self._sanitise_pref_unit()
-        return self._quantity_data['ref_qty']
+        g_per_ml = None
+        piece_mass_g = None
+        if isinstance(self.subject, model.quantity.SupportsExtendedUnits):
+            g_per_ml = self.subject.g_per_ml if self.subject.density_is_defined else None
+            piece_mass_g = self.subject.piece_mass_g if self.subject.piece_mass_defined else None
+        return model.quantity.convert_qty_unit(
+            qty=self.quantity_in_g,
+            start_unit='g',
+            end_unit=self.pref_unit,
+            g_per_ml=g_per_ml,
+            piece_mass_g=piece_mass_g
+        )
 
     @property
     def is_defined(self) -> bool:
@@ -134,5 +142,4 @@ class SettableQuantityOf(QuantityOf):
 
         # OK, go ahead and set;
         self._quantity_data['quantity_in_g'] = qty_in_g
-        self._quantity_data['ref_qty'] = quantity
         self._quantity_data['pref_unit'] = unit

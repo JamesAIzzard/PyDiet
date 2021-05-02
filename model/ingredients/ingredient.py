@@ -6,32 +6,20 @@ import persistence
 
 class IngredientData(TypedDict):
     """Ingredient data dictionary."""
-    cost_per_g: Optional[float]
+    cost_per_qty_data: model.cost.CostPerQtyData
     flags: Dict[str, Optional[bool]]
     name: Optional[str]
-    nutrients: Dict[str, 'model.nutrients.NutrientRatioData']
-    bulk: model.quantity.BulkData
+    nutrients: model.nutrients.NutrientRatiosData
+    extended_units_data: model.quantity.ExtendedUnitsData
 
 
-class Ingredient(
-    persistence.SupportsPersistence,
-    model.HasName,
-    model.HasMandatoryAttributes,
-    model.cost.SupportsCostPerQuantity,
-    model.flags.HasFlags,
-    model.nutrients.HasNutrientRatios
-):
-    def __init__(self, ingredient_data: Optional['IngredientData'] = None, **kwargs):
-        super().__init__(**kwargs)
-
-
-class SettableIngredient(persistence.SupportsPersistence,
-                         model.HasSettableName,
-                         model.HasMandatoryAttributes,
-                         model.quantity.HasSettableBulk,
-                         model.cost.SupportsSettableCostPerQuantity,
-                         model.flags.HasSettableFlags,
-                         model.nutrients.HasSettableNutrientRatios):
+class Ingredient(persistence.SupportsPersistence,
+                 model.HasSettableName,
+                 model.HasMandatoryAttributes,
+                 model.quantity.SupportsExtendedUnitSetting,
+                 model.cost.SupportsSettableCostPerQuantity,
+                 model.flags.HasSettableFlags,
+                 model.nutrients.HasSettableNutrientRatios):
 
     def __init__(self, ingredient_data: Optional[IngredientData] = None, **kwargs):
         super().__init__(**kwargs)
@@ -71,7 +59,7 @@ class SettableIngredient(persistence.SupportsPersistence,
         if self._name is None:
             missing_attr_names.append('name')
         # Check cost;
-        if self._cost_per_g is None:
+        if self._cost_per_qty_data['cost_per_g'] is None:
             missing_attr_names.append('cost')
         # Check flag_data;
         for flag_name in self.get_undefined_flag_names():

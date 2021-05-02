@@ -1,10 +1,13 @@
-from typing import Dict, List, Callable, Optional, Any
+import abc
+from typing import Dict, List, Optional, Any
 
 import model
 import persistence
 
+IngredientQuantitiesData = Dict[str, model.quantity.QuantityData]
 
-class IngredientQuantityOf(model.quantity.HasQuantityOf, model.SupportsDefinition):
+
+class IngredientQuantity(model.quantity.QuantityOf):
     """Models a readonly quantity of an ingredient."""
 
     def __init__(self, ingredient: 'model.ingredients.Ingredient', **kwargs):
@@ -16,28 +19,22 @@ class IngredientQuantityOf(model.quantity.HasQuantityOf, model.SupportsDefinitio
         assert (isinstance(self._subject, model.ingredients.Ingredient))
         return self._subject
 
-    @property
-    def is_defined(self) -> bool:
-        return self._get_quantity_in_g() is not None
 
-
-class SettableIngredientQuantity(IngredientQuantityOf, model.quantity.HasSettableQuantityOf):
+class SettableIngredientQuantity(IngredientQuantity, model.quantity.SettableQuantityOf):
     """Models a settable quantity of an ingredient."""
 
 
-class HasIngredientQuantities:
+class HasIngredientQuantities(persistence.YieldsPersistableData, abc.ABC):
     """Models an object which has readonly quantities of ingredients."""
 
-    def __init__(self, get_ingredient_quantities: Callable[[], Dict[str, 'IngredientQuantityOf']], **kwargs):
+    def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        self._get_ingredient_quantities = get_ingredient_quantities
-
     @property
-    def ingredient_quantities(self) -> Dict[str, 'model.ingredients.IngredientQuantityOf']:
+    def ingredient_quantities(self) -> Dict[str, 'model.ingredients.IngredientQuantity']:
         """Returns a dictionary of all ingredient amounts assigned to the instance.
         The dictionary key is the ingredient amount datafile name."""
-        return self._get_ingredient_quantities()
+        raise NotImplementedError
 
     @property
     def ingredient_names(self) -> List[str]:
@@ -46,9 +43,9 @@ class HasIngredientQuantities:
 
     @property
     def persistable_data(self) -> Dict[str, Any]:
-        data = {}
+        data = super().persistable_data
         for ingredient_df_name, ingredient_quantity in self.ingredient_quantities.items():
-            data[ingredient_df_name] = ingredient_quantity.persistable_data
+            data['ingredient_quantities_data'][ingredient_df_name] = ingredient_quantity.persistable_data
         return data
 
 
@@ -58,5 +55,5 @@ class HasSettableIngredientQuantities(HasIngredientQuantities):
     def __init__(self, ingredient_quantities_data: Optional[Dict[str, 'model.quantity.QuantityData']] = None, **kwargs):
         super().__init__(**kwargs)
 
-        self._ingredient_quantities: Dict[str, 'model.quantity.QuantityData']
+        self._ingredient_quantities: Dict[str, 'IngredientQuantity']
 

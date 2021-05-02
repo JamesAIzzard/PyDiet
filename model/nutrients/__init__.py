@@ -13,13 +13,13 @@ from .main import (get_nutrient_primary_name,
 from .nutrient import Nutrient
 from .nutrient_mass import (
     NutrientMass,
-    SettableNutrientMass,
-    NutrientMassData
+    SettableNutrientMass
 )
 from .nutrient_ratios import (
     NutrientRatioData,
     NutrientRatio,
     SettableNutrientRatio,
+    NutrientRatiosData,
     HasNutrientRatios,
     HasSettableNutrientRatios
 )

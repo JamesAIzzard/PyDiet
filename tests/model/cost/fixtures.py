@@ -1,4 +1,4 @@
-from typing import Callable, Optional
+from typing import Optional
 
 import model
 
@@ -6,15 +6,17 @@ import model
 class SupportsCostPerQuantityTestable(model.cost.SupportsCostPerQuantity):
     def __init__(self,
                  pref_unit: str = 'g',
-                 ref_qty: float = 100,
+                 ref_qty_g: Optional[float] = 100,
                  cost_per_g: Optional[float] = None):
         super().__init__()
-        self._cost_data_ = model.cost.CostPerQtyData(
-            pref_unit=pref_unit,
-            ref_qty=ref_qty,
-            cost_per_g=cost_per_g
-        )
+        self.pref_unit = pref_unit
+        self.ref_qty_g = ref_qty_g
+        self._cost_per_g_ = cost_per_g
 
     @property
     def _cost_per_qty_data(self) -> 'model.cost.CostPerQtyData':
-        return self._cost_data_
+        return model.cost.CostPerQtyData(
+            quantity_in_g=self.ref_qty_g,
+            pref_unit=self.pref_unit,
+            cost_per_g=self._cost_per_g_
+        )

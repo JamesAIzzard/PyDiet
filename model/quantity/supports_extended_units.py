@@ -5,7 +5,7 @@ import model
 import persistence
 
 
-class ExtendedUnitData(TypedDict):
+class ExtendedUnitsData(TypedDict):
     g_per_ml: Optional[float]
     piece_mass_g: Optional[float]
 
@@ -75,7 +75,7 @@ class SupportsExtendedUnits(persistence.YieldsPersistableData, abc.ABC):
 
     def persistable_data(self) -> Dict[str, Any]:
         data = super().persistable_data
-        data['extended_units_data'] = ExtendedUnitData(
+        data['extended_units_data'] = ExtendedUnitsData(
             g_per_ml=self._g_per_ml,
             piece_mass_g=self.piece_mass_g
         )
@@ -85,10 +85,10 @@ class SupportsExtendedUnits(persistence.YieldsPersistableData, abc.ABC):
 class SupportsExtendedUnitSetting(SupportsExtendedUnits, persistence.CanLoadData):
     """Models an object on which density and peice mass can be set."""
 
-    def __init__(self, extended_unit_data: Optional['ExtendedUnitData'] = None, **kwargs):
+    def __init__(self, extended_unit_data: Optional['ExtendedUnitsData'] = None, **kwargs):
         super().__init__(**kwargs)
 
-        self._extended_unit_data: 'ExtendedUnitData' = ExtendedUnitData(
+        self._extended_unit_data: 'ExtendedUnitsData' = ExtendedUnitsData(
             g_per_ml=None,
             piece_mass_g=None
         )

@@ -30,7 +30,6 @@ class NutrientRatio(model.SupportsDefinition, persistence.CanLoadData):
             nutrient_name=nutrient_name,
             mass_data=model.quantity.QuantityData(
                 quantity_in_g=None,
-                ref_qty=100,
                 pref_unit='g'
             )
         )
@@ -38,7 +37,6 @@ class NutrientRatio(model.SupportsDefinition, persistence.CanLoadData):
             subject=subject,
             quantity_data=model.quantity.QuantityData(
                 quantity_in_g=None,
-                ref_qty=100,
                 pref_unit='g'
             )
         )

@@ -18,7 +18,7 @@ from .quantity_of import (
     QuantityData
 )
 from .supports_extended_units import (
-    ExtendedUnitData,
+    ExtendedUnitsData,
     SupportsExtendedUnits,
     SupportsExtendedUnitSetting
 )

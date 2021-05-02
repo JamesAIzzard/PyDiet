@@ -37,7 +37,6 @@ class SupportsCostPerQuantity(persistence.YieldsPersistableData, abc.ABC):
             subject=self,
             quantity_data=model.quantity.QuantityData(
                 quantity_in_g=self._cost_per_qty_data['quantity_in_g'],
-                ref_qty=self._cost_per_qty_data['ref_qty'],
                 pref_unit=self._cost_per_qty_data['pref_unit']
             )
         )
@@ -81,7 +80,7 @@ class SupportsCostPerQuantity(persistence.YieldsPersistableData, abc.ABC):
 
 
 class SupportsSettableCostPerQuantity(SupportsCostPerQuantity, persistence.CanLoadData):
-    """ABC for objects supporting with a settable cost per quantity."""
+    """Models objects with a settable cost per quantity."""
 
     def __init__(self, cost_per_qty_data: Optional['CostPerQtyData'] = None, **kwargs):
         super().__init__(**kwargs)
@@ -90,7 +89,6 @@ class SupportsSettableCostPerQuantity(SupportsCostPerQuantity, persistence.CanLo
             subject=self,
             quantity_data=model.quantity.QuantityData(
                 quantity_in_g=None,
-                ref_qty=100,
                 pref_unit='g'
             )
         )
@@ -155,7 +153,6 @@ class SupportsSettableCostPerQuantity(SupportsCostPerQuantity, persistence.CanLo
         super().load_data(data)
         self._subject_quantity.load_data(model.quantity.QuantityData(
             quantity_in_g=data['cost_per_qty_data']['quantity_in_g'],
-            ref_qty=data['cost_per_qty_data']['ref_qty'],
             pref_unit=data['cost_per_qty_data']['pref_unit']
         ))
         self._cost_per_g_ = data['cost_per_qty_data']['cost_per_g']
