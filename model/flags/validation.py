@@ -8,7 +8,7 @@ def validate_flag_name(flag_name: str) -> str:
     """
     if flag_name in configs.FLAG_DATA.keys():
         return str(flag_name)
-    raise exceptions.FlagNameError
+    raise exceptions.FlagNameError(flag_name=flag_name)
 
 
 def validate_flag_value(flag_value: bool) -> bool:
@@ -18,4 +18,4 @@ def validate_flag_value(flag_value: bool) -> bool:
     """
     if flag_value in [True, False]:
         return flag_value
-    raise exceptions.FlagValueError
+    raise exceptions.FlagValueError(value=flag_value)

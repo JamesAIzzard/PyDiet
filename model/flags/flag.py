@@ -18,7 +18,7 @@ class Flag:
         flag_name = validation.validate_flag_name(flag_name)
 
         self._name = flag_name
-        self._nutrient_relations: Dict[str, 'model.flags.FlagImpliesNutrient'] =\
+        self._nutrient_relations: Dict[str, 'model.flags.FlagImpliesNutrient'] = \
             configs.FLAG_DATA[flag_name]["nutrient_relations"]
         self._direct_alias: bool = configs.FLAG_DATA[flag_name]["direct_alias"]
 
@@ -40,7 +40,13 @@ class Flag:
         # Check we are using the primary nutrient name;
         nutrient_name = model.nutrients.get_nutrient_primary_name(nutrient_name)
         # Return the relations for this name;
-        return self._nutrient_relations[nutrient_name]
+        try:
+            return self._nutrient_relations[nutrient_name]
+        except KeyError:
+            raise model.flags.exceptions.NutrientNotRelatedError(
+                flag_name=self.name,
+                nutrient_name=nutrient_name
+            )
 
     def nutrient_ratio_matches_relation(self, nutrient_ratio: 'model.nutrients.NutrientRatio') -> bool:
         """Returns True/False/None to indicate if the nutrient relation
