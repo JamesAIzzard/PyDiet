@@ -1,5 +1,5 @@
+import model
 from . import exceptions
-from .main import ALL_FLAGS
 
 
 def validate_flag_name(flag_name: str) -> str:
@@ -7,7 +7,7 @@ def validate_flag_name(flag_name: str) -> str:
     Raises:
         FlagNameError: To indicate the flag name is not recognised.
     """
-    if flag_name in ALL_FLAGS.keys():
+    if flag_name in model.flags.ALL_FLAGS.keys():
         return str(flag_name)
     raise exceptions.FlagNameError(flag_name=flag_name)
 

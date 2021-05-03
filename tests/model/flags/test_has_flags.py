@@ -19,17 +19,17 @@ class TestGetFlagDOF(TestCase):
             "bar_free": None
         }
 
-    @mock.patch.dict(model.flags.validation.ALL_FLAGS, tests.model.flags.ALL_TEST_FLAGS)
-    @mock.patch.dict(model.flags.main.ALL_FLAGS, tests.model.flags.ALL_TEST_FLAGS)
+    @mock.patch.dict(model.flags.ALL_FLAGS, tests.model.flags.ALL_TEST_FLAGS)
     def test_gets_dof_correctly(self):
         hf = fx.HasFlagsTestable(flag_dofs=self.flag_dofs)
         self.assertTrue(hf._get_flag_dof("pongaterian"))
         self.assertFalse(hf._get_flag_dof("foogetarian"))
 
+    @mock.patch.dict(model.flags.ALL_FLAGS, tests.model.flags.ALL_TEST_FLAGS)
     def test_raises_exception_if_flag_has_no_dof(self):
-        hf = fx.HasFlagsTestable(flag_dofs=self.flag_dofs)
+        hf = fx.HasFlagsTestable()
         with self.assertRaises(model.flags.exceptions.FlagHasNoDOFError):
-            _ = hf._get_flag_dof("alcohol_free")
+            _ = hf._get_flag_dof("foo_free")
 
     def test_raises_exception_if_dof_not_listed(self):
         hf = fx.HasFlagsTestable(flag_dofs={

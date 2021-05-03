@@ -36,7 +36,7 @@ def get_flag(flag_name: str) -> 'model.flags.Flag':
     """Returns a reference to the named flag from the global list."""
     # Check the name is OK first;
     flag_name = model.flags.validation.validate_flag_name(flag_name)
-    return ALL_FLAGS[flag_name]
+    return model.flags.ALL_FLAGS[flag_name]
 
 
 def flag_has_dof(flag_name: str) -> bool:
