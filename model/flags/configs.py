@@ -1,4 +1,5 @@
-from .main import FlagImpliesNutrient
+from .flag_implies_nutrient import FlagImpliesNutrient
+
 
 FLAG_CONFIGS = {
     "alcohol_free": {

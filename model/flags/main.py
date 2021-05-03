@@ -1,15 +1,9 @@
-import enum
 from typing import Dict, List, TypedDict
 
 import model
-from .flag import Flag  # Requried during init
-
-ALL_FLAGS: Dict[str, 'model.flags.Flag'] = {}
-
-
-class FlagImpliesNutrient(enum.Enum):
-    zero = 1
-    non_zero = 2
+# Bring things in for init;
+from . import configs
+from .flag import Flag
 
 
 class NRConflicts(TypedDict):
@@ -30,6 +24,9 @@ def build_global_flag_list(flag_configs: Dict) -> Dict[str, 'model.flags.Flag']:
     for flag_name, data in flag_configs.items():
         all_flags[flag_name] = Flag(flag_name=flag_name)
     return all_flags
+
+
+ALL_FLAGS: Dict[str, 'model.flags.Flag'] = build_global_flag_list(configs.FLAG_CONFIGS)
 
 
 def get_flag(flag_name: str) -> 'model.flags.Flag':

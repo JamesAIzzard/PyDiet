@@ -32,7 +32,7 @@ class HasFlags(persistence.YieldsPersistableData, abc.ABC):
         """Returns a dictionary of each non-direct alias flag."""
         raise NotImplementedError
 
-    def _get_flag_dof(self, flag_name: str) -> bool:
+    def _get_flag_dof(self, flag_name: str) -> Optional[bool]:
         """Returns the degree of freedom associated with the flag. See notes in class docstring for brief
         description of flag degrees of freedom."""
 
@@ -45,25 +45,12 @@ class HasFlags(persistence.YieldsPersistableData, abc.ABC):
                 flag_name=flag_name
             )
 
-        # If the value is unset, raise an exception;
+        # OK, go ahead and return it;
         try:
-            if self._flag_dofs[flag_name] is None:
-                raise model.flags.exceptions.UndefinedFlagError(
-                    subject=self,
-                    flag_name=flag_name,
-                    reason=f"The degree of freedom associated with the {flag_name.replace('_', ' ')} flag is set to "
-                           f"None. "
-                )
+            return self._flag_dofs[flag_name]
         except KeyError:
-            # Aha, it wasn't in the list we got, treat it as unset;
-            raise model.flags.exceptions.UndefinedFlagError(
-                subject=self,
-                flag_name=flag_name,
-                reason=f"The degree of freedom associated with the {flag_name.replace('_', ' ')} flag is set to None."
-            )
-
-        # All is OK, just return the flag;
-        return self._flag_dofs[flag_name]
+            # Ahh, we don't have a dof listed, just return None.
+            return None
 
     def gather_all_related_nutrient_ratios(self, flag_name: str) -> List['model.nutrients.NutrientRatio']:
         """Returns a list of nutrient ratios, *from this instance* (hence this method is not a function

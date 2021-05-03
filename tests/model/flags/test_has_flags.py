@@ -24,6 +24,7 @@ class TestGetFlagDOF(TestCase):
         hf = fx.HasFlagsTestable(flag_dofs=self.flag_dofs)
         self.assertTrue(hf._get_flag_dof("pongaterian"))
         self.assertFalse(hf._get_flag_dof("foogetarian"))
+        self.assertEqual(hf._get_flag_dof("bar_free"), None)
 
     @mock.patch.dict(model.flags.ALL_FLAGS, tests.model.flags.ALL_TEST_FLAGS)
     def test_raises_exception_if_flag_has_no_dof(self):
@@ -31,18 +32,10 @@ class TestGetFlagDOF(TestCase):
         with self.assertRaises(model.flags.exceptions.FlagHasNoDOFError):
             _ = hf._get_flag_dof("foo_free")
 
-    def test_raises_exception_if_dof_not_listed(self):
-        hf = fx.HasFlagsTestable(flag_dofs={
-            "nut_free": True,
-            "vegetarian": False,
-        })
-        with self.assertRaises(model.flags.exceptions.UndefinedFlagError):
-            _ = hf._get_flag_dof("vegan")
-
-    def test_raises_exception_if_dof_undefined(self):
-        hf = fx.HasFlagsTestable(flag_dofs=self.flag_dofs)
-        with self.assertRaises(model.flags.exceptions.UndefinedFlagError):
-            _ = hf._get_flag_dof("vegan")
+    @mock.patch.dict(model.flags.ALL_FLAGS, tests.model.flags.ALL_TEST_FLAGS)
+    def test_returns_none_if_dof_not_listed(self):
+        hf = fx.HasFlagsTestable(flag_dofs={})
+        self.assertEqual(hf._get_flag_dof("pongaterian"), None)
 
 
 class TestGatherAllRelatedNutrientRatios(TestCase):
