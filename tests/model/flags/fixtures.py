@@ -3,22 +3,6 @@ from unittest import mock
 
 import model
 
-TEST_FLAG_DATA = {
-    "foo_free": {
-        "nutrient_relations": {
-            "foo": model.flags.FlagImpliesNutrient.zero,
-            "foobing": model.flags.FlagImpliesNutrient.zero,
-            "foobar": model.flags.FlagImpliesNutrient.zero,
-        },
-        "direct_alias": True
-    },
-    "pongaterian": {
-        "nutrient_relations": {},
-        "direct_alias": False
-    }
-}
-
-ALL_FLAGS = {}
 
 class HasFlagsTestable(model.flags.HasFlags, model.nutrients.HasNutrientRatios):
     def __init__(self,

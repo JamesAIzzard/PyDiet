@@ -32,15 +32,14 @@ class HasFlags(persistence.YieldsPersistableData, abc.ABC):
         """Returns a dictionary of each non-direct alias flag."""
         raise NotImplementedError
 
-    def get_flag_dof(self, flag_name: str) -> bool:
+    def _get_flag_dof(self, flag_name: str) -> bool:
         """Returns the degree of freedom associated with the flag. See notes in class docstring for brief
         description of flag degrees of freedom."""
 
-        # Check the name is valid;
-        flag_name = model.flags.validation.validate_flag_name(flag_name)
+        flag = model.flags.get_flag(flag_name)
 
         # Check the flag should have a DOF;
-        if flag_name not in model.flags.FLAGS_WITH_DOF:
+        if flag.direct_alias:
             raise model.flags.exceptions.FlagHasNoDOFError(
                 subject=self,
                 flag_name=flag_name
@@ -96,7 +95,7 @@ class HasFlags(persistence.YieldsPersistableData, abc.ABC):
 
         # If the flag is a not direct alias, return its DOF;
         if not flag.direct_alias:
-            return self.get_flag_dof(flag_name)
+            return self._get_flag_dof(flag_name)
 
         # Grab defined related nutrient ratios;
         try:
@@ -120,7 +119,7 @@ class HasFlags(persistence.YieldsPersistableData, abc.ABC):
     def get_undefined_flag_names(self) -> List[str]:
         """Returns a list of all flag names that are undefined."""
         undefined_flags = []
-        for flag_name in model.flags.ALL_FLAG_NAMES:
+        for flag_name in model.flags.ALL_FLAGS.keys():
             try:
                 _ = self.get_flag_value(flag_name)
             except model.flags.exceptions.UndefinedFlagError:
@@ -352,7 +351,7 @@ class HasSettableFlags(HasFlags, persistence.CanLoadData, abc.ABC):
         # Now load the flag DOF's into this instance;
         for flag_name, flag_value in data['flag_data'].items():
             # Only import the flag if it has a DOF. This is important for importing legacy data;
-            if flag_value not in model.flags.FLAGS_WITH_DOF:
+            if not model.flags.flag_has_dof(flag_name):
                 continue
             # Go ahead and assign the value;
             self._flag_dofs[flag_name] = flag_value

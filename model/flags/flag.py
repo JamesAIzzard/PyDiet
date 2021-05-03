@@ -1,7 +1,7 @@
 from typing import Dict, List
 
 import model
-from . import validation, configs
+from . import configs, exceptions
 
 
 class Flag:
@@ -15,12 +15,15 @@ class Flag:
 
     def __init__(self, flag_name: str):
         # Validate the flag name;
-        flag_name = validation.validate_flag_name(flag_name)
+        # We can't use the normal validator function here, becuase it will check the global
+        # flag list, and this constructor may be called to populate the global flag list.
+        if flag_name not in configs.FLAG_CONFIGS.keys():
+            raise exceptions.FlagNameError(flag_name=flag_name)
 
         self._name = flag_name
         self._nutrient_relations: Dict[str, 'model.flags.FlagImpliesNutrient'] = \
-            configs.FLAG_DATA[flag_name]["nutrient_relations"]
-        self._direct_alias: bool = configs.FLAG_DATA[flag_name]["direct_alias"]
+            configs.FLAG_CONFIGS[flag_name]["nutrient_relations"]
+        self._direct_alias: bool = configs.FLAG_CONFIGS[flag_name]["direct_alias"]
 
     @property
     def name(self) -> str:

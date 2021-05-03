@@ -1,6 +1,6 @@
 from .main import FlagImpliesNutrient
 
-FLAG_DATA = {
+FLAG_CONFIGS = {
     "alcohol_free": {
         "nutrient_relations": {
             "alcohol": FlagImpliesNutrient.zero

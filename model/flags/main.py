@@ -2,11 +2,9 @@ import enum
 from typing import Dict, List, TypedDict
 
 import model
+from .flag import Flag  # Requried during init
 
 ALL_FLAGS: Dict[str, 'model.flags.Flag'] = {}
-ALL_FLAG_NAMES: List[str] = []
-FLAGS_WITH_DOF: List[str] = []
-FLAGS_WITHOUT_DOF: List[str] = []
 
 
 class FlagImpliesNutrient(enum.Enum):
@@ -25,3 +23,25 @@ class NRConflicts(TypedDict):
     need_non_zero: List[str]
     need_undefining: List[str]
     preventing_flag_undefine: List[str]
+
+
+def build_global_flag_list(flag_configs: Dict) -> Dict[str, 'model.flags.Flag']:
+    all_flags: Dict[str, 'model.flags.Flag'] = {}
+    for flag_name, data in flag_configs.items():
+        all_flags[flag_name] = Flag(flag_name=flag_name)
+    return all_flags
+
+
+def get_flag(flag_name: str) -> 'model.flags.Flag':
+    """Returns a reference to the named flag from the global list."""
+    # Check the name is OK first;
+    flag_name = model.flags.validation.validate_flag_name(flag_name)
+    return ALL_FLAGS[flag_name]
+
+
+def flag_has_dof(flag_name: str) -> bool:
+    """Returns True/False to indicate if the flag has a DOF."""
+    # Grab the flag first;
+    flag = get_flag(flag_name)
+    # Inspect and return;
+    return not flag.direct_alias
