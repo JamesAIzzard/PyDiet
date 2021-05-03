@@ -1,15 +1,41 @@
+import copy
 from difflib import SequenceMatcher
 from heapq import nlargest
-from typing import List, Dict, Callable
+from typing import List, Dict, Callable, Tuple
 
 import model
-from . import validation, configs, exceptions  # Required for initialisation, before model.nutrients is ready.
+# Import things required for init;
+from . import validation, configs, exceptions
+from .nutrient import Nutrient
 
 # Create the derived global lists, ready for initialisation;
-GLOBAL_NUTRIENTS: Dict[str, 'model.nutrients.Nutrient'] = {}
-PRIMARY_AND_ALIAS_NUTRIENT_NAMES: List[str] = []
-NUTRIENT_GROUP_NAMES = []
-OPTIONAL_NUTRIENT_NAMES = []
+PRIMARY_AND_ALIAS_NUTRIENT_NAMES: List[str]
+NUTRIENT_GROUP_NAMES: List[str]
+OPTIONAL_NUTRIENT_NAMES: List[str]
+GLOBAL_NUTRIENTS: Dict[str, 'model.nutrients.Nutrient']
+
+
+def build_name_lists() -> Tuple:
+    # Initialise the nutrient group names list;
+    nutrient_group_names = configs.NUTRIENT_GROUP_DEFINITIONS.keys()
+
+    # Initialise the optional nutrients list;
+    optional_nutrient_names = set(configs.ALL_PRIMARY_NUTRIENT_NAMES).difference(
+        set(configs.MANDATORY_NUTRIENT_NAMES))
+
+    # Initialise the all known nutrients name list;
+    primary_and_alias_nutrient_names = copy.copy(configs.ALL_PRIMARY_NUTRIENT_NAMES)
+    for primary_name, aliases in configs.NUTRIENT_ALIASES.items():
+        primary_and_alias_nutrient_names += aliases
+
+    return nutrient_group_names, optional_nutrient_names, primary_and_alias_nutrient_names
+
+
+def build_global_nutrient_list() -> Dict[str, 'model.nutrients.Nutrient']:
+    global_nutrients: Dict[str, 'model.nutrients.Nutrient'] = {}
+    for primary_nutrient_name in configs.ALL_PRIMARY_NUTRIENT_NAMES:
+        global_nutrients[primary_nutrient_name] = Nutrient(primary_nutrient_name, global_nutrients)
+    return global_nutrients
 
 
 def get_nutrient_primary_name(nutrient_name: str) -> str:
@@ -152,3 +178,7 @@ def get_n_closest_nutrient_names(search_term: str, num_results: int = 5) -> List
     for nutrient_name in PRIMARY_AND_ALIAS_NUTRIENT_NAMES:
         scores[nutrient_name] = SequenceMatcher(None, search_term, nutrient_name).ratio()
     return nlargest(num_results, scores, key=scores.get)
+
+
+NUTRIENT_GROUP_NAMES, OPTIONAL_NUTRIENT_NAMES, PRIMARY_AND_ALIAS_NUTRIENT_NAMES = build_name_lists()
+GLOBAL_NUTRIENTS = build_global_nutrient_list()

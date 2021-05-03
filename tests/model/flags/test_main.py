@@ -1,8 +1,11 @@
-from unittest import TestCase
+from unittest import TestCase, mock
 
 import model
+from . import fixtures as fx
 
 
 class TestAllFlags(TestCase):
+
+    @fx.use_test_flags
     def test_flags_populated_during_init(self):
-        self.assertTrue(len(model.flags.ALL_FLAGS) > 0)
+        self.assertTrue(len(model.flags.ALL_FLAGS) == 4)

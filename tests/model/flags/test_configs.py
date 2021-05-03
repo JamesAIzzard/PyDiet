@@ -1,6 +1,6 @@
 import model
 
-TEST_FLAG_CONFIGS = {
+FLAG_CONFIGS = {
     "foo_free": {  # Direct alias depending on multiple nutrients.
         "nutrient_relations": {
             "foo": model.flags.FlagImpliesNutrient.zero,

@@ -19,14 +19,14 @@ class NRConflicts(TypedDict):
     preventing_flag_undefine: List[str]
 
 
-def build_global_flag_list(flag_configs: Dict) -> Dict[str, 'model.flags.Flag']:
+def build_global_flag_list() -> Dict[str, 'model.flags.Flag']:
     all_flags: Dict[str, 'model.flags.Flag'] = {}
-    for flag_name, data in flag_configs.items():
+    for flag_name, data in configs.FLAG_CONFIGS.items():
         all_flags[flag_name] = Flag(flag_name=flag_name)
     return all_flags
 
 
-ALL_FLAGS: Dict[str, 'model.flags.Flag'] = build_global_flag_list(configs.FLAG_CONFIGS)
+ALL_FLAGS: Dict[str, 'model.flags.Flag'] = build_global_flag_list()
 
 
 def get_flag(flag_name: str) -> 'model.flags.Flag':
