@@ -2,6 +2,21 @@ import model
 from . import exceptions
 
 
+def validate_configs(configs: 'model.flags.configs') -> None:
+    """Validates the flag configuration file."""
+    for flag_name, config in configs.FLAG_CONFIGS.items():
+        # Check all related nutrient names are actually known nutrients;
+        for nutrient_name in config['nutrient_relations'].keys():
+            try:
+                model.nutrients.validation.validate_nutrient_name(nutrient_name)
+            except model.nutrients.exceptions.NutrientNameNotRecognisedError:
+                raise exceptions.UnknownRelatedNutrientError(nutrient_name=nutrient_name)
+
+        # Check we don't have any direct alias relationships without any nutrients;
+        if len(config['nutrient_relations']) == 0 and config['direct_alias'] is True:
+            raise exceptions.DirectAliasWithoutRelatedNutrientsError(flag_name=flag_name)
+
+
 def validate_flag_name(flag_name: str) -> str:
     """Returns validated flag name or raises exception.
     Raises:

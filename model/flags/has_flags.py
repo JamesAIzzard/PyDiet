@@ -68,7 +68,11 @@ class HasFlags(persistence.YieldsPersistableData, abc.ABC):
         s: Union['model.flags.HasFlags', 'model.nutrients.HasNutrientRatios'] = self
         related_nutrient_ratios: List['model.nutrients.NutrientRatio'] = []
         for related_nutrient_name in flag.related_nutrient_names:
-            related_nutrient_ratios.append(s.get_nutrient_ratio(related_nutrient_name))
+            try:
+                related_nutrient_ratios.append(s.get_nutrient_ratio(related_nutrient_name))
+            except model.nutrients.exceptions.UndefinedNutrientRatioError:
+                # Ahh, that nutrient ratio isn't defined on this instanc, so just skip it;
+                continue
 
         # Return the compiled list;
         return related_nutrient_ratios

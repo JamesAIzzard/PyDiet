@@ -5,8 +5,7 @@ from typing import List, Dict, Callable, Tuple
 
 import model
 # Import things required for init;
-from . import validation, configs, exceptions
-from .nutrient import Nutrient
+from . import configs, exceptions, Nutrient
 
 # Create the derived global lists, ready for initialisation;
 PRIMARY_AND_ALIAS_NUTRIENT_NAMES: List[str]
@@ -45,7 +44,7 @@ def get_nutrient_primary_name(nutrient_name: str) -> str:
     """
 
     # Validate the name first;
-    nutrient_name = validation.validate_nutrient_name(nutrient_name)
+    nutrient_name = model.nutrients.validation.validate_nutrient_name(nutrient_name)
 
     # Return if primary already;
     if nutrient_name in configs.ALL_PRIMARY_NUTRIENT_NAMES:

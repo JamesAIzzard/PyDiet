@@ -1,6 +1,7 @@
 from unittest import TestCase, mock
 
 import model
+import tests.model.nutrients.fixtures as nut_fx
 from tests.model.flags import fixtures as fx
 
 
@@ -48,6 +49,7 @@ class TestGatherAllRelatedNutrientRatios(TestCase):
         }
 
     @fx.use_test_flags
+    @nut_fx.use_test_nutrients
     def test_correct_nutrient_ratios_returned(self):
         hf = fx.HasFlagsTestable(nutrient_ratios=self.nutrient_ratios)
         # Check the right nutrient ratios get returned;
@@ -61,8 +63,22 @@ class TestGatherAllRelatedNutrientRatios(TestCase):
         )
 
     @fx.use_test_flags
-    def test_empty_list_returned_if_no_related_nutrient_ratios(self):
+    @nut_fx.use_test_nutrients
+    def test_empty_list_returned_if_instance_has_no_related_nutrient_ratios(self):
         hf = fx.HasFlagsTestable()
         self.assertEqual(hf.gather_all_related_nutrient_ratios("pongaterian"), [])
 
-# class TestGetFlagValue(TestCase):
+    @fx.use_test_flags
+    @nut_fx.use_test_nutrients
+    def test_empty_list_if_flag_has_no_related_nutrients(self):
+        hf = fx.HasFlagsTestable()
+        self.assertEqual(hf.gather_all_related_nutrient_ratios("bar_free"), [])
+
+
+class TestGetFlagValue(TestCase):
+    @fx.use_test_flags
+    def test_dof_used_when_set_flag_has_no_related_nutrients(self):
+        hf = fx.HasFlagsTestable(flag_dofs={"foogetarian": True})
+        self.assertTrue(hf.get_flag_value("foogetarian"))
+        hf = fx.HasFlagsTestable(flag_dofs={"foogetarian": False})
+        self.assertFalse(hf.get_flag_value("foogetarian"))

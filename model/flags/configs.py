@@ -15,7 +15,7 @@ FLAG_CONFIGS = {
         "direct_alias": True},
     "lactose_free": {
         "nutrient_relations": {
-            "lactose": FlagImpliesNutrient.zero
+            "lactose": FlagImpliesNutrient.zero,
         },
         "direct_alias": True},
     "gluten_free": {

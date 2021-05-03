@@ -16,7 +16,7 @@ class Flag:
     def __init__(self, flag_name: str):
         # Validate the flag name;
         # We can't use the normal validator function here, becuase it will check the global
-        # flag list, and this constructor may be called to populate the global flag list.
+        # flag list, and this constructor will be called to populate the global flag list.
         if flag_name not in configs.FLAG_CONFIGS.keys():
             raise exceptions.FlagNameError(flag_name=flag_name)
 

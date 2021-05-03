@@ -5,6 +5,9 @@ import model
 # Import test configs to allow us to build the test globals;
 from . import test_configs
 
+# Validate the test flag configs;
+model.nutrients.validation.validate_configs(test_configs)
+
 PRIMARY_AND_ALIAS_NUTRIENT_NAMES: List[str]
 NUTRIENT_GROUP_NAMES: List[str]
 OPTIONAL_NUTRIENT_NAMES: List[str]

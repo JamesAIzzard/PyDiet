@@ -17,7 +17,7 @@ FLAG_CONFIGS = {
         },
         "direct_alias": False
     },
-    "foogetarian": {  # Direct alias depending on no nutrients.
+    "foogetarian": {
         "nutrient_relations": {},
         "direct_alias": False
     },

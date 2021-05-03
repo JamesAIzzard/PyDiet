@@ -56,3 +56,18 @@ class NutrientNotRelatedError(BaseFlagError):
     def __init__(self, nutrient_name: str, **kwargs):
         super().__init__(**kwargs)
         self.nutrient_name = nutrient_name
+
+
+class UnknownRelatedNutrientError(BaseFlagError):
+    """Indicates the name of the related nutrient is not recognised."""
+
+    def __init__(self, nutrient_name: str, **kwargs):
+        super().__init__(**kwargs)
+        self.nutrient_name = nutrient_name
+
+
+class DirectAliasWithoutRelatedNutrientsError(BaseFlagError):
+    """Indicates the configs stipulate a direct alias, without specifing any related nutrients."""
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)

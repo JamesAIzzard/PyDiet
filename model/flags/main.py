@@ -2,8 +2,7 @@ from typing import Dict, List, TypedDict
 
 import model
 # Bring things in for init;
-from . import configs
-from .flag import Flag
+from . import configs, Flag
 
 
 class NRConflicts(TypedDict):

@@ -1,3 +1,4 @@
+from .nutrient import Nutrient
 from . import configs, exceptions, validation, main
 from .main import (
     get_nutrient_primary_name,
@@ -12,7 +13,6 @@ from .main import (
     validate_nutrient_family_masses,
     get_n_closest_nutrient_names
 )
-from .nutrient import Nutrient
 from .nutrient_mass import (
     NutrientMass,
     SettableNutrientMass
