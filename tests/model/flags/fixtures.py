@@ -42,3 +42,10 @@ class HasFlagsTestable(model.flags.HasFlags, model.nutrients.HasNutrientRatios):
     @property
     def nutrient_ratios(self) -> Dict[str, 'mock.Mock']:
         return self._nutrient_ratios
+
+
+def get_mock_nutrient_ratio(nutrient_name: str, g_per_subject_g: float) -> 'mock.Mock':
+    nr = mock.Mock()
+    nr.g_per_subject_g = g_per_subject_g
+    nr.nutrient_name = nutrient_name
+    return nr

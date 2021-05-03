@@ -7,7 +7,7 @@ import persistence
 FlagDOFData = Dict[str, Optional[bool]]
 
 
-class HasFlags(persistence.YieldsPersistableData, abc.ABC):
+class HasFlags(model.nutrients.HasNutrientRatios, persistence.YieldsPersistableData, abc.ABC):
     """Models an object which has flag_data to characterise its content.
     Flags are either direct alias or not. A direct alias flag will derive its value entirely from a
     nutrient ratio on the same instance. For example, "caffiene-free" derives its value entirely from
@@ -22,9 +22,9 @@ class HasFlags(persistence.YieldsPersistableData, abc.ABC):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        # Check that this isntance also has nutrient ratios;
-        if not isinstance(self, model.nutrients.HasNutrientRatios):
-            raise TypeError('HasFlags requires NutrientRatios to function.')
+        # # Check that this isntance also has nutrient ratios;
+        # if not isinstance(self, model.nutrients.HasNutrientRatios):
+        #     raise TypeError('HasFlags requires NutrientRatios to function.')
 
     @property
     @abc.abstractmethod
@@ -52,31 +52,6 @@ class HasFlags(persistence.YieldsPersistableData, abc.ABC):
             # Ahh, we don't have a dof listed, just return None.
             return None
 
-    def gather_all_related_nutrient_ratios(self, flag_name: str) -> List['model.nutrients.NutrientRatio']:
-        """Returns a list of nutrient ratios, *from this instance* (hence this method is not a function
-        on main), that are related to the named flag."""
-
-        # Validate the flag name;
-        flag_name = model.flags.validation.validate_flag_name(flag_name)
-
-        # Grab a reference to the global flag;
-        flag = model.flags.ALL_FLAGS[flag_name]
-
-        # Grab related nutrient ratios;
-        # We already checked we had nutrient ratios in the constructor, so we can pass a reference for
-        # intellisense safely here;
-        s: Union['model.flags.HasFlags', 'model.nutrients.HasNutrientRatios'] = self
-        related_nutrient_ratios: List['model.nutrients.NutrientRatio'] = []
-        for related_nutrient_name in flag.related_nutrient_names:
-            try:
-                related_nutrient_ratios.append(s.get_nutrient_ratio(related_nutrient_name))
-            except model.nutrients.exceptions.UndefinedNutrientRatioError:
-                # Ahh, that nutrient ratio isn't defined on this instanc, so just skip it;
-                continue
-
-        # Return the compiled list;
-        return related_nutrient_ratios
-
     def get_flag_value(self, flag_name: str) -> bool:
         """Get the value of a particular flag by name."""
 
@@ -84,28 +59,55 @@ class HasFlags(persistence.YieldsPersistableData, abc.ABC):
         flag_name = model.flags.validation.validate_flag_name(flag_name)
         flag = model.flags.ALL_FLAGS[flag_name]
 
-        # If the flag is a not direct alias, return its DOF;
-        if not flag.direct_alias:
+        # OK. There are two main groups of scenarios here.
+        # 1. The flag is a direct alias (and relies on nutrient ratios only).
+        # 2. The flag has its own degree of freedom.
+
+        if flag.direct_alias:
+            # OK, we have scenario 1.
+
+            # If any nutrient conflicts regardless of if any related nutrients are undefined, the flag
+            # is immediately false.
+            any_undefined = False
+            for nutrient_name in flag.related_nutrient_names:
+                try:
+                    nr = self.get_nutrient_ratio(nutrient_name)
+                except model.nutrients.exceptions.UndefinedNutrientRatioError:
+                    any_undefined = True
+                    continue
+                if flag.nutrient_ratio_matches_relation(nr) is False:
+                    return False
+
+            # If any nutrients are undefined, the flag is undefined.
+            if any_undefined:
+                raise model.flags.exceptions.UndefinedFlagError(
+                    flag_name=flag_name,
+                    reason="The flag is a direct alias, and at least one of its related nutrients is undefined."
+                )
+
+            # OK, no flags undefined, and no conflits either, return True;
+            return True
+
+        elif not flag.direct_alias:
+            # OK, we have scenario 2. The flag has its own degree of freedom, but if any nutrients conflict
+            # we return False straight away. So check for these now;
+            for nutrient_name in flag.related_nutrient_names:
+                try:
+                    nr = self.get_nutrient_ratio(nutrient_name)
+                except model.nutrients.exceptions.UndefinedNutrientRatioError:
+                    continue
+                if flag.nutrient_ratio_matches_relation(nr) is False:
+                    return False
+
+            # OK, no conflicts. At this point, we basically return the DOF, unless its undefined?
+            if self._get_flag_dof(flag_name) is None:
+                raise model.flags.exceptions.UndefinedFlagError(
+                    flag_name=flag_name,
+                    reason="The flag is not a direct alias, but its degree of freedom is undefined."
+                )
+
+            # Cool, it's defined, so just return the DOF;
             return self._get_flag_dof(flag_name)
-
-        # Grab defined related nutrient ratios;
-        try:
-            related_nutrient_ratios = self.gather_all_related_nutrient_ratios(flag_name)
-        # If any of the related nutrient ratio's aren't set, then this flag isn't set, so raise an exception;
-        except model.nutrients.exceptions.UndefinedNutrientRatioError as err:
-            raise model.flags.exceptions.UndefinedFlagError(
-                subject=self,
-                flag_name=flag_name,
-                reason=f"{flag_name.replace('_', ' ')} is not defined because the {err.nutrient_name} ratio is not "
-                       f"defined. "
-            )
-
-        # Loop through the nutrients and check for mismatch or undefined nutrients;
-        for related_nutrient_ratio in related_nutrient_ratios:
-            if flag.nutrient_ratio_matches_relation(related_nutrient_ratio) is False:
-                return False
-        # Finished looping through all related nutrients, so flag must match nutrient states;
-        return True
 
     def get_undefined_flag_names(self) -> List[str]:
         """Returns a list of all flag names that are undefined."""
@@ -117,6 +119,7 @@ class HasFlags(persistence.YieldsPersistableData, abc.ABC):
                 undefined_flags.append(flag_name)
         return undefined_flags
 
+    @property
     def persistable_data(self) -> Dict[str, Any]:
         # Grab the peristable data from the sibling classes;
         data = super().persistable_data
