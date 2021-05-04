@@ -26,7 +26,7 @@ def use_test_flags(func):
     return wrapper
 
 
-class HasFlagsTestable(model.flags.HasFlags, model.nutrients.HasNutrientRatios):
+class HasFlagsTestable(model.flags.HasFlags):
     def __init__(self,
                  flag_dofs: Optional[Dict[str, Optional[bool]]] = None,
                  nutrient_ratios: Optional[Dict[str, 'mock.Mock']] = None,
@@ -48,4 +48,5 @@ def get_mock_nutrient_ratio(nutrient_name: str, g_per_subject_g: float) -> 'mock
     nr = mock.Mock()
     nr.g_per_subject_g = g_per_subject_g
     nr.nutrient_name = nutrient_name
+    nr.persistable_data = {}
     return nr

@@ -409,6 +409,11 @@ class HasSettableNutrientRatios(HasNutrientRatios, persistence.CanLoadData):
 
     def load_data(self, data: Dict[str, Any]) -> None:
         super().load_data(data)
+
+        # If we don't have any fields in this data, exit;
+        if 'nutrient_ratios_data' not in data.keys():
+            return
+
         # Unpack the nutrient ratios data into SettableNutrientRatio instances;
         for nutrient_name, nutrient_ratio_data in data['nutrient_ratios_data'].items():
             # Don't unpack it if it is not defined (to tolerate legacy data);

@@ -127,16 +127,20 @@ class HasFlags(model.nutrients.HasNutrientRatios, persistence.YieldsPersistableD
         return data
 
 
-class HasSettableFlags(HasFlags, persistence.CanLoadData, abc.ABC):
+class HasSettableFlags(HasFlags, model.nutrients.HasSettableNutrientRatios, persistence.CanLoadData):
     """Models an object with configurable flag_data to characterise its content."""
 
-    def __init__(self, **kwargs):
+    def __init__(self, flag_data: Optional['FlagDOFData'] = None, **kwargs):
         super().__init__(**kwargs)
 
-        # Since we are dealing with setting flags now, we also need to make sure this
-        # instance also has settable nutrient ratios, or the correction algorithms won't work.
-        if not isinstance(self, model.nutrients.HasSettableNutrientRatios):
-            raise TypeError('HasSettableFlags requires SettableNutrientRatios to function.')
+        self._flag_dof_data: 'FlagDOFData' = {}
+
+        if flag_data is not None:
+            self.load_data({'flag_data': flag_data})
+
+    @property
+    def _flag_dofs(self) -> 'FlagDOFData':
+        return self._flag_dof_data
 
     def _collect_nutrient_ratio_conflicts(self, flag_name: str,
                                           flag_value: Optional[bool]) -> 'model.flags.NRConflicts':
@@ -164,9 +168,6 @@ class HasSettableFlags(HasFlags, persistence.CanLoadData, abc.ABC):
             preventing_flag_undefine=[]
         )
 
-        # Tell intellisense we have both settable flags and nutrient ratios;
-        s: Union['model.flags.HasSettableFlags', 'model.nutrients.HasNutrientRatios'] = self
-
         # Grab a reference to the flag thats involved;
         flag = model.flags.ALL_FLAGS[flag_name]
 
@@ -183,7 +184,7 @@ class HasSettableFlags(HasFlags, persistence.CanLoadData, abc.ABC):
 
                 # Go ahead and grab the nutrient ratio;
                 try:
-                    nutrient_ratio = s.get_nutrient_ratio(nutrient_name=related_nutrient_name)
+                    nutrient_ratio = self.get_nutrient_ratio(nutrient_name=related_nutrient_name)
 
                 # Hmmmm, that nutrient ratio wasn't defined;
                 except model.nutrients.exceptions.UndefinedNutrientRatioError:
@@ -218,7 +219,7 @@ class HasSettableFlags(HasFlags, persistence.CanLoadData, abc.ABC):
 
                 # Go ahead and grab the nutrient ratio;
                 try:
-                    nutrient_ratio = s.get_nutrient_ratio(nutrient_name=related_nutrient_name)
+                    nutrient_ratio = self.get_nutrient_ratio(nutrient_name=related_nutrient_name)
 
                 # Hmmmm, that nutrient ratio wasn't defined;
                 except model.nutrients.exceptions.UndefinedNutrientRatioError:
@@ -250,7 +251,7 @@ class HasSettableFlags(HasFlags, persistence.CanLoadData, abc.ABC):
             for related_nutrient_name in flag.related_nutrient_names:
                 # Go ahead and grab the nutrient ratio;
                 try:
-                    nutrient_ratio = s.get_nutrient_ratio(nutrient_name=related_nutrient_name)
+                    nutrient_ratio = self.get_nutrient_ratio(nutrient_name=related_nutrient_name)
 
                 # That nutrient ratio wasn't defined;
                 except model.nutrients.exceptions.UndefinedNutrientRatioError:
@@ -342,10 +343,15 @@ class HasSettableFlags(HasFlags, persistence.CanLoadData, abc.ABC):
     def load_data(self, data: Dict[str, Any]) -> None:
         # Pass the data on for sibling classes to load it;
         super().load_data(data)
+
+        # If we don't have any fields in this data, exit;
+        if 'flag_data' not in data.keys():
+            return
+
         # Now load the flag DOF's into this instance;
         for flag_name, flag_value in data['flag_data'].items():
             # Only import the flag if it has a DOF. This is important for importing legacy data;
             if not model.flags.flag_has_dof(flag_name):
                 continue
             # Go ahead and assign the value;
-            self._flag_dofs[flag_name] = flag_value
+            self._flag_dof_data[flag_name] = flag_value
