@@ -1,5 +1,8 @@
 import model
 
+# Define an alias for nutrient mass data;
+NutrientMassData = model.quantity.QuantityData
+
 
 class NutrientMass(model.quantity.QuantityOf):
     """Models a mass of a nutrient."""

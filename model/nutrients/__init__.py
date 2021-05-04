@@ -15,7 +15,8 @@ from .main import (
 )
 from .nutrient_mass import (
     NutrientMass,
-    SettableNutrientMass
+    SettableNutrientMass,
+    NutrientMassData
 )
 from .nutrient_ratios import (
     NutrientRatioData,

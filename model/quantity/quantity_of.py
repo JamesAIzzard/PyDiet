@@ -1,4 +1,4 @@
-from typing import TypedDict, Optional, Any
+from typing import TypedDict, Optional, Any, Callable
 
 import model
 import persistence
@@ -9,17 +9,78 @@ class QuantityData(TypedDict):
     pref_unit: str
 
 
-class QuantityOf(model.SupportsDefinition, persistence.CanLoadData):
-    """Models a quantity of a substance."""
+class QuantityOf(model.SupportsDefinition, persistence.YieldsPersistableData):
+    """Models a quantity of a substance.
+    Since this quantity may come from anywhere, it is not stored locally. This class
+    may also be instantiated directly, so we can't rely on an abstract class.
+    Instead we take advantage of closures and pass in a callback as a data source.
+    """
 
-    def __init__(self, subject: Any, quantity_data: Optional['QuantityData'] = None, **kwargs):
+    def __init__(self, subject: Any, quantity_data_src: Callable[[], 'QuantityData'], **kwargs):
         super().__init__(**kwargs)
 
+        # Stash the subject;
         self._subject = subject
+
+        # Stash the data source callable;
+        self._quantity_data_src = quantity_data_src
+
+    @property
+    def subject(self) -> Any:
+        """Returns the subject whos quantity is being described."""
+        return self._subject
+
+    @property
+    def quantity_in_g(self) -> float:
+        """Returns the object's quantity in grams."""
+        _qty_in_g = self._quantity_data_src()['quantity_in_g']
+        if _qty_in_g is None:
+            raise model.quantity.exceptions.UndefinedQuantityError()
+        else:
+            return _qty_in_g
+
+    @property
+    def pref_unit(self) -> str:
+        """Returns the unit used to define the subject quantity."""
+        return self._quantity_data_src()['pref_unit']
+
+    @property
+    def ref_qty(self) -> float:
+        """Returns the reference quantity used to define the subject quantity."""
+        g_per_ml = None
+        piece_mass_g = None
+        if isinstance(self.subject, model.quantity.SupportsExtendedUnits):
+            g_per_ml = self.subject.g_per_ml if self.subject.density_is_defined else None
+            piece_mass_g = self.subject.piece_mass_g if self.subject.piece_mass_defined else None
+        return model.quantity.convert_qty_unit(
+            qty=self.quantity_in_g,
+            start_unit='g',
+            end_unit=self.pref_unit,
+            g_per_ml=g_per_ml,
+            piece_mass_g=piece_mass_g
+        )
+
+    @property
+    def is_defined(self) -> bool:
+        return self._quantity_data_src()['quantity_in_g'] is not None
+
+    @property
+    def persistable_data(self) -> 'QuantityData':
+        return self._quantity_data_src()
+
+
+class SettableQuantityOf(QuantityOf, persistence.CanLoadData):
+    """Models a settable quantity of substance."""
+
+    def __init__(self, quantity_data: Optional['QuantityData'] = None, **kwargs):
+        # Create place to stash the quantity data on the instance;
         self._quantity_data: 'QuantityData' = QuantityData(
             quantity_in_g=None,
             pref_unit='g'
         )
+
+        # Now configure the superclass to use this as the data source;
+        super().__init__(quantity_data_src=lambda: self._quantity_data, **kwargs)
 
         if quantity_data is not None:
             self.load_data(quantity_data)
@@ -59,61 +120,6 @@ class QuantityOf(model.SupportsDefinition, persistence.CanLoadData):
         # OK, return the unit;
         return unit
 
-    @property
-    def subject(self) -> Any:
-        """Returns the subject whos quantity is being described."""
-        return self._subject
-
-    @property
-    def quantity_in_g(self) -> float:
-        """Returns the object's quantity in grams."""
-        if self._quantity_data['quantity_in_g'] is None:
-            raise model.quantity.exceptions.UndefinedQuantityError()
-        else:
-            return self._quantity_data['quantity_in_g']
-
-    @property
-    def pref_unit(self) -> str:
-        """Returns the unit used to define the subject quantity.
-        Notes:
-            By sanitising the pref unit, we can stop this class returning
-            units that are not configured on the subject.
-        """
-        self._sanitise_pref_unit()
-        return self._quantity_data['pref_unit']
-
-    @property
-    def ref_qty(self) -> float:
-        """Returns the reference quantity used to define the subject quantity."""
-        self._sanitise_pref_unit()
-        g_per_ml = None
-        piece_mass_g = None
-        if isinstance(self.subject, model.quantity.SupportsExtendedUnits):
-            g_per_ml = self.subject.g_per_ml if self.subject.density_is_defined else None
-            piece_mass_g = self.subject.piece_mass_g if self.subject.piece_mass_defined else None
-        return model.quantity.convert_qty_unit(
-            qty=self.quantity_in_g,
-            start_unit='g',
-            end_unit=self.pref_unit,
-            g_per_ml=g_per_ml,
-            piece_mass_g=piece_mass_g
-        )
-
-    @property
-    def is_defined(self) -> bool:
-        return self._quantity_data['quantity_in_g'] is not None
-
-    def load_data(self, data: 'QuantityData') -> None:
-        self._quantity_data = data
-
-    @property
-    def persistable_data(self) -> 'QuantityData':
-        return self._quantity_data
-
-
-class SettableQuantityOf(QuantityOf):
-    """Models a settable quantity of substance."""
-
     def set_quantity(self, quantity: Optional[float], unit: str) -> None:
         """Sets the quantity in arbitrary units."""
         # Set a None value immediately;
@@ -143,3 +149,6 @@ class SettableQuantityOf(QuantityOf):
         # OK, go ahead and set;
         self._quantity_data['quantity_in_g'] = qty_in_g
         self._quantity_data['pref_unit'] = unit
+
+    def load_data(self, data: 'QuantityData') -> None:
+        self._quantity_data = data
