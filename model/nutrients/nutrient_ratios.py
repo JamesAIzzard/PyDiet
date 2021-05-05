@@ -3,11 +3,13 @@ from typing import Dict, List, Any, Optional, TypedDict, Callable
 
 import model
 import persistence
+# Import things required during init;
+from . import NutrientMassData
 
 
 class NutrientRatioData(TypedDict):
     """Persisted data format for NutrientRatio instances."""
-    nutrient_mass_data: model.nutrients.NutrientMassData
+    nutrient_mass_data: NutrientMassData
     subject_ref_qty_data: model.quantity.QuantityData
 
 
@@ -322,7 +324,7 @@ class HasSettableNutrientRatios(HasNutrientRatios, persistence.CanLoadData):
                 nutrient_name=nutrient_name,
                 nutrient_ratio_data_src=lambda: settable_nutrient_ratio.persistable_data
             )
-        # Now, return the dict of reaodnly instances;
+        # Now, return the dict of readonly instances;
         return _nutrient_ratios
 
     def _get_settable_nutrient_ratio(self, nutrient_name: str) -> 'SettableNutrientRatio':

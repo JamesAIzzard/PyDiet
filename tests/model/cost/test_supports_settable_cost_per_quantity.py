@@ -23,7 +23,7 @@ class TestConstructor(TestCase):
 class TestSubjectQuantity(TestCase):
     def test_subject_quantity_is_settable(self):
         sc = model.cost.SupportsSettableCostPerQuantity()
-        self.assertTrue(isinstance(sc.subject_quantity, model.quantity.SettableQuantityOf))
+        self.assertTrue(isinstance(sc.cost_ref_subject_quantity, model.quantity.SettableQuantityOf))
 
 
 class TestSetCost(TestCase):
@@ -35,8 +35,8 @@ class TestSetCost(TestCase):
             unit='kg'
         )
         self.assertEqual(sc.cost_per_g, 6.25 / 1000)
-        self.assertEqual(sc.subject_quantity.pref_unit, 'kg')
-        self.assertEqual(sc.subject_quantity.ref_qty, 2)
+        self.assertEqual(sc.cost_ref_subject_quantity.pref_unit, 'kg')
+        self.assertEqual(sc.cost_ref_subject_quantity.ref_qty, 2)
 
     def test_unsets_correctly(self):
         sc = model.cost.SupportsSettableCostPerQuantity(cost_per_qty_data=model.cost.CostPerQtyData(

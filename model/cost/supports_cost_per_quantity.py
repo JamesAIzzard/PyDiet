@@ -26,7 +26,7 @@ class SupportsCostPerQuantity(persistence.YieldsPersistableData, abc.ABC):
         raise NotImplementedError
 
     @property
-    def subject_quantity(self) -> 'model.quantity.QuantityOf':
+    def cost_ref_subject_quantity(self) -> 'model.quantity.QuantityOf':
         """Returns the subject quantity against which the cost is defined.
         Notes:
             Since the cost data is readonly here, we just generate a quantity
@@ -35,7 +35,7 @@ class SupportsCostPerQuantity(persistence.YieldsPersistableData, abc.ABC):
         """
         return model.quantity.QuantityOf(
             subject=self,
-            quantity_data=model.quantity.QuantityData(
+            quantity_data_src=lambda: model.quantity.QuantityData(
                 quantity_in_g=self._cost_per_qty_data['quantity_in_g'],
                 pref_unit=self._cost_per_qty_data['pref_unit']
             )
@@ -46,6 +46,7 @@ class SupportsCostPerQuantity(persistence.YieldsPersistableData, abc.ABC):
         """Returns the cost of a single gram of the subject."""
         if self._cost_per_qty_data['cost_per_g'] is None:
             raise model.cost.exceptions.UndefinedCostError(subject=self)
+
         return self._cost_per_qty_data['cost_per_g']
 
     @property
@@ -59,7 +60,7 @@ class SupportsCostPerQuantity(persistence.YieldsPersistableData, abc.ABC):
             piece_mass_g = self.piece_mass_g if self.piece_mass_defined else None
         g_per_pref_unit = model.quantity.convert_qty_unit(
             qty=1,
-            start_unit=self.subject_quantity.pref_unit,
+            start_unit=self.cost_ref_subject_quantity.pref_unit,
             end_unit='g',
             g_per_ml=g_per_ml,
             piece_mass_g=piece_mass_g
@@ -70,7 +71,7 @@ class SupportsCostPerQuantity(persistence.YieldsPersistableData, abc.ABC):
     @property
     def cost_of_ref_qty(self) -> float:
         """Returns the cost and reference quantity used for definition."""
-        return self.cost_per_pref_unit * self.subject_quantity.ref_qty
+        return self.cost_per_pref_unit * self.cost_ref_subject_quantity.ref_qty
 
     @property
     def persistable_data(self) -> Dict[str, Any]:
@@ -100,12 +101,12 @@ class SupportsSettableCostPerQuantity(SupportsCostPerQuantity, persistence.CanLo
     @property
     def _cost_per_qty_data(self) -> 'CostPerQtyData':
         data = {}
-        data.update(dict(self.subject_quantity.persistable_data))
+        data.update(dict(self.cost_ref_subject_quantity.persistable_data))
         data['cost_per_g'] = self._cost_per_g_
         return data
 
     @property
-    def subject_quantity(self) -> 'model.quantity.SettableQuantityOf':
+    def cost_ref_subject_quantity(self) -> 'model.quantity.SettableQuantityOf':
         # Override to return the local instance, now we have one;
         return self._subject_quantity
 
@@ -144,7 +145,7 @@ class SupportsSettableCostPerQuantity(SupportsCostPerQuantity, persistence.CanLo
 
         # Set the value;
         self._cost_per_g_ = cost_per_g
-        self.subject_quantity.set_quantity(
+        self.cost_ref_subject_quantity.set_quantity(
             quantity=qty,
             unit=unit
         )

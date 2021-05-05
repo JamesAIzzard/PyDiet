@@ -47,15 +47,17 @@ class TestCollectNutrientRatioConflicts(TestCase):
             "foobar": fx.get_mock_nutrient_ratio("foobar", 0),
             "bazing": fx.get_mock_nutrient_ratio("bazing", 0.4)
         }
-        hf = model.flags.HasSettableFlags()
-        hf._nutrient_ratios = nutrient_ratios
-        conflicts = hf._collect_nutrient_ratio_conflicts("foo_free", True)
-        self.assertEqual(
-            conflicts,
-            {
-                "need_zero": [],
-                "need_non_zero": [],
-                "need_undefining": [],
-                "preventing_flag_undefine": []
-            }
-        )
+        with mock.patch("model.flags.HasSettableFlags.nutrient_ratios",
+                        new_callable=mock.PropertyMock) as mock_nrs:
+            mock_nrs.return_value = nutrient_ratios
+            hf = model.flags.HasSettableFlags()
+            conflicts = hf._collect_nutrient_ratio_conflicts("foo_free", True)
+            self.assertEqual(
+                conflicts,
+                {
+                    "need_zero": [],
+                    "need_non_zero": [],
+                    "need_undefining": [],
+                    "preventing_flag_undefine": []
+                }
+            )
