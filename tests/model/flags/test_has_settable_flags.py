@@ -40,7 +40,10 @@ class TestFlagDOFS(TestCase):
 class TestCollectNutrientRatioConflicts(TestCase):
     @fx.use_test_flags
     @fx.nutfx.use_test_nutrients
-    def test_returns_empty_lists_if_no_conflict(self):
+    def test_returns_empty_lists_if_no_conflict_when_flag_true(self):
+        """This is a straighforward check to make sure we don't get conflicts if our nutrient ratios
+        already match a True flag, if the flag is being set to True.
+        """
         nutrient_ratios = {
             "foo": fx.get_mock_nutrient_ratio("foo", 0),
             "foobing": fx.get_mock_nutrient_ratio("foobing", 0.9),
@@ -57,6 +60,113 @@ class TestCollectNutrientRatioConflicts(TestCase):
                 {
                     "need_zero": [],
                     "need_non_zero": [],
+                    "need_undefining": [],
+                    "preventing_flag_undefine": []
+                }
+            )
+
+    @fx.use_test_flags
+    @fx.nutfx.use_test_nutrients
+    def test_returns_empty_lists_if_no_conflict_when_flag_false(self):
+        """This is a straighforward check to make sure we don't get conflicts if our nutrient ratios
+        already match a False flag, if the flag is being set to False.
+        """
+        nutrient_ratios = {
+            "foo": fx.get_mock_nutrient_ratio("foo", 0.1),
+            "foobing": fx.get_mock_nutrient_ratio("foobing", 0),
+            "foobar": fx.get_mock_nutrient_ratio("foobar", 0.2),
+            "bazing": fx.get_mock_nutrient_ratio("bazing", 0.4),
+        }
+        with mock.patch("model.flags.HasSettableFlags.nutrient_ratios",
+                        new_callable=mock.PropertyMock) as mock_nrs:
+            mock_nrs.return_value = nutrient_ratios
+            hf = model.flags.HasSettableFlags()
+            conflicts = hf._collect_nutrient_ratio_conflicts("foo_free", False)
+            self.assertEqual(
+                conflicts,
+                {
+                    "need_zero": [],
+                    "need_non_zero": [],
+                    "need_undefining": [],
+                    "preventing_flag_undefine": []
+                }
+            )
+
+    @fx.use_test_flags
+    @fx.nutfx.use_test_nutrients
+    def test_returns_empty_lists_if_flag_already_undefined_when_setting_to_undefined(self):
+        """This is a straighforward check to make sure we don't get conflicts if some of the nutrient
+        ratios are undefined, but we are setting the flag to undefined.
+        """
+        nutrient_ratios = {
+            "foo": fx.get_mock_nutrient_ratio("foo", 0),
+            "foobar": fx.get_mock_nutrient_ratio("foobar", 0),
+            "bazing": fx.get_mock_nutrient_ratio("bazing", 0.4),
+        }
+        with mock.patch("model.flags.HasSettableFlags.nutrient_ratios",
+                        new_callable=mock.PropertyMock) as mock_nrs:
+            mock_nrs.return_value = nutrient_ratios
+            hf = model.flags.HasSettableFlags()
+            conflicts = hf._collect_nutrient_ratio_conflicts("foo_free", None)
+            self.assertEqual(
+                conflicts,
+                {
+                    "need_zero": [],
+                    "need_non_zero": [],
+                    "need_undefining": [],
+                    "preventing_flag_undefine": []
+                }
+            )
+
+    @fx.use_test_flags
+    @fx.nutfx.use_test_nutrients
+    def test_direct_alias_returns_correct_conflicts_if_flag_value_true_and_some_nutrient_ratios_conflict(self):
+        """Checks that the conflicts are categorised correctly, if we set the flag to True, and some
+        of the nutrient ratios do conflict."""
+        nutrient_ratios = {
+            "foo": fx.get_mock_nutrient_ratio("foo", 0.9),
+            "foobing": fx.get_mock_nutrient_ratio("foobing", 0.5),
+            "foobar": fx.get_mock_nutrient_ratio("foobar", 0),
+            "bazing": fx.get_mock_nutrient_ratio("bazing", 0),
+            "busskie": fx.get_mock_nutrient_ratio("busskie", 0)
+        }
+        with mock.patch("model.flags.HasSettableFlags.nutrient_ratios",
+                        new_callable=mock.PropertyMock) as mock_nrs:
+            mock_nrs.return_value = nutrient_ratios
+            hf = model.flags.HasSettableFlags()
+            conflicts = hf._collect_nutrient_ratio_conflicts("conflict_tester", True)
+            self.assertEqual(
+                conflicts,
+                {
+                    "need_zero": ["foo", "tirbur"],
+                    "need_non_zero": ["busskie", "bazing"],
+                    "need_undefining": [],
+                    "preventing_flag_undefine": []
+                }
+            )
+
+    @fx.use_test_flags
+    @fx.nutfx.use_test_nutrients
+    def test_direct_alias_returns_correct_conflicts_if_flag_value_false(self):
+        """This checks that the conflicts are categorised correctly if we set the flag to False
+        and ALL of the flag values are True.
+        """
+        # We are setting to false here.
+        nutrient_ratios = {
+            "foo": fx.get_mock_nutrient_ratio("foo", 0),
+            "foobing": fx.get_mock_nutrient_ratio("foobing", 0.5),
+            "foobar": fx.get_mock_nutrient_ratio("foobar", 0)
+        }
+        with mock.patch("model.flags.HasSettableFlags.nutrient_ratios",
+                        new_callable=mock.PropertyMock) as mock_nrs:
+            mock_nrs.return_value = nutrient_ratios
+            hf = model.flags.HasSettableFlags()
+            conflicts = hf._collect_nutrient_ratio_conflicts("foo_free", False)
+            self.assertEqual(
+                conflicts,
+                {
+                    "need_zero": ["foobing"],
+                    "need_non_zero": ["foo", "foobar"],
                     "need_undefining": [],
                     "preventing_flag_undefine": []
                 }

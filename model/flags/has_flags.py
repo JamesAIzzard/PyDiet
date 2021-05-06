@@ -158,7 +158,8 @@ class HasSettableFlags(HasFlags, model.nutrients.HasSettableNutrientRatios, pers
 
         # Validate the params;
         flag_name = model.flags.validation.validate_flag_name(flag_name)
-        flag_value = model.flags.validation.validate_flag_value(flag_value)
+        if flag_value is not None:  # We need to be able to check conflicts against an undefined flag too.
+            flag_value = model.flags.validation.validate_flag_value(flag_value)
 
         # Init the conflits dict structure;
         conflicts = model.flags.NRConflicts(
@@ -167,6 +168,17 @@ class HasSettableFlags(HasFlags, model.nutrients.HasSettableNutrientRatios, pers
             need_undefining=[],
             preventing_flag_undefine=[]
         )
+
+        # A good first step here is to simply check if the current flag value matches the proposed flag value.
+        # If it does, then we know we can just return the empty conflicts set, because there are no conflicts.
+        try:
+            if self.get_flag_value(flag_name) == flag_value:
+                return conflicts
+        # Ah, the flag isn't defined yet.
+        except model.flags.exceptions.UndefinedFlagError:
+            # But that's OK, because we want it to be undefined!
+            if flag_value is None:
+                return conflicts
 
         # Grab a reference to the flag thats involved;
         flag = model.flags.ALL_FLAGS[flag_name]
