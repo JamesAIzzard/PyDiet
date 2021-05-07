@@ -17,6 +17,12 @@ FLAG_CONFIGS = {
         },
         "direct_alias": False
     },
+    "tirbur_free": {
+        "nutrient_relations": {
+            "tirbur": model.flags.FlagImpliesNutrient.zero
+        },
+        "direct_alias": True
+    },
     "foogetarian": {
         "nutrient_relations": {},
         "direct_alias": False
@@ -24,16 +30,5 @@ FLAG_CONFIGS = {
     "bar_free": {  # Indirect alias depending on no nutrients.
         "nutrient_relations": {},
         "direct_alias": False
-    },
-    "conflict_tester": {  # Direct alias depending on multiple nutrients.
-        "nutrient_relations": {
-            "foo": model.flags.FlagImpliesNutrient.zero,
-            "foobing": model.flags.FlagImpliesNutrient.non_zero,
-            "foobar": model.flags.FlagImpliesNutrient.zero,
-            "busskie": model.flags.FlagImpliesNutrient.non_zero,
-            "tirbur": model.flags.FlagImpliesNutrient.zero,
-            "bazing": model.flags.FlagImpliesNutrient.non_zero
-        },
-        "direct_alias": True
     },
 }
