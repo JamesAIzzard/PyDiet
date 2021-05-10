@@ -165,6 +165,7 @@ class HasSettableFlags(HasFlags, model.nutrients.HasSettableNutrientRatios, pers
         conflicts = model.flags.NRConflicts(
             need_zero=[],
             need_non_zero=[],
+            preventing_flag_false=[],
             need_undefining=[],
             preventing_flag_undefine=[]
         )
@@ -182,6 +183,26 @@ class HasSettableFlags(HasFlags, model.nutrients.HasSettableNutrientRatios, pers
 
         # Grab a reference to the flag thats involved;
         flag = model.flags.ALL_FLAGS[flag_name]
+
+        # Another special case to check for now is when we have an indirect alias, with a set of nutrients
+        # that all match the flag. With a full non-conflicting set of nutrients, an indirect alias can use
+        # its degree of freedom to overwrite the True nutrient match and move from any state to any state.
+        if not flag.direct_alias:
+            dof_nutrients_match = True
+            # Let's work through all the related nutrients and check if they match;
+            for related_nutrient_name in flag.related_nutrient_names:
+                try:
+                    # If it doesn't match, this case hasn't occurred. Break out.
+                    if not flag.nutrient_ratio_matches_relation(self.get_nutrient_ratio(related_nutrient_name)):
+                        dof_nutrients_match = False
+                        break
+                except model.nutrients.exceptions.UndefinedNutrientRatioError:
+                    # If the nutrient wasn't defined, then it can't match, so break out.
+                    dof_nutrients_match = False
+                    break
+            # Everything matched, this case has occurred. Break out;
+            if dof_nutrients_match:
+                return conflicts
 
         # OK, lets split into the three main scenarios now. There is a different scenario for each
         # possible proposed value for the flag to be set to. This is going to be complicated, so take a

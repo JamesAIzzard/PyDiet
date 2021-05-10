@@ -1,4 +1,5 @@
-from typing import Dict, Optional
+import unittest
+from typing import Dict, Optional, List
 from unittest import mock
 
 import model
@@ -50,3 +51,27 @@ def get_mock_nutrient_ratio(nutrient_name: str, g_per_subject_g: float) -> 'mock
     nr.nutrient_name = nutrient_name
     nr.persistable_data = {}
     return nr
+
+
+def make_conflicts_dict(include_values: Optional[Dict[str, List[str]]] = None) -> 'model.flags.NRConflicts':
+    conflicts_dict = model.flags.NRConflicts(
+        need_zero=[],
+        need_non_zero=[],
+        preventing_flag_false=[],
+        need_undefining=[],
+        preventing_flag_undefine=[]
+    )
+    if include_values is not None:
+        conflicts_dict.update(include_values)
+    return conflicts_dict
+
+
+def assert_nutrient_conflicts_equal(expected: 'model.flags.NRConflicts', actual: 'model.flags.NRConflicts') -> None:
+    """Helper function to assert the nutrient conflicts are equal, regardless of the order of
+    the contents of each list."""
+    # noinspection PyTypedDict
+    for category, nutrient_names in expected.items():
+        # noinspection PyTypedDict
+        unittest.TestCase.assertEqual(unittest.TestCase(), len(nutrient_names), len(actual[category]))
+        # noinspection PyTypedDict
+        unittest.TestCase.assertEqual(unittest.TestCase(), set(nutrient_names), set(actual[category]))

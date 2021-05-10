@@ -28,7 +28,9 @@ FLAG_CONFIGS = {
         "direct_alias": False
     },
     "bar_free": {  # Indirect alias depending on no nutrients.
-        "nutrient_relations": {},
+        "nutrient_relations": {
+            "bar": model.flags.FlagImpliesNutrient.zero
+        },
         "direct_alias": False
     },
 }
