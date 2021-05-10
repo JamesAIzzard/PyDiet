@@ -89,6 +89,13 @@ class TestCollectNutrientRatioConflicts(TestCase):
             "foobing": fx.get_mock_nutrient_ratio("foobing", 0),
         }
 
+        self.bar_free_no_conflicts = {
+            "bar": fx.get_mock_nutrient_ratio("bar", 0),
+            "foobing": fx.get_mock_nutrient_ratio("foobing", 0),
+            "foobar": fx.get_mock_nutrient_ratio("foobar", 0.2),
+            "bazing": fx.get_mock_nutrient_ratio("bazing", 0),
+        }
+
     @fx.use_test_flags
     @fx.nutfx.use_test_nutrients
     def test_no_conflicts_when_changing_state_on_dof_with_no_nutrients(self):
@@ -133,7 +140,111 @@ class TestCollectNutrientRatioConflicts(TestCase):
             mock_nrs.return_value = self.foo_free_no_conflicts
             hf = model.flags.HasSettableFlags()
             conflicts = hf._collect_nutrient_ratio_conflicts("foo_free", True)
+            fx.assert_nutrient_conflicts_equal(fx.make_conflicts_dict(), conflicts)
             # Now check with a DOF flag;
             mock_nrs.return_value = self.pongaterian_no_conflicts
             hf = model.flags.HasSettableFlags()
             conflicts = hf._collect_nutrient_ratio_conflicts("pongaterian", True)
+            fx.assert_nutrient_conflicts_equal(fx.make_conflicts_dict(), conflicts)
+
+    @fx.use_test_flags
+    @fx.nutfx.use_test_nutrients
+    def test_false_to_false_returns_no_conflicts(self):
+        """This checks that going from False to False (not changing the state) always returns no conflicts, with
+        a DOF and direct alias flag type."""
+        with mock.patch("model.flags.HasSettableFlags.nutrient_ratios",
+                        new_callable=mock.PropertyMock) as mock_nrs:
+            # Check first with a direct alias;
+            mock_nrs.return_value = self.foo_free_with_multiple_conflicts
+            hf = model.flags.HasSettableFlags()
+            conflicts = hf._collect_nutrient_ratio_conflicts("foo_free", False)
+            fx.assert_nutrient_conflicts_equal(fx.make_conflicts_dict(), conflicts)
+            # Now check with a DOF flag;
+            mock_nrs.return_value = self.pongaterian_with_conflicts
+            hf = model.flags.HasSettableFlags()
+            conflicts = hf._collect_nutrient_ratio_conflicts("pongaterian", False)
+            fx.assert_nutrient_conflicts_equal(fx.make_conflicts_dict(), conflicts)
+
+    @fx.use_test_flags
+    @fx.nutfx.use_test_nutrients
+    def test_none_to_none_returns_no_conflicts(self):
+        """This checks that going from None to None (not changing the state) always returns no conflicts, with
+        a DOF and direct alias flag type."""
+        with mock.patch("model.flags.HasSettableFlags.nutrient_ratios",
+                        new_callable=mock.PropertyMock) as mock_nrs:
+            # Check first with a direct alias;
+            mock_nrs.return_value = self.foo_free_with_undefined
+            hf = model.flags.HasSettableFlags()
+            conflicts = hf._collect_nutrient_ratio_conflicts("foo_free", None)
+            fx.assert_nutrient_conflicts_equal(fx.make_conflicts_dict(), conflicts)
+            # Now check with a DOF flag;
+            mock_nrs.return_value = self.pongaterian_with_undefined
+            hf = model.flags.HasSettableFlags()
+            conflicts = hf._collect_nutrient_ratio_conflicts("pongaterian", None)
+            fx.assert_nutrient_conflicts_equal(fx.make_conflicts_dict(), conflicts)
+
+    @fx.use_test_flags
+    @fx.nutfx.use_test_nutrients
+    def test_none_to_true_correctly_categorises_nutrients(self):
+        """This checks that going from None to True correctly collects related
+        nutrients into need_zero and need_non_zero to match their implications."""
+        with mock.patch("model.flags.HasSettableFlags.nutrient_ratios",
+                        new_callable=mock.PropertyMock) as mock_nrs:
+            # Check first with a direct alias;
+            mock_nrs.return_value = self.foo_free_with_undefined
+            hf = model.flags.HasSettableFlags()
+            conflicts = hf._collect_nutrient_ratio_conflicts("foo_free", True)
+            fx.assert_nutrient_conflicts_equal(fx.make_conflicts_dict(
+                {"need_zero": ["foobar"]}
+            ), conflicts)
+            # Now check with a DOF flag;
+            mock_nrs.return_value = self.pongaterian_with_undefined
+            hf = model.flags.HasSettableFlags()
+            conflicts = hf._collect_nutrient_ratio_conflicts("pongaterian", True)
+            fx.assert_nutrient_conflicts_equal(fx.make_conflicts_dict(
+                {"need_non_zero": ["bazing"]}
+            ), conflicts)
+
+    @fx.use_test_flags
+    @fx.nutfx.use_test_nutrients
+    def test_false_to_true_correctly_categorises_nutrients(self):
+        """This checks that going from False to True correctly collects related
+        nutrients into need_zero and need_non_zero to match their implications."""
+        with mock.patch("model.flags.HasSettableFlags.nutrient_ratios",
+                        new_callable=mock.PropertyMock) as mock_nrs:
+            # Check first with a direct alias;
+            mock_nrs.return_value = self.foo_free_with_multiple_conflicts
+            hf = model.flags.HasSettableFlags()
+            conflicts = hf._collect_nutrient_ratio_conflicts("foo_free", True)
+            fx.assert_nutrient_conflicts_equal(fx.make_conflicts_dict(
+                {"need_zero": ["foo", "foobar"]}
+            ), conflicts)
+            # Now check with a DOF flag;
+            mock_nrs.return_value = self.pongaterian_with_conflicts
+            hf = model.flags.HasSettableFlags()
+            conflicts = hf._collect_nutrient_ratio_conflicts("pongaterian", True)
+            fx.assert_nutrient_conflicts_equal(fx.make_conflicts_dict(
+                {"need_zero": ["foobing"], "need_non_zero": ["bazing"]}
+            ), conflicts)
+
+    @fx.use_test_flags
+    @fx.nutfx.use_test_nutrients
+    def test_true_to_false_with_single_nutrient_correctly_categorises_opposing_implication(self):
+        """This checks that going from True to False with a single nutrient correctly collects related
+        nutrient in the group opposing its implication."""
+        with mock.patch("model.flags.HasSettableFlags.nutrient_ratios",
+                        new_callable=mock.PropertyMock) as mock_nrs:
+            # Check first with a direct alias;
+            mock_nrs.return_value = self.tirbur_free_no_conflicts
+            hf = model.flags.HasSettableFlags()
+            conflicts = hf._collect_nutrient_ratio_conflicts("tirbur_free", False)
+            fx.assert_nutrient_conflicts_equal(fx.make_conflicts_dict(
+                {"need_non_zero": ["tirbur"]}
+            ), conflicts)
+            # Now check with a DOF flag;
+            mock_nrs.return_value = self.bar_free_no_conflicts
+            hf = model.flags.HasSettableFlags()
+            conflicts = hf._collect_nutrient_ratio_conflicts("bar_free", False)
+            fx.assert_nutrient_conflicts_equal(fx.make_conflicts_dict(
+                {"need_non_zero": ["bar"]}
+            ), conflicts)

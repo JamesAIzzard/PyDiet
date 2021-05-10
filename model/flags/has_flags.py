@@ -221,15 +221,12 @@ class HasSettableFlags(HasFlags, model.nutrients.HasSettableNutrientRatios, pers
 
                 # Hmmmm, that nutrient ratio wasn't defined;
                 except model.nutrients.exceptions.UndefinedNutrientRatioError:
-                    # Well, that's only a problem if the flag is a direct alias;
-                    if flag.direct_alias:
-                        # OK, it was a direct alias, so we have to count this as a conflict;
-                        # Remember - our flag value is True here, so the nutrient name goes in the list
-                        # that MATCHES the implication.
-                        if implication is model.flags.FlagImpliesNutrient.zero:
-                            conflicts["need_zero"].append(related_nutrient_name)
-                        elif implication is model.flags.FlagImpliesNutrient.non_zero:
-                            conflicts["need_non_zero"].append(related_nutrient_name)
+                    # The flag value is True here, so we need to add the nutrient to the list which
+                    # would make it MATCH the implication.
+                    if implication is model.flags.FlagImpliesNutrient.zero:
+                        conflicts["need_zero"].append(related_nutrient_name)
+                    elif implication is model.flags.FlagImpliesNutrient.non_zero:
+                        conflicts["need_non_zero"].append(related_nutrient_name)
                     continue
 
                 # We got this far, so we must have got the nutrient ratio instance.
@@ -256,15 +253,12 @@ class HasSettableFlags(HasFlags, model.nutrients.HasSettableNutrientRatios, pers
 
                 # Hmmmm, that nutrient ratio wasn't defined;
                 except model.nutrients.exceptions.UndefinedNutrientRatioError:
-                    # Well, that's only a problem if the flag is a direct alias;
-                    if flag.direct_alias:
-                        # OK, it was a direct alias, so we have to count this as a conflict;
-                        # Remember - our flag value is False now, so the nutrient name goes in the list
-                        # that is OPPOSITE to the implication.
-                        if implication is model.flags.FlagImpliesNutrient.zero:
-                            conflicts["need_non_zero"].append(related_nutrient_name)
-                        elif implication is model.flags.FlagImpliesNutrient.non_zero:
-                            conflicts["need_zero"].append(related_nutrient_name)
+                    # Our flag value is False now, so the nutrient name goes in the list
+                    # that is OPPOSITE to the implication.
+                    if implication is model.flags.FlagImpliesNutrient.zero:
+                        conflicts["need_non_zero"].append(related_nutrient_name)
+                    elif implication is model.flags.FlagImpliesNutrient.non_zero:
+                        conflicts["need_zero"].append(related_nutrient_name)
                     continue
 
                 # We got this far, so we must have got the nutrient ratio instance.
