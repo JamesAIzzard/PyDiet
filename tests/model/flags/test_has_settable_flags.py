@@ -67,6 +67,10 @@ class TestCollectNutrientRatioConflicts(TestCase):
             "foobing": fx.get_mock_nutrient_ratio("foobing", 0.9),
             "bazing": fx.get_mock_nutrient_ratio("bazing", 0.4)  # Chuck another in just to mix things up.
         }
+        self.foo_free_multiple_undefined = {
+            "foo": fx.get_mock_nutrient_ratio("foo", 0),
+            "bazing": fx.get_mock_nutrient_ratio("bazing", 0.4)  # Chuck another in just to mix things up.
+        }
         self.pongaterian_no_conflicts = {
             "foo": fx.get_mock_nutrient_ratio("foo", 0),
             "foobing": fx.get_mock_nutrient_ratio("foobing", 0),
@@ -229,22 +233,117 @@ class TestCollectNutrientRatioConflicts(TestCase):
 
     @fx.use_test_flags
     @fx.nutfx.use_test_nutrients
-    def test_true_to_false_with_single_nutrient_correctly_categorises_opposing_implication(self):
+    def test_true_to_false_with_direct_alias_single_nutrient_correctly_categorises_opposing_implication(self):
         """This checks that going from True to False with a single nutrient correctly collects related
-        nutrient in the group opposing its implication."""
+        nutrient in the group opposing its implication. We only do this check with a direct alias, since
+        an indirect alias can go from True to anything without conflicts, using the DOF alone."""
         with mock.patch("model.flags.HasSettableFlags.nutrient_ratios",
                         new_callable=mock.PropertyMock) as mock_nrs:
-            # Check first with a direct alias;
             mock_nrs.return_value = self.tirbur_free_no_conflicts
             hf = model.flags.HasSettableFlags()
             conflicts = hf._collect_nutrient_ratio_conflicts("tirbur_free", False)
             fx.assert_nutrient_conflicts_equal(fx.make_conflicts_dict(
                 {"need_non_zero": ["tirbur"]}
             ), conflicts)
-            # Now check with a DOF flag;
-            mock_nrs.return_value = self.bar_free_no_conflicts
+
+    @fx.use_test_flags
+    @fx.nutfx.use_test_nutrients
+    def test_none_to_false_with_single_nutrient_correctly_categorises_opposing_implication(self):
+        """Checks that moving from None to False with a single related nutrient correctly collects related
+        nutrient in the group opposing its implication."""
+        # Check direct alias first;
+        with mock.patch("model.flags.HasSettableFlags.nutrient_ratios",
+                        new_callable=mock.PropertyMock) as mock_nrs:
+            mock_nrs.return_value = self.foo_free_with_undefined  # Choose one that doesn't mention tibur;
+            hf = model.flags.HasSettableFlags()
+            conflicts = hf._collect_nutrient_ratio_conflicts("tirbur_free", False)
+            fx.assert_nutrient_conflicts_equal(fx.make_conflicts_dict(
+                {"need_non_zero": ["tirbur"]}
+            ), conflicts)
+        # Now check an DOF Flag;
+        with mock.patch("model.flags.HasSettableFlags.nutrient_ratios",
+                        new_callable=mock.PropertyMock) as mock_nrs:
+            mock_nrs.return_value = self.foo_free_with_undefined  # Choose one that doesn't mention bar;
             hf = model.flags.HasSettableFlags()
             conflicts = hf._collect_nutrient_ratio_conflicts("bar_free", False)
             fx.assert_nutrient_conflicts_equal(fx.make_conflicts_dict(
                 {"need_non_zero": ["bar"]}
+            ), conflicts)
+
+    @fx.use_test_flags
+    @fx.nutfx.use_test_nutrients
+    def test_true_to_none_with_direct_alias_single_nutrient_correctly_categorises_need_undefining(self):
+        """This checks that going from True to False with a single nutrient correctly collects related
+        nutrient in the group opposing its implication. We only do this check with a direct alias, since
+        an indirect alias can go from True to anything without conflicts, using the DOF alone."""
+        with mock.patch("model.flags.HasSettableFlags.nutrient_ratios",
+                        new_callable=mock.PropertyMock) as mock_nrs:
+            mock_nrs.return_value = self.tirbur_free_no_conflicts
+            hf = model.flags.HasSettableFlags()
+            conflicts = hf._collect_nutrient_ratio_conflicts("tirbur_free", None)
+            fx.assert_nutrient_conflicts_equal(fx.make_conflicts_dict(
+                {"need_undefining": ["tirbur"]}
+            ), conflicts)
+
+    @fx.use_test_flags
+    @fx.nutfx.use_test_nutrients
+    def test_false_to_none_collects_all_defined_opposing_nutrients_in_need_undefining(self):
+        """Checks with both direct and indirect alias flags, that moving from False to None collects
+        all defined and conflicting nutrients in the 'need_undefining' collector. To move something from
+        False to None, because False takes precidence, we just need to undefine the nutrients causing False."""
+        # Check direct alias first;
+        with mock.patch("model.flags.HasSettableFlags.nutrient_ratios",
+                        new_callable=mock.PropertyMock) as mock_nrs:
+            mock_nrs.return_value = self.foo_free_with_multiple_conflicts
+            hf = model.flags.HasSettableFlags()
+            conflicts = hf._collect_nutrient_ratio_conflicts("foo_free", None)
+            fx.assert_nutrient_conflicts_equal(fx.make_conflicts_dict(
+                {"need_undefining": ["foo", "foobar"]}
+            ), conflicts)
+
+    @fx.use_test_flags
+    @fx.nutfx.use_test_nutrients
+    def test_true_to_false_with_direct_alias_multiple_related_nutrients_collects_all_in_preventing_flag_false(self):
+        """Checks that when we have multiple related nutrients, if we change from True to False, we
+        get them all collected in 'preventing_flag_false' with both direct alias and non-direct alias
+        flags."""
+        # Check with direct alias first;
+        with mock.patch("model.flags.HasSettableFlags.nutrient_ratios",
+                        new_callable=mock.PropertyMock) as mock_nrs:
+            mock_nrs.return_value = self.foo_free_no_conflicts
+            hf = model.flags.HasSettableFlags()
+            conflicts = hf._collect_nutrient_ratio_conflicts("foo_free", False)
+            fx.assert_nutrient_conflicts_equal(fx.make_conflicts_dict(
+                {"preventing_flag_false": ["foo", "foobar", "foobing"]}
+            ), conflicts)
+
+    @fx.use_test_flags
+    @fx.nutfx.use_test_nutrients
+    def test_true_to_none_with_direct_alias_multiple_related_nutrients_collects_all_in_preventing_flag_undefine(self):
+        """Checks that all related nutrients get collected inside 'preventing_flag_undefine' with a direct alias
+        with more than one related nutrient."""
+        # Check with direct alias first;
+        with mock.patch("model.flags.HasSettableFlags.nutrient_ratios",
+                        new_callable=mock.PropertyMock) as mock_nrs:
+            mock_nrs.return_value = self.foo_free_no_conflicts
+            hf = model.flags.HasSettableFlags()
+            conflicts = hf._collect_nutrient_ratio_conflicts("foo_free", None)
+            fx.assert_nutrient_conflicts_equal(fx.make_conflicts_dict(
+                {"preventing_flag_undefine": ["foo", "foobar", "foobing"]}
+            ), conflicts)
+
+    @fx.use_test_flags
+    @fx.nutfx.use_test_nutrients
+    def test_none_to_false_with_multiple_undefined_nutrients_collects_all_in_preventing_flag_false(self):
+        """Checks that we get all undefined nutrients in preventing_flag_false, when moving from undefined
+        to False with multiple nutrients undefined. This is because we don't know which of the currently
+        undefined nutrients need to be converted to False, to trip the whole flag."""
+        # First check with a direct alias;
+        with mock.patch("model.flags.HasSettableFlags.nutrient_ratios",
+                        new_callable=mock.PropertyMock) as mock_nrs:
+            mock_nrs.return_value = self.foo_free_multiple_undefined
+            hf = model.flags.HasSettableFlags()
+            conflicts = hf._collect_nutrient_ratio_conflicts("foo_free", False)
+            fx.assert_nutrient_conflicts_equal(fx.make_conflicts_dict(
+                {"preventing_flag_false": ["foo", "foobing", "foobar"]}
             ), conflicts)

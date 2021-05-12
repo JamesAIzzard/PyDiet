@@ -172,8 +172,10 @@ class HasSettableFlags(HasFlags, model.nutrients.HasSettableNutrientRatios, pers
 
         # A good first step here is to simply check if the current flag value matches the proposed flag value.
         # If it does, then we know we can just return the empty conflicts set, because there are no conflicts.
+        current_value = None
         try:
-            if self.get_flag_value(flag_name) == flag_value:
+            current_value = self.get_flag_value(flag_name)
+            if current_value == flag_value:
                 return conflicts
         # Ah, the flag isn't defined yet.
         except model.flags.exceptions.UndefinedFlagError:
@@ -241,7 +243,7 @@ class HasSettableFlags(HasFlags, model.nutrients.HasSettableNutrientRatios, pers
                         conflicts["need_non_zero"].append(related_nutrient_name)
 
         # 2. Flag is being set to False:
-        if flag_value is False:
+        elif flag_value is False:
             # OK, lets loop through the related nutrient names, and try to grab their ratios;
             for related_nutrient_name in flag.related_nutrient_names:
                 # Grab the implication for this nutrient;
@@ -273,7 +275,7 @@ class HasSettableFlags(HasFlags, model.nutrients.HasSettableNutrientRatios, pers
                         conflicts["need_zero"].append(related_nutrient_name)
 
         # 3. Flag is being undefined:
-        if flag_value is None:
+        elif flag_value is None:
             # OK, lets loop through the related nutrient names, and try to grab their ratios;
             for related_nutrient_name in flag.related_nutrient_names:
                 # Go ahead and grab the nutrient ratio;
@@ -285,49 +287,39 @@ class HasSettableFlags(HasFlags, model.nutrients.HasSettableNutrientRatios, pers
                     # Thats good! we're undefining the flag too, so we don't need to worry.
                     continue
 
-                # Ahhh, that nutrient ratio is actually defined.
-                # OK, what we do now depends on wether or not the flag is a direct alias. If it is a direct
-                # alias, we'll definately need to undefine the nutrient ratio if our flag is to be undefined.
-                if flag.direct_alias:
-                    # OK, so it is a direct alias. We'll need to count this as a conflict. It needs
-                    # to be undefined.
-                    # If we already have a flag that needs undefinining, you need to start logging them in
-                    # preventing undefine now - we no longer know which one needs undefining.
-                    if len(conflicts['need_undefining']) > 0:
-                        conflicts['preventing_flag_undefine'].append(related_nutrient_name)
-                    else:
-                        # OK, its the first one, we can put it in the needs undefining column;
-                        conflicts['need_undefining'].append(related_nutrient_name)
-                    continue
+                # If we only have one related nutrient, we can just undefine it;
+                if len(flag.related_nutrient_names) == 1:
+                    conflicts['need_undefining'].append(related_nutrient_name)
+                    break
 
-                # On the other hand, if it isn't a direct alias, we just need to check it doesn't disagree
-                # with the flag;
+                # If we have any related nutrients that are causing False at the moment, we can
+                # switch the flag to None by undefining those;
                 if flag.nutrient_ratio_matches_relation(nutrient_ratio) is False:
-                    # Ahh OK, it does collide. We'll need to unset this nutrient ratio then.
-                    # If we already have a flag that needs undefinining, you need to start logging them in
-                    # preventing undefine now - we no longer know which one needs undefining.
-                    if len(conflicts['need_undefining']) > 0:
-                        conflicts['preventing_flag_undefine'].append(related_nutrient_name)
-                    else:
-                        # OK, its the first one, we can put it in the needs undefining column;
-                        conflicts['need_undefining'].append(related_nutrient_name)
+                    conflicts['need_undefining'].append(related_nutrient_name)
                     continue
 
-                # If we logged our related nutrient as needing undefining, we need to check we don't have a
-                # further problem. If we have more than one nutrient ratio that would need undefining, we
-                # actually can't correct this situation, because we don't know which one(s) we actually
-                # need to undefine. In this situation, In this situation, we also need to add this situation
-                # to the preventing undefine list;
-                if related_nutrient_name in conflicts['need_undefining'] and len(conflicts['need_undefining']) > 1:
-                    conflicts['preventing_flag_undefine'].append(related_nutrient_name)
+        # If we are setting to False, and we have more than one flag in need_non_zero or need_zero,
+        # the situation is indeterminate, since we don't know which nutrient needs to be changed
+        # to flip the flag, so move everythign into preventing_flag_false.
+        if flag_value is False and len(conflicts['need_zero']) + len(conflicts['need_non_zero']) > 1:
+            conflicts['preventing_flag_false'] += conflicts['need_zero']
+            conflicts['need_zero'] = []
+            conflicts['preventing_flag_false'] += conflicts['need_non_zero']
+            conflicts['need_non_zero'] = []
 
-        # OK, if we found a load of flags that are preventing undefine, we might as well clear the need
-        # undefining list, because it isn't really applicable.
-        if len(conflicts['preventing_flag_undefine']) > 0:
-            # If there is a nurtrient in 'needs' undefine, then move it across;
+        # If we are setting the flag to None and the flag is not already None,
+        # and we have more than one flag in needs undefine,
+        # the situation is indeterminate, since we don't know which nutrient needs to be undefined
+        # to flip the flag, so move everything to preventing_flag_undefine.
+        if flag_value is None and len(conflicts['need_undefining']) > 1 and current_value is not False:
             conflicts['preventing_flag_undefine'] += conflicts['need_undefining']
-            conflicts['preventing_flag_undefine'] = list(set(conflicts['preventing_flag_undefine']))
             conflicts['need_undefining'] = []
+
+        # If we are setting the flag to None, and we don't have any flags in need undefine yet,
+        # it means there were no conflicts forcing a false. In this case, we have more than one
+        # defined nutrient, so we should put them all in preventing flag undefine.
+        if flag_value is None and len(conflicts['need_undefining']) == 0:
+            conflicts['preventing_flag_undefine'] = flag.related_nutrient_names
 
         # Thats it! That was complicated. All you have to do now is return the conflicts object,
         # then you can go and have a rest.
