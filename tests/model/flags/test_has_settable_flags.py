@@ -37,6 +37,7 @@ class TestFlagDOFS(TestCase):
         self.assertEqual(hf._flag_dofs, mock_data)
 
 
+# noinspection DuplicatedCode
 class TestCollectNutrientRatioConflicts(TestCase):
     """The following tests are based on the exhaustive list of scenarios listed in
     pydiet.docs.flag_conflict_logic_table.xlsx
@@ -82,6 +83,9 @@ class TestCollectNutrientRatioConflicts(TestCase):
             "foobing": fx.get_mock_nutrient_ratio("foobing", 0.2),
             "bazing": fx.get_mock_nutrient_ratio("bazing", 0),
             "tirbur": fx.get_mock_nutrient_ratio("tirbur", 0.3)
+        }
+        self.pongaterian_with_multiple_undefined = {
+            "foo": fx.get_mock_nutrient_ratio("foo", 0),
         }
         self.pongaterian_with_undefined = {
             "foo": fx.get_mock_nutrient_ratio("foo", 0),
@@ -346,4 +350,13 @@ class TestCollectNutrientRatioConflicts(TestCase):
             conflicts = hf._collect_nutrient_ratio_conflicts("foo_free", False)
             fx.assert_nutrient_conflicts_equal(fx.make_conflicts_dict(
                 {"preventing_flag_false": ["foo", "foobing", "foobar"]}
+            ), conflicts)
+        # Now check for an indirect alias;
+        with mock.patch("model.flags.HasSettableFlags.nutrient_ratios",
+                        new_callable=mock.PropertyMock) as mock_nrs:
+            mock_nrs.return_value = self.pongaterian_with_multiple_undefined
+            hf = model.flags.HasSettableFlags()
+            conflicts = hf._collect_nutrient_ratio_conflicts("pongaterian", False)
+            fx.assert_nutrient_conflicts_equal(fx.make_conflicts_dict(
+                {"preventing_flag_false": ["foo", "foobing", "bazing"]}
             ), conflicts)
