@@ -363,6 +363,7 @@ class TestCollectNutrientRatioConflicts(TestCase):
             ), conflicts)
 
 
+# noinspection DuplicatedCode
 class TestSetFlagValue(TestCase):
     @fx.use_test_flags
     def test_returns_none_if_value_didnt_change(self):
@@ -419,8 +420,8 @@ class TestSetFlagValue(TestCase):
     @fx.use_test_flags
     @fx.nutfx.use_test_nutrients
     def test_zeros_related_nutrients_with_permission(self):
-        """Check we get an exception if we have fixable conflicts, but haven't got permission
-        to adjust the related nutrient ratios on the instance."""
+        """Checks zero_nutrient is called if nutrients require zeroing, and we have permission to
+        change them."""
         with mock.patch("model.flags.HasSettableFlags._collect_nutrient_ratio_conflicts", mock.Mock(
                 return_value=fx.make_conflicts_dict({'need_zero': ["foo", "foobar"]})
         )):
@@ -430,13 +431,47 @@ class TestSetFlagValue(TestCase):
             self.assertTrue(hr.zero_nutrient_ratio.call_count == 2)
             self.assertTrue(hr.zero_nutrient_ratio.call_args_list == [call("foo"), call("foobar")])
 
+    @fx.use_test_flags
+    @fx.nutfx.use_test_nutrients
     def test_undefines_related_nutrients_with_permission(self):
-        raise NotImplementedError
+        """Checks undefine_nutrient is called if nutrients require undefining, and we have permission
+         to change them."""
+        with mock.patch("model.flags.HasSettableFlags._collect_nutrient_ratio_conflicts", mock.Mock(
+                return_value=fx.make_conflicts_dict({'need_undefining': ["foo", "foobar"]})
+        )):
+            hr = model.flags.HasSettableFlags()
+            hr.undefine_nutrient_ratio = mock.Mock()
+            hr.set_flag_value("foo_free", True, True)
+            self.assertTrue(hr.undefine_nutrient_ratio.call_count == 2)
+            self.assertTrue(hr.undefine_nutrient_ratio.call_args_list == [call("foo"), call("foobar")])
 
+    @fx.use_test_flags
+    @fx.nutfx.use_test_nutrients
     def test_sets_dof_on_indirect_alias_if_no_unfixable_conflicts(self):
-        raise NotImplementedError
+        """Checks the flag dof is set on an indirect alias if there are no remaining unresolved
+        conflicts with the flag state."""
+        with mock.patch("model.flags.HasSettableFlags._collect_nutrient_ratio_conflicts", mock.Mock(
+                return_value=fx.make_conflicts_dict()
+        )):
+            hr = model.flags.HasSettableFlags()
+            hr.set_flag_value("bar_free", False)
+            self.assertTrue(hr._flag_dofs["bar_free"] is False)
+            hr.set_flag_value("bar_free", True)
+            self.assertTrue(hr._flag_dofs["bar_free"] is True)
 
 
 class TestLoadData(TestCase):
+    @fx.use_test_flags
+    @fx.nutfx.use_test_nutrients
     def test_loads_data_correctly(self):
-        raise NotImplementedError
+        """Checks that flag dof data is loaded into the instance correctly."""
+        hr = model.flags.HasSettableFlags()
+        hr.load_data({"flag_data": {
+            'foogetarian': True,
+            'bar_free': False,
+            'foo_free': False  # Should be ignored, not a DOF.
+        }})
+        self.assertEqual(hr._flag_dofs, {
+            'foogetarian': True,
+            'bar_free': False
+        })
