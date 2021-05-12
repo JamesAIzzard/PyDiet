@@ -332,7 +332,8 @@ class HasSettableFlags(HasFlags, model.nutrients.HasSettableNutrientRatios, pers
 
         # Start by validating the inputs;
         flag_name = model.flags.validation.validate_flag_name(flag_name)
-        flag_value = model.flags.validation.validate_flag_value(flag_value)
+        if flag_value is not None:
+            flag_value = model.flags.validation.validate_flag_value(flag_value)
 
         # Grab the flag instance;
         flag = model.flags.ALL_FLAGS[flag_name]
@@ -356,7 +357,7 @@ class HasSettableFlags(HasFlags, model.nutrients.HasSettableNutrientRatios, pers
                 conflicting_nutrient_ratios=nr_conflicts['need_non_zero']
             )
         if len(nr_conflicts['preventing_flag_undefine']):
-            raise model.exceptions.UndefineMultipleNutrientRatiosError(
+            raise model.exceptions.MultipleUndefinedRelatedNutrientRatiosError(
                 flag_name=flag_name,
                 flag_value=flag_value,
                 conflicting_nutrient_ratios=nr_conflicts['preventing_flag_undefine']

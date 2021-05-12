@@ -335,7 +335,7 @@ class IngredientEditorController(gui.HasSubject):
             for flag_name, flag_value in self.flag_editor.flag_values.items():
                 self.subject.set_flag_value(flag_name, self.view.flag_editor.get_flag_value(flag_name), True)
         except (model.exceptions.NonZeroNutrientRatioConflictError,
-                model.exceptions.UndefineMultipleNutrientRatiosError) as e:
+                model.exceptions.MultipleUndefinedRelatedNutrientRatiosError) as e:
             self.nutrient_flag_status.show_conflict(
                 f"'{flag_name.replace('_', ' ')}' flag conflicts with {e.conflicting_nutrient_ratios[0].nutrient.primary_name} nutrient ratio"
                 # noqa

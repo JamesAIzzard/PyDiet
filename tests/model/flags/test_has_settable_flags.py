@@ -1,4 +1,5 @@
 from unittest import TestCase, mock
+from unittest.mock import call
 
 import model
 from tests.model.flags import fixtures as fx
@@ -360,3 +361,82 @@ class TestCollectNutrientRatioConflicts(TestCase):
             fx.assert_nutrient_conflicts_equal(fx.make_conflicts_dict(
                 {"preventing_flag_false": ["foo", "foobing", "bazing"]}
             ), conflicts)
+
+
+class TestSetFlagValue(TestCase):
+    @fx.use_test_flags
+    def test_returns_none_if_value_didnt_change(self):
+        """Make sure we get a none back if the value didn't change."""
+        # Check for True;
+        with mock.patch("model.flags.HasSettableFlags.get_flag_value", mock.Mock(return_value=True)):
+            hr = model.flags.HasSettableFlags()
+            self.assertEqual(hr.set_flag_value("foo_free", True), None)
+        # Check for False;
+        with mock.patch("model.flags.HasSettableFlags.get_flag_value", mock.Mock(return_value=False)):
+            hr = model.flags.HasSettableFlags()
+            self.assertEqual(hr.set_flag_value("foo_free", False), None)
+        # Check for None;
+        with mock.patch("model.flags.HasSettableFlags.get_flag_value", mock.Mock(return_value=None)):
+            hr = model.flags.HasSettableFlags()
+            self.assertEqual(hr.set_flag_value("foo_free", None), None)
+
+    @fx.use_test_flags
+    @fx.nutfx.use_test_nutrients
+    def test_raises_exception_if_nutrients_in_need_non_zero(self):
+        """We don't know what value to give nutrients which need non-zero values, so we
+        raise an exception here."""
+        with mock.patch("model.flags.HasSettableFlags._collect_nutrient_ratio_conflicts", mock.Mock(
+                return_value=fx.make_conflicts_dict({'need_non_zero': ["foo", "foobar"]})
+        )):
+            hr = model.flags.HasSettableFlags()
+            with self.assertRaises(model.exceptions.NonZeroNutrientRatioConflictError):
+                hr.set_flag_value("foo_free", True)
+
+    @fx.use_test_flags
+    @fx.nutfx.use_test_nutrients
+    def test_raises_exception_if_nutrients_preventing_flag_undefine(self):
+        """Checks that multiple nutrient ratios potentially requiring undefine raises an exception, since
+        we don't know which needs undefining."""
+        with mock.patch("model.flags.HasSettableFlags._collect_nutrient_ratio_conflicts", mock.Mock(
+                return_value=fx.make_conflicts_dict({'preventing_flag_undefine': ["foo", "foobar"]})
+        )):
+            hr = model.flags.HasSettableFlags()
+            with self.assertRaises(model.exceptions.MultipleUndefinedRelatedNutrientRatiosError):
+                hr.set_flag_value("foo_free", True)
+
+    @fx.use_test_flags
+    @fx.nutfx.use_test_nutrients
+    def test_raises_exception_if_gets_fixable_states_without_change_permission(self):
+        """Check we get an exception if we have fixable conflicts, but haven't got permission
+        to adjust the related nutrient ratios on the instance."""
+        with mock.patch("model.flags.HasSettableFlags._collect_nutrient_ratio_conflicts", mock.Mock(
+                return_value=fx.make_conflicts_dict({'need_zero': ["foo", "foobar"]})
+        )):
+            hr = model.flags.HasSettableFlags()
+            with self.assertRaises(model.exceptions.FixableNutrientRatioConflictError):
+                hr.set_flag_value("foo_free", True)
+
+    @fx.use_test_flags
+    @fx.nutfx.use_test_nutrients
+    def test_zeros_related_nutrients_with_permission(self):
+        """Check we get an exception if we have fixable conflicts, but haven't got permission
+        to adjust the related nutrient ratios on the instance."""
+        with mock.patch("model.flags.HasSettableFlags._collect_nutrient_ratio_conflicts", mock.Mock(
+                return_value=fx.make_conflicts_dict({'need_zero': ["foo", "foobar"]})
+        )):
+            hr = model.flags.HasSettableFlags()
+            hr.zero_nutrient_ratio = mock.Mock()
+            hr.set_flag_value("foo_free", True, True)
+            self.assertTrue(hr.zero_nutrient_ratio.call_count == 2)
+            self.assertTrue(hr.zero_nutrient_ratio.call_args_list == [call("foo"), call("foobar")])
+
+    def test_undefines_related_nutrients_with_permission(self):
+        raise NotImplementedError
+
+    def test_sets_dof_on_indirect_alias_if_no_unfixable_conflicts(self):
+        raise NotImplementedError
+
+
+class TestLoadData(TestCase):
+    def test_loads_data_correctly(self):
+        raise NotImplementedError

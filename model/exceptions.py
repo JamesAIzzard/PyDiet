@@ -54,7 +54,7 @@ class NonZeroNutrientRatioConflictError(TerminalNutrientRatioConflictError):
         super().__init__(**kwargs)
 
 
-class UndefineMultipleNutrientRatiosError(TerminalNutrientRatioConflictError):
+class MultipleUndefinedRelatedNutrientRatiosError(TerminalNutrientRatioConflictError):
     """Indicates the flag being undefined is a direct alias for a group of nutrient ratios that are all
     defined. We don't know which to undefine to release the flag value to undefined."""
 

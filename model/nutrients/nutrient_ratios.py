@@ -408,6 +408,14 @@ class HasSettableNutrientRatios(HasNutrientRatios, persistence.CanLoadData):
         if self.nutrient_ratio_is_defined(nutrient_name):
             del self._nutrient_ratios[nutrient_name]
 
+    def zero_nutrient_ratio(self, nutrient_name: str) -> None:
+        """Sets the named nutrient ratio to zero."""
+        self.set_nutrient_ratio(
+            nutrient_name=nutrient_name,
+            nutrient_mass=0,
+            nutrient_mass_unit='g'
+        )
+
     def set_nutrient_pref_unit(self, nutrient_name: str, pref_unit: str) -> None:
         """Sets the pref unit for the nutrient ratio."""
         nutrient_ratio = self._get_settable_nutrient_ratio(nutrient_name)
