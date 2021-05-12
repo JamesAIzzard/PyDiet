@@ -29,6 +29,17 @@ def units_are_pieces(*units: str) -> bool:
 
 def _convert_like2like(qty: float, start_unit: str, end_unit: str) -> float:
     """Handles mass<->mass and vol<->vol"""
+    # Validate the units;
+    start_unit = start_unit.lower()
+    end_unit = end_unit.lower()
+    for u in [start_unit, end_unit]:
+        model.quantity.validation.validate_qty_unit(u)
+
+    # Make sure both units are the same kind;
+    if not units_are_masses(start_unit, end_unit) and not units_are_volumes(start_unit, end_unit):
+        raise model.quantity.exceptions.IncorrectUnitTypeError()
+
+    # Figure out the conversion factor;
     if units_are_masses(start_unit, end_unit):
         u_i = model.quantity.configs.G_CONVERSIONS[start_unit]
         u_o = model.quantity.configs.G_CONVERSIONS[end_unit]
@@ -81,13 +92,6 @@ def convert_qty_unit(qty: float,
                      g_per_ml: Optional[float] = None,
                      piece_mass_g: Optional[float] = None) -> float:
     """Converts any quantity unit to any other quantity unit."""
-
-    # Catch any invalid quantities;
-    qty = model.quantity.validation.validate_quantity(qty)
-    if g_per_ml is not None:
-        g_per_ml = model.quantity.validation.validate_quantity(g_per_ml)
-    if piece_mass_g is not None:
-        piece_mass_g = model.quantity.validation.validate_quantity(piece_mass_g)
 
     # Correct unit case issues and raise an exception if the unit isn't recognised;
     start_unit = model.quantity.validation.validate_qty_unit(start_unit)
