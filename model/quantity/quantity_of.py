@@ -42,7 +42,27 @@ class QuantityOf(model.SupportsDefinition, persistence.YieldsPersistableData):
     @property
     def pref_unit(self) -> str:
         """Returns the unit used to define the subject quantity."""
-        return self._quantity_data_src()['pref_unit']
+        # Call the source to grab the data;
+        pu = self._quantity_data_src()['pref_unit']
+
+        # If the unit is a mass, we are safe to go ahead and return;
+        if model.quantity.units_are_masses(pu):
+            return pu
+
+        # Otherwise, we need to have extended units supported;
+        elif not isinstance(self.subject, model.quantity.SupportsExtendedUnits):
+            # So if we don't, then raise an exception;
+            raise model.quantity.exceptions.UnsupportedExtendedUnitsError(subject=self.subject)
+
+        # OK, so extended units are supported, but we need to make sure the unit is actually defined;
+        subject: 'model.quantity.SupportsExtendedUnits' = self.subject
+        if model.quantity.units_are_volumes(pu) and not subject.density_is_defined:
+            raise model.quantity.exceptions.UndefinedDensityError(subject=subject, unit=pu)
+        elif model.quantity.units_are_pieces(pu) and not subject.piece_mass_defined:
+            raise model.quantity.exceptions.UndefinedPcMassError(subject=subject, unit=pu)
+
+        # OK, we couldn't see any issues with returning this unit for the subject, go ahead and return;
+        return model.quantity.validation.validate_qty_unit(pu)
 
     @property
     def ref_qty(self) -> float:

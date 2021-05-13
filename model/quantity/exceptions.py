@@ -11,7 +11,7 @@ class BaseQuantityError(model.exceptions.PyDietModelError):
         self.subject = subject
 
 
-class BulkNotSettableError(BaseQuantityError):
+class UnsupportedExtendedUnitsError(BaseQuantityError):
     """Indicates that bulk properties cannot be set on this object."""
 
     def __init__(self, **kwargs):

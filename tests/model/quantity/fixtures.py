@@ -1,39 +1,39 @@
+from unittest import mock
+from typing import Callable, Optional
+
 import model
 
 
-def get_has_bulk_with_09_density() -> 'model.quantity.HasBulk':
-    return model.quantity.HasBulk(model.quantity.BulkData(
-        ref_qty=100,
-        pref_unit='g',
-        g_per_ml=0.9,
-        piece_mass_g=None
-    ))
+class SupportsExtendedUnitsTestable(model.quantity.SupportsExtendedUnits):
+    def __init__(self, g_per_ml: float = None, peice_mass_g: float = None, **kwargs):
+        super().__init__(**kwargs)
+        self._g_per_ml_ = g_per_ml
+        self._piece_mass_g_ = peice_mass_g
+
+    @property
+    def _g_per_ml(self) -> Optional[float]:
+        return self._g_per_ml_
+
+    @property
+    def _piece_mass_g(self) -> Optional[float]:
+        return self._piece_mass_g_
 
 
-def get_has_bulk_with_30_pc_mass() -> 'model.quantity.HasBulk':
-    return model.quantity.HasBulk(model.quantity.BulkData(
-        ref_qty=100,
-        pref_unit='g',
-        g_per_ml=None,
-        piece_mass_g=30
-    ))
-
-
-def get_undefined_has_quantity() -> 'model.quantity.HasQuantityOf':
-    return model.quantity.HasQuantityOf(
-        subject=model.quantity.HasBulk(),
-        get_quantity_in_g=lambda: None,
-        get_quantity_pref_unit=lambda: 'g'
+def get_qty_data_src(qty_in_g: Optional[float] = None, pref_unit: str = 'g') -> Callable[
+    [None], 'model.quantity.QuantityData']:
+    return lambda: model.quantity.QuantityData(
+        quantity_in_g=qty_in_g,
+        pref_unit=pref_unit
     )
 
 
-def get_has_3kg() -> 'model.quantity.HasQuantityOf':
-    return model.quantity.HasQuantityOf(
-        subject=model.quantity.HasBulk(),
-        get_quantity_in_g=lambda: 3000,
-        get_quantity_pref_unit=lambda: 'kg'
-    )
+def get_subject_without_extended_units() -> 'mock.Mock':
+    return mock.Mock()
 
 
-def get_undefined_has_settable_quantity() -> 'model.quantity.HasSettableQuantityOf':
-    return model.quantity.HasSettableQuantityOf(subject=model.quantity.HasBulk())
+def get_subject_with_density(g_per_ml: Optional[float] = None) -> 'SupportsExtendedUnitsTestable':
+    return SupportsExtendedUnitsTestable(g_per_ml=g_per_ml)
+
+
+def get_subject_with_pc_mass(peice_mass_g: Optional[float] = None) -> 'SupportsExtendedUnitsTestable':
+    return SupportsExtendedUnitsTestable(peice_mass_g=peice_mass_g)
