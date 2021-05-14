@@ -6,7 +6,7 @@ from tests.model.quantity import fixtures as fx
 
 class TestConstructor(TestCase):
     def test_get_correct_instance(self):
-        self.assertTrue(isinstance(fx.get_undefined_has_settable_quantity(), model.quantity.HasSettableQuantityOf))
+        self.assertTrue(isinstance(fx.get_undefined_has_settable_quantity(), model.quantity.SettableQuantityOf))
 
 
 class TestQuantityInG(TestCase):

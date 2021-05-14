@@ -35,5 +35,5 @@ def get_subject_with_density(g_per_ml: Optional[float] = None) -> 'SupportsExten
     return SupportsExtendedUnitsTestable(g_per_ml=g_per_ml)
 
 
-def get_subject_with_pc_mass(peice_mass_g: Optional[float] = None) -> 'SupportsExtendedUnitsTestable':
-    return SupportsExtendedUnitsTestable(peice_mass_g=peice_mass_g)
+def get_subject_with_pc_mass(piece_mass_g: Optional[float] = None) -> 'SupportsExtendedUnitsTestable':
+    return SupportsExtendedUnitsTestable(peice_mass_g=piece_mass_g)
