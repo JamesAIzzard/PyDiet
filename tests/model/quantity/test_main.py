@@ -27,6 +27,20 @@ class TestUnitsArePieces(TestCase):
         self.assertFalse(model.quantity.units_are_pieces("kg", "pc"))
 
 
+class TestUnitIsExtended(TestCase):
+    def test_returns_true_if_unit_is_extended(self):
+        self.assertTrue(model.quantity.unit_is_extended("l"))
+        self.assertTrue(model.quantity.unit_is_extended("pc"))
+
+    def test_returns_false_if_unit_is_not_extended(self):
+        self.assertFalse(model.quantity.unit_is_extended("g"))
+        self.assertFalse(model.quantity.unit_is_extended("kg"))
+
+    def test_raises_exception_if_unit_not_recognised(self):
+        with self.assertRaises(model.quantity.exceptions.UnknownUnitError):
+            _ = model.quantity.unit_is_extended("fake")
+
+
 class TestConvertLike2Like(TestCase):
     def test_converts_g_to_kg_correctly(self):
         self.assertEqual(model.quantity.main._convert_like2like(

@@ -27,6 +27,15 @@ def units_are_pieces(*units: str) -> bool:
     return True
 
 
+def unit_is_extended(unit: str) -> bool:
+    """Returns True/False to indicate if unit is extended."""
+    unit = model.quantity.validation.validate_qty_unit(unit)
+    if units_are_pieces(unit) or units_are_volumes(unit):
+        return True
+    else:
+        return False
+
+
 def _convert_like2like(qty: float, start_unit: str, end_unit: str) -> float:
     """Handles mass<->mass and vol<->vol"""
     # Validate the units;

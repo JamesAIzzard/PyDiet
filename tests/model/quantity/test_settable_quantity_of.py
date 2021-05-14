@@ -1,4 +1,4 @@
-from unittest import TestCase
+from unittest import TestCase, mock
 
 import model
 from tests.model.quantity import fixtures as fx
@@ -6,152 +6,127 @@ from tests.model.quantity import fixtures as fx
 
 class TestConstructor(TestCase):
     def test_get_correct_instance(self):
-        self.assertTrue(isinstance(fx.get_undefined_has_settable_quantity(), model.quantity.SettableQuantityOf))
+        self.assertTrue(isinstance(model.quantity.SettableQuantityOf(
+            subject=mock.Mock()
+        ), model.quantity.SettableQuantityOf))
 
-
-class TestQuantityInG(TestCase):
-    # Test the setter functionality;
-    def test_sets_value_correctly(self):
-        hq = fx.get_undefined_has_settable_quantity()
-        hq.quantity_in_g = 150
-        self.assertTrue(hq.quantity_in_g == 150)
-        self.assertTrue(hq._quantity_in_g == 150)
-
-    def test_unsets_value_correctly(self):
-        hq = fx.get_undefined_has_settable_quantity()
-        hq.quantity_in_g = None
-        self.assertTrue(hq._quantity_in_g == None)  # noqa
-
-    def test_raises_exception_if_quantity_invalid(self):
-        hq = fx.get_undefined_has_settable_quantity()
-        with self.assertRaises(model.quantity.exceptions.InvalidQtyError):
-            hq.quantity_in_g = "none"
-
-
-class TestQuantityPrefUnit(TestCase):
-    # Again, testing the setter;
-    def test_sets_value_correctly(self):
-        hq = fx.get_undefined_has_settable_quantity()
-        hq.quantity_pref_unit = 'kg'
-        self.assertTrue(hq.quantity_pref_unit == 'kg')
-        self.assertTrue(hq._quantity_pref_unit == 'kg')
-
-    def test_raises_exception_if_unit_unrecognised(self):
-        hq = fx.get_undefined_has_settable_quantity()
-        with self.assertRaises(model.quantity.exceptions.UnknownUnitError):
-            hq.quantity_pref_unit = 'madeups'
-
-    def test_raises_exception_if_unit_not_configured(self):
-        hq = fx.get_undefined_has_settable_quantity()
-        with self.assertRaises(model.quantity.exceptions.UndefinedDensityError):
-            hq.quantity_pref_unit = 'L'
-        with self.assertRaises(model.quantity.exceptions.UndefinedPcMassError):
-            hq.quantity_pref_unit = 'pc'
-
-    def test_sets_volume_unit_if_density_configured(self):
-        hq = model.quantity.HasSettableQuantityOf(
-            subject=fx.get_has_bulk_with_09_density(),
+    def test_loads_data_if_provided(self):
+        sqo = model.quantity.SettableQuantityOf(
+            subject=mock.Mock(),
+            quantity_data=model.quantity.QuantityData(quantity_in_g=150, pref_unit='kg')
         )
-        hq.quantity_pref_unit = 'l'
-        self.assertTrue(hq.quantity_pref_unit == 'l')
 
-    def test_sets_pc_unit_if_pc_mass_configured(self):
-        hq = model.quantity.HasSettableQuantityOf(
-            subject=fx.get_has_bulk_with_30_pc_mass(),
+
+class TestResetPrefUnit(TestCase):
+    def test_pref_unit_is_reset_correctly(self):
+        sqo = model.quantity.SettableQuantityOf(subject=mock.Mock())
+        sqo._quantity_data['pref_unit'] = 'L'
+        self.assertEqual(sqo._quantity_data['pref_unit'], 'L')
+        sqo._reset_pref_unit()
+        self.assertEqual(sqo._quantity_data['pref_unit'], 'g')
+
+
+class TestSanitisePrefUnit(TestCase):
+    def test_valid_vol_unit_is_not_changed(self):
+        sqo = model.quantity.SettableQuantityOf(
+            subject=fx.get_subject_with_density(g_per_ml=1.2),
         )
-        hq.quantity_pref_unit = 'pc'
-        self.assertTrue(hq.quantity_pref_unit == 'pc')
+        sqo._quantity_data['pref_unit'] = 'l'
+        sqo._sanitise_pref_unit()
+        self.assertEqual(sqo._quantity_data['pref_unit'], 'l')
+
+    def test_unknown_unit_is_reset(self):
+        sqo = model.quantity.SettableQuantityOf(subject=mock.Mock())
+        sqo._quantity_data['pref_unit'] = 'fake'
+        sqo._sanitise_pref_unit()
+        self.assertEqual(sqo._quantity_data['pref_unit'], 'g')
+
+    def test_unconfigured_pc_unit_is_reset(self):
+        sqo = model.quantity.SettableQuantityOf(
+            subject=fx.get_subject_with_pc_mass(piece_mass_g=None),
+        )
+        sqo._quantity_data['pref_unit'] = 'pc'
+        sqo._sanitise_pref_unit()
+        self.assertEqual(sqo._quantity_data['pref_unit'], 'g')
 
 
 class TestSetQuantity(TestCase):
-    def test_sets_quantity_correctly(self):
-        # Try with a mass;
-        hq = model.quantity.HasSettableQuantityOf(subject=model.quantity.HasBulk())
-        hq.set(
-            qty=1.5,
-            unit='kg'
-        )
-        self.assertTrue(hq.quantity_in_g == 1500)
+    # Test the setter functionality;
+    def test_sets_value_correctly(self):
+        sqo = model.quantity.SettableQuantityOf(subject=mock.Mock())
+        sqo.set_quantity(1.2, 'kg')
+        self.assertEqual(sqo._quantity_data['quantity_in_g'], 1200)
 
-        # Try with a volume;
-        hq = model.quantity.HasSettableQuantityOf(subject=fx.get_has_bulk_with_09_density())
-        hq.set(
-            qty=1.5,
-            unit='L'
-        )
-        self.assertTrue(hq.quantity_in_g == 1350)
+    def test_raises_exception_if_quantity_invalid(self):
+        sqo = model.quantity.SettableQuantityOf(subject=mock.Mock())
+        with self.assertRaises(model.quantity.exceptions.InvalidQtyError):
+            sqo.set_quantity(-4, 'kg')
+        with self.assertRaises(model.quantity.exceptions.InvalidQtyError):
+            sqo.set_quantity('invalid', 'kg')  # noqa
 
-        # Try with piece mass;
-        hq = model.quantity.HasSettableQuantityOf(subject=fx.get_has_bulk_with_30_pc_mass())
-        hq.set(
-            qty=1.5,
-            unit='pc'
-        )
-        self.assertTrue(hq.quantity_in_g == 45)
+    def test_raises_exception_if_unit_not_recognised(self):
+        sqo = model.quantity.SettableQuantityOf(subject=mock.Mock())
+        with self.assertRaises(model.quantity.exceptions.UnknownUnitError):
+            sqo.set_quantity(4, 'fake')
 
-    def test_raises_exception_if_density_not_configured(self):
-        hq = model.quantity.HasSettableQuantityOf(subject=model.quantity.HasBulk())
+    def test_raises_exception_if_extended_units_used_but_not_supported(self):
+        sqo = model.quantity.SettableQuantityOf(subject=mock.Mock())
+        with self.assertRaises(model.quantity.exceptions.UnsupportedExtendedUnitsError):
+            sqo.set_quantity(4, 'L')
+
+    def test_raises_exception_if_vol_unit_used_but_not_configured(self):
+        sqo = model.quantity.SettableQuantityOf(subject=fx.get_subject_with_density(g_per_ml=None))
         with self.assertRaises(model.quantity.exceptions.UndefinedDensityError):
-            hq.set(
-                qty=1.5,
-                unit='L'
-            )
+            sqo.set_quantity(4, 'L')
 
-    def test_raises_exception_if_piece_mass_not_configured(self):
-        hq = model.quantity.HasSettableQuantityOf(subject=model.quantity.HasBulk())
+    def test_raises_exception_if_piece_unit_used_but_not_configured(self):
+        sqo = model.quantity.SettableQuantityOf(subject=fx.get_subject_with_pc_mass(piece_mass_g=None))
         with self.assertRaises(model.quantity.exceptions.UndefinedPcMassError):
-            hq.set(
-                qty=1.5,
-                unit='pc'
-            )
+            sqo.set_quantity(4, 'pc')
+
+
+class TestUnsetQuantity(TestCase):
+    def test_quantity_unset_correctly(self):
+        sqo = model.quantity.SettableQuantityOf(subject=mock.Mock())
+        sqo._quantity_data['quantity_in_g'] = 120
+        sqo.unset_quantity()
+        self.assertIsNone(sqo._quantity_data['quantity_in_g'])
 
 
 class TestLoadData(TestCase):
-    def test_loads_data_correctly(self):
-        hq = model.quantity.HasSettableQuantityOf(
-            subject=model.quantity.HasBulk(),
-            quantity_data=model.quantity.QuantityData(
-                quantity_in_g=150,
-                quantity_pref_unit='kg'
-            )
+    def test_loads_data_with_mass_pref_unit_correctly(self):
+        sqo = model.quantity.SettableQuantityOf(
+            subject=mock.Mock(),
         )
-        self.assertTrue(hq.quantity_in_g == 150)
-        self.assertTrue(hq.quantity_pref_unit == 'kg')
+        sqo.load_data(model.quantity.QuantityData(quantity_in_g=150, pref_unit='kg'))
+        self.assertTrue(sqo.quantity_in_g == 150)
+        self.assertTrue(sqo.pref_unit == 'kg')
 
-    def test_falls_back_to_g_if_qty_pref_unit_not_configured(self):
-        # First, try with a density unit which isn't configured;
-        hq = model.quantity.HasSettableQuantityOf(
-            subject=model.quantity.HasBulk(),
-            quantity_data=model.quantity.QuantityData(
-                quantity_in_g=120,
-                quantity_pref_unit='L'
-            )
+    def test_loads_data_with_vol_pref_unit_correctly(self):
+        sqo = model.quantity.SettableQuantityOf(
+            subject=fx.get_subject_with_density(g_per_ml=2)
         )
-        self.assertTrue(hq.quantity_in_g == 120)
-        self.assertTrue(hq.quantity_pref_unit == 'g')
+        sqo.load_data(model.quantity.QuantityData(quantity_in_g=60, pref_unit='ml'))
+        self.assertTrue(sqo.quantity_in_g == 60)
+        self.assertTrue(sqo.pref_unit == 'ml')
 
-        # Now try with a peice mass unit;
-        hq = model.quantity.HasSettableQuantityOf(
-            subject=model.quantity.HasBulk(),
-            quantity_data=model.quantity.QuantityData(
-                quantity_in_g=120,
-                quantity_pref_unit='pc'
-            )
+    def test_raises_exception_if_pref_unit_extended_and_extended_not_available(self):
+        sqo = model.quantity.SettableQuantityOf(
+            subject=mock.Mock(),
         )
-        self.assertTrue(hq.quantity_in_g == 120)
-        self.assertTrue(hq.quantity_pref_unit == 'g')
+        with self.assertRaises(model.quantity.exceptions.UnsupportedExtendedUnitsError):
+            sqo.load_data(model.quantity.QuantityData(quantity_in_g=150, pref_unit='L'))
 
-
-class TestPersistableData(TestCase):
-    def test_returns_correct_data(self):
-        hq = model.quantity.HasSettableQuantityOf(
-            subject=model.quantity.HasBulk(),
-            quantity_data=model.quantity.QuantityData(
-                quantity_in_g=120,
-                quantity_pref_unit='kg'
-            )
+    def test_raises_exception_if_pref_unit_vol_but_not_configured(self):
+        sqo = model.quantity.SettableQuantityOf(
+            subject=fx.get_subject_with_density(),
         )
-        self.assertEqual(hq.persistable_data, model.quantity.QuantityData(
-            quantity_in_g=120,
-            quantity_pref_unit='kg'
-        ))
+        with self.assertRaises(model.quantity.exceptions.UndefinedDensityError):
+            sqo.load_data(model.quantity.QuantityData(quantity_in_g=150, pref_unit='l'))
+
+    def test_raises_exception_if_pref_unit_pc_but_not_configured(self):
+        sqo = model.quantity.SettableQuantityOf(
+            subject=fx.get_subject_with_pc_mass(),
+        )
+        with self.assertRaises(model.quantity.exceptions.UndefinedPcMassError):
+            sqo.load_data(model.quantity.QuantityData(quantity_in_g=150, pref_unit='pc'))

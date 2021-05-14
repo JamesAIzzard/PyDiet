@@ -9,6 +9,7 @@ from .main import (
     units_are_volumes,
     units_are_pieces,
     units_are_masses,
+    unit_is_extended,
     convert_qty_unit,
     convert_density_unit
 )

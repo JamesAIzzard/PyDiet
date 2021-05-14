@@ -39,30 +39,30 @@ class QuantityOf(model.SupportsDefinition, persistence.YieldsPersistableData):
         else:
             return _qty_in_g
 
+    def _validate_pref_unit(self, unit: str) -> str:
+        # First, check the unit is known by the system;
+        unit = model.quantity.validation.validate_qty_unit(unit)
+
+        # If the subject doesn't support extended units, and the unit is a mass or volume;
+        if model.quantity.unit_is_extended(unit) \
+                and not isinstance(self._subject, model.quantity.SupportsExtendedUnits):
+            raise model.quantity.exceptions.UnsupportedExtendedUnitsError(subject=self)
+
+        # OK, so the subject does support extended units;
+        # If the unit is a volume, and the subject doesn't have density defined;
+        if model.quantity.units_are_volumes(unit) and not self._subject.density_is_defined:
+            raise model.quantity.exceptions.UndefinedDensityError(subject=self.subject)
+        elif model.quantity.units_are_pieces(unit) and not self._subject.piece_mass_defined:
+            raise model.quantity.exceptions.UndefinedPcMassError(subject=self.subject)
+
+        # OK, return the unit;
+        return unit
+
     @property
     def pref_unit(self) -> str:
         """Returns the unit used to define the subject quantity."""
-        # Call the source to grab the data;
-        pu = self._quantity_data_src()['pref_unit']
-
-        # If the unit is a mass, we are safe to go ahead and return;
-        if model.quantity.units_are_masses(pu):
-            return pu
-
-        # Otherwise, we need to have extended units supported;
-        elif not isinstance(self.subject, model.quantity.SupportsExtendedUnits):
-            # So if we don't, then raise an exception;
-            raise model.quantity.exceptions.UnsupportedExtendedUnitsError(subject=self.subject)
-
-        # OK, so extended units are supported, but we need to make sure the unit is actually defined;
-        subject: 'model.quantity.SupportsExtendedUnits' = self.subject
-        if model.quantity.units_are_volumes(pu) and not subject.density_is_defined:
-            raise model.quantity.exceptions.UndefinedDensityError(subject=subject, unit=pu)
-        elif model.quantity.units_are_pieces(pu) and not subject.piece_mass_defined:
-            raise model.quantity.exceptions.UndefinedPcMassError(subject=subject, unit=pu)
-
-        # OK, we couldn't see any issues with returning this unit for the subject, go ahead and return;
-        return model.quantity.validation.validate_qty_unit(pu)
+        # Return the validated unit
+        return self._validate_pref_unit(self._quantity_data_src()['pref_unit'])
 
     @property
     def ref_qty(self) -> float:
@@ -106,9 +106,11 @@ class SettableQuantityOf(QuantityOf, persistence.CanLoadData):
             self.load_data(quantity_data)
 
     def _reset_pref_unit(self) -> None:
+        """Resets the pref unit"""
         self._quantity_data['pref_unit'] = 'g'
 
     def _sanitise_pref_unit(self) -> None:
+        """Tries to validate the pref unit, and if not valid/not configured, it is reset to 'g'"""
         try:
             _ = self._validate_pref_unit(self._quantity_data['pref_unit'])
         except (
@@ -117,37 +119,10 @@ class SettableQuantityOf(QuantityOf, persistence.CanLoadData):
         ):
             self._reset_pref_unit()
 
-    def _validate_pref_unit(self, unit: str) -> str:
-        # If the unit isn't recognised, just replace it with grams
-        unit = model.quantity.validation.validate_qty_unit(unit)
-
-        # If the subject doesn't support extended units;
-        if not isinstance(self._subject, model.quantity.SupportsExtendedUnits):
-            # If the unit is a volume, raise the volume exception;
-            if model.quantity.units_are_volumes(unit):
-                raise model.quantity.exceptions.UndefinedDensityError(subject=self.subject)
-            # If the unit is a pc, raise the pc exception;
-            if model.quantity.units_are_pieces(unit):
-                raise model.quantity.exceptions.UndefinedPcMassError(subject=self.subject)
-
-        # OK, so the subject does support extended units;
-        # If the unit is a volume, and the subject doesn't have density defined;
-        if model.quantity.units_are_volumes(unit) and not self._subject.density_is_defined:
-            raise model.quantity.exceptions.UndefinedDensityError(subject=self.subject)
-        elif model.quantity.units_are_pieces(unit) and not self._subject.piece_mass_defined:
-            raise model.quantity.exceptions.UndefinedPcMassError(subject=self.subject)
-
-        # OK, return the unit;
-        return unit
-
-    def set_quantity(self, quantity: Optional[float], unit: str) -> None:
+    def set_quantity(self, quantity: float, unit: str) -> None:
         """Sets the quantity in arbitrary units."""
-        # Set a None value immediately;
-        if quantity is None:
-            self._quantity_data['quantity_in_g'] = None
         # Check a non-none value is OK;
-        else:
-            quantity = model.quantity.validation.validate_quantity(quantity)
+        quantity = model.quantity.validation.validate_quantity(quantity)
         # Check the unit is OK;
         unit = self._validate_pref_unit(unit)
 
@@ -170,5 +145,11 @@ class SettableQuantityOf(QuantityOf, persistence.CanLoadData):
         self._quantity_data['quantity_in_g'] = qty_in_g
         self._quantity_data['pref_unit'] = unit
 
+    def unset_quantity(self) -> None:
+        """Unsets the quantity."""
+        self._quantity_data['quantity_in_g'] = None
+
     def load_data(self, data: 'QuantityData') -> None:
+        # Make sure the unit is actually available on this subject;
+        data['pref_unit'] = self._validate_pref_unit(data['pref_unit'])
         self._quantity_data = data
