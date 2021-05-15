@@ -1,48 +1,79 @@
 from unittest import TestCase
 
-import model
 from tests.model.nutrients import fixtures as fx
-from tests.model.nutrients import nutrient_configs_for_testing
-
-
-class TestConstructor(TestCase):
-    def setUp(self) -> None:
-        model.nutrients.configs = nutrient_configs_for_testing
-
-    def test_can_be_instantiated(self) -> None:
-        self.nutrient = model.nutrients.Nutrient("protein")
-        self.assertTrue(isinstance(self.nutrient, model.nutrients.Nutrient))
-        self.assertTrue(self.nutrient.primary_name == "protein")
-
-    # While the following tests appear to be testing properties, the data the properties return is
-    # initialised in the constructor, so they can be tested here;
-    def test_contains_correct_direct_children(self) -> None:
-        self.nutrient = model.nutrients.Nutrient("protein")
-        # Check we have the correct number of children;
-        self.assertTrue(
-            len(self.nutrient.direct_child_nutrients) == 21
-        )
-        # Test some of the right nutrients are included in them;
-        self.assertTrue(
-            model.nutrients.GLOBAL_NUTRIENTS["valine"] in self.nutrient.direct_child_nutrients.values()
-        )
-        self.assertTrue(
-            model.nutrients.GLOBAL_NUTRIENTS["gluten"] in self.nutrient.direct_child_nutrients.values()
-        )
-
-    def test_contains_correct_direct_parents(self) -> None:
-        nutrient = model.nutrients.Nutrient("valine")
-        self.assertTrue(
-            len(nutrient.direct_parent_nutrients) == 1
-        )
-        self.assertTrue(
-            model.nutrients.GLOBAL_NUTRIENTS["protein"] in nutrient.direct_parent_nutrients.values()
-        )
 
 
 class TestPrimaryName(TestCase):
     def test_primary_name_is_correct(self):
-        self.assertTrue(fx.get_protein().primary_name == 'protein')
+        self.assertEqual("docbe", fx.GLOBAL_NUTRIENTS["docbe"].primary_name)
 
-    def test_primary_name_is_correct_when_created_with_alias(self):
-        self.assertTrue(fx.get_vitamin_b12().primary_name == 'cobalamin')
+
+class TestDirectChildNutrients(TestCase):
+    def test_child_nutrients_are_correct(self):
+        self.assertEqual({
+            fx.GLOBAL_NUTRIENTS["tirbur"],
+            fx.GLOBAL_NUTRIENTS["cufmagif"]
+        }, set(fx.GLOBAL_NUTRIENTS["regatur"].direct_child_nutrients.values()))
+
+
+class TestDirectParentNutrients(TestCase):
+    def test_parent_nutrients_are_correct(self):
+        self.assertEqual({
+            fx.GLOBAL_NUTRIENTS["regatur"],
+            fx.GLOBAL_NUTRIENTS["busskie"]
+        }, set(fx.GLOBAL_NUTRIENTS["tirbur"].direct_parent_nutrients.values()))
+
+
+class TestAllSiblingNutrients(TestCase):
+    def test_sibling_nutrients_are_correct(self):
+        self.assertEqual({
+            fx.GLOBAL_NUTRIENTS["bazing"],
+            fx.GLOBAL_NUTRIENTS["fejaolka"]
+        }, set(fx.GLOBAL_NUTRIENTS["foo"].all_sibling_nutrients.values()))
+
+
+class TestAllAscendantNutrients(TestCase):
+    def test_ascendant_nutrients_are_correct(self):
+        self.assertEqual({
+            fx.GLOBAL_NUTRIENTS["regatur"],
+            fx.GLOBAL_NUTRIENTS["docbe"],
+            fx.GLOBAL_NUTRIENTS["busskie"]
+        }, set(fx.GLOBAL_NUTRIENTS["tirbur"].all_ascendant_nutrients.values()))
+
+
+class TestAllDescendantNutrients(TestCase):
+    def test_descendant_nutrients_are_correct(self):
+        self.assertEqual({
+            fx.GLOBAL_NUTRIENTS["tirbur"],
+            fx.GLOBAL_NUTRIENTS["bar"],
+            fx.GLOBAL_NUTRIENTS["regatur"],
+            fx.GLOBAL_NUTRIENTS["cufmagif"]
+        }, set(fx.GLOBAL_NUTRIENTS["docbe"].all_descendant_nutrients.values()))
+
+
+class TestAllRelativeNutrients(TestCase):
+    def test_relative_nutrients_are_correct(self):
+        self.assertEqual({
+            fx.GLOBAL_NUTRIENTS["regatur"],
+            fx.GLOBAL_NUTRIENTS["docbe"],
+            fx.GLOBAL_NUTRIENTS["tirbur"],
+            fx.GLOBAL_NUTRIENTS["cufmagif"],
+            fx.GLOBAL_NUTRIENTS["bingtong"],
+            fx.GLOBAL_NUTRIENTS["busskie"]
+        }, set(fx.GLOBAL_NUTRIENTS["bar"].all_relative_nutrients.values()))
+
+
+class TestAliasNames(TestCase):
+    def test_alias_names_returned_correctly(self):
+        self.assertEqual({"anatino", "vibdo", "sefling"}, set(fx.GLOBAL_NUTRIENTS["docbe"].alias_names))
+
+    def test_returns_empty_if_no_alias(self):
+        self.assertEqual([], fx.GLOBAL_NUTRIENTS["foo"].alias_names)
+
+
+class TestCaloriesPerG(TestCase):
+    def test_cals_returned_correctly_when_present(self):
+        self.assertEqual(3, fx.GLOBAL_NUTRIENTS["regatur"].calories_per_g)
+
+    def test_returns_zero_when_no_cals_per_g(self):
+        self.assertEqual(0, fx.GLOBAL_NUTRIENTS["tirbur"].calories_per_g)

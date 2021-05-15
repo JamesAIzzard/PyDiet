@@ -65,8 +65,10 @@ class TestValidateNutrientFamilyMasses(TestCase):
     def test_no_exception_if_no_error(self):
         self.nutrient_masses = {
             "regatur": 10,
+            "cufmagif": 6,
             "docbe": 12,
-            "tirbur": 4
+            "tirbur": 4,
+            "bar": 2
         }
         model.nutrients.validate_nutrient_family_masses("tirbur", self.get_nutrient_mass_g)
 

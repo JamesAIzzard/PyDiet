@@ -44,7 +44,7 @@ class Nutrient:
     @property
     def all_sibling_nutrients(self) -> Dict[str, 'Nutrient']:
         """Returns the names of the nutrient's siblings, or an empty list if there are none."""
-        return dict((k, self._global_nutrients[k]) for k in self._direct_parent_nutrient_names if k in self._global_nutrients)
+        return dict((k, self._global_nutrients[k]) for k in self._all_sibling_nutrient_names if k in self._global_nutrients)
 
     @property
     def all_ascendant_nutrients(self) -> Dict[str, 'Nutrient']:
