@@ -1,7 +1,7 @@
 import copy
 from difflib import SequenceMatcher
 from heapq import nlargest
-from typing import List, Dict, Callable, Tuple
+from typing import List, Dict, Callable
 
 import model
 # Import things required for init;
@@ -14,25 +14,28 @@ OPTIONAL_NUTRIENT_NAMES: List[str]
 GLOBAL_NUTRIENTS: Dict[str, 'model.nutrients.Nutrient']
 
 
-def build_name_lists() -> Tuple:
-    # Initialise the nutrient group names list;
-    nutrient_group_names = configs.NUTRIENT_GROUP_DEFINITIONS.keys()
+def build_nutrient_group_name_list(nutrient_configs: 'model.nutrients.configs') -> List[str]:
+    """Returns a list of all nutrient names, based on the information in the config file."""
+    return nutrient_configs.NUTRIENT_GROUP_DEFINITIONS.keys()
 
-    # Initialise the optional nutrients list;
-    optional_nutrient_names = set(configs.ALL_PRIMARY_NUTRIENT_NAMES).difference(
-        set(configs.MANDATORY_NUTRIENT_NAMES))
 
-    # Initialise the all known nutrients name list;
-    primary_and_alias_nutrient_names = copy.copy(configs.ALL_PRIMARY_NUTRIENT_NAMES)
-    for primary_name, aliases in configs.NUTRIENT_ALIASES.items():
+def build_optional_nutrient_name_list(nutrient_configs: 'model.nutrients.configs') -> List[str]:
+    """Returns a list of all optional nutrient names, based on the information in the config file."""
+    return list(set(nutrient_configs.ALL_PRIMARY_NUTRIENT_NAMES).difference(
+        set(nutrient_configs.MANDATORY_NUTRIENT_NAMES)))
+
+
+def build_primary_and_alias_nutrient_names(nutrient_configs: 'model.nutrients.configs') -> List[str]:
+    """Returns a list of all primary and alias names known to the system, derived from the config file."""
+    primary_and_alias_nutrient_names = copy.copy(nutrient_configs.ALL_PRIMARY_NUTRIENT_NAMES)
+    for primary_name, aliases in nutrient_configs.NUTRIENT_ALIASES.items():
         primary_and_alias_nutrient_names += aliases
+    return primary_and_alias_nutrient_names
 
-    return nutrient_group_names, optional_nutrient_names, primary_and_alias_nutrient_names
 
-
-def build_global_nutrient_list() -> Dict[str, 'model.nutrients.Nutrient']:
+def build_global_nutrient_list(nutrient_configs: 'model.nutrients.configs') -> Dict[str, 'model.nutrients.Nutrient']:
     global_nutrients: Dict[str, 'model.nutrients.Nutrient'] = {}
-    for primary_nutrient_name in configs.ALL_PRIMARY_NUTRIENT_NAMES:
+    for primary_nutrient_name in nutrient_configs.ALL_PRIMARY_NUTRIENT_NAMES:
         global_nutrients[primary_nutrient_name] = Nutrient(primary_nutrient_name, global_nutrients)
     return global_nutrients
 
@@ -179,5 +182,7 @@ def get_n_closest_nutrient_names(search_term: str, num_results: int = 5) -> List
     return nlargest(num_results, scores, key=scores.get)
 
 
-NUTRIENT_GROUP_NAMES, OPTIONAL_NUTRIENT_NAMES, PRIMARY_AND_ALIAS_NUTRIENT_NAMES = build_name_lists()
-GLOBAL_NUTRIENTS = build_global_nutrient_list()
+NUTRIENT_GROUP_NAMES = build_nutrient_group_name_list(configs)
+OPTIONAL_NUTRIENT_NAMES = build_optional_nutrient_name_list(configs)
+PRIMARY_AND_ALIAS_NUTRIENT_NAMES = build_primary_and_alias_nutrient_names(configs)
+GLOBAL_NUTRIENTS = build_global_nutrient_list(configs)

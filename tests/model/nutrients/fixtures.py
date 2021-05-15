@@ -13,11 +13,11 @@ NUTRIENT_GROUP_NAMES: List[str]
 OPTIONAL_NUTRIENT_NAMES: List[str]
 GLOBAL_NUTRIENTS: Dict[str, 'model.nutrients.Nutrient']
 # Patch to the test configs while we build these;
-with mock.patch('model.nutrients.nutrient.configs', test_configs), \
-        mock.patch('model.nutrients.main.configs', test_configs):
-    NUTRIENT_GROUP_NAMES, OPTIONAL_NUTRIENT_NAMES, PRIMARY_AND_ALIAS_NUTRIENT_NAMES = \
-        model.nutrients.build_name_lists()
-    GLOBAL_NUTRIENTS = model.nutrients.build_global_nutrient_list()
+with mock.patch('model.nutrients.nutrient.configs', test_configs):
+    NUTRIENT_GROUP_NAMES = model.nutrients.build_nutrient_group_name_list(test_configs)
+    OPTIONAL_NUTRIENT_NAMES = model.nutrients.build_optional_nutrient_name_list(test_configs)
+    PRIMARY_AND_ALIAS_NUTRIENT_NAMES = model.nutrients.build_primary_and_alias_nutrient_names(test_configs)
+    GLOBAL_NUTRIENTS = model.nutrients.build_global_nutrient_list(test_configs)
 
 
 def use_test_nutrients(func):
