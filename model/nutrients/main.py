@@ -32,34 +32,23 @@ def get_nutrient_alias_names(nutrient_name: str) -> List[str]:
     """Returns a list of known aliases for the primary nutrient name provided."""
     # Make sure we have the primary name for this nutrient;
     nutrient_name = get_nutrient_primary_name(nutrient_name)
-
-    # If the nutrient name does have aliases stored against it;
-    if nutrient_name in model.nutrients.configs.NUTRIENT_ALIASES.keys():
-        # Go ahead and return them;
-        return model.nutrients.configs.NUTRIENT_ALIASES[nutrient_name]
-    else:
-        # Otherwise, just return an empty list;
-        return []
+    # Grab the nutrient and return its alias names;
+    return model.nutrients.GLOBAL_NUTRIENTS[nutrient_name].alias_names
 
 
 def get_calories_per_g(nutrient_name: str) -> float:
     """Returns the number of calories in a gram of the nutrient."""
     # Make sure we have the primary name;
     nutrient_name = get_nutrient_primary_name(nutrient_name)
-
-    # Return the calories associated with the nutrient;
-    try:
-        return model.nutrients.configs.CALORIE_NUTRIENTS[nutrient_name]
-    # Ahh OK, no calories with this one, so just return 0;
-    except KeyError:
-        return 0
+    # Grab the nutrient and return its cals_per_g;
+    return model.nutrients.GLOBAL_NUTRIENTS[nutrient_name].calories_per_g
 
 
 def validate_nutrient_family_masses(nutrient_name: str, get_nutrient_mass_g: Callable[[str], float]) -> None:
     """Checks that the nutrient masses stated for the named nutrient's entire family do not conflict.
     Args:
         nutrient_name (str): The name of the nutrient to validate.
-        get_nutrient_mass_g (float): Returns the mass in g or raises an exception.
+        get_nutrient_mass_g (float): Returns the mass in g or raises an UndefinedNutrientMassError.
     Notes:
         It would have been possible to implement this function as an abstract base class, something
         like `StoresNutrientMasses`. However, we want to use it on the  NutrientRatios base classes too,
@@ -87,8 +76,7 @@ def validate_nutrient_family_masses(nutrient_name: str, get_nutrient_mass_g: Cal
             stated_value = None
         check_values[related_nutrient.primary_name] = {
             "stated_value": stated_value,
-            "min_value": 0,
-            "done": False
+            "min_value": 0
         }
 
     # First grab a list of all nutrients in the tree which have no direct children. These
@@ -103,26 +91,21 @@ def validate_nutrient_family_masses(nutrient_name: str, get_nutrient_mass_g: Cal
         # OK, we need to check the level belonging to every parent of this level member, in case
         # it has multiple parents (i.e it is in multiple groups);
         for level_parent in level_member.direct_parent_nutrients.values():
-            # If we have totalled the level parent already, skip it;
-            if check_values[level_parent.primary_name]["done"] is True:
-                continue
-
-            # OK, not done yet, total up the defined nutrient mass in this level;
+            # Total up the defined nutrient mass in this level;
+            min_value = 0
             for level_member in level_parent.direct_child_nutrients.values():
                 try:
-                    check_values[level_parent.primary_name]["min_value"] += get_nutrient_mass_g(
-                        level_member.primary_name)
+                    min_value += get_nutrient_mass_g(level_member.primary_name)
                 except model.nutrients.exceptions.UndefinedNutrientMassError:
                     # OK, the nutrient mass isn't defined, can we use a min value we have already calculated?
                     if check_values[level_member.primary_name] is not None:
                         # Yep, we have a min value defined, use that;
-                        check_values[level_parent.primary_name]["min_value"] += \
-                            check_values[level_member.primary_name]["min_value"]
+                        min_value += check_values[level_member.primary_name]["min_value"]
 
-            # Mark the level parent as done;
-            check_values[level_parent.primary_name]["done"] = True
+            # Is this min value greater than a min value assigned to this level parent already?
+            if check_values[level_parent.primary_name]['min_value'] < min_value:
+                check_values[level_parent.primary_name]['min_value'] = min_value
 
-            # OK, we have done totalling.
             # If the parent has a stated value, then check the min value doesn't exceed it;
             if check_values[level_parent.primary_name]["stated_value"] is not None:
                 if check_values[level_parent.primary_name]["min_value"] > \

@@ -53,8 +53,8 @@ def build_global_nutrient_list(nutrient_configs: 'configs') -> Dict[str, 'Nutrie
     for primary_nutrient_name in nutrient_configs.ALL_PRIMARY_NUTRIENT_NAMES:
         # First, collect up all the names we will need;
         # Start with the alias names;
-        if primary_nutrient_name in nutrient_configs.NUTRIENT_GROUP_DEFINITIONS.keys():
-            alias_names = nutrient_configs.NUTRIENT_GROUP_DEFINITIONS[primary_nutrient_name]
+        if primary_nutrient_name in nutrient_configs.NUTRIENT_ALIASES.keys():
+            alias_names = nutrient_configs.NUTRIENT_ALIASES[primary_nutrient_name]
         else:
             alias_names = []
 
