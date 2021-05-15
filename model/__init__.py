@@ -1,4 +1,3 @@
-# The following from .main are required during init so must come first.
 from .main import (
     HasName,
     HasSettableName,

@@ -8,7 +8,7 @@ from tests.model.nutrients import fixtures as nutfx
 from . import test_configs
 
 # Validate the test flag configs (using the test nutrients);
-with mock.patch('model.nutrients.validation.PRIMARY_AND_ALIAS_NUTRIENT_NAMES', nutfx.PRIMARY_AND_ALIAS_NUTRIENT_NAMES):
+with mock.patch('model.nutrients.PRIMARY_AND_ALIAS_NUTRIENT_NAMES', nutfx.PRIMARY_AND_ALIAS_NUTRIENT_NAMES):
     nutfx.use_test_nutrients(model.flags.validation.validate_configs(test_configs))
 
 # Build the global flag list for testing, using the test configs;

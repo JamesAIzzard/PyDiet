@@ -1,7 +1,15 @@
 from unittest import TestCase
 
 import model
+import tests
 from tests.model.nutrients import fixtures as fx
+
+
+class TestBuildNutrientGroupNameList(TestCase):
+    def test_builds_list_correctly(self):
+        name_list = model.nutrients.build_nutrient_group_name_list(tests.model.nutrients.test_configs)
+        self.assertEqual(len(name_list), 3)
+        self.assertEqual(name_list, ["regatur", "docbe", "busskie"])
 
 
 class TestPrimaryAndAliasNutrientNames(TestCase):

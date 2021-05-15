@@ -1,43 +1,8 @@
-import copy
 from difflib import SequenceMatcher
 from heapq import nlargest
 from typing import List, Dict, Callable
 
 import model
-# Import things required for init;
-from . import configs, exceptions, Nutrient
-
-# Create the derived global lists, ready for initialisation;
-PRIMARY_AND_ALIAS_NUTRIENT_NAMES: List[str]
-NUTRIENT_GROUP_NAMES: List[str]
-OPTIONAL_NUTRIENT_NAMES: List[str]
-GLOBAL_NUTRIENTS: Dict[str, 'model.nutrients.Nutrient']
-
-
-def build_nutrient_group_name_list(nutrient_configs: 'model.nutrients.configs') -> List[str]:
-    """Returns a list of all nutrient names, based on the information in the config file."""
-    return nutrient_configs.NUTRIENT_GROUP_DEFINITIONS.keys()
-
-
-def build_optional_nutrient_name_list(nutrient_configs: 'model.nutrients.configs') -> List[str]:
-    """Returns a list of all optional nutrient names, based on the information in the config file."""
-    return list(set(nutrient_configs.ALL_PRIMARY_NUTRIENT_NAMES).difference(
-        set(nutrient_configs.MANDATORY_NUTRIENT_NAMES)))
-
-
-def build_primary_and_alias_nutrient_names(nutrient_configs: 'model.nutrients.configs') -> List[str]:
-    """Returns a list of all primary and alias names known to the system, derived from the config file."""
-    primary_and_alias_nutrient_names = copy.copy(nutrient_configs.ALL_PRIMARY_NUTRIENT_NAMES)
-    for primary_name, aliases in nutrient_configs.NUTRIENT_ALIASES.items():
-        primary_and_alias_nutrient_names += aliases
-    return primary_and_alias_nutrient_names
-
-
-def build_global_nutrient_list(nutrient_configs: 'model.nutrients.configs') -> Dict[str, 'model.nutrients.Nutrient']:
-    global_nutrients: Dict[str, 'model.nutrients.Nutrient'] = {}
-    for primary_nutrient_name in nutrient_configs.ALL_PRIMARY_NUTRIENT_NAMES:
-        global_nutrients[primary_nutrient_name] = Nutrient(primary_nutrient_name, global_nutrients)
-    return global_nutrients
 
 
 def get_nutrient_primary_name(nutrient_name: str) -> str:
@@ -50,17 +15,17 @@ def get_nutrient_primary_name(nutrient_name: str) -> str:
     nutrient_name = model.nutrients.validation.validate_nutrient_name(nutrient_name)
 
     # Return if primary already;
-    if nutrient_name in configs.ALL_PRIMARY_NUTRIENT_NAMES:
+    if nutrient_name in model.nutrients.configs.ALL_PRIMARY_NUTRIENT_NAMES:
         return nutrient_name
 
     # Not primary, so search through the aliases;
-    nas = configs.NUTRIENT_ALIASES
+    nas = model.nutrients.configs.NUTRIENT_ALIASES
     for primary_name in nas.keys():
         if nutrient_name in nas[primary_name]:
             return primary_name
 
     # Nothing found - error;
-    raise exceptions.NutrientNameNotRecognisedError(nutrient_name=nutrient_name)
+    raise model.nutrients.exceptions.NutrientNameNotRecognisedError(nutrient_name=nutrient_name)
 
 
 def get_nutrient_alias_names(nutrient_name: str) -> List[str]:
@@ -69,9 +34,9 @@ def get_nutrient_alias_names(nutrient_name: str) -> List[str]:
     nutrient_name = get_nutrient_primary_name(nutrient_name)
 
     # If the nutrient name does have aliases stored against it;
-    if nutrient_name in configs.NUTRIENT_ALIASES.keys():
+    if nutrient_name in model.nutrients.configs.NUTRIENT_ALIASES.keys():
         # Go ahead and return them;
-        return configs.NUTRIENT_ALIASES[nutrient_name]
+        return model.nutrients.configs.NUTRIENT_ALIASES[nutrient_name]
     else:
         # Otherwise, just return an empty list;
         return []
@@ -84,7 +49,7 @@ def get_calories_per_g(nutrient_name: str) -> float:
 
     # Return the calories associated with the nutrient;
     try:
-        return configs.CALORIE_NUTRIENTS[nutrient_name]
+        return model.nutrients.configs.CALORIE_NUTRIENTS[nutrient_name]
     # Ahh OK, no calories with this one, so just return 0;
     except KeyError:
         return 0
@@ -111,7 +76,7 @@ def validate_nutrient_family_masses(nutrient_name: str, get_nutrient_mass_g: Cal
     nutrient_name = model.nutrients.get_nutrient_primary_name(nutrient_name)
 
     # OK, grab a reference to the nutrient instance;
-    nutrient = GLOBAL_NUTRIENTS[nutrient_name]
+    nutrient = model.nutrients.GLOBAL_NUTRIENTS[nutrient_name]
 
     # Create a dict to store all defined and min values in the tree;
     check_values: Dict[str, Dict[str, float]] = {}
@@ -177,12 +142,6 @@ def validate_nutrient_family_masses(nutrient_name: str, get_nutrient_mass_g: Cal
 def get_n_closest_nutrient_names(search_term: str, num_results: int = 5) -> List[str]:
     """Returns a list of n nutrient names matching the search term most closely."""
     scores = {}
-    for nutrient_name in PRIMARY_AND_ALIAS_NUTRIENT_NAMES:
+    for nutrient_name in model.nutrients.PRIMARY_AND_ALIAS_NUTRIENT_NAMES:
         scores[nutrient_name] = SequenceMatcher(None, search_term, nutrient_name).ratio()
     return nlargest(num_results, scores, key=scores.get)
-
-
-NUTRIENT_GROUP_NAMES = build_nutrient_group_name_list(configs)
-OPTIONAL_NUTRIENT_NAMES = build_optional_nutrient_name_list(configs)
-PRIMARY_AND_ALIAS_NUTRIENT_NAMES = build_primary_and_alias_nutrient_names(configs)
-GLOBAL_NUTRIENTS = build_global_nutrient_list(configs)

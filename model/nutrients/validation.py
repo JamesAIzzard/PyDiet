@@ -4,9 +4,6 @@ from .exceptions import (
     NutrientConfigsError,
 )
 
-# Bring in things required during initialisation;
-from .main import PRIMARY_AND_ALIAS_NUTRIENT_NAMES
-
 
 def validate_nutrient_name(nutrient_name: str) -> str:
     """Checks the nutrient name is valid. Raises exception if not.
@@ -14,7 +11,7 @@ def validate_nutrient_name(nutrient_name: str) -> str:
         NutrientNameError: To indicate the nutrient name was not valid.
     """
     nutrient_name = nutrient_name.lower().replace(' ', '_')
-    if nutrient_name in PRIMARY_AND_ALIAS_NUTRIENT_NAMES:
+    if nutrient_name in model.nutrients.PRIMARY_AND_ALIAS_NUTRIENT_NAMES:
         return nutrient_name
     raise NutrientNameNotRecognisedError(nutrient_name=nutrient_name)
 
