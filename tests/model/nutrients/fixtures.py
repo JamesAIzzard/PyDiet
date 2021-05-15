@@ -32,29 +32,34 @@ def use_test_nutrients(func):
     return wrapper
 
 
-def get_protein() -> 'model.nutrients.Nutrient':
-    return model.nutrients.GLOBAL_NUTRIENTS['protein']
-
-
-def get_vitamin_b12() -> 'model.nutrients.Nutrient':
-    return model.nutrients.GLOBAL_NUTRIENTS['cobalamin']
-
-
-def get_undefined_protein_mass() -> 'model.nutrients.NutrientMass':
+@use_test_nutrients
+def get_10g_tirbur() -> 'model.nutrients.NutrientMass':
     return model.nutrients.NutrientMass(
-        nutrient=get_protein(),
-        get_quantity_in_g=lambda: None,
-        get_quantity_pref_unit='g'
+        nutrient_name="tirbur",
+        quantity_data_src=lambda: model.quantity.QuantityData(
+            quantity_in_g=10,
+            pref_unit='g'
+        )
     )
 
 
-def get_32g_protein() -> 'model.nutrients.NutrientMass':
+@use_test_nutrients
+def get_100mg_docbe() -> 'model.nutrients.NutrientMass':
     return model.nutrients.NutrientMass(
-        nutrient=get_protein(),
-        get_quantity_in_g=lambda: 32,
-        get_quantity_pref_unit='g'
+        nutrient_name="docbe",
+        quantity_data_src=lambda: model.quantity.QuantityData(
+            quantity_in_g=0.1,
+            pref_unit='mg'
+        )
     )
 
 
-def get_undefined_settable_protein_mass() -> 'model.nutrients.SettableNutrientMass':
-    return model.nutrients.SettableNutrientMass(nutrient_name="protein")
+@use_test_nutrients
+def get_undefined_docbe() -> 'model.nutrients.NutrientMass':
+    return model.nutrients.NutrientMass(
+        nutrient_name="docbe",
+        quantity_data_src=lambda: model.quantity.QuantityData(
+            quantity_in_g=None,
+            pref_unit='g'
+        )
+    )

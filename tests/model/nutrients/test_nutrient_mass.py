@@ -5,23 +5,75 @@ from tests.model.nutrients import fixtures as fx
 
 
 class TestConstructor(TestCase):
-    def test_constructor_returns_instance(self):
-        self.assertTrue(isinstance(fx.get_undefined_protein_mass(), model.nutrients.NutrientMass))
-
-    def test_constructor_loads_nutrient_correctly(self):
-        self.assertEqual(fx.get_32g_protein().nutrient, model.nutrients.GLOBAL_NUTRIENTS['protein'])
+    @fx.use_test_nutrients
+    def test_can_construct(self):
+        nm = model.nutrients.NutrientMass(
+            nutrient_name="tirbur",
+            quantity_data_src=lambda: model.quantity.QuantityData(
+                quantity_in_g=10,
+                pref_unit='g'
+            )
+        )
+        self.assertTrue(isinstance(nm, model.nutrients.NutrientMass))
 
 
 class TestNutrient(TestCase):
-    def test_nutrient_returned_correctly(self):
-        nm = fx.get_32g_protein()
-        self.assertTrue(nm.nutrient is model.nutrients.GLOBAL_NUTRIENTS['protein'])
+    @fx.use_test_nutrients
+    def test_nutrient_is_correct(self):
+        nm = fx.get_10g_tirbur()
+        self.assertTrue(nm.nutrient is fx.GLOBAL_NUTRIENTS["tirbur"])
+
+
+class TestQtyInG(TestCase):
+    @fx.use_test_nutrients
+    def test_qty_is_correct(self):
+        nm = fx.get_10g_tirbur()
+        self.assertEqual(10, nm.quantity_in_g)
+
+
+class TestPrefUnit(TestCase):
+    @fx.use_test_nutrients
+    def test_pref_unit_correct(self):
+        nm = fx.get_100mg_docbe()
+        self.assertEqual("mg", nm.pref_unit)
+
+
+class TestRefQty(TestCase):
+    @fx.use_test_nutrients
+    def test_ref_qty_is_correct(self):
+        nm = fx.get_100mg_docbe()
+        self.assertEqual(100, nm.ref_qty)
 
 
 class TestIsDefined(TestCase):
+    @fx.use_test_nutrients
+    def test_true_if_defined(self):
+        self.assertTrue(fx.get_100mg_docbe().is_defined)
 
-    def test_returns_true_if_defined(self):
-        self.assertTrue(fx.get_32g_protein().is_defined)
+    @fx.use_test_nutrients
+    def test_false_if_undefined(self):
+        self.assertFalse(fx.get_undefined_docbe().is_defined)
 
-    def test_returns_false_if_not_defined(self):
-        self.assertFalse(fx.get_undefined_protein_mass().is_defined)
+
+class TestPersistableData(TestCase):
+    @fx.use_test_nutrients
+    def test_defined_data_is_correct(self):
+        nm = fx.get_100mg_docbe()
+        self.assertEqual(
+            model.nutrients.NutrientMassData(
+                quantity_in_g=0.1,
+                pref_unit="mg"
+            ),
+            nm.persistable_data
+        )
+
+    @fx.use_test_nutrients
+    def test_undefined_data_is_correct(self):
+        nm = fx.get_undefined_docbe()
+        self.assertEqual(
+            model.nutrients.NutrientMassData(
+                quantity_in_g=None,
+                pref_unit="g"
+            ),
+            nm.persistable_data
+        )
