@@ -31,7 +31,8 @@ NUTRIENT_ALIASES: Dict[str, List[str]] = {
 NUTRIENT_GROUP_DEFINITIONS: Dict[str, List[str]] = {
     "regatur": ["tirbur", "cufmagif"],
     "docbe": ["regatur", "bar"],
-    "busskie": ["bingtong", "tirbur"]
+    "busskie": ["bingtong", "tirbur"],
+    "fillydon": ["bazing", "foo", "fejaolka"]
 }
 
 CALORIE_NUTRIENTS: Dict[str, float] = {

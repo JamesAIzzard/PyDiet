@@ -71,10 +71,10 @@ def build_global_nutrient_list(nutrient_configs: 'configs') -> Dict[str, 'Nutrie
             calories_per_g=calories_per_g,
             direct_child_nutrient_names=_gather_direct_child_names(primary_nutrient_name, nutrient_configs),
             direct_parent_nutrient_names=_gather_direct_parent_names(primary_nutrient_name, nutrient_configs),
-            all_sibling_nutrient_names=_gather_direct_siblings(primary_nutrient_name, nutrient_configs),
-            all_descendant_nutrient_names=_gather_descendants(primary_nutrient_name, nutrient_configs),
-            all_ascendant_nutrient_names=_gather_ascendants(primary_nutrient_name, nutrient_configs),
-            all_relative_nutrient_names=_gather_all_relatives(primary_nutrient_name, nutrient_configs),
+            all_sibling_nutrient_names=_gather_direct_sibling_names(primary_nutrient_name, nutrient_configs),
+            all_descendant_nutrient_names=_gather_descendant_names(primary_nutrient_name, nutrient_configs),
+            all_ascendant_nutrient_names=_gather_ascendant_names(primary_nutrient_name, nutrient_configs),
+            all_relative_nutrient_names=_gather_all_relative_names(primary_nutrient_name, nutrient_configs),
             global_nutrients=global_nutrients
         )
 
@@ -82,7 +82,7 @@ def build_global_nutrient_list(nutrient_configs: 'configs') -> Dict[str, 'Nutrie
     return global_nutrients
 
 
-def _gather_descendants(primary_nutr_name: str, nutrient_configs: 'configs') -> List[str]:
+def _gather_descendant_names(primary_nutr_name: str, nutrient_configs: 'configs') -> List[str]:
     """Returns a dictionary of all descendants of the named nutrient."""
 
     # Create a list to store the descendants, and another to add to during looping through descendents
@@ -98,14 +98,14 @@ def _gather_descendants(primary_nutr_name: str, nutrient_configs: 'configs') -> 
     # gather their descendants, but add them to the holding list, so you don't change the descendants
     # list mid-loop;
     for child_nutrient in descendants:
-        to_add += _gather_descendants(child_nutrient, nutrient_configs)
+        to_add += _gather_descendant_names(child_nutrient, nutrient_configs)
     # Update the descendants list, with the newfound desecedants;
     descendants += to_add
     # and return everything;
     return descendants
 
 
-def _gather_ascendants(primary_nutr_name: str, nutrient_configs: 'configs') -> List[str]:
+def _gather_ascendant_names(primary_nutr_name: str, nutrient_configs: 'configs') -> List[str]:
     """Returns a list of all ascendants of the named nutrient."""
     # Create a list to store the ascendants, and another to add to during looping through descendents
     # which have already been collected, (we can't change the size of a list while iterating through it);
@@ -121,14 +121,14 @@ def _gather_ascendants(primary_nutr_name: str, nutrient_configs: 'configs') -> L
     # Now loop through the ascendants list;
     for ascendant in ascendants:
         # and collect their ascendants in the holding list;
-        to_add += _gather_ascendants(ascendant, nutrient_configs)
+        to_add += _gather_ascendant_names(ascendant, nutrient_configs)
 
     # Finally, update the ascendants list with the holding list, and return everything;
     ascendants += to_add
     return ascendants
 
 
-def _gather_direct_siblings(primary_nutr_name: str, nutrient_configs: 'configs') -> List[str]:
+def _gather_direct_sibling_names(primary_nutr_name: str, nutrient_configs: 'configs') -> List[str]:
     """Returns a dictionary of all direct siblings to the named nutrient."""
     # Dict to hold results;
     siblings: List[str] = []
@@ -169,9 +169,9 @@ def _gather_direct_child_names(primary_nutr_name: str, nutrient_configs: 'config
     return children
 
 
-def _gather_all_relatives(primary_nutr_name: str,
-                          nutrient_configs: 'configs',
-                          checked: List[str] = None) -> List[str]:
+def _gather_all_relative_names(primary_nutr_name: str,
+                               nutrient_configs: 'configs',
+                               checked: List[str] = None) -> List[str]:
     """Returns a dictionary of all relative nutrients to the named nutrient."""
     # Create a nutrient checklist to track which ones have been crawled in the tree. This prevents
     # infinite recursion;
@@ -183,9 +183,9 @@ def _gather_all_relatives(primary_nutr_name: str,
     to_add: List[str] = []
 
     # Gather the nutrients across, up and down from this nutrient;
-    relatives += _gather_direct_siblings(primary_nutr_name, nutrient_configs)
-    relatives += _gather_ascendants(primary_nutr_name, nutrient_configs)
-    relatives += _gather_descendants(primary_nutr_name, nutrient_configs)
+    relatives += _gather_direct_sibling_names(primary_nutr_name, nutrient_configs)
+    relatives += _gather_ascendant_names(primary_nutr_name, nutrient_configs)
+    relatives += _gather_descendant_names(primary_nutr_name, nutrient_configs)
 
     # Add this nutrient to the checklist;
     checked.append(primary_nutr_name)
@@ -193,10 +193,13 @@ def _gather_all_relatives(primary_nutr_name: str,
     # Now cycle through all nutrients which have not been checked yet;
     for relative in relatives:
         if relative not in checked:
-            to_add += _gather_all_relatives(relative, nutrient_configs, checked)
+            to_add += _gather_all_relative_names(relative, nutrient_configs, checked)
 
     # Update the main list;
     relatives += to_add
+
+    # Remove any duplicates;
+    relatives = list(set(relatives))
 
     # Remove myself from the list;
     if primary_nutr_name in relatives:
