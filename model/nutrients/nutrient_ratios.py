@@ -122,15 +122,16 @@ class SettableNutrientRatio(NutrientRatio):
     shouldn't be set without mutually validating all nutrients on the subject.
     """
 
-    def __init__(self, nutrient_ratio_data: Optional['NutrientRatioData'] = None, **kwargs):
+    def __init__(self, subject: Any, nutrient_ratio_data: Optional['NutrientRatioData'] = None, **kwargs):
         # Create the component nutrient mass and subject quantity instances;
         self._nutrient_mass = model.nutrients.SettableNutrientMass(
             nutrient_name=kwargs['nutrient_name']
         )
-        self._subject_ref_qty = model.quantity.SettableQuantityOf()
+        self._subject_ref_qty = model.quantity.SettableQuantityOf(subject=subject)
 
         # Pass these objects to the superclass as the data source;
         super().__init__(
+            subject=subject,
             nutrient_ratio_data_src=lambda: model.nutrients.NutrientRatioData(
                 nutrient_mass_data=self._nutrient_mass.persistable_data,
                 subject_ref_qty_data=self._subject_ref_qty.persistable_data
@@ -175,12 +176,8 @@ class SettableNutrientRatio(NutrientRatio):
 
     def undefine(self) -> None:
         """Resets g_per_subject_g to None and pref_unit to 'g'."""
-        self.set_ratio(
-            nutrient_mass=None,
-            nutrient_mass_unit='g',
-            subject_qty=None,
-            subject_qty_unit='g'
-        )
+        self._nutrient_mass.unset_quantity()
+        self._subject_ref_qty.unset_quantity()
 
     def zero(self) -> None:
         """Zeroes the nutrient ratio."""

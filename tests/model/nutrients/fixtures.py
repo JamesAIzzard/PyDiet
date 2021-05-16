@@ -32,7 +32,7 @@ def use_test_nutrients(func):
     return wrapper
 
 
-def get_10g_tirbur() -> 'model.nutrients.NutrientMass':
+def init_10g_tirbur() -> 'model.nutrients.NutrientMass':
     return model.nutrients.NutrientMass(
         nutrient_name="tirbur",
         quantity_data_src=lambda: model.quantity.QuantityData(
@@ -42,7 +42,7 @@ def get_10g_tirbur() -> 'model.nutrients.NutrientMass':
     )
 
 
-def get_100mg_docbe() -> 'model.nutrients.NutrientMass':
+def init_100mg_docbe() -> 'model.nutrients.NutrientMass':
     return model.nutrients.NutrientMass(
         nutrient_name="docbe",
         quantity_data_src=lambda: model.quantity.QuantityData(
@@ -52,7 +52,7 @@ def get_100mg_docbe() -> 'model.nutrients.NutrientMass':
     )
 
 
-def get_undefined_docbe() -> 'model.nutrients.NutrientMass':
+def init_undefined_docbe() -> 'model.nutrients.NutrientMass':
     return model.nutrients.NutrientMass(
         nutrient_name="docbe",
         quantity_data_src=lambda: model.quantity.QuantityData(
@@ -62,7 +62,7 @@ def get_undefined_docbe() -> 'model.nutrients.NutrientMass':
     )
 
 
-def get_settable_nutrient_mass(nutrient_name: str) -> model.nutrients.SettableNutrientMass:
+def init_settable_nutrient_mass(nutrient_name: str) -> model.nutrients.SettableNutrientMass:
     return model.nutrients.SettableNutrientMass(
         nutrient_name=nutrient_name,
         quantity_data=model.quantity.QuantityData(
@@ -76,13 +76,14 @@ def init_nutrient_ratio(subject: Any, nutrient_name: str, data_src: Callable) ->
     return model.nutrients.NutrientRatio(subject, nutrient_name, data_src)
 
 
-def init_nutrient_ratio_data_src(
+def init_nutrient_ratio_data(
         nutrient_qty_g: Optional[float] = None,
         nutrient_pref_unit: str = 'g',
         subject_qty_g: Optional[float] = None,
         subject_pref_unit: str = 'g'
 ):
-    return lambda: model.nutrients.NutrientRatioData(
+    """Returns a nutrient ratio data instance, providing default values."""
+    return model.nutrients.NutrientRatioData(
         nutrient_mass_data=model.quantity.QuantityData(
             quantity_in_g=nutrient_qty_g,
             pref_unit=nutrient_pref_unit
@@ -92,3 +93,12 @@ def init_nutrient_ratio_data_src(
             pref_unit=subject_pref_unit
         )
     )
+
+
+def init_nutrient_ratio_data_src(
+        nutrient_qty_g: Optional[float] = None,
+        nutrient_pref_unit: str = 'g',
+        subject_qty_g: Optional[float] = None,
+        subject_pref_unit: str = 'g'
+):
+    return init_nutrient_ratio_data(nutrient_qty_g, nutrient_pref_unit, subject_qty_g, subject_pref_unit)

@@ -68,22 +68,8 @@ class UndefinedDensityError(UnitNotConfiguredError):
         super().__init__(**kwargs)
 
 
-class DensityInUseError(BaseQuantityError):
-    """Indicating the action cannot occur because the density is in use."""
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-
-
 class UndefinedPcMassError(UnitNotConfiguredError):
     """The piece mass data is not fully defined."""
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-
-
-class PcMassInUseError(BaseQuantityError):
-    """Indicating the action cannot occur because the peice mass is in use."""
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
