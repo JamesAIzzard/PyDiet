@@ -86,6 +86,7 @@ class QuantityOf(model.SupportsDefinition, persistence.YieldsPersistableData):
 
     @property
     def persistable_data(self) -> 'QuantityData':
+        self._validate_pref_unit(self._quantity_data_src()['pref_unit'])
         return self._quantity_data_src()
 
 

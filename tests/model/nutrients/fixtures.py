@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import Dict, List, Callable, Optional, Any
 from unittest import mock
 
 import model
@@ -68,5 +68,27 @@ def get_settable_nutrient_mass(nutrient_name: str) -> model.nutrients.SettableNu
         quantity_data=model.quantity.QuantityData(
             quantity_in_g=1.2,
             pref_unit="mg"
+        )
+    )
+
+
+def init_nutrient_ratio(subject: Any, nutrient_name: str, data_src: Callable) -> 'model.nutrients.NutrientRatio':
+    return model.nutrients.NutrientRatio(subject, nutrient_name, data_src)
+
+
+def init_nutrient_ratio_data_src(
+        nutrient_qty_g: Optional[float] = None,
+        nutrient_pref_unit: str = 'g',
+        subject_qty_g: Optional[float] = None,
+        subject_pref_unit: str = 'g'
+):
+    return lambda: model.nutrients.NutrientRatioData(
+        nutrient_mass_data=model.quantity.QuantityData(
+            quantity_in_g=nutrient_qty_g,
+            pref_unit=nutrient_pref_unit
+        ),
+        subject_ref_qty_data=model.quantity.QuantityData(
+            quantity_in_g=subject_qty_g,
+            pref_unit=subject_pref_unit
         )
     )

@@ -162,3 +162,11 @@ class TestPersistableData(TestCase):
             quantity_in_g=120,
             pref_unit='kg'
         ))
+
+    def test_raises_exception_if_subject_pref_unit_is_undefined(self):
+        qo = model.quantity.QuantityOf(
+            subject=fx.get_subject_with_density(g_per_ml=None),
+            quantity_data_src=fx.get_qty_data_src(qty_in_g=1.2, pref_unit='L')
+        )
+        with self.assertRaises(model.quantity.exceptions.UndefinedDensityError):
+            _ = qo.persistable_data

@@ -110,7 +110,7 @@ class NutrientRatio(model.SupportsDefinition, persistence.YieldsPersistableData)
         return not self.is_zero
 
     @property
-    def persistable_data(self) -> Dict[str, Any]:
+    def persistable_data(self) -> 'model.nutrients.NutrientRatioData':
         return model.nutrients.NutrientRatioData(
             nutrient_mass_data=self.nutrient_mass.persistable_data,
             subject_ref_qty_data=self.subject_ref_quantity.persistable_data
