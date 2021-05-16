@@ -1,1 +1,1 @@
-from . import goals, gui, model, optimisation, configs
+from . import goals, model, optimisation, configs

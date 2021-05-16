@@ -32,7 +32,6 @@ def use_test_nutrients(func):
     return wrapper
 
 
-@use_test_nutrients
 def get_10g_tirbur() -> 'model.nutrients.NutrientMass':
     return model.nutrients.NutrientMass(
         nutrient_name="tirbur",
@@ -43,7 +42,6 @@ def get_10g_tirbur() -> 'model.nutrients.NutrientMass':
     )
 
 
-@use_test_nutrients
 def get_100mg_docbe() -> 'model.nutrients.NutrientMass':
     return model.nutrients.NutrientMass(
         nutrient_name="docbe",
@@ -54,12 +52,21 @@ def get_100mg_docbe() -> 'model.nutrients.NutrientMass':
     )
 
 
-@use_test_nutrients
 def get_undefined_docbe() -> 'model.nutrients.NutrientMass':
     return model.nutrients.NutrientMass(
         nutrient_name="docbe",
         quantity_data_src=lambda: model.quantity.QuantityData(
             quantity_in_g=None,
             pref_unit='g'
+        )
+    )
+
+
+def get_settable_nutrient_mass(nutrient_name: str) -> model.nutrients.SettableNutrientMass:
+    return model.nutrients.SettableNutrientMass(
+        nutrient_name=nutrient_name,
+        quantity_data=model.quantity.QuantityData(
+            quantity_in_g=1.2,
+            pref_unit="mg"
         )
     )
