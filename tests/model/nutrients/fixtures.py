@@ -20,6 +20,15 @@ PRIMARY_AND_ALIAS_NUTRIENT_NAMES = model.nutrients.build_primary_and_alias_nutri
 GLOBAL_NUTRIENTS = model.nutrients.build_global_nutrient_list(test_configs)
 
 
+class HasNutrientRatiosTestable(model.nutrients.HasNutrientRatios):
+    def __init__(self):
+        self._nutrient_ratios = {}
+
+    @property
+    def nutrient_ratios(self) -> Dict[str, 'model.nutrients.NutrientRatio']:
+        return self._nutrient_ratios
+
+
 def use_test_nutrients(func):
     @mock.patch('model.nutrients.GLOBAL_NUTRIENTS', GLOBAL_NUTRIENTS)
     @mock.patch('model.nutrients.NUTRIENT_GROUP_NAMES', NUTRIENT_GROUP_NAMES)

@@ -65,7 +65,7 @@ class Ingredient(persistence.SupportsPersistence,
         for flag_name in self.get_undefined_flag_names():
             missing_attr_names.append(f"{flag_name.replace('_', ' ')} flag")
         # Check nutrients;
-        missing_attr_names = missing_attr_names + self.undefined_mandatory_nutrient_ratios
+        missing_attr_names = missing_attr_names + self.undefined_mandatory_nutrient_ratio_names
         return missing_attr_names
 
     @staticmethod

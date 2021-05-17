@@ -416,7 +416,7 @@ class DynamicNutrientRatiosEditorController(BaseNutrientRatiosEditorController):
 
         # Add any nutrient ratios which are defined on the subject, but not in the view yet;
         nutrient_names_to_add = []
-        for nutrient_name in self.subject.defined_optional_nutrient_ratios:
+        for nutrient_name in self.subject.defined_optional_nutrient_ratio_names:
             if nutrient_name not in self.nutrient_names:
                 nutrient_names_to_add.append(nutrient_name)
         for nutrient_name in nutrient_names_to_add:

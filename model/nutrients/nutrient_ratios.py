@@ -243,14 +243,14 @@ class HasNutrientRatios(abc.ABC):
         return nutrient_name in self.nutrient_ratios.keys()
 
     @property
-    def undefined_mandatory_nutrient_ratios(self) -> List[str]:
+    def undefined_mandatory_nutrient_ratio_names(self) -> List[str]:
         """Returns a list of the mandatory nutrient ratios which are undefined."""
         return list(set(model.nutrients.configs.MANDATORY_NUTRIENT_NAMES).difference(set(self.nutrient_ratios.keys())))
 
     @property
-    def defined_optional_nutrient_ratios(self) -> List[str]:
+    def defined_optional_nutrient_ratio_names(self) -> List[str]:
         """Returns a list of optional nutrient names which are defined."""
-        return list(set(model.nutrients.OPTIONAL_NUTRIENT_NAMES).union(set(self.nutrient_ratios.keys())))
+        return list(set(model.nutrients.OPTIONAL_NUTRIENT_NAMES).intersection(set(self.nutrient_ratios.keys())))
 
     def get_nutrient_mass_in_pref_unit_per_subject_ref_qty(self, nutrient_name: str) -> float:
         """Returns the mass of a nutrient in its preferred unit, per reference mass of the subject."""
