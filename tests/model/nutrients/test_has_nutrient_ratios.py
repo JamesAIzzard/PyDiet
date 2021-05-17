@@ -94,6 +94,11 @@ class TestGetNutrientMassInPrefUnitPerSubjectRefQuantity(TestCase):
 
 
 class TestValidateNutrientRatio(TestCase):
+    """The detailed testing of the validation method is done in testing.model.nutrients.test_main.
+    Here, the aim is more to check that the custom getter function works, and raises the correct
+    exceptions to allow the validator function to do its job. So we only do a couple of quick
+    tests here, to check everything is spinning correctly.
+    """
     @staticmethod
     def mock_nutrient_ratio(g_per_sub_g: float):
         m = mock.Mock()
