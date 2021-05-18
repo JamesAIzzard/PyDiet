@@ -97,7 +97,7 @@ class NutrientRatio(model.SupportsDefinition, persistence.YieldsPersistableData)
     @property
     def is_defined(self) -> bool:
         """Returns True/False to indicate if the nutrient ratio is fully defined."""
-        return self.nutrient_mass.is_defined
+        return model.nutrients.nutrient_ratio_data_is_defined(self._nutrient_ratio_data_src())
 
     @property
     def is_zero(self) -> bool:
@@ -147,6 +147,11 @@ class SettableNutrientRatio(NutrientRatio):
                   subject_qty_unit: str
                   ) -> None:
         """Sets the nutrient ratio in arbitrary units."""
+
+        # Dissallow zero subject qty, this obviously breaks the universe.
+        if subject_qty is not None:
+            subject_qty = model.quantity.validation.validate_nonzero_quantity(subject_qty)
+
         # Take a backup in case we get an exception during setting;
         backup_data = self.persistable_data
         try:
@@ -193,7 +198,7 @@ class SettableNutrientRatio(NutrientRatio):
         self._subject_ref_qty.load_data(nutrient_ratio_data['subject_ref_qty_data'])
 
 
-class HasNutrientRatios(abc.ABC):
+class HasNutrientRatios(persistence.YieldsPersistableData, abc.ABC):
     """Abstract class to model objects with readonly nutrient ratios.
     Notes:
         This implementation assumes that only *defined* nutrient ratios are returned by
@@ -284,6 +289,18 @@ class HasNutrientRatios(abc.ABC):
             get_nutrient_mass_g=get_nutrient_mass_g
         )
 
+    @property
+    def persistable_data(self) -> Dict[str, Any]:
+        """Returns the nutrient ratio's data in persistable format."""
+        data = super().persistable_data
+        # Add a heading for the nutrient ratios data;
+        data['nutrient_ratios_data'] = {}
+        # Compile the data;
+        for nutrient_name, nutrient_ratio in self.nutrient_ratios.items():
+            data['nutrient_ratios_data'][nutrient_name] = nutrient_ratio.persistable_data
+        # Return the data;
+        return data
+
 
 class HasSettableNutrientRatios(HasNutrientRatios, persistence.CanLoadData):
     """Abstract class to model objects with settable nutrient ratios.
@@ -314,12 +331,17 @@ class HasSettableNutrientRatios(HasNutrientRatios, persistence.CanLoadData):
         # place through this class' methods - so don't give out writeable versions.
         # First, create somewhere to store the new readonly versions;
         _nutrient_ratios: Dict[str, 'NutrientRatio'] = {}
+
+        # Create an accessor function to extract the persistable data from a named nutrient;
+        def get_accessor(nutr_name: str) -> Callable[[None], 'model.nutrients.NutrientRatioData']:
+            return lambda: self._nutrient_ratios[nutr_name].persistable_data
+
         # Next, work the dict and convert the writable NutrientRatio instances into readonly versions;
         for nutrient_name, settable_nutrient_ratio in self._nutrient_ratios.items():
             _nutrient_ratios[nutrient_name] = NutrientRatio(
                 subject=self,
                 nutrient_name=nutrient_name,
-                nutrient_ratio_data_src=lambda: settable_nutrient_ratio.persistable_data
+                nutrient_ratio_data_src=get_accessor(nutrient_name)
             )
         # Now, return the dict of readonly instances;
         return _nutrient_ratios
@@ -341,13 +363,9 @@ class HasSettableNutrientRatios(HasNutrientRatios, persistence.CanLoadData):
     def set_nutrient_ratio(self, nutrient_name: str,
                            nutrient_mass: Optional[float],
                            nutrient_mass_unit: str,
-                           subject_qty: float,
+                           subject_qty: Optional[float],
                            subject_qty_unit: str) -> None:
         """Sets the data on the named nutrient ratio, and runs family validation."""
-
-        # Catch zero subject quantity;
-        if subject_qty == 0:
-            raise model.quantity.exceptions.ZeroQtyError(subject=self)
 
         # Make sure we are dealing with the nutrient's primary name;
         nutrient_name = model.nutrients.get_nutrient_primary_name(nutrient_name)
@@ -370,7 +388,10 @@ class HasSettableNutrientRatios(HasNutrientRatios, persistence.CanLoadData):
             master_nutrient_ratio = self._get_settable_nutrient_ratio(nutrient_name)
         except model.nutrients.exceptions.UndefinedNutrientRatioError:
             # OK, we don't have this one yet. Create it;
-            self._nutrient_ratios[nutrient_name] = model.nutrients.SettableNutrientRatio(nutrient_name=nutrient_name)
+            self._nutrient_ratios[nutrient_name] = model.nutrients.SettableNutrientRatio(
+                subject=self,
+                nutrient_name=nutrient_name
+            )
             master_nutrient_ratio = self._get_settable_nutrient_ratio(nutrient_name)
 
         # Now ahead and make the change;
@@ -410,13 +431,10 @@ class HasSettableNutrientRatios(HasNutrientRatios, persistence.CanLoadData):
         self.set_nutrient_ratio(
             nutrient_name=nutrient_name,
             nutrient_mass=0,
-            nutrient_mass_unit='g'
+            nutrient_mass_unit='g',
+            subject_qty=100,
+            subject_qty_unit='g'
         )
-
-    def set_nutrient_pref_unit(self, nutrient_name: str, pref_unit: str) -> None:
-        """Sets the pref unit for the nutrient ratio."""
-        nutrient_ratio = self._get_settable_nutrient_ratio(nutrient_name)
-        nutrient_ratio.pref_unit = pref_unit
 
     def load_data(self, data: Dict[str, Any]) -> None:
         super().load_data(data)
@@ -427,21 +445,15 @@ class HasSettableNutrientRatios(HasNutrientRatios, persistence.CanLoadData):
 
         # Unpack the nutrient ratios data into SettableNutrientRatio instances;
         for nutrient_name, nutrient_ratio_data in data['nutrient_ratios_data'].items():
+
             # Don't unpack it if it is not defined (to tolerate legacy data);
-            if nutrient_ratio_data['nutrient_g_per_subject_g'] is None:
+            if model.nutrients.nutrient_ratio_data_is_defined(nutrient_ratio_data) is False:
                 continue
+
             # It is defined, go ahead;
             self._nutrient_ratios[nutrient_name] = SettableNutrientRatio(
+                subject=self,
                 nutrient_name=nutrient_name,
                 nutrient_ratio_data=nutrient_ratio_data
             )
             self.validate_nutrient_ratio(nutrient_name)
-
-    def persistable_data(self) -> Dict[str, Any]:
-        """Returns the nutrient ratio's data in persistable format."""
-        data = super().persistable_data
-        # Compile the data;
-        for nutrient_name, nutrient_ratio in self.nutrient_ratios:
-            data['nutrient_ratios_data'][nutrient_name] = nutrient_ratio.persistable_data
-        # Return the data;
-        return data

@@ -73,6 +73,7 @@ class SupportsExtendedUnits(persistence.YieldsPersistableData, abc.ABC):
                 return False
         return True
 
+    @property
     def persistable_data(self) -> Dict[str, Any]:
         data = super().persistable_data
         data['extended_units_data'] = ExtendedUnitsData(

@@ -169,6 +169,6 @@ class TestPersistableData(TestCase):
         }
         hf = fx.HasFlagsTestable(flag_dofs=flag_dofs)
         self.assertEqual(
-            hf.persistable_data,
-            {"flag_data": {"bar_free": True, "foogetarian": False}}
+            hf.persistable_data['flag_data'],
+            {"bar_free": True, "foogetarian": False}
         )

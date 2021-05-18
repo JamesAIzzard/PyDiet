@@ -6,6 +6,7 @@ from .main import (
     get_nutrient_primary_name,
     get_nutrient_alias_names,
     get_calories_per_g,
+    nutrient_ratio_data_is_defined,
     validate_nutrient_family_masses,
     get_n_closest_nutrient_names
 )

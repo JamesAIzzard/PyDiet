@@ -90,6 +90,25 @@ class TestSetRatio(TestCase):
                 subject_qty_unit="L"
             )
 
+    @fx.use_test_nutrients
+    def test_exception_if_subject_quantity_is_zero(self):
+        """Checks that an exception is raised if we try and set a nutrient ratio against a
+        zero subject quantity."""
+        # Create the instance;
+        snr = model.nutrients.SettableNutrientRatio(
+            nutrient_name="tirbur",
+            subject=mock.Mock()
+        )
+
+        # Set with zero subject qty, and check we get an error;
+        with self.assertRaises(model.quantity.exceptions.ZeroQtyError):
+            snr.set_ratio(
+                nutrient_mass=0,
+                nutrient_mass_unit="g",
+                subject_qty=0,
+                subject_qty_unit="g"
+            )
+
 
 class TestUndefine(TestCase):
     @fx.use_test_nutrients

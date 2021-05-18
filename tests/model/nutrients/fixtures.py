@@ -22,11 +22,29 @@ GLOBAL_NUTRIENTS = model.nutrients.build_global_nutrient_list(test_configs)
 
 class HasNutrientRatiosTestable(model.nutrients.HasNutrientRatios):
     def __init__(self):
-        self._nutrient_ratios = {}
+        self._nutrient_ratios: Dict[str, 'model.nutrients.NutrientRatio'] = {}
 
     @property
     def nutrient_ratios(self) -> Dict[str, 'model.nutrients.NutrientRatio']:
         return self._nutrient_ratios
+
+
+class HasSettableNutrientRatiosAndDensityTestable(
+    model.nutrients.HasSettableNutrientRatios,
+    model.quantity.SupportsExtendedUnits
+):
+    def __init__(self, g_per_ml: Optional[float] = None, piece_mass_g: Optional[float] = None): # noqa
+        super().__init__()
+        self._g_per_ml_: Optional[float] = g_per_ml
+        self._piece_mass_g_: Optional[float] = piece_mass_g
+
+    @property
+    def _g_per_ml(self) -> Optional[float]:
+        return self._g_per_ml_
+
+    @property
+    def _piece_mass_g(self) -> Optional[float]:
+        return self._piece_mass_g_
 
 
 def use_test_nutrients(func):
@@ -110,4 +128,4 @@ def init_nutrient_ratio_data_src(
         subject_qty_g: Optional[float] = None,
         subject_pref_unit: str = 'g'
 ):
-    return init_nutrient_ratio_data(nutrient_qty_g, nutrient_pref_unit, subject_qty_g, subject_pref_unit)
+    return lambda: init_nutrient_ratio_data(nutrient_qty_g, nutrient_pref_unit, subject_qty_g, subject_pref_unit)

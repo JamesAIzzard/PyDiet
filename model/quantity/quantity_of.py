@@ -120,10 +120,19 @@ class SettableQuantityOf(QuantityOf, persistence.CanLoadData):
         ):
             self._reset_pref_unit()
 
-    def set_quantity(self, quantity: float, unit: str) -> None:
+    def set_quantity(self, quantity: Optional[float], unit: str) -> None:
         """Sets the quantity in arbitrary units."""
-        # Check a non-none value is OK;
-        quantity = model.quantity.validation.validate_quantity(quantity)
+
+        # If quantity is None, just set it right away and break out;
+        if quantity is None:
+            self._quantity_data['quantity_in_g'] = None
+            self._quantity_data['pref_unit'] = 'g'
+            return
+
+        # Otherwise, validate it;
+        else:
+            quantity = model.quantity.validation.validate_quantity(quantity)
+
         # Check the unit is OK;
         unit = self._validate_pref_unit(unit)
 

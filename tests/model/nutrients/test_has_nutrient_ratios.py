@@ -99,6 +99,7 @@ class TestValidateNutrientRatio(TestCase):
     exceptions to allow the validator function to do its job. So we only do a couple of quick
     tests here, to check everything is spinning correctly.
     """
+
     @staticmethod
     def mock_nutrient_ratio(g_per_sub_g: float):
         m = mock.Mock()
@@ -126,3 +127,52 @@ class TestValidateNutrientRatio(TestCase):
         }
         with self.assertRaises(model.nutrients.exceptions.ChildNutrientExceedsParentMassError):
             hnr.validate_nutrient_ratio("cufmagif")
+
+
+class TestPersistableData(TestCase):
+    @fx.use_test_nutrients
+    def test_data_dict_returned_correctly(self):
+        """Checks that the persistable data dictionary is returned with the correct contents."""
+        # Create the nutrient ratio instance;
+        hnr = fx.HasSettableNutrientRatiosAndDensityTestable(g_per_ml=1.1, piece_mass_g=150)
+
+        # Generate some nutrient data to pass through the instance;
+        nutr_ratios = {
+            "cufmagif": fx.init_nutrient_ratio(
+                nutrient_name="cufmagif", subject=hnr,
+                data_src=fx.init_nutrient_ratio_data_src(
+                    nutrient_qty_g=12, nutrient_pref_unit="mg", subject_qty_g=200, subject_pref_unit="kg"
+                )
+            ),
+            "tirbur": fx.init_nutrient_ratio(
+                nutrient_name="tirbur", subject=hnr,
+                data_src=fx.init_nutrient_ratio_data_src(
+                    nutrient_qty_g=13, nutrient_pref_unit="ug", subject_qty_g=300, subject_pref_unit="L"
+                )
+            ),
+            "docbe": fx.init_nutrient_ratio(
+                nutrient_name="docbe", subject=hnr,
+                data_src=fx.init_nutrient_ratio_data_src(
+                    nutrient_qty_g=14, nutrient_pref_unit="g", subject_qty_g=400, subject_pref_unit="pc"
+                )
+            ),
+        }
+
+        # Put the data on the instance;
+        hnr._nutrient_ratios = nutr_ratios
+
+        # Specify what the output data should be;
+        nutr_ratios_data = {
+            "cufmagif": fx.init_nutrient_ratio_data(
+                nutrient_qty_g=12, nutrient_pref_unit="mg", subject_qty_g=200, subject_pref_unit="kg"
+            ),
+            "tirbur": fx.init_nutrient_ratio_data(
+                nutrient_qty_g=13, nutrient_pref_unit="ug", subject_qty_g=300, subject_pref_unit="L"
+            ),
+            "docbe": fx.init_nutrient_ratio_data(
+                nutrient_qty_g=14, nutrient_pref_unit="g", subject_qty_g=400, subject_pref_unit="pc"
+            )
+        }
+
+        # Now check that the peristable data we get out is the same as the nutrient data we passed in;
+        self.assertEqual(nutr_ratios_data, hnr.persistable_data['nutrient_ratios_data'])
