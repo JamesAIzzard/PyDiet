@@ -1,4 +1,5 @@
-from unittest import mock
+"""Fixtures for testing quantity module.
+"""
 from typing import Callable, Optional
 
 import model

@@ -57,7 +57,7 @@ class SupportsCostPerQuantity(persistence.YieldsPersistableData, abc.ABC):
         piece_mass_g = None
         if isinstance(self, model.quantity.SupportsExtendedUnits):
             g_per_ml = self.g_per_ml if self.density_is_defined else None
-            piece_mass_g = self.piece_mass_g if self.piece_mass_defined else None
+            piece_mass_g = self.piece_mass_g if self.piece_mass_is_defined else None
         g_per_pref_unit = model.quantity.convert_qty_unit(
             qty=1,
             start_unit=self.cost_ref_subject_quantity.pref_unit,
@@ -131,7 +131,7 @@ class SupportsSettableCostPerQuantity(SupportsCostPerQuantity, persistence.CanLo
         piece_mass_g = None
         if isinstance(self, model.quantity.SupportsExtendedUnits):
             g_per_ml = self.g_per_ml if self.density_is_defined else None
-            piece_mass_g = self.piece_mass_g if self.piece_mass_defined else None
+            piece_mass_g = self.piece_mass_g if self.piece_mass_is_defined else None
         k = model.quantity.convert_qty_unit(
             qty=1,
             start_unit=unit,

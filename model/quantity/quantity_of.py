@@ -52,7 +52,7 @@ class QuantityOf(model.SupportsDefinition, persistence.YieldsPersistableData):
         # If the unit is a volume, and the subject doesn't have density defined;
         if model.quantity.units_are_volumes(unit) and not self._subject.density_is_defined:
             raise model.quantity.exceptions.UndefinedDensityError(subject=self.subject)
-        elif model.quantity.units_are_pieces(unit) and not self._subject.piece_mass_defined:
+        elif model.quantity.units_are_pieces(unit) and not self._subject.piece_mass_is_defined:
             raise model.quantity.exceptions.UndefinedPcMassError(subject=self.subject)
 
         # OK, return the unit;
@@ -71,7 +71,7 @@ class QuantityOf(model.SupportsDefinition, persistence.YieldsPersistableData):
         piece_mass_g = None
         if isinstance(self.subject, model.quantity.SupportsExtendedUnits):
             g_per_ml = self.subject.g_per_ml if self.subject.density_is_defined else None
-            piece_mass_g = self.subject.piece_mass_g if self.subject.piece_mass_defined else None
+            piece_mass_g = self.subject.piece_mass_g if self.subject.piece_mass_is_defined else None
         return model.quantity.convert_qty_unit(
             qty=self.quantity_in_g,
             start_unit='g',
@@ -141,7 +141,7 @@ class SettableQuantityOf(QuantityOf, persistence.CanLoadData):
         piece_mass_g = None
         if isinstance(self.subject, model.quantity.SupportsExtendedUnits):
             g_per_ml = self.subject.g_per_ml if self.subject.density_is_defined else None
-            piece_mass_g = self.subject.piece_mass_g if self.subject.piece_mass_defined else None
+            piece_mass_g = self.subject.piece_mass_g if self.subject.piece_mass_is_defined else None
 
         qty_in_g = model.quantity.convert_qty_unit(
             qty=quantity,

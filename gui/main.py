@@ -64,7 +64,7 @@ def configure_qty_units(dropdown: 'gui.SmartDropdownWidget', subject: 'model.qua
     dropdown.add_options(model.quantity.get_recognised_mass_units())
     if subject.density_is_defined:
         dropdown.add_options(model.quantity.get_recognised_vol_units())
-    if subject.piece_mass_defined:
+    if subject.piece_mass_is_defined:
         dropdown.add_options(model.quantity.get_recognised_pc_units())
     # Reinstate the old value if it is still available;
     if prev_value in dropdown['values']:

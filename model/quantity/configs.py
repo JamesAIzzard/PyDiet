@@ -1,3 +1,5 @@
+"""Configuration for quantity module.
+"""
 G_CONVERSIONS = {
     "ug": 1e-6,  # 1 microgram = 0.000001 grams
     "mg": 1e-3,  # 1 milligram = 0.001 grams

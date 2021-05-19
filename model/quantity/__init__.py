@@ -1,3 +1,4 @@
+"""Initialisation for quantity module."""
 from . import validation, exceptions
 from .configs import (
     MASS_UNITS,

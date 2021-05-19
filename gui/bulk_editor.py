@@ -313,7 +313,7 @@ class PieceMassEditorController(gui.HasSubject, gui.SupportsValidity, gui.Suppor
         return super().view
 
     def update_view(self) -> None:
-        if self.subject.piece_mass_defined:
+        if self.subject.piece_mass_is_defined:
             self.num_pieces = 1
             if model.quantity.units_are_masses(self.subject.pref_unit):
                 self.pieces_mass = self.subject.piece_mass_in_pref_units

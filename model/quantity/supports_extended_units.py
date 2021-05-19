@@ -1,4 +1,7 @@
+"""Functionality associated with extended units in the model.
+"""
 import abc
+import copy
 from typing import List, TypedDict, Optional, Dict, Any
 
 import model
@@ -51,35 +54,44 @@ class SupportsExtendedUnits(persistence.YieldsPersistableData, abc.ABC):
         return self._g_per_ml is not None
 
     @property
-    def piece_mass_defined(self) -> bool:
+    def piece_mass_is_defined(self) -> bool:
         """Returns True/False to indicate if the mass of a single piece of the substance is defined."""
         return self._piece_mass_g is not None
 
     @property
     def available_units(self) -> List[str]:
         """Returns a list of units which can be used when quantifying the substance."""
-        units = model.quantity.MASS_UNITS
+        # Create a copy of the global units list (we don't want to accidentaly change the globals);
+        units = copy.copy(model.quantity.MASS_UNITS)
         if self.density_is_defined:
-            units += model.quantity.VOL_UNITS
-        if self.piece_mass_defined:
-            units += model.quantity.PC_UNITS
+            units += copy.copy(model.quantity.VOL_UNITS)
+        if self.piece_mass_is_defined:
+            units += copy.copy(model.quantity.PC_UNITS)
         return units
 
     def units_are_configured(self, *units) -> bool:
         """Returns True/False to indicate if the units are configured on the instance."""
         for unit in units:
+            # First, check the unit is recognised;
+            unit = model.quantity.validation.validate_qty_unit(unit)
+
+            # Check volumes;
             if model.quantity.units_are_volumes(unit) and not self.density_is_defined:
                 return False
-            if model.quantity.units_are_pieces(unit) and not self.piece_mass_defined:
+
+            # Check pieces;
+            if model.quantity.units_are_pieces(unit) and not self.piece_mass_is_defined:
                 return False
+
         return True
 
     @property
     def persistable_data(self) -> Dict[str, Any]:
+        """Returns the persistable data to include extended units data."""
         data = super().persistable_data
         data['extended_units_data'] = ExtendedUnitsData(
             g_per_ml=self._g_per_ml,
-            piece_mass_g=self.piece_mass_g
+            piece_mass_g=self._piece_mass_g
         )
         return data
 
@@ -166,5 +178,6 @@ class SupportsExtendedUnitSetting(SupportsExtendedUnits, persistence.CanLoadData
             self.piece_mass_g = piece_mass_g
 
     def load_data(self, data: Dict[str, Any]) -> None:
+        """Loads the extended units data from the data dict into the instance."""
         super().load_data(data)
         self._extended_unit_data = data['extended_unit_data']
