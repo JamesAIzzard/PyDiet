@@ -1,4 +1,5 @@
 import model
+import model.nutrients.main
 from . import exceptions
 
 
@@ -8,7 +9,7 @@ def validate_configs(configs: 'model.flags.configs') -> None:
         # Check all related nutrient names are actually known nutrients;
         for nutrient_name in config['nutrient_relations'].keys():
             try:
-                model.nutrients.validation.validate_nutrient_name(nutrient_name)
+                model.nutrients.main.validate_nutrient_name(nutrient_name)
             except model.nutrients.exceptions.NutrientNameNotRecognisedError:
                 raise exceptions.UnknownRelatedNutrientError(nutrient_name=nutrient_name)
 

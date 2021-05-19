@@ -2,6 +2,7 @@ import enum
 from typing import List, TypedDict, Dict, Optional
 
 import model
+import model.nutrients.main
 
 
 class ImpliesNutrientIs(enum.Enum):
@@ -20,7 +21,7 @@ class FlagNutrientRelation:
 
     def __init__(self, flag_name: str, nutrient_name: str, implies_nutrient_is: 'ImpliesNutrientIs'):
         self._flag_name = model.flags.validation.validate_flag_name(flag_name)
-        self._nutrient_name = model.nutrients.validation.validate_nutrient_name(nutrient_name)
+        self._nutrient_name = model.nutrients.main.validate_nutrient_name(nutrient_name)
         self._implies_nutrient_is = implies_nutrient_is
 
     @property

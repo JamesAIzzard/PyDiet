@@ -4,6 +4,7 @@ from typing import List, Dict, Callable, Optional, Any
 
 import gui
 import model
+import model.nutrients.main
 
 
 class NutrientRatioEditorView(tk.Frame):
@@ -49,7 +50,7 @@ class NutrientRatioEditorController(gui.BaseController, gui.SupportsValidity, gu
         super().__init__(view, **kwargs)
 
         # Validate the nutrient name;
-        _ = model.nutrients.validation.validate_nutrient_name(self.nutrient_name)
+        _ = model.nutrients.main.validate_nutrient_name(self.nutrient_name)
 
         # Stash the callback;
         self._on_values_change_callback = on_values_change_callback
@@ -383,7 +384,7 @@ class DynamicNutrientRatiosEditorController(BaseNutrientRatiosEditorController):
     def add_nutrient_ratio_editor(self, nutrient_name: str) -> None:
         """Adds a nutrient ratio editor."""
         # Catch trying to add a basic nutrient;
-        nutrient_name = model.nutrients.validation.validate_nutrient_name(nutrient_name)
+        nutrient_name = model.nutrients.main.validate_nutrient_name(nutrient_name)
         if nutrient_name in model.nutrients.MANDATORY_NUTRIENT_NAMES:
             return
 

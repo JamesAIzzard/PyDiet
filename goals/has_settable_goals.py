@@ -3,6 +3,7 @@ from typing import List, Dict, TypedDict, Optional, Any
 
 import goals
 import model
+import model.nutrients.main
 import persistence
 
 
@@ -96,7 +97,7 @@ class HasSettableGoals(persistence.HasPersistableData, abc.ABC):
             Internal use only! See not in class docstring. DO NOT GIVE THESE INSTANCES OUT!
         """
         # Validate nutrient name;
-        nutrient_name = model.nutrients.validation.validate_nutrient_name(nutrient_name)
+        nutrient_name = model.nutrients.main.validate_nutrient_name(nutrient_name)
 
         # If we don't have a goal for this nutrient;
         if nutrient_name not in self.targeted_nutrient_names:
