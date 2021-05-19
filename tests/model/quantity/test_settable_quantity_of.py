@@ -1,3 +1,5 @@
+"""Tests for SettableQuantityOf class.
+"""
 from unittest import TestCase, mock
 
 import model
@@ -29,7 +31,7 @@ class TestResetPrefUnit(TestCase):
 class TestSanitisePrefUnit(TestCase):
     def test_valid_vol_unit_is_not_changed(self):
         sqo = model.quantity.SettableQuantityOf(
-            subject=fx.get_subject_with_density(g_per_ml=1.2),
+            subject=fx.SupportsExtendedUnitsTestable(g_per_ml=1.2),
         )
         sqo._quantity_data['pref_unit'] = 'l'
         sqo._sanitise_pref_unit()
@@ -43,7 +45,7 @@ class TestSanitisePrefUnit(TestCase):
 
     def test_unconfigured_pc_unit_is_reset(self):
         sqo = model.quantity.SettableQuantityOf(
-            subject=fx.get_subject_with_pc_mass(piece_mass_g=None),
+            subject=fx.SupportsExtendedUnitsTestable(piece_mass_g=None),
         )
         sqo._quantity_data['pref_unit'] = 'pc'
         sqo._sanitise_pref_unit()
@@ -75,12 +77,12 @@ class TestSetQuantity(TestCase):
             sqo.set_quantity(4, 'L')
 
     def test_raises_exception_if_vol_unit_used_but_not_configured(self):
-        sqo = model.quantity.SettableQuantityOf(subject=fx.get_subject_with_density(g_per_ml=None))
+        sqo = model.quantity.SettableQuantityOf(subject=fx.SupportsExtendedUnitsTestable(g_per_ml=None))
         with self.assertRaises(model.quantity.exceptions.UndefinedDensityError):
             sqo.set_quantity(4, 'L')
 
     def test_raises_exception_if_piece_unit_used_but_not_configured(self):
-        sqo = model.quantity.SettableQuantityOf(subject=fx.get_subject_with_pc_mass(piece_mass_g=None))
+        sqo = model.quantity.SettableQuantityOf(subject=fx.SupportsExtendedUnitsTestable(piece_mass_g=None))
         with self.assertRaises(model.quantity.exceptions.UndefinedPcMassError):
             sqo.set_quantity(4, 'pc')
 
@@ -104,7 +106,7 @@ class TestLoadData(TestCase):
 
     def test_loads_data_with_vol_pref_unit_correctly(self):
         sqo = model.quantity.SettableQuantityOf(
-            subject=fx.get_subject_with_density(g_per_ml=2)
+            subject=fx.SupportsExtendedUnitsTestable(g_per_ml=2)
         )
         sqo.load_data(model.quantity.QuantityData(quantity_in_g=60, pref_unit='ml'))
         self.assertTrue(sqo.quantity_in_g == 60)
@@ -119,14 +121,14 @@ class TestLoadData(TestCase):
 
     def test_raises_exception_if_pref_unit_vol_but_not_configured(self):
         sqo = model.quantity.SettableQuantityOf(
-            subject=fx.get_subject_with_density(),
+            subject=fx.SupportsExtendedUnitsTestable(),
         )
         with self.assertRaises(model.quantity.exceptions.UndefinedDensityError):
             sqo.load_data(model.quantity.QuantityData(quantity_in_g=150, pref_unit='l'))
 
     def test_raises_exception_if_pref_unit_pc_but_not_configured(self):
         sqo = model.quantity.SettableQuantityOf(
-            subject=fx.get_subject_with_pc_mass(),
+            subject=fx.SupportsExtendedUnitsTestable(),
         )
         with self.assertRaises(model.quantity.exceptions.UndefinedPcMassError):
             sqo.load_data(model.quantity.QuantityData(quantity_in_g=150, pref_unit='pc'))

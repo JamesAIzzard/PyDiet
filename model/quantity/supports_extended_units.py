@@ -6,6 +6,7 @@ import persistence
 
 
 class ExtendedUnitsData(TypedDict):
+    """Persistable data format for the extended units class."""
     g_per_ml: Optional[float]
     piece_mass_g: Optional[float]
 

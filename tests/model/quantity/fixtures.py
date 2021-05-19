@@ -5,10 +5,11 @@ import model
 
 
 class SupportsExtendedUnitsTestable(model.quantity.SupportsExtendedUnits):
-    def __init__(self, g_per_ml: float = None, peice_mass_g: float = None, **kwargs):
+    """Minimal concrete implementation of the SupportsExtendedUnits base class."""
+    def __init__(self, g_per_ml: float = None, piece_mass_g: float = None, **kwargs):
         super().__init__(**kwargs)
         self._g_per_ml_ = g_per_ml
-        self._piece_mass_g_ = peice_mass_g
+        self._piece_mass_g_ = piece_mass_g
 
     @property
     def _g_per_ml(self) -> Optional[float]:
@@ -19,21 +20,14 @@ class SupportsExtendedUnitsTestable(model.quantity.SupportsExtendedUnits):
         return self._piece_mass_g_
 
 
-def get_qty_data_src(qty_in_g: Optional[float] = None, pref_unit: str = 'g') -> Callable[
-    [None], 'model.quantity.QuantityData']:
+def make_qty_data_src(
+        qty_in_g: Optional[float] = None,
+        pref_unit: str = 'g'
+) -> Callable[[None], 'model.quantity.QuantityData']:
+    """Creates and returns a Callable which returns quantity data when called.
+    Provides default values, unless values are specified.
+    """
     return lambda: model.quantity.QuantityData(
         quantity_in_g=qty_in_g,
         pref_unit=pref_unit
     )
-
-
-def get_subject_without_extended_units() -> 'mock.Mock':
-    return mock.Mock()
-
-
-def get_subject_with_density(g_per_ml: Optional[float] = None) -> 'SupportsExtendedUnitsTestable':
-    return SupportsExtendedUnitsTestable(g_per_ml=g_per_ml)
-
-
-def get_subject_with_pc_mass(piece_mass_g: Optional[float] = None) -> 'SupportsExtendedUnitsTestable':
-    return SupportsExtendedUnitsTestable(peice_mass_g=piece_mass_g)

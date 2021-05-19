@@ -32,7 +32,7 @@ class TestSetRatio(TestCase):
     def test_valid_data_is_set_correctly(self):
         snr = model.nutrients.SettableNutrientRatio(
             nutrient_name="tirbur",
-            subject=qfx.get_subject_with_density(g_per_ml=1.1)
+            subject=qfx.SupportsExtendedUnitsTestable(g_per_ml=1.1)
         )
         snr.set_ratio(
             nutrient_mass=12,
@@ -49,7 +49,7 @@ class TestSetRatio(TestCase):
     def test_subject_qty_can_be_volume_if_configured(self):
         snr = model.nutrients.SettableNutrientRatio(
             nutrient_name="tirbur",
-            subject=qfx.get_subject_with_density(g_per_ml=1.5)
+            subject=qfx.SupportsExtendedUnitsTestable(g_per_ml=1.5)
         )
         snr.set_ratio(
             nutrient_mass=12,
@@ -66,7 +66,7 @@ class TestSetRatio(TestCase):
     def test_exception_if_subject_qty_is_volume_and_not_configured(self):
         snr = model.nutrients.SettableNutrientRatio(
             nutrient_name="tirbur",
-            subject=qfx.get_subject_with_density(g_per_ml=None)
+            subject=qfx.SupportsExtendedUnitsTestable(g_per_ml=None)
         )
         with self.assertRaises(model.quantity.exceptions.UndefinedDensityError):
             snr.set_ratio(
@@ -80,7 +80,7 @@ class TestSetRatio(TestCase):
     def test_exception_if_nutrient_mass_unit_is_not_a_mass(self):
         snr = model.nutrients.SettableNutrientRatio(
             nutrient_name="tirbur",
-            subject=qfx.get_subject_with_density(g_per_ml=1.1)
+            subject=qfx.SupportsExtendedUnitsTestable(g_per_ml=1.1)
         )
         with self.assertRaises(model.quantity.exceptions.UnsupportedExtendedUnitsError):
             snr.set_ratio(
@@ -115,7 +115,7 @@ class TestUndefine(TestCase):
     def test_nutrient_ratio_undefined_correctly(self):
         snr = model.nutrients.SettableNutrientRatio(
             nutrient_name="tirbur",
-            subject=qfx.get_subject_with_density(g_per_ml=1.1)
+            subject=qfx.SupportsExtendedUnitsTestable(g_per_ml=1.1)
         )
         snr.set_ratio(
             nutrient_mass=12,
@@ -133,7 +133,7 @@ class TestZero(TestCase):
     def test_nutrient_ratio_zeroed_correctly(self):
         snr = model.nutrients.SettableNutrientRatio(
             nutrient_name="tirbur",
-            subject=qfx.get_subject_with_density(g_per_ml=1.1)
+            subject=qfx.SupportsExtendedUnitsTestable(g_per_ml=1.1)
         )
         snr.set_ratio(
             nutrient_mass=12,

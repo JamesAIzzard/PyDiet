@@ -112,7 +112,7 @@ class TestSubjectRefQty(TestCase):
     @fx.use_test_nutrients
     def test_raises_exception_if_subject_tries_to_return_volume_when_density_not_configured(self):
         nr = fx.init_nutrient_ratio(
-            subject=q_fx.get_subject_with_density(g_per_ml=None),
+            subject=q_fx.SupportsExtendedUnitsTestable(g_per_ml=None),
             nutrient_name="tirbur",
             data_src=fx.init_nutrient_ratio_data_src(nutrient_qty_g=12, nutrient_pref_unit="mg",
                                                      subject_qty_g=1.2, subject_pref_unit="L")
