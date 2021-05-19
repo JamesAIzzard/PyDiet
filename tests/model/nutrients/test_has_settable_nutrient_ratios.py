@@ -1,3 +1,4 @@
+"""Tests for the HasSettableNutrientRatios base class."""
 from typing import Dict
 from unittest import TestCase, mock
 
@@ -6,6 +7,7 @@ from tests.model.nutrients import fixtures as fx
 
 
 def get_nrs_data() -> Dict[str, 'model.nutrients.NutrientRatioData']:
+    """Returns some dummy nutrient ratios data for testing."""
     # Return some dummy data that can be loaded;
     return {
         "regatur": fx.init_nutrient_ratio_data(nutrient_qty_g=12, subject_qty_g=100),
@@ -31,7 +33,7 @@ class TestConstructor(TestCase):
         # Mock out the load_data method so we can check it got called;
         with mock.patch('model.nutrients.HasSettableNutrientRatios.load_data', mock.Mock()) as mk_load_data:
             # Pass the dummy data in when we spin up the instance;
-            hsnr = model.nutrients.HasSettableNutrientRatios(nutrient_ratios_data=nr_data)
+            _ = model.nutrients.HasSettableNutrientRatios(nutrient_ratios_data=nr_data)
 
             # Now check that load data was called;
             # Notice how load expects the data to be under its specific heading in the dict;
@@ -172,7 +174,7 @@ class TestSetNutrientRatio(TestCase):
         subject density is defined. Strictly, this functionality mostly belongs to the
         quantity classes, but it is useful to do a integrated test here. """
         # Create the instance;
-        hsnr = fx.HasSettableNutrientRatiosAndDensityTestable(g_per_ml=1.1)
+        hsnr = fx.HasSettableNutrientRatiosAndExtUnitsTestable(g_per_ml=1.1)
 
         # Set the ratio;
         hsnr.set_nutrient_ratio(
@@ -220,7 +222,7 @@ class TestSetNutrientRatio(TestCase):
         also tested on the quantity module."""
 
         # Create the instance;
-        hsnr = fx.HasSettableNutrientRatiosAndDensityTestable(g_per_ml=None)
+        hsnr = fx.HasSettableNutrientRatiosAndExtUnitsTestable(g_per_ml=None)
 
         # Check we get the right exception when we try to set the ratio;
         with self.assertRaises(model.quantity.exceptions.UndefinedDensityError):
@@ -339,4 +341,92 @@ class TestLoadData(TestCase):
     @fx.use_test_nutrients
     def test_data_is_loaded_correctly(self):
         """Checks the data is loaded correctly."""
-        raise NotImplementedError
+        # First we can create an instance without any data;
+        hsnr = model.nutrients.HasSettableNutrientRatios()
+
+        # Assert that we have no data;
+        self.assertTrue(len(hsnr.persistable_data['nutrient_ratios_data']) == 0)
+
+        # Make some data to load;
+        data = {
+            'nutrient_ratios_data': {
+                "docbe": fx.init_nutrient_ratio_data(nutrient_qty_g=12, nutrient_pref_unit='mg',
+                                                     subject_qty_g=20, subject_pref_unit='g'),
+                "foo": fx.init_nutrient_ratio_data(nutrient_qty_g=13, nutrient_pref_unit='ug',
+                                                   subject_qty_g=21, subject_pref_unit='kg'),
+                "bazing": fx.init_nutrient_ratio_data(nutrient_qty_g=14, nutrient_pref_unit='g',
+                                                      subject_qty_g=22, subject_pref_unit='lb'),
+            }
+        }
+
+        # Load the data;
+        hsnr.load_data(data=data)
+
+        # Assert the data was loaded correctly;
+        self.assertEqual(3, len(hsnr.nutrient_ratios))
+        self.assertEqual({"docbe", "foo", "bazing"}, set(hsnr.nutrient_ratios.keys()))
+        self.assertEqual(12, hsnr.nutrient_ratios["docbe"].nutrient_mass.quantity_in_g)
+        self.assertEqual(21, hsnr.nutrient_ratios["foo"].subject_ref_quantity.quantity_in_g)
+        self.assertEqual('ug', hsnr.nutrient_ratios["foo"].nutrient_mass.pref_unit)
+        self.assertEqual('lb', hsnr.nutrient_ratios["bazing"].subject_ref_quantity.pref_unit)
+
+    @fx.use_test_nutrients
+    def test_exception_if_data_contains_family_mass_error(self):
+        """This checks we get an exception if we load data that contains family mass errors. This duplicates
+        some tested functionality on the validation method, but it is useful to do as an integration test."""
+        # First we can create an instance without any data;
+        hsnr = model.nutrients.HasSettableNutrientRatios()
+
+        # Make some data to load;
+        data = {
+            'nutrient_ratios_data': {
+                "docbe": fx.init_nutrient_ratio_data(nutrient_qty_g=12, nutrient_pref_unit='mg',
+                                                     subject_qty_g=20, subject_pref_unit='g'),
+                "bar": fx.init_nutrient_ratio_data(nutrient_qty_g=14, nutrient_pref_unit='g',
+                                                   subject_qty_g=22, subject_pref_unit='lb'),
+            }
+        }
+
+        # Load the data, and assert we get an exception;
+        with self.assertRaises(model.nutrients.exceptions.ChildNutrientExceedsParentMassError):
+            hsnr.load_data(data=data)
+
+    @fx.use_test_nutrients
+    def test_exception_if_data_uses_unsupported_unit(self):
+        """This checks we get an exception if we try to load data that uses units that are not supported."""
+        # First we can create an instance without any data;
+        hsnr = model.nutrients.HasSettableNutrientRatios()
+
+        # Make some data to load;
+        data = {
+            'nutrient_ratios_data': {
+                "docbe": fx.init_nutrient_ratio_data(nutrient_qty_g=12, nutrient_pref_unit='mg',
+                                                     subject_qty_g=20, subject_pref_unit='L'),
+                "bar": fx.init_nutrient_ratio_data(nutrient_qty_g=14, nutrient_pref_unit='g',
+                                                   subject_qty_g=22, subject_pref_unit='lb'),
+            }
+        }
+
+        # Load the data, and assert we get an exception;
+        with self.assertRaises(model.quantity.exceptions.UnsupportedExtendedUnitsError):
+            hsnr.load_data(data=data)
+
+    @fx.use_test_nutrients
+    def test_exception_if_data_uses_unconfigured_unit(self):
+        """This checks we get an exception if we try to load data that uses units that are not configured."""
+        # First we can create an instance without any data;
+        hsnr = fx.HasSettableNutrientRatiosAndExtUnitsTestable(piece_mass_g=None)
+
+        # Make some data to load;
+        data = {
+            'nutrient_ratios_data': {
+                "docbe": fx.init_nutrient_ratio_data(nutrient_qty_g=12, nutrient_pref_unit='mg',
+                                                     subject_qty_g=20, subject_pref_unit='pc'),
+                "bar": fx.init_nutrient_ratio_data(nutrient_qty_g=14, nutrient_pref_unit='g',
+                                                   subject_qty_g=22, subject_pref_unit='lb'),
+            }
+        }
+
+        # Load the data, and assert we get an exception;
+        with self.assertRaises(model.quantity.exceptions.UndefinedPcMassError):
+            hsnr.load_data(data=data)

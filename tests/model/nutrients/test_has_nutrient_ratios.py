@@ -134,7 +134,7 @@ class TestPersistableData(TestCase):
     def test_data_dict_returned_correctly(self):
         """Checks that the persistable data dictionary is returned with the correct contents."""
         # Create the nutrient ratio instance;
-        hnr = fx.HasSettableNutrientRatiosAndDensityTestable(g_per_ml=1.1, piece_mass_g=150)
+        hnr = fx.HasSettableNutrientRatiosAndExtUnitsTestable(g_per_ml=1.1, piece_mass_g=150)
 
         # Generate some nutrient data to pass through the instance;
         nutr_ratios = {
