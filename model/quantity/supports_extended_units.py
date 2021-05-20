@@ -99,33 +99,33 @@ class SupportsExtendedUnits(persistence.YieldsPersistableData, abc.ABC):
 class SupportsExtendedUnitSetting(SupportsExtendedUnits, persistence.CanLoadData):
     """Models an object on which density and peice mass can be set."""
 
-    def __init__(self, extended_unit_data: Optional['ExtendedUnitsData'] = None, **kwargs):
+    def __init__(self, extended_units_data: Optional['ExtendedUnitsData'] = None, **kwargs):
         super().__init__(**kwargs)
 
-        self._extended_unit_data: 'ExtendedUnitsData' = ExtendedUnitsData(
+        self._extended_units_data: 'ExtendedUnitsData' = ExtendedUnitsData(
             g_per_ml=None,
             piece_mass_g=None
         )
 
-        if extended_unit_data is not None:
-            self.load_data({'extended_unit_data': extended_unit_data})
+        if extended_units_data is not None:
+            self.load_data({'extended_units_data': extended_units_data})
 
     @property
     def _g_per_ml(self) -> Optional[float]:
-        return self._extended_unit_data['g_per_ml']
+        return self._extended_units_data['g_per_ml']
 
     @property
     def _piece_mass_g(self) -> Optional[float]:
-        return self._extended_unit_data['piece_mass_g']
+        return self._extended_units_data['piece_mass_g']
 
     @SupportsExtendedUnits.g_per_ml.setter
     def g_per_ml(self, g_per_ml: Optional[float]) -> None:
         """Implements gram/ml setting."""
         # If density is being unset;
         if g_per_ml is None:
-            self._extended_unit_data['g_per_ml'] = None
+            self._extended_units_data['g_per_ml'] = None
         else:
-            self._extended_unit_data['g_per_ml'] = model.quantity.validation.validate_nonzero_quantity(g_per_ml)
+            self._extended_units_data['g_per_ml'] = model.quantity.validation.validate_nonzero_quantity(g_per_ml)
 
     def set_density(self, mass_qty: Optional[float], mass_unit: str, vol_qty: Optional[float], vol_unit: str) -> None:
         """Sets the substance's density."""
@@ -150,10 +150,11 @@ class SupportsExtendedUnitSetting(SupportsExtendedUnits, persistence.CanLoadData
         """Implements piece mass setting."""
         # If unsetting
         if piece_mass_g is None:
-            self._extended_unit_data['piece_mass_g'] = None
+            self._extended_units_data['piece_mass_g'] = None
         # All OK, go ahead;
         else:
-            self._extended_unit_data['piece_mass_g'] = model.quantity.validation.validate_nonzero_quantity(piece_mass_g)
+            self._extended_units_data['piece_mass_g'] = model.quantity.validation.validate_nonzero_quantity(
+                piece_mass_g)
 
     def set_piece_mass(self, num_pieces: Optional[float], mass_qty: Optional[float], mass_unit: str) -> None:
         """Sets the mass of num_pieces of the substance."""
@@ -179,5 +180,9 @@ class SupportsExtendedUnitSetting(SupportsExtendedUnits, persistence.CanLoadData
 
     def load_data(self, data: Dict[str, Any]) -> None:
         """Loads the extended units data from the data dict into the instance."""
+        # Pass data on to superclass loaders;
         super().load_data(data)
-        self._extended_unit_data = data['extended_unit_data']
+
+        # If there is a key for extended units, load it;
+        if 'extended_units_data' in data.keys():
+            self._extended_units_data = data['extended_units_data']

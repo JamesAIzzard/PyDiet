@@ -21,7 +21,7 @@ class SupportsExtendedUnitsTestable(model.quantity.SupportsExtendedUnits):
         return self._piece_mass_g_
 
 
-def make_qty_data_src(
+def get_qty_data_src(
         qty_in_g: Optional[float] = None,
         pref_unit: str = 'g'
 ) -> Callable[[None], 'model.quantity.QuantityData']:
@@ -31,4 +31,16 @@ def make_qty_data_src(
     return lambda: model.quantity.QuantityData(
         quantity_in_g=qty_in_g,
         pref_unit=pref_unit
+    )
+
+
+def get_extended_units_data(g_per_ml: Optional[float] = None, piece_mass_g: Optional[float] = None):
+    """Configures and returns an extended units data instance. Essentially, this
+    just provides some defaults for the data class.
+    - If density is defined, g_per_ml is set to 1.2
+    - If pc mass is defined, piece_mass_g is set to 150.
+    """
+    return model.quantity.ExtendedUnitsData(
+        g_per_ml=g_per_ml if g_per_ml is not None else None,
+        piece_mass_g=piece_mass_g if piece_mass_g is not None else None
     )
