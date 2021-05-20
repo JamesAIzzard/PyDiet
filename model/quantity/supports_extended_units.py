@@ -127,16 +127,19 @@ class SupportsExtendedUnitSetting(SupportsExtendedUnits, persistence.CanLoadData
         else:
             self._extended_units_data['g_per_ml'] = model.quantity.validation.validate_nonzero_quantity(g_per_ml)
 
-    def set_density(self, mass_qty: Optional[float], mass_unit: str, vol_qty: Optional[float], vol_unit: str) -> None:
+    def set_density(self, mass_qty: float, mass_unit: str, vol_qty: float, vol_unit: str) -> None:
         """Sets the substance's density."""
-        # Unset density if we have None values;
+        # Catch None values, we should be using the special unsetter function;
         if mass_qty is None or vol_qty is None:
-            self.g_per_ml = None
-        # Catch the divide by zero, to stop the universe imploding;
-        elif vol_qty == 0:
-            raise model.quantity.exceptions.ZeroQtyError()
+            raise model.quantity.exceptions.InvalidQtyError(
+                quantity=None,
+                subject=self
+            )
         # Otherwise just set as normal;
         else:
+            # Validate the mass and volume qty;
+            mass_qty = model.quantity.validation.validate_nonzero_quantity(mass_qty)
+            vol_qty = model.quantity.validation.validate_nonzero_quantity(vol_qty)
             self.g_per_ml = model.quantity.convert_density_unit(
                 qty=mass_qty / vol_qty,
                 start_mass_unit=mass_unit,
@@ -144,6 +147,10 @@ class SupportsExtendedUnitSetting(SupportsExtendedUnits, persistence.CanLoadData
                 end_mass_unit='g',
                 end_vol_unit='ml'
             )
+
+    def unset_density(self) -> None:
+        """Unsets the substance's density."""
+        self._extended_units_data['g_per_ml'] = None
 
     @SupportsExtendedUnits.piece_mass_g.setter
     def piece_mass_g(self, piece_mass_g: Optional[float]) -> None:
@@ -158,9 +165,13 @@ class SupportsExtendedUnitSetting(SupportsExtendedUnits, persistence.CanLoadData
 
     def set_piece_mass(self, num_pieces: Optional[float], mass_qty: Optional[float], mass_unit: str) -> None:
         """Sets the mass of num_pieces of the substance."""
-        # If we are trying to unset;
+        # If we are trying to unset, raise an exception, we should use the special
+        # unsetter function;
         if num_pieces is None or mass_qty is None:
-            self.piece_mass_g = None
+            raise model.quantity.exceptions.InvalidQtyError(
+                quantity=None,
+                subject=self
+            )
         # Catch divide by zero;
         elif num_pieces == 0:
             raise model.quantity.exceptions.ZeroQtyError()
@@ -178,11 +189,28 @@ class SupportsExtendedUnitSetting(SupportsExtendedUnits, persistence.CanLoadData
             # Go ahead and set;
             self.piece_mass_g = piece_mass_g
 
+    def unset_piece_mass(self) -> None:
+        """Unsets the substance's piece mass."""
+        self._extended_units_data['piece_mass_g'] = None
+
     def load_data(self, data: Dict[str, Any]) -> None:
         """Loads the extended units data from the data dict into the instance."""
         # Pass data on to superclass loaders;
         super().load_data(data)
 
         # If there is a key for extended units, load it;
+        # Pass it through the setters to catch any invalid values;
         if 'extended_units_data' in data.keys():
-            self._extended_units_data = data['extended_units_data']
+            if data['extended_units_data']['g_per_ml'] is not None:
+                self.set_density(
+                    mass_qty=data['extended_units_data']['g_per_ml'],
+                    mass_unit='g',
+                    vol_qty=1,
+                    vol_unit='ml'
+                )
+            if data['extended_units_data']['piece_mass_g'] is not None:
+                self.set_piece_mass(
+                    mass_qty=data['extended_units_data']['piece_mass_g'],
+                    mass_unit='g',
+                    num_pieces=1
+                )
