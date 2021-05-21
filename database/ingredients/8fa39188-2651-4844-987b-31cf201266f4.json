@@ -1,489 +1,99 @@
 {
-  "bulk": {
-    "g_per_ml": null,
-    "piece_mass_g": null,
+  "cost_per_qty_data": {
+    "cost_per_g": 0.0325,
     "pref_unit": "g",
-    "ref_qty": 100
+    "quantity_in_g": 100
   },
-  "cost_per_g": 0.0325,
-  "flags": {
+  "extended_units_data": {
+    "g_per_ml": null,
+    "piece_mass_g": null
+  },
+  "flag_data": {
     "nut_free": false,
     "vegan": true,
     "vegetarian": true
   },
   "name": "Pine Nuts ",
-  "nutrients": {
-    "a_carotene": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "a_linolenic_acid": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "alanine": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
+  "nutrient_ratios_data": {
     "alcohol": {
-      "nutrient_g_per_subject_g": 0,
-      "nutrient_pref_units": "g"
-    },
-    "amylopectin": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "amylose": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "arachidic_acid": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "arachidonic_acid": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "arginine": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "asparagine": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "aspartic_acid": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "b_carotene": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "behenic_acid": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "biotin": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "butyric_acid": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "caffeine": {
-      "nutrient_g_per_subject_g": 0,
-      "nutrient_pref_units": "g"
-    },
-    "calcium": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "capric_acid": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "caproic_acid": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "caprylic_acid": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
+      "nutrient_mass_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 0.0
+      },
+      "subject_ref_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 100
+      }
     },
     "carbohydrate": {
-      "nutrient_g_per_subject_g": 0.13,
-      "nutrient_pref_units": "g"
-    },
-    "cartenoids": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "cerotic_acid": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "cervonic_acid": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "chloride": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "cholecalciferol": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "choline": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "chromium": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "clupanodonic_acid": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "cobalamin": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "copper": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "cryptoxanthin": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "cysteine": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "eicosen": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "ergocalciferol": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "erucic_acid": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
+      "nutrient_mass_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 0.13
+      },
+      "subject_ref_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 100
+      }
     },
     "fat": {
-      "nutrient_g_per_subject_g": 0.68,
-      "nutrient_pref_units": "g"
-    },
-    "fibre": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "folate": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "fructose": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "galactose": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "glucose": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "glutamic_acid": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "glutamine": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "gluten": {
-      "nutrient_g_per_subject_g": 0,
-      "nutrient_pref_units": "g"
-    },
-    "glycine": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "heptadecenoic": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "histidine": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "iodine": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "iron": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "isoleucine": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "lactose": {
-      "nutrient_g_per_subject_g": 0,
-      "nutrient_pref_units": "g"
-    },
-    "lauric_acid": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "leucine": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "lignoceric_acid": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "linoleic_acid": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "lutein": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "lycopene": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "lysine": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "magnesium": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "maltose": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "manganese": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "margaric_acid": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "methionine": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "molybdenum": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
+      "nutrient_mass_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 0.68
+      },
+      "subject_ref_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 100
+      }
     },
     "monounsaturated_fat": {
-      "nutrient_g_per_subject_g": 0.19,
-      "nutrient_pref_units": "g"
-    },
-    "myristic_acid": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "myristol": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "nervonic_acid": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "niacin": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "oleic_acid": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "omega_3": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "omega_6": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "palmitic_acid": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "palmitoyl": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "pantothenic_acid": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "pentadecanoic_acid": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "pentadecenoic": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "phenylalanine": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "phosphorus": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
+      "nutrient_mass_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 0.19
+      },
+      "subject_ref_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 100
+      }
     },
     "polyunsaturated_fat": {
-      "nutrient_g_per_subject_g": 0.34,
-      "nutrient_pref_units": "g"
-    },
-    "potassium": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "proline": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
+      "nutrient_mass_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 0.34
+      },
+      "subject_ref_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 100
+      }
     },
     "protein": {
-      "nutrient_g_per_subject_g": 0.14,
-      "nutrient_pref_units": "g"
-    },
-    "pyridoxal_5_phosphate": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "pyridoxamine": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "pyridoxine": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "retinal": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "retinoic_acid": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "retinol": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "riboflavin": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "ribose": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
+      "nutrient_mass_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 0.14
+      },
+      "subject_ref_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 100
+      }
     },
     "saturated_fat": {
-      "nutrient_g_per_subject_g": 0.049,
-      "nutrient_pref_units": "g"
-    },
-    "selenium": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "serine": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
+      "nutrient_mass_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 0.049
+      },
+      "subject_ref_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 100
+      }
     },
     "sodium": {
-      "nutrient_g_per_subject_g": 2e-05,
-      "nutrient_pref_units": "mg"
-    },
-    "stearic_acid": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "stearidonic_acid": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "sucrose": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "thiamin": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "threonine": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "timnodonic_acid": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "trans_fats": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "tryptophan": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "tyrosine": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "valine": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "vitamin_a": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "vitamin_b6": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "vitamin_c": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "vitamin_d": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "vitamin_d2": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "vitamin_d3": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "vitamin_e": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "vitamin_k": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "vitamin_k1": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "vitamin_k2": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "zeaxanthin": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
-    },
-    "zinc": {
-      "nutrient_g_per_subject_g": null,
-      "nutrient_pref_units": "g"
+      "nutrient_mass_data": {
+        "pref_unit": "mg",
+        "quantity_in_g": 2e-05
+      },
+      "subject_ref_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 100
+      }
     }
   }
 }

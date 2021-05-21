@@ -1,3 +1,4 @@
+"""Functionality related to classes which support persistance."""
 import abc
 from typing import Dict, Any, Optional
 
@@ -83,7 +84,7 @@ class SupportsPersistence(CanLoadData, abc.ABC):
     @classmethod
     def get_index_filepath(cls) -> str:
         """Returns the class' index filepath."""
-        return '{}index.json'.format(cls.get_path_into_db())
+        return f"{cls.get_path_into_db()}/index.json"
 
     @property
     def datafile_path(self) -> str:
@@ -91,4 +92,4 @@ class SupportsPersistence(CanLoadData, abc.ABC):
         if not self.datafile_name_is_defined:
             raise persistence.exceptions.DatafileNotFoundError
         else:
-            return self.get_path_into_db() + self.datafile_name + '.json'
+            return f"{self.get_path_into_db()}/{self.datafile_name}.json"

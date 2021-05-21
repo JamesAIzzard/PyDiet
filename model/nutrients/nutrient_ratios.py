@@ -437,6 +437,7 @@ class HasSettableNutrientRatios(HasNutrientRatios, persistence.CanLoadData):
         )
 
     def load_data(self, data: Dict[str, Any]) -> None:
+        """Loads the instance data."""
         super().load_data(data)
 
         # If we don't have any fields in this data, exit;

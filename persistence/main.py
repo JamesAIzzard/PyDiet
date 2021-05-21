@@ -1,3 +1,4 @@
+"""Data persistence functionality."""
 import json
 import os
 import uuid
@@ -41,7 +42,7 @@ def load(cls: Type[T], unique_value: Optional[str] = None,
         datafile_name = get_datafile_name_for_unique_value(cls, unique_value)
 
     # Load & return;
-    data = _read_datafile(cls.get_path_into_db() + datafile_name + '.json')
+    data = _read_datafile(f"{cls.get_path_into_db()}/{datafile_name}.json")
     loaded_instance = cls(datafile_name=datafile_name)
     loaded_instance.load_data(data)
     return loaded_instance
@@ -100,6 +101,8 @@ def search_for_unique_values(
     """Returns a list of n unique values which match the search term most closely."""
 
     def score_similarity(words_to_score: List[str], search_term: str) -> Dict[str, float]:
+        """Return a dict with numerical values associated with each word, to indicate similarity to the
+        search term."""
         scores = {}
         for word in words_to_score:
             scores[word] = SequenceMatcher(None, search_term, word).ratio()

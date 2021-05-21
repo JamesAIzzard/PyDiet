@@ -29,10 +29,12 @@ class HasName(persistence.CanLoadData):
         return self._name
 
     def load_data(self, data: Dict[str, Any]) -> None:
+        """Loads instance data."""
         super().load_data(data)
         self._name = data['name']
 
     def persistable_data(self) -> Dict[str, Any]:
+        """Returns instance's persistable data."""
         data = super().persistable_data
         data['name'] = self.name
         return data

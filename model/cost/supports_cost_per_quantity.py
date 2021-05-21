@@ -1,3 +1,4 @@
+"""Module providing cost per quantity functionality."""
 import abc
 from typing import Dict, Optional, Any
 
@@ -6,6 +7,7 @@ import persistence
 
 
 class CostPerQtyData(model.quantity.QuantityData):
+    """Cost data persistence format."""
     cost_per_g: Optional[float]
 
 
@@ -75,6 +77,7 @@ class SupportsCostPerQuantity(persistence.YieldsPersistableData, abc.ABC):
 
     @property
     def persistable_data(self) -> Dict[str, Any]:
+        """Returns the persistable data dict, updated with the cost data."""
         data = super().persistable_data
         data['cost_per_qty_data'] = self._cost_per_qty_data
         return data
@@ -86,6 +89,7 @@ class SupportsSettableCostPerQuantity(SupportsCostPerQuantity, persistence.CanLo
     def __init__(self, cost_per_qty_data: Optional['CostPerQtyData'] = None, **kwargs):
         super().__init__(**kwargs)
 
+        # Create a subject quantity instance;
         self._subject_quantity = model.quantity.SettableQuantityOf(
             subject=self,
             quantity_data=model.quantity.QuantityData(
@@ -93,13 +97,17 @@ class SupportsSettableCostPerQuantity(SupportsCostPerQuantity, persistence.CanLo
                 pref_unit='g'
             )
         )
+
+        # Create somewhere to put the cost per gram value;
         self._cost_per_g_: Optional[float] = None
 
+        # If we got data, load it;
         if cost_per_qty_data is not None:
             self.load_data({'cost_per_qty_data': cost_per_qty_data})
 
     @property
     def _cost_per_qty_data(self) -> 'CostPerQtyData':
+        """Compiles and returns teh cost per qty data for the instance."""
         data = {}
         data.update(dict(self.cost_ref_subject_quantity.persistable_data))
         data['cost_per_g'] = self._cost_per_g_
@@ -107,6 +115,7 @@ class SupportsSettableCostPerQuantity(SupportsCostPerQuantity, persistence.CanLo
 
     @property
     def cost_ref_subject_quantity(self) -> 'model.quantity.SettableQuantityOf':
+        """Returns the subject quantity instance."""
         # Override to return the local instance, now we have one;
         return self._subject_quantity
 
@@ -151,6 +160,7 @@ class SupportsSettableCostPerQuantity(SupportsCostPerQuantity, persistence.CanLo
         )
 
     def load_data(self, data: Dict[str, Any]) -> None:
+        """Load data into the instance."""
         super().load_data(data)
         self._subject_quantity.load_data(model.quantity.QuantityData(
             quantity_in_g=data['cost_per_qty_data']['quantity_in_g'],

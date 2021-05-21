@@ -1,4 +1,5 @@
-from typing import Optional, Dict, List, TypedDict
+"""Ingredient functionality module."""
+from typing import Optional, TypedDict
 
 import model
 import persistence
@@ -7,74 +8,34 @@ import persistence
 class IngredientData(TypedDict):
     """Ingredient data dictionary."""
     cost_per_qty_data: model.cost.CostPerQtyData
-    flags: Dict[str, Optional[bool]]
+    flag_data: model.flags.FlagDOFData
     name: Optional[str]
-    nutrients: model.nutrients.NutrientRatiosData
+    nutrient_ratios_data: model.nutrients.NutrientRatiosData
     extended_units_data: model.quantity.ExtendedUnitsData
 
 
-class Ingredient(persistence.SupportsPersistence,
-                 model.HasSettableName,
-                 model.HasMandatoryAttributes,
-                 model.quantity.SupportsExtendedUnitSetting,
-                 model.cost.SupportsSettableCostPerQuantity,
-                 model.flags.HasSettableFlags,
-                 model.nutrients.HasSettableNutrientRatios):
+class Ingredient(
+    persistence.SupportsPersistence,
+    model.HasName
+):
+    """Readonly ingredient model."""
 
-    def __init__(self, ingredient_data: Optional[IngredientData] = None, **kwargs):
+    def __init__(self, unique_name: Optional[str] = None, df_name: Optional[str] = None, **kwargs):
         super().__init__(**kwargs)
 
-        # Load any data that was provided;
-        if ingredient_data is not None:
-            self.load_data(ingredient_data)
+        # Raise an exception if no info was provided;
+        if unique_name is None and df_name is None:
+            raise ValueError("Either unique name or datafile name must be provided to init an Ingredient.")
 
-    @model.HasSettableName.name.setter
-    def name(self, name: Optional[str]) -> None:
-        # Extend the base implementation to check name uniqueness, since it is the index key;
-        if persistence.check_unique_value_available(
-                cls=Ingredient,
-                proposed_name=name,
-                ignore_datafile=self.datafile_name if self.datafile_name_is_defined else None
-        ):
-            self._name = name
-        else:
-            raise persistence.exceptions.UniqueValueDuplicatedError(
-                subject=self,
-                duplicated_value=name
-            )
-
-    @property
-    def unique_value(self) -> str:
-        # We are using the name as the unique value here;
-        try:
-            return self.name
-        # If we get an undefined name error, convert it to an undefined unique value error.
-        except model.exceptions.UndefinedNameError:
-            raise persistence.exceptions.UndefinedUniqueValueError(subject=self)
-
-    @property
-    def missing_mandatory_attrs(self) -> List[str]:
-        missing_attr_names = []
-        # Check name;
-        if self._name is None:
-            missing_attr_names.append('name')
-        # Check cost;
-        if self._cost_per_qty_data['cost_per_g'] is None:
-            missing_attr_names.append('cost')
-        # Check flag_data;
-        for flag_name in self.get_undefined_flag_names():
-            missing_attr_names.append(f"{flag_name.replace('_', ' ')} flag")
-        # Check nutrients;
-        missing_attr_names = missing_attr_names + self.undefined_mandatory_nutrient_ratio_names
-        return missing_attr_names
+        self._unique_name = unique_name
+        self._df_name = df_name
 
     @staticmethod
     def get_path_into_db() -> str:
-        return persistence.configs.path_into_db + 'ingredients/'
+        """Returns the path into the ingredient database."""
+        return f"{persistence.configs.path_into_db}/ingredients"
 
     @property
-    def persistable_data(self) -> Dict[str, IngredientData]:
-        return super().persistable_data
-
-    def load_data(self, data: 'IngredientData') -> None:
-        super().load_data(data)
+    def unique_value(self) -> str:
+        """Returns the ingredient's unique name."""
+        return self.name
