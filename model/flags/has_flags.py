@@ -185,7 +185,7 @@ class HasSettableFlags(HasFlags, model.nutrients.HasSettableNutrientRatios, pers
         # Grab a reference to the flag thats involved;
         flag = model.flags.ALL_FLAGS[flag_name]
 
-        # Another special case to check for now is when we have an indirect alias, with a set of nutrients
+        # A special case to check for now is when we have an indirect alias, with a set of nutrients
         # that all match the flag. With a full non-conflicting set of nutrients, an indirect alias can use
         # its degree of freedom to overwrite the True nutrient match and move from any state to any state.
         if not flag.direct_alias:
@@ -204,6 +204,24 @@ class HasSettableFlags(HasFlags, model.nutrients.HasSettableNutrientRatios, pers
             # Everything matched, this case has occurred. Break out;
             if dof_nutrients_match:
                 return conflicts
+
+        # Another special case is if the flag has a DOF, and the value is being changed from False
+        # to None. There are two possible routes to make the change:
+        #   1. Change all nutrients to match the flag, and use the DOF to make the change.
+        #   2. Change a nutrient(s) to force the change.
+        # We can't know which, so we group all related nutrients into preventing_flag_undefine()
+        if not flag.direct_alias and current_value is False and flag_value is None:
+            conflicts['preventing_flag_undefine'] = flag.related_nutrient_names
+            return conflicts
+
+        # Another special case is if the flag has a DOF, and the value is being changed from None
+        # to False. There are two possible routes to make the change:
+        #   1. Change all nutrients to match the flag, and use the DOF to make the change.
+        #   2. Change a nutrient(s) to force the change.
+        # We can't know which, so we group all related nutrients into preventing_flag_undefine()
+        if not flag.direct_alias and current_value is None and flag_value is False:
+            conflicts['preventing_flag_false'] = flag.related_nutrient_names
+            return conflicts
 
         # OK, lets split into the three main scenarios now. There is a different scenario for each
         # possible proposed value for the flag to be set to. This is going to be complicated, so take a
@@ -234,7 +252,6 @@ class HasSettableFlags(HasFlags, model.nutrients.HasSettableNutrientRatios, pers
                 # We only need to worry now if the nutrient ratio doesn't match the implication;
                 # Again, the proposed flag value is True here, so any conflicts go in the lists
                 # that MATCH their implications.
-                # noinspection PyUnboundLocalVariable
                 if flag.nutrient_ratio_matches_relation(nutrient_ratio) is False:
                     if implication is model.flags.FlagImpliesNutrient.zero:
                         conflicts["need_zero"].append(related_nutrient_name)
@@ -266,7 +283,6 @@ class HasSettableFlags(HasFlags, model.nutrients.HasSettableNutrientRatios, pers
                 # Because we are setting the flag to False, we only have a problem if the flag DOES
                 # match the implication. This also means any conflicts go in the lists that OPPOSE
                 # their implications.
-                # noinspection PyUnboundLocalVariable
                 if flag.nutrient_ratio_matches_relation(nutrient_ratio) is True:
                     if implication is model.flags.FlagImpliesNutrient.zero:
                         conflicts["need_non_zero"].append(related_nutrient_name)

@@ -1,3 +1,7 @@
+"""Flag configuration for use during flag testing.
+Having a dedicated flag configuration divorces the tests from any changes that might
+happen on the real database.
+"""
 import model
 
 FLAG_CONFIGS = {
