@@ -38,16 +38,16 @@ class HasFlagsTestable(model.flags.HasFlags):
                  **kwargs):
         super().__init__(**kwargs)
         self._flag_dofs_ = flag_dofs if flag_dofs is not None else {}
-        self._nutrient_ratios_data = nutrient_ratios_data if nutrient_ratios_data is not None else {}
+        self._nutrient_ratios_data_ = nutrient_ratios_data if nutrient_ratios_data is not None else {}
 
     @property
     def _flag_dofs(self) -> 'model.flags.FlagDOFData':
         return self._flag_dofs_
 
     @property
-    def nutrient_ratios_data(self) -> Dict[str, 'mock.Mock']:
+    def _nutrient_ratios_data(self) -> Dict[str, 'mock.Mock']:
         """Returns nutrient ratios data."""
-        return self._nutrient_ratios_data
+        return self._nutrient_ratios_data_
 
 
 def get_conflicts_dict(include_values: Optional[Dict[str, List[str]]] = None) -> 'model.flags.NRConflicts':

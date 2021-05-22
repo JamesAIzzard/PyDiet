@@ -29,6 +29,7 @@ class Ingredient(
         # Raise an exception if no info was provided;
         if unique_name is None and datafile_name is None:
             raise ValueError("Either unique name or datafile name must be provided to init an Ingredient.")
+        # OK, the unique name was provided, so use it to grab the datafile;
         elif unique_name is not None:
             super().__init__(
                 name=unique_name,
@@ -38,6 +39,7 @@ class Ingredient(
                 ),
                 **kwargs
             )
+        # OK, the datafile name was provided, so use it to grab the unique name;
         elif datafile_name is not None:
             super().__init__(
                 name=persistence.get_unique_value_from_datafile_name(
@@ -81,7 +83,7 @@ class Ingredient(
         )['flag_data']
 
     @property
-    def nutrient_ratios_data(self) -> 'model.nutrients.NutrientRatiosData':
+    def _nutrient_ratios_data(self) -> 'model.nutrients.NutrientRatiosData':
         """Returns the nutrient ratio data for this ingredient."""
         return persistence.load_datafile(
             cls=Ingredient,

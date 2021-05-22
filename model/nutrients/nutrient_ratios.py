@@ -220,7 +220,7 @@ class HasNutrientRatios(persistence.YieldsPersistableData, abc.ABC):
 
     @property
     @abc.abstractmethod
-    def nutrient_ratios_data(self) -> 'NutrientRatiosData':
+    def _nutrient_ratios_data(self) -> 'NutrientRatiosData':
         """Returns the instance's nutrient ratios data."""
         raise NotImplementedError
 
@@ -235,7 +235,7 @@ class HasNutrientRatios(persistence.YieldsPersistableData, abc.ABC):
         nrs: Dict[str, 'NutrientRatio'] = {}
 
         # Next, work the dict and populate the nutrient ratio instances;
-        for nutrient_name in self.nutrient_ratios_data.keys():
+        for nutrient_name in self._nutrient_ratios_data.keys():
             nrs[nutrient_name] = self.get_nutrient_ratio(nutrient_name)
 
         # Now, return the dict of readonly instances;
@@ -248,13 +248,13 @@ class HasNutrientRatios(persistence.YieldsPersistableData, abc.ABC):
         nutrient_name = model.nutrients.get_nutrient_primary_name(nutrient_name)
 
         # If the nutrient is defined (i.e if it is in the dictionary);
-        if nutrient_name in self.nutrient_ratios_data.keys():
+        if nutrient_name in self._nutrient_ratios_data.keys():
 
             # Instantiate and return it;
             return NutrientRatio(
                 subject=self,
                 nutrient_name=nutrient_name,
-                nutrient_ratio_data_src=lambda: self.nutrient_ratios_data[nutrient_name]
+                nutrient_ratio_data_src=lambda: self._nutrient_ratios_data[nutrient_name]
             )
 
         # Otherwise, return an error to indicate it isn't defined;
@@ -320,7 +320,7 @@ class HasNutrientRatios(persistence.YieldsPersistableData, abc.ABC):
         data = super().persistable_data
 
         # Add a heading for the nutrient ratios data;
-        data['nutrient_ratios_data'] = self.nutrient_ratios_data
+        data['nutrient_ratios_data'] = self._nutrient_ratios_data
 
         # Return the data;
         return data
@@ -350,7 +350,7 @@ class HasSettableNutrientRatios(HasNutrientRatios, persistence.CanLoadData):
             self.load_data({'nutrient_ratios_data': nutrient_ratios_data})
 
     @property
-    def nutrient_ratios_data(self) -> 'NutrientRatiosData':
+    def _nutrient_ratios_data(self) -> 'NutrientRatiosData':
         """Returns the instance's current nutrient ratios data."""
         # Init the dict;
         data: 'NutrientRatiosData' = {}

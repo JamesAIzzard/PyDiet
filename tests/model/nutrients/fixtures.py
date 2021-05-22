@@ -26,14 +26,14 @@ class HasNutrientRatiosTestable(model.nutrients.HasNutrientRatios):
 
     def __init__(self, nutrient_ratios_data: 'model.nutrients.NutrientRatiosData' = None):
         if nutrient_ratios_data is None:
-            self._nutrient_ratios_data: 'model.nutrients.NutrientRatiosData' = {}
+            self._nutrient_ratios_data_: 'model.nutrients.NutrientRatiosData' = {}
         else:
-            self._nutrient_ratios_data = nutrient_ratios_data
+            self._nutrient_ratios_data_ = nutrient_ratios_data
 
     @property
-    def nutrient_ratios_data(self) -> 'model.nutrients.NutrientRatiosData':
+    def _nutrient_ratios_data(self) -> 'model.nutrients.NutrientRatiosData':
         """Returns the nutrient ratios for the instance;"""
-        return self._nutrient_ratios_data
+        return self._nutrient_ratios_data_
 
 
 class HasSettableNutrientRatiosAndExtUnitsTestable(
