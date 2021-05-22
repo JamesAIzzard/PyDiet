@@ -122,7 +122,7 @@ class TestCollectNutrientRatioConflicts(TestCase):
         a DOF and direct alias flag type."""
         # Create the test instance, with a direct alias flag with with conflicts;
         hsf = model.flags.HasSettableFlags(
-            nutrient_ratios_data=fx.FLAG_NR_SCENARIOS['foo_free_with_multiple_conflicts']
+            nutrient_ratios_data=fx.FLAG_NR_SCENARIOS['foo_free_multiple_conflicts']
         )
 
         # Check we get no conflicts transitioning to False (because it is already False);
@@ -131,7 +131,7 @@ class TestCollectNutrientRatioConflicts(TestCase):
 
         # Create the test instance, with a DOF flag with no conflicting nutrient ratios;
         hsf = model.flags.HasSettableFlags(
-            nutrient_ratios_data=fx.FLAG_NR_SCENARIOS['pongaterian_with_conflicts']
+            nutrient_ratios_data=fx.FLAG_NR_SCENARIOS['pongaterian_multiple_conflicts']
         )
 
         # Check we get no conflicts transitioning to False;
@@ -145,7 +145,7 @@ class TestCollectNutrientRatioConflicts(TestCase):
         a DOF and direct alias flag type."""
         # Create an instance with some undefined nutrient ratios for a direct alias flag;
         hsf = model.flags.HasSettableFlags(
-            nutrient_ratios_data=fx.FLAG_NR_SCENARIOS['foo_free_with_undefined']
+            nutrient_ratios_data=fx.FLAG_NR_SCENARIOS['foo_free_single_undefined']
         )
 
         # Assert the foo free flag is currently undefined;
@@ -158,7 +158,7 @@ class TestCollectNutrientRatioConflicts(TestCase):
 
         # Now create an instance with some undefined nutrient ratios for a DOF flag;
         hsf = model.flags.HasSettableFlags(
-            nutrient_ratios_data=fx.FLAG_NR_SCENARIOS['pongaterian_with_single_undefined']
+            nutrient_ratios_data=fx.FLAG_NR_SCENARIOS['pongaterian_single_undefined']
         )
 
         # Now check we get no conflicts against the None value;
@@ -172,7 +172,7 @@ class TestCollectNutrientRatioConflicts(TestCase):
         nutrients into need_zero and need_non_zero to match their implications."""
         # Create an instance with some undefined nutrient ratios for a direct alias flag;
         hsf = model.flags.HasSettableFlags(
-            nutrient_ratios_data=fx.FLAG_NR_SCENARIOS['foo_free_with_undefined']
+            nutrient_ratios_data=fx.FLAG_NR_SCENARIOS['foo_free_single_undefined']
         )
 
         # Assert the flag is currently undefined;
@@ -187,7 +187,7 @@ class TestCollectNutrientRatioConflicts(TestCase):
 
         # Create an instance with some undefined nutrient ratios for a DOF flag;
         hsf = model.flags.HasSettableFlags(
-            nutrient_ratios_data=fx.FLAG_NR_SCENARIOS['pongaterian_with_single_undefined']
+            nutrient_ratios_data=fx.FLAG_NR_SCENARIOS['pongaterian_single_undefined']
         )
 
         # Assert the flag is currently undefined;
@@ -208,7 +208,7 @@ class TestCollectNutrientRatioConflicts(TestCase):
 
         # Create an instance with nutrient ratios that conflict against a direct alias flag;
         hsf = model.flags.HasSettableFlags(
-            nutrient_ratios_data=fx.FLAG_NR_SCENARIOS['foo_free_with_multiple_conflicts']
+            nutrient_ratios_data=fx.FLAG_NR_SCENARIOS['foo_free_multiple_conflicts']
         )
 
         # Check the flag is False;
@@ -222,7 +222,7 @@ class TestCollectNutrientRatioConflicts(TestCase):
 
         # Now create an instance with nutrient ratios that conflict against a DOF flag;
         hsf = model.flags.HasSettableFlags(
-            nutrient_ratios_data=fx.FLAG_NR_SCENARIOS['pongaterian_with_conflicts']
+            nutrient_ratios_data=fx.FLAG_NR_SCENARIOS['pongaterian_multiple_conflicts']
         )
 
         # Check the flag is False;
@@ -264,7 +264,7 @@ class TestCollectNutrientRatioConflicts(TestCase):
         # return None;
         # foo_free doesn't mention tirbur, so we pass in foo_free nr's and test against the tirbur flag;
         hsf = model.flags.HasSettableFlags(
-            nutrient_ratios_data=fx.FLAG_NR_SCENARIOS['foo_free_with_undefined']
+            nutrient_ratios_data=fx.FLAG_NR_SCENARIOS['foo_free_single_undefined']
         )
 
         # Assert that tirbur_free comes up undefined;
@@ -281,7 +281,7 @@ class TestCollectNutrientRatioConflicts(TestCase):
         # Now check an DOF Flag;
         # foo_free doesn't mention bar either, so create the test instance with those nutrient ratios;
         hsf = model.flags.HasSettableFlags(
-            nutrient_ratios_data=fx.FLAG_NR_SCENARIOS['foo_free_with_undefined']
+            nutrient_ratios_data=fx.FLAG_NR_SCENARIOS['foo_free_single_undefined']
         )
 
         # Assert that bar comes up undefined;
@@ -322,7 +322,7 @@ class TestCollectNutrientRatioConflicts(TestCase):
         False to None, because False takes precidence, we just need to undefine the nutrients causing False."""
         # Create an instance with multiple nutrient ratios causing False on a direct_alias flag.
         hsf = model.flags.HasSettableFlags(
-            nutrient_ratios_data=fx.FLAG_NR_SCENARIOS['foo_free_with_multiple_conflicts']
+            nutrient_ratios_data=fx.FLAG_NR_SCENARIOS['foo_free_multiple_conflicts']
         )
 
         # Check the flag comes up False;
@@ -336,7 +336,7 @@ class TestCollectNutrientRatioConflicts(TestCase):
 
         # Now create an instance with multiple nutrient ratios causing False on a DOF flag.
         hsf = model.flags.HasSettableFlags(
-            nutrient_ratios_data=fx.FLAG_NR_SCENARIOS['pongaterian_with_conflicts']
+            nutrient_ratios_data=fx.FLAG_NR_SCENARIOS['pongaterian_multiple_conflicts']
         )
 
         # Check the flag comes up False;
@@ -398,7 +398,7 @@ class TestCollectNutrientRatioConflicts(TestCase):
         order to trip the whole flag."""
         # Create a test instance with multiple nutrients causing a direct flag to be undefined;
         hsf = model.flags.HasSettableFlags(
-            nutrient_ratios_data=fx.FLAG_NR_SCENARIOS['foo_free_with_multiple_undefined']
+            nutrient_ratios_data=fx.FLAG_NR_SCENARIOS['foo_free_multiple_undefined']
         )
 
         # Check the flag is actually undefined;
@@ -413,7 +413,7 @@ class TestCollectNutrientRatioConflicts(TestCase):
 
         # Create a test instance with multiple nutrients causing a DOF flag to be undefined;
         hsf = model.flags.HasSettableFlags(
-            nutrient_ratios_data=fx.FLAG_NR_SCENARIOS['pongaterian_with_multiple_undefined']
+            nutrient_ratios_data=fx.FLAG_NR_SCENARIOS['pongaterian_multiple_undefined']
         )
 
         # Check the flag is actually undefined;

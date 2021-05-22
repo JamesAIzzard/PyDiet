@@ -83,24 +83,24 @@ FLAG_NR_SCENARIOS = {
         "foobar": nfx.get_nutrient_ratio_data(nutrient_mass_g=0, subject_qty_g=100),
         "bazing": nfx.get_nutrient_ratio_data(nutrient_mass_g=0.4, subject_qty_g=100)
     },
-    "foo_free_with_single_conflict": {
+    "foo_free_single_conflict": {
         "foo": nfx.get_nutrient_ratio_data(nutrient_mass_g=0, subject_qty_g=100),
         "foobing": nfx.get_nutrient_ratio_data(nutrient_mass_g=0, subject_qty_g=100),
         "foobar": nfx.get_nutrient_ratio_data(nutrient_mass_g=0, subject_qty_g=100),
         "bazing": nfx.get_nutrient_ratio_data(nutrient_mass_g=0.4, subject_qty_g=100)
     },
-    "foo_free_with_multiple_conflicts": {
+    "foo_free_multiple_conflicts": {
         "foo": nfx.get_nutrient_ratio_data(nutrient_mass_g=0.2, subject_qty_g=100),
         "foobing": nfx.get_nutrient_ratio_data(nutrient_mass_g=0.9, subject_qty_g=100),
         "foobar": nfx.get_nutrient_ratio_data(nutrient_mass_g=0.1, subject_qty_g=100),
         "bazing": nfx.get_nutrient_ratio_data(nutrient_mass_g=0.4, subject_qty_g=100),
     },
-    "foo_free_with_undefined": {
+    "foo_free_single_undefined": {
         "foo": nfx.get_nutrient_ratio_data(nutrient_mass_g=0, subject_qty_g=100),
         "foobing": nfx.get_nutrient_ratio_data(nutrient_mass_g=0.9, subject_qty_g=100),
         "bazing": nfx.get_nutrient_ratio_data(nutrient_mass_g=0.4, subject_qty_g=100),
     },
-    "foo_free_with_multiple_undefined": {
+    "foo_free_multiple_undefined": {
         "foo": nfx.get_nutrient_ratio_data(nutrient_mass_g=0, subject_qty_g=100),
         "bazing": nfx.get_nutrient_ratio_data(nutrient_mass_g=0.4, subject_qty_g=100),
     },
@@ -110,16 +110,16 @@ FLAG_NR_SCENARIOS = {
         "bazing": nfx.get_nutrient_ratio_data(nutrient_mass_g=0.2, subject_qty_g=100),
         "tirbur": nfx.get_nutrient_ratio_data(nutrient_mass_g=0.3, subject_qty_g=100),
     },
-    "pongaterian_with_conflicts": {
+    "pongaterian_multiple_conflicts": {
         "foo": nfx.get_nutrient_ratio_data(nutrient_mass_g=0, subject_qty_g=100),
         "foobing": nfx.get_nutrient_ratio_data(nutrient_mass_g=0.2, subject_qty_g=100),
         "bazing": nfx.get_nutrient_ratio_data(nutrient_mass_g=0, subject_qty_g=100),
         "tirbur": nfx.get_nutrient_ratio_data(nutrient_mass_g=0.3, subject_qty_g=100),
     },
-    "pongaterian_with_multiple_undefined": {
+    "pongaterian_multiple_undefined": {
         "foo": nfx.get_nutrient_ratio_data(nutrient_mass_g=0, subject_qty_g=100),
     },
-    "pongaterian_with_single_undefined": {
+    "pongaterian_single_undefined": {
         "foo": nfx.get_nutrient_ratio_data(nutrient_mass_g=0, subject_qty_g=100),
         "foobing": nfx.get_nutrient_ratio_data(nutrient_mass_g=0, subject_qty_g=100),
         "tirbur": nfx.get_nutrient_ratio_data(nutrient_mass_g=0.3, subject_qty_g=100),
