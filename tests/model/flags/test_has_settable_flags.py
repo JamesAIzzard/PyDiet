@@ -192,6 +192,88 @@ class TestCollectNutrientRatioConflicts(TestCase):
 
     @fx.use_test_flags
     @fx.nfx.use_test_nutrients
+    def test_true_to_false_with_direct_alias_single_nutrient_correctly_categorises_opposing_implication(self):
+        """This checks that going from True to False with a single nutrient correctly collects related
+        nutrient in the group opposing its implication. We only do this check with a direct alias, since
+        an indirect alias can go from True to anything without conflicts, using the DOF alone."""
+
+        # Create an instance with nutrients with nutrient ratios to indicate True against a direct alias flag;
+        hsf = model.flags.HasSettableFlags(
+            nutrient_ratios_data=fx.FLAG_NR_SCENARIOS['tirbur_free_no_conflicts']
+        )
+
+        # Assert we have True for the flag;
+        self.assertTrue(hsf.get_flag_value("tirbur_free"))
+
+        # Assert the only related nutrient is put in the category opposite to its implication;
+        conflicts = hsf._collect_nutrient_ratio_conflicts("tirbur_free", False)
+        fx.assert_nutrient_conflicts_equal(fx.get_conflicts_dict(
+            {"need_non_zero": ["tirbur"]}
+        ), conflicts)
+
+    @fx.use_test_flags
+    @fx.nfx.use_test_nutrients
+    def test_true_to_false_with_direct_alias_multiple_related_nutrients_collects_all_in_preventing_flag_false(self):
+        """Checks that when we have multiple related nutrients, if we change from True to False, we
+        get them all collected in 'preventing_flag_false'. We only test direct alias flags, becuase a DOF flag
+        can go from True to anything without conflict."""
+
+        # Create a test instance with multiple related nutrients, all driving True on the flag;
+        hsf = model.flags.HasSettableFlags(
+            nutrient_ratios_data=fx.FLAG_NR_SCENARIOS['foo_free_no_conflicts']
+        )
+
+        # Make sure the falg is True;
+        self.assertTrue(hsf.get_flag_value("foo_free"))
+
+        # Now check we get all related nutrients in preventing_flag_false;
+        conflicts = hsf._collect_nutrient_ratio_conflicts("foo_free", False)
+        fx.assert_nutrient_conflicts_equal(fx.get_conflicts_dict(
+            {"preventing_flag_false": ["foo", "foobar", "foobing"]}
+        ), conflicts)
+
+    @fx.use_test_flags
+    @fx.nfx.use_test_nutrients
+    def test_true_to_none_with_direct_alias_single_nutrient_correctly_categorises_need_undefining(self):
+        """This checks that going from True to False with a single nutrient correctly collects related
+        nutrient in the group opposing its implication. We only do this check with a direct alias, since
+        a DOF flag can go from True to anything without conflicts, using the DOF alone."""
+        # Create a test instance with nutrient ratios matching True for a flag with only one relation;
+        hsf = model.flags.HasSettableFlags(
+            nutrient_ratios_data=fx.FLAG_NR_SCENARIOS['tirbur_free_no_conflicts']
+        )
+
+        # Check that the flag is currently True;
+        self.assertTrue(hsf.get_flag_value("tirbur_free"))
+
+        # Now check we get the only related nutrient in need_undefining, against proposed value of None;
+        conflicts = hsf._collect_nutrient_ratio_conflicts("tirbur_free", None)
+        fx.assert_nutrient_conflicts_equal(fx.get_conflicts_dict(
+            {"need_undefining": ["tirbur"]}
+        ), conflicts)
+
+    @fx.use_test_flags
+    @fx.nfx.use_test_nutrients
+    def test_true_to_none_with_direct_alias_multiple_related_nutrients_collects_all_in_preventing_flag_undefine(self):
+        """Checks that all related nutrients get collected inside 'preventing_flag_undefine' with a direct alias
+        with more than one related nutrient."""
+
+        # Create a test instance with multiple related nutrients, all driving True on the flag;
+        hsf = model.flags.HasSettableFlags(
+            nutrient_ratios_data=fx.FLAG_NR_SCENARIOS['foo_free_no_conflicts']
+        )
+
+        # Make sure the flag is True;
+        self.assertTrue(hsf.get_flag_value("foo_free"))
+
+        # Now check we get all related nutrients in preventing_undefine if we propose False;
+        conflicts = hsf._collect_nutrient_ratio_conflicts("foo_free", None)
+        fx.assert_nutrient_conflicts_equal(fx.get_conflicts_dict(
+            {"preventing_flag_undefine": ["foo", "foobar", "foobing"]}
+        ), conflicts)
+
+    @fx.use_test_flags
+    @fx.nfx.use_test_nutrients
     def test_none_to_true_correctly_categorises_nutrients(self):
         """This checks that going from None to True correctly collects related
         nutrients into need_zero and need_non_zero to match their implications."""
@@ -225,63 +307,6 @@ class TestCollectNutrientRatioConflicts(TestCase):
         conflicts = hsf._collect_nutrient_ratio_conflicts("pongaterian", True)
         fx.assert_nutrient_conflicts_equal(fx.get_conflicts_dict(
             {"need_non_zero": ["bazing"]}
-        ), conflicts)
-
-    @fx.use_test_flags
-    @fx.nfx.use_test_nutrients
-    def test_false_to_true_correctly_categorises_nutrients(self):
-        """This checks that going from False to True correctly collects related
-        nutrients into need_zero and need_non_zero to match their implications."""
-
-        # First check with a direct alias flag;
-        # Create an instance with multiple nutrient ratios that conflict against a direct alias flag;
-        hsf = model.flags.HasSettableFlags(
-            nutrient_ratios_data=fx.FLAG_NR_SCENARIOS['foo_free_multiple_conflicts']
-        )
-
-        # Check the flag is False;
-        self.assertFalse(hsf.get_flag_value("foo_free"))
-
-        # Now check we get the right conflicts against the foo-free flag;
-        conflicts = hsf._collect_nutrient_ratio_conflicts("foo_free", True)
-        fx.assert_nutrient_conflicts_equal(fx.get_conflicts_dict(
-            {"need_zero": ["foo", "foobar"]}
-        ), conflicts)
-
-        # Now check with a DOF flag;
-        # Now create an instance with nutrient ratios that conflict against a DOF flag;
-        hsf = model.flags.HasSettableFlags(
-            nutrient_ratios_data=fx.FLAG_NR_SCENARIOS['pongaterian_multiple_conflicts']
-        )
-
-        # Check the flag is False;
-        self.assertFalse(hsf.get_flag_value("pongaterian"))
-
-        # Now check we get the right conflicts for True against the currently False flag;
-        conflicts = hsf._collect_nutrient_ratio_conflicts("pongaterian", True)
-        fx.assert_nutrient_conflicts_equal(fx.get_conflicts_dict(
-            {"need_zero": ["foobing"], "need_non_zero": ["bazing"]}
-        ), conflicts)
-
-    @fx.use_test_flags
-    @fx.nfx.use_test_nutrients
-    def test_true_to_false_with_direct_alias_single_nutrient_correctly_categorises_opposing_implication(self):
-        """This checks that going from True to False with a single nutrient correctly collects related
-        nutrient in the group opposing its implication. We only do this check with a direct alias, since
-        an indirect alias can go from True to anything without conflicts, using the DOF alone."""
-
-        # Create an instance with nutrients with nutrient ratios to indicate True against a direct alias flag;
-        hsf = model.flags.HasSettableFlags(
-            nutrient_ratios_data=fx.FLAG_NR_SCENARIOS['tirbur_free_no_conflicts']
-        )
-
-        # Assert we have True for the flag;
-        self.assertTrue(hsf.get_flag_value("tirbur_free"))
-
-        # Assert the only related nutrient is put in the category opposite to its implication;
-        conflicts = hsf._collect_nutrient_ratio_conflicts("tirbur_free", False)
-        fx.assert_nutrient_conflicts_equal(fx.get_conflicts_dict(
-            {"need_non_zero": ["tirbur"]}
         ), conflicts)
 
     @fx.use_test_flags
@@ -327,22 +352,75 @@ class TestCollectNutrientRatioConflicts(TestCase):
 
     @fx.use_test_flags
     @fx.nfx.use_test_nutrients
-    def test_true_to_none_with_direct_alias_single_nutrient_correctly_categorises_need_undefining(self):
-        """This checks that going from True to False with a single nutrient correctly collects related
-        nutrient in the group opposing its implication. We only do this check with a direct alias, since
-        a DOF flag can go from True to anything without conflicts, using the DOF alone."""
-        # Create a test instance with nutrient ratios matching True for a flag with only one relation;
+    def test_none_to_false_with_multiple_undefined_nutrients_collects_all_in_preventing_flag_false(self):
+        """Checks that we get all related nutrients in preventing_flag_false, when moving from undefined
+        to False. This is because we don't know which of the nutrients need to oppose the flag in
+        order to trip the whole flag."""
+        # First check with a direct alias flag;
+        # Create a test instance with multiple nutrients causing a direct flag to be undefined;
         hsf = model.flags.HasSettableFlags(
-            nutrient_ratios_data=fx.FLAG_NR_SCENARIOS['tirbur_free_no_conflicts']
+            nutrient_ratios_data=fx.FLAG_NR_SCENARIOS['foo_free_multiple_undefined']
         )
 
-        # Check that the flag is currently True;
-        self.assertTrue(hsf.get_flag_value("tirbur_free"))
+        # Check the flag is actually undefined;
+        with self.assertRaises(model.flags.exceptions.UndefinedFlagError):
+            _ = hsf.get_flag_value("foo_free")
 
-        # Now check we get the only related nutrient in need_undefining, against proposed value of None;
-        conflicts = hsf._collect_nutrient_ratio_conflicts("tirbur_free", None)
+        # Now check we get all related nutrients in preventing_flag_false, if we propose False;
+        conflicts = hsf._collect_nutrient_ratio_conflicts("foo_free", False)
         fx.assert_nutrient_conflicts_equal(fx.get_conflicts_dict(
-            {"need_undefining": ["tirbur"]}
+            {"preventing_flag_false": ["foo", "foobing", "foobar"]}
+        ), conflicts)
+
+        # Now check with a DOF flag;
+        # Create a test instance with multiple nutrients causing a DOF flag to be undefined;
+        hsf = model.flags.HasSettableFlags(
+            nutrient_ratios_data=fx.FLAG_NR_SCENARIOS['pongaterian_multiple_undefined']
+        )
+
+        # Check the flag is actually undefined;
+        with self.assertRaises(model.flags.exceptions.UndefinedFlagError):
+            _ = hsf.get_flag_value("pongaterian")
+
+        conflicts = hsf._collect_nutrient_ratio_conflicts("pongaterian", False)
+        fx.assert_nutrient_conflicts_equal(fx.get_conflicts_dict(
+            {"preventing_flag_false": ["foo", "foobing", "bazing"]}
+        ), conflicts)
+
+    @fx.use_test_flags
+    @fx.nfx.use_test_nutrients
+    def test_false_to_true_correctly_categorises_nutrients(self):
+        """This checks that going from False to True correctly collects related
+        nutrients into need_zero and need_non_zero to match their implications."""
+
+        # First check with a direct alias flag;
+        # Create an instance with multiple nutrient ratios that conflict against a direct alias flag;
+        hsf = model.flags.HasSettableFlags(
+            nutrient_ratios_data=fx.FLAG_NR_SCENARIOS['foo_free_multiple_conflicts']
+        )
+
+        # Check the flag is False;
+        self.assertFalse(hsf.get_flag_value("foo_free"))
+
+        # Now check we get the right conflicts against the foo-free flag;
+        conflicts = hsf._collect_nutrient_ratio_conflicts("foo_free", True)
+        fx.assert_nutrient_conflicts_equal(fx.get_conflicts_dict(
+            {"need_zero": ["foo", "foobar"]}
+        ), conflicts)
+
+        # Now check with a DOF flag;
+        # Now create an instance with nutrient ratios that conflict against a DOF flag;
+        hsf = model.flags.HasSettableFlags(
+            nutrient_ratios_data=fx.FLAG_NR_SCENARIOS['pongaterian_multiple_conflicts']
+        )
+
+        # Check the flag is False;
+        self.assertFalse(hsf.get_flag_value("pongaterian"))
+
+        # Now check we get the right conflicts for True against the currently False flag;
+        conflicts = hsf._collect_nutrient_ratio_conflicts("pongaterian", True)
+        fx.assert_nutrient_conflicts_equal(fx.get_conflicts_dict(
+            {"need_zero": ["foobing"], "need_non_zero": ["bazing"]}
         ), conflicts)
 
     @fx.use_test_flags
@@ -380,84 +458,6 @@ class TestCollectNutrientRatioConflicts(TestCase):
         conflicts = hsf._collect_nutrient_ratio_conflicts("pongaterian", None)
         fx.assert_nutrient_conflicts_equal(fx.get_conflicts_dict(
             {"need_undefining": ["foobing", "bazing"]}
-        ), conflicts)
-
-    @fx.use_test_flags
-    @fx.nfx.use_test_nutrients
-    def test_true_to_false_with_direct_alias_multiple_related_nutrients_collects_all_in_preventing_flag_false(self):
-        """Checks that when we have multiple related nutrients, if we change from True to False, we
-        get them all collected in 'preventing_flag_false'. We only test direct alias flags, becuase a DOF flag
-        can go from True to anything without conflict."""
-
-        # Create a test instance with multiple related nutrients, all driving True on the flag;
-        hsf = model.flags.HasSettableFlags(
-            nutrient_ratios_data=fx.FLAG_NR_SCENARIOS['foo_free_no_conflicts']
-        )
-
-        # Make sure the falg is True;
-        self.assertTrue(hsf.get_flag_value("foo_free"))
-
-        # Now check we get all related nutrients in preventing_flag_false;
-        conflicts = hsf._collect_nutrient_ratio_conflicts("foo_free", False)
-        fx.assert_nutrient_conflicts_equal(fx.get_conflicts_dict(
-            {"preventing_flag_false": ["foo", "foobar", "foobing"]}
-        ), conflicts)
-
-    @fx.use_test_flags
-    @fx.nfx.use_test_nutrients
-    def test_true_to_none_with_direct_alias_multiple_related_nutrients_collects_all_in_preventing_flag_undefine(self):
-        """Checks that all related nutrients get collected inside 'preventing_flag_undefine' with a direct alias
-        with more than one related nutrient."""
-
-        # Create a test instance with multiple related nutrients, all driving True on the flag;
-        hsf = model.flags.HasSettableFlags(
-            nutrient_ratios_data=fx.FLAG_NR_SCENARIOS['foo_free_no_conflicts']
-        )
-
-        # Make sure the flag is True;
-        self.assertTrue(hsf.get_flag_value("foo_free"))
-
-        # Now check we get all related nutrients in preventing_undefine if we propose False;
-        conflicts = hsf._collect_nutrient_ratio_conflicts("foo_free", None)
-        fx.assert_nutrient_conflicts_equal(fx.get_conflicts_dict(
-            {"preventing_flag_undefine": ["foo", "foobar", "foobing"]}
-        ), conflicts)
-
-    @fx.use_test_flags
-    @fx.nfx.use_test_nutrients
-    def test_none_to_false_with_multiple_undefined_nutrients_collects_all_in_preventing_flag_false(self):
-        """Checks that we get all related nutrients in preventing_flag_false, when moving from undefined
-        to False. This is because we don't know which of the nutrients need to oppose the flag in
-        order to trip the whole flag."""
-        # First check with a direct alias flag;
-        # Create a test instance with multiple nutrients causing a direct flag to be undefined;
-        hsf = model.flags.HasSettableFlags(
-            nutrient_ratios_data=fx.FLAG_NR_SCENARIOS['foo_free_multiple_undefined']
-        )
-
-        # Check the flag is actually undefined;
-        with self.assertRaises(model.flags.exceptions.UndefinedFlagError):
-            _ = hsf.get_flag_value("foo_free")
-
-        # Now check we get all related nutrients in preventing_flag_false, if we propose False;
-        conflicts = hsf._collect_nutrient_ratio_conflicts("foo_free", False)
-        fx.assert_nutrient_conflicts_equal(fx.get_conflicts_dict(
-            {"preventing_flag_false": ["foo", "foobing", "foobar"]}
-        ), conflicts)
-
-        # Now check with a DOF flag;
-        # Create a test instance with multiple nutrients causing a DOF flag to be undefined;
-        hsf = model.flags.HasSettableFlags(
-            nutrient_ratios_data=fx.FLAG_NR_SCENARIOS['pongaterian_multiple_undefined']
-        )
-
-        # Check the flag is actually undefined;
-        with self.assertRaises(model.flags.exceptions.UndefinedFlagError):
-            _ = hsf.get_flag_value("pongaterian")
-
-        conflicts = hsf._collect_nutrient_ratio_conflicts("pongaterian", False)
-        fx.assert_nutrient_conflicts_equal(fx.get_conflicts_dict(
-            {"preventing_flag_false": ["foo", "foobing", "bazing"]}
         ), conflicts)
 
 
