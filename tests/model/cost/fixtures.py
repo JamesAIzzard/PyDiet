@@ -1,9 +1,13 @@
+"""Test fixtures to help with testing the cost module."""
 from typing import Optional
 
 import model
 
 
 class SupportsCostPerQuantityTestable(model.cost.SupportsCostPerQuantity):
+    """Minimal concrete implementation for use with testing the SupportsCostPerQuantity
+    base class."""
+
     def __init__(self,
                  pref_unit: str = 'g',
                  ref_qty_g: Optional[float] = 100,

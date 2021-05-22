@@ -4,7 +4,6 @@ from unittest import mock
 
 import model
 # Import test configs to allow us to build the test globals;
-import model.nutrients.main
 from . import test_configs
 
 # Validate the test flag configs;

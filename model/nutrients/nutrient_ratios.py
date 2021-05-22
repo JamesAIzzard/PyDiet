@@ -231,33 +231,32 @@ class HasNutrientRatios(persistence.YieldsPersistableData, abc.ABC):
             These must be readonly instances, to prevent out of context modification without validation.
         """
 
-        # First, create somewhere to store the new readonly versions;
+        # First, create somewhere to store the nutrient ratio instances;
         nrs: Dict[str, 'NutrientRatio'] = {}
 
-        # Create an accessor function to extract the persistable data from a named nutrient;
-        def get_accessor(nutr_name: str) -> Callable[[None], 'model.nutrients.NutrientRatioData']:
-            """Factory function to generate a data accessor for a particular name."""
-            return lambda: self.nutrient_ratios_data[nutr_name]
-
-        # Next, work the dict and convert the data into NutrientRatio instances;
+        # Next, work the dict and populate the nutrient ratio instances;
         for nutrient_name in self.nutrient_ratios_data.keys():
-            nrs[nutrient_name] = NutrientRatio(
-                subject=self,
-                nutrient_name=nutrient_name,
-                nutrient_ratio_data_src=get_accessor(nutrient_name)
-            )
+            nrs[nutrient_name] = self.get_nutrient_ratio(nutrient_name)
+
         # Now, return the dict of readonly instances;
         return nrs
 
     def get_nutrient_ratio(self, nutrient_name: str) -> 'NutrientRatio':
         """Returns a NutrientRatio by name."""
-        # todo - Update this method so we don't have to initialise all the nutrient ratios.
+
         # Convert to the primary name, in case we were given an alias;
         nutrient_name = model.nutrients.get_nutrient_primary_name(nutrient_name)
+
         # If the nutrient is defined (i.e if it is in the dictionary);
-        if nutrient_name in self.nutrient_ratios.keys():
-            # Return it;
-            return self.nutrient_ratios[nutrient_name]
+        if nutrient_name in self.nutrient_ratios_data.keys():
+
+            # Instantiate and return it;
+            return NutrientRatio(
+                subject=self,
+                nutrient_name=nutrient_name,
+                nutrient_ratio_data_src=lambda: self.nutrient_ratios_data[nutrient_name]
+            )
+
         # Otherwise, return an error to indicate it isn't defined;
         else:
             raise model.nutrients.exceptions.UndefinedNutrientRatioError(

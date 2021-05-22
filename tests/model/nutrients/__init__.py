@@ -1,5 +1,5 @@
+"""Initialisation for nutrients testing module."""
 import model
-import model.nutrients.main
 from . import fixtures, test_configs
 
 # Validate the test configs;

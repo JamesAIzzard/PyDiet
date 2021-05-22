@@ -1,3 +1,4 @@
+"""Defines functionality associated with objects which have flags."""
 import abc
 from typing import Dict, List, Union, Optional, Any
 
@@ -137,6 +138,7 @@ class HasSettableFlags(HasFlags, model.nutrients.HasSettableNutrientRatios, pers
 
     @property
     def _flag_dofs(self) -> 'FlagDOFData':
+        """Implements the superclass' abstract method to return the local flag dof data."""
         return self._flag_dof_data
 
     def _collect_nutrient_ratio_conflicts(self, flag_name: str,
@@ -380,6 +382,7 @@ class HasSettableFlags(HasFlags, model.nutrients.HasSettableNutrientRatios, pers
             self._flag_dofs[flag_name] = flag_value
 
     def load_data(self, data: Dict[str, Any]) -> None:
+        """Load the flag data onto the instance."""
         # Pass the data on for sibling classes to load it;
         super().load_data(data)
 
