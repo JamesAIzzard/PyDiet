@@ -1,0 +1,129 @@
+{
+  "cost_per_qty_data": {
+    "cost_per_g": 0.038,
+    "pref_unit": "g",
+    "quantity_in_g": 100
+  },
+  "extended_units_data": {
+    "g_per_ml": null,
+    "piece_mass_g": null
+  },
+  "flag_data": {
+    "nut_free": true,
+    "vegan": true,
+    "vegetarian": true
+  },
+  "name": "Chilli Powder",
+  "nutrient_ratios_data": {
+    "alcohol": {
+      "nutrient_mass_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 0.0
+      },
+      "subject_ref_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 100
+      }
+    },
+    "caffeine": {
+      "nutrient_mass_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 0.0
+      },
+      "subject_ref_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 100
+      }
+    },
+    "carbohydrate": {
+      "nutrient_mass_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 0.5125
+      },
+      "subject_ref_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 100
+      }
+    },
+    "fat": {
+      "nutrient_mass_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 0.1625
+      },
+      "subject_ref_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 100
+      }
+    },
+    "gluten": {
+      "nutrient_mass_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 0.0
+      },
+      "subject_ref_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 100
+      }
+    },
+    "lactose": {
+      "nutrient_mass_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 0.0
+      },
+      "subject_ref_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 100
+      }
+    },
+    "monounsaturated_fat": {
+      "nutrient_mass_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 0.0375
+      },
+      "subject_ref_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 100
+      }
+    },
+    "polyunsaturated_fat": {
+      "nutrient_mass_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 0.075
+      },
+      "subject_ref_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 100
+      }
+    },
+    "protein": {
+      "nutrient_mass_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 0.1125
+      },
+      "subject_ref_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 100
+      }
+    },
+    "saturated_fat": {
+      "nutrient_mass_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 0.025
+      },
+      "subject_ref_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 100
+      }
+    },
+    "sodium": {
+      "nutrient_mass_data": {
+        "pref_unit": "mg",
+        "quantity_in_g": 0.009474999999999999
+      },
+      "subject_ref_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 100
+      }
+    }
+  }
+}

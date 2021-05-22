@@ -1,8 +1,9 @@
 from . import exceptions, configs
 from .main import (
-    save,
-    load,
-    delete,
+    save_instance,
+    load_instance,
+    load_datafile,
+    delete_instances,
     check_unique_value_available,
     count_saved_instances,
     search_for_unique_values,

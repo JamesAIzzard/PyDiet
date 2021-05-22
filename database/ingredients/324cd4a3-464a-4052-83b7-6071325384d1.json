@@ -1,0 +1,99 @@
+{
+  "cost_per_qty_data": {
+    "cost_per_g": 0.0032500000000000003,
+    "pref_unit": "g",
+    "quantity_in_g": 100
+  },
+  "extended_units_data": {
+    "g_per_ml": null,
+    "piece_mass_g": null
+  },
+  "flag_data": {
+    "nut_free": true,
+    "vegan": true,
+    "vegetarian": true
+  },
+  "name": "Sultana",
+  "nutrient_ratios_data": {
+    "alcohol": {
+      "nutrient_mass_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 0
+      },
+      "subject_ref_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 100
+      }
+    },
+    "carbohydrate": {
+      "nutrient_mass_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 0.7931034482758621
+      },
+      "subject_ref_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 100
+      }
+    },
+    "fat": {
+      "nutrient_mass_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 0.004827586206896551
+      },
+      "subject_ref_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 100
+      }
+    },
+    "monounsaturated_fat": {
+      "nutrient_mass_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 0.0
+      },
+      "subject_ref_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 100
+      }
+    },
+    "polyunsaturated_fat": {
+      "nutrient_mass_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 0.0013793103448275863
+      },
+      "subject_ref_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 100
+      }
+    },
+    "protein": {
+      "nutrient_mass_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 0.033793103448275866
+      },
+      "subject_ref_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 100
+      }
+    },
+    "saturated_fat": {
+      "nutrient_mass_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 0.0013793103448275863
+      },
+      "subject_ref_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 100
+      }
+    },
+    "sodium": {
+      "nutrient_mass_data": {
+        "pref_unit": "mg",
+        "quantity_in_g": 0.00011724137931034484
+      },
+      "subject_ref_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 100
+      }
+    }
+  }
+}

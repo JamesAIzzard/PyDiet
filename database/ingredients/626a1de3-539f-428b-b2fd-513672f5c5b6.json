@@ -1,0 +1,129 @@
+{
+  "cost_per_qty_data": {
+    "cost_per_g": 0.04,
+    "pref_unit": "g",
+    "quantity_in_g": 100
+  },
+  "extended_units_data": {
+    "g_per_ml": null,
+    "piece_mass_g": 225.0
+  },
+  "flag_data": {
+    "nut_free": true,
+    "vegan": false,
+    "vegetarian": false
+  },
+  "name": "Fillet steak",
+  "nutrient_ratios_data": {
+    "alcohol": {
+      "nutrient_mass_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 0.0
+      },
+      "subject_ref_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 100
+      }
+    },
+    "caffeine": {
+      "nutrient_mass_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 0.0
+      },
+      "subject_ref_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 100
+      }
+    },
+    "carbohydrate": {
+      "nutrient_mass_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 0.0
+      },
+      "subject_ref_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 100
+      }
+    },
+    "fat": {
+      "nutrient_mass_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 0.24711111111111111
+      },
+      "subject_ref_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 100
+      }
+    },
+    "gluten": {
+      "nutrient_mass_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 0.0
+      },
+      "subject_ref_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 100
+      }
+    },
+    "lactose": {
+      "nutrient_mass_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 0.0
+      },
+      "subject_ref_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 100
+      }
+    },
+    "monounsaturated_fat": {
+      "nutrient_mass_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 0.10222222222222223
+      },
+      "subject_ref_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 100
+      }
+    },
+    "polyunsaturated_fat": {
+      "nutrient_mass_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 0.010222222222222221
+      },
+      "subject_ref_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 100
+      }
+    },
+    "protein": {
+      "nutrient_mass_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 0.2351111111111111
+      },
+      "subject_ref_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 100
+      }
+    },
+    "saturated_fat": {
+      "nutrient_mass_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 0.09777777777777778
+      },
+      "subject_ref_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 100
+      }
+    },
+    "sodium": {
+      "nutrient_mass_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 0.0013333333333333333
+      },
+      "subject_ref_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 100
+      }
+    }
+  }
+}

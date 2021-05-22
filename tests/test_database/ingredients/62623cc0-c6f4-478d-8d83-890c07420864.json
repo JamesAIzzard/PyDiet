@@ -1,0 +1,99 @@
+{
+  "cost_per_qty_data": {
+    "cost_per_g": 0.013000000000000001,
+    "pref_unit": "g",
+    "quantity_in_g": 100
+  },
+  "extended_units_data": {
+    "g_per_ml": null,
+    "piece_mass_g": null
+  },
+  "flag_data": {
+    "nut_free": true,
+    "vegan": false,
+    "vegetarian": false
+  },
+  "name": "Bacon",
+  "nutrient_ratios_data": {
+    "alcohol": {
+      "nutrient_mass_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 0
+      },
+      "subject_ref_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 100
+      }
+    },
+    "carbohydrate": {
+      "nutrient_mass_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 0.0
+      },
+      "subject_ref_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 100
+      }
+    },
+    "fat": {
+      "nutrient_mass_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 0.165
+      },
+      "subject_ref_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 100
+      }
+    },
+    "monounsaturated_fat": {
+      "nutrient_mass_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 0.05
+      },
+      "subject_ref_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 100
+      }
+    },
+    "polyunsaturated_fat": {
+      "nutrient_mass_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 0.055999999999999994
+      },
+      "subject_ref_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 100
+      }
+    },
+    "protein": {
+      "nutrient_mass_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 0.195
+      },
+      "subject_ref_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 100
+      }
+    },
+    "saturated_fat": {
+      "nutrient_mass_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 0.059000000000000004
+      },
+      "subject_ref_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 100
+      }
+    },
+    "sodium": {
+      "nutrient_mass_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 0.025
+      },
+      "subject_ref_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 100
+      }
+    }
+  }
+}

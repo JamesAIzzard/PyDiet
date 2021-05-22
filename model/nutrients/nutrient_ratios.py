@@ -1,3 +1,4 @@
+"""Module defining nutrient ratio functionality."""
 import abc
 from typing import Dict, List, Any, Optional, TypedDict, Callable
 
@@ -111,6 +112,7 @@ class NutrientRatio(model.SupportsDefinition, persistence.YieldsPersistableData)
 
     @property
     def persistable_data(self) -> 'model.nutrients.NutrientRatioData':
+        """Returns the persistable data for the nutrient ratio."""
         return model.nutrients.NutrientRatioData(
             nutrient_mass_data=self.nutrient_mass.persistable_data,
             subject_ref_qty_data=self.subject_ref_quantity.persistable_data
@@ -194,6 +196,7 @@ class SettableNutrientRatio(NutrientRatio):
         )
 
     def load_data(self, nutrient_ratio_data: 'NutrientRatioData') -> None:
+        """Loads the nutrient ratio data into the instance."""
         self._nutrient_mass.load_data(nutrient_ratio_data['nutrient_mass_data'])
         self._subject_ref_qty.load_data(nutrient_ratio_data['subject_ref_qty_data'])
 
@@ -217,16 +220,38 @@ class HasNutrientRatios(persistence.YieldsPersistableData, abc.ABC):
 
     @property
     @abc.abstractmethod
-    def nutrient_ratios(self) -> Dict[str, 'NutrientRatio']:
-        """Returns all defined nutrient ratios keyed by their primary names.
-        Notes:
-            See class docstring; should only return defined instances.
-            Also - since these are part of the public interface, they can only be non-settable!
-        """
+    def nutrient_ratios_data(self) -> 'NutrientRatiosData':
+        """Returns the instance's nutrient ratios data."""
         raise NotImplementedError
+
+    @property
+    def nutrient_ratios(self) -> Dict[str, 'NutrientRatio']:
+        """Returns a list of nutrient ratios associated with the instance.
+        Notes
+            These must be readonly instances, to prevent out of context modification without validation.
+        """
+
+        # First, create somewhere to store the new readonly versions;
+        nrs: Dict[str, 'NutrientRatio'] = {}
+
+        # Create an accessor function to extract the persistable data from a named nutrient;
+        def get_accessor(nutr_name: str) -> Callable[[None], 'model.nutrients.NutrientRatioData']:
+            """Factory function to generate a data accessor for a particular name."""
+            return lambda: self.nutrient_ratios_data[nutr_name]
+
+        # Next, work the dict and convert the data into NutrientRatio instances;
+        for nutrient_name in self.nutrient_ratios_data.keys():
+            nrs[nutrient_name] = NutrientRatio(
+                subject=self,
+                nutrient_name=nutrient_name,
+                nutrient_ratio_data_src=get_accessor(nutrient_name)
+            )
+        # Now, return the dict of readonly instances;
+        return nrs
 
     def get_nutrient_ratio(self, nutrient_name: str) -> 'NutrientRatio':
         """Returns a NutrientRatio by name."""
+        # todo - Update this method so we don't have to initialise all the nutrient ratios.
         # Convert to the primary name, in case we were given an alias;
         nutrient_name = model.nutrients.get_nutrient_primary_name(nutrient_name)
         # If the nutrient is defined (i.e if it is in the dictionary);
@@ -275,6 +300,7 @@ class HasNutrientRatios(persistence.YieldsPersistableData, abc.ABC):
         # here, so it works with the mass validator function. I suppose another approach would be to generalise
         # the validator function a little, but this way should work fine;
         def get_nutrient_mass_g(nutr_name: str) -> float:
+            """Accessor function for the nutrient mass, which raises the correct type of exception."""
             try:
                 return self.get_nutrient_ratio(nutr_name).g_per_subject_g
             except model.nutrients.exceptions.UndefinedNutrientRatioError:
@@ -293,11 +319,10 @@ class HasNutrientRatios(persistence.YieldsPersistableData, abc.ABC):
     def persistable_data(self) -> Dict[str, Any]:
         """Returns the nutrient ratio's data in persistable format."""
         data = super().persistable_data
+
         # Add a heading for the nutrient ratios data;
-        data['nutrient_ratios_data'] = {}
-        # Compile the data;
-        for nutrient_name, nutrient_ratio in self.nutrient_ratios.items():
-            data['nutrient_ratios_data'][nutrient_name] = nutrient_ratio.persistable_data
+        data['nutrient_ratios_data'] = self.nutrient_ratios_data
+
         # Return the data;
         return data
 
@@ -326,25 +351,17 @@ class HasSettableNutrientRatios(HasNutrientRatios, persistence.CanLoadData):
             self.load_data({'nutrient_ratios_data': nutrient_ratios_data})
 
     @property
-    def nutrient_ratios(self) -> Dict[str, 'NutrientRatio']:
-        # We need to convert these to readonly versions, to do nutrient family validation,  writing must take
-        # place through this class' methods - so don't give out writeable versions.
-        # First, create somewhere to store the new readonly versions;
-        _nutrient_ratios: Dict[str, 'NutrientRatio'] = {}
+    def nutrient_ratios_data(self) -> 'NutrientRatiosData':
+        """Returns the instance's current nutrient ratios data."""
+        # Init the dict;
+        data: 'NutrientRatiosData' = {}
 
-        # Create an accessor function to extract the persistable data from a named nutrient;
-        def get_accessor(nutr_name: str) -> Callable[[None], 'model.nutrients.NutrientRatioData']:
-            return lambda: self._nutrient_ratios[nutr_name].persistable_data
+        # Compile the data;
+        for nutrient_name, nutrient_ratio in self._nutrient_ratios.items():
+            data[nutrient_name] = nutrient_ratio.persistable_data
 
-        # Next, work the dict and convert the writable NutrientRatio instances into readonly versions;
-        for nutrient_name, settable_nutrient_ratio in self._nutrient_ratios.items():
-            _nutrient_ratios[nutrient_name] = NutrientRatio(
-                subject=self,
-                nutrient_name=nutrient_name,
-                nutrient_ratio_data_src=get_accessor(nutrient_name)
-            )
-        # Now, return the dict of readonly instances;
-        return _nutrient_ratios
+        # Return;
+        return data
 
     def _get_settable_nutrient_ratio(self, nutrient_name: str) -> 'SettableNutrientRatio':
         """Returns a SettableNutrientRatio instance. IMPORTANT! Internal use only - see class docstring."""

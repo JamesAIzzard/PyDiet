@@ -16,19 +16,77 @@ class IngredientData(TypedDict):
 
 class Ingredient(
     persistence.SupportsPersistence,
-    model.HasName
+    model.HasName,
+    model.quantity.SupportsExtendedUnits,
+    model.cost.SupportsCostPerQuantity,
+    model.flags.HasFlags
 ):
     """Readonly ingredient model."""
 
-    def __init__(self, unique_name: Optional[str] = None, df_name: Optional[str] = None, **kwargs):
+    def __init__(self, unique_name: Optional[str] = None, datafile_name: Optional[str] = None, **kwargs):
         super().__init__(**kwargs)
 
         # Raise an exception if no info was provided;
-        if unique_name is None and df_name is None:
+        if unique_name is None and datafile_name is None:
             raise ValueError("Either unique name or datafile name must be provided to init an Ingredient.")
+        elif unique_name is not None:
+            super().__init__(
+                name=unique_name,
+                datafile_name=persistence.get_datafile_name_for_unique_value(
+                    cls=model.ingredients.Ingredient,
+                    unique_value=unique_name
+                ),
+                **kwargs
+            )
+        elif datafile_name is not None:
+            super().__init__(
+                name=persistence.get_unique_value_from_datafile_name(
+                    cls=model.ingredients.Ingredient,
+                    datafile_name=datafile_name
+                ),
+                datafile_name=datafile_name,
+                **kwargs
+            )
 
-        self._unique_name = unique_name
-        self._df_name = df_name
+    @property
+    def _g_per_ml(self) -> Optional[float]:
+        """Returns the grams per ml for the ingredient if defined, otherwise returns None."""
+        return persistence.load_datafile(
+            cls=Ingredient,
+            datafile_name=self.datafile_name
+        )['extended_units_data']['g_per_ml']
+
+    @property
+    def _piece_mass_g(self) -> Optional[float]:
+        """Returns the piece mass in grams for the ingredient, if defined, otherwise, returns None."""
+        return persistence.load_datafile(
+            cls=Ingredient,
+            datafile_name=self.datafile_name
+        )['extended_units_data']['piece_mass_g']
+
+    @property
+    def _cost_per_qty_data(self) -> 'model.cost.CostPerQtyData':
+        """Returns the cost_per_qty data for this ingredient."""
+        return persistence.load_datafile(
+            cls=Ingredient,
+            datafile_name=self.datafile_name
+        )['cost_per_qty_data']
+
+    @property
+    def _flag_dofs(self) -> 'model.flags.FlagDOFData':
+        """Returns the flag data for this ingredient."""
+        return persistence.load_datafile(
+            cls=Ingredient,
+            datafile_name=self.datafile_name
+        )['flag_data']
+
+    @property
+    def nutrient_ratios_data(self) -> 'model.nutrients.NutrientRatiosData':
+        """Returns the nutrient ratio data for this ingredient."""
+        return persistence.load_datafile(
+            cls=Ingredient,
+            datafile_name=self.datafile_name
+        )['nutrient_ratios_data']
 
     @staticmethod
     def get_path_into_db() -> str:
@@ -39,3 +97,8 @@ class Ingredient(
     def unique_value(self) -> str:
         """Returns the ingredient's unique name."""
         return self.name
+
+    @property
+    def persistable_data(self) -> 'model.ingredients.IngredientData':
+        """Returns the persistable data for the ingredient instance."""
+        return super().persistable_data

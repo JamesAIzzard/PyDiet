@@ -1,7 +1,8 @@
+"""Tests for HasFlags functionality."""
 from unittest import TestCase
 
 import model
-import tests.model.nutrients.fixtures as nut_fx
+import tests.model.nutrients.fixtures as nfx
 from tests.model.flags import fixtures as fx
 
 
@@ -13,6 +14,7 @@ class TestConstructor(TestCase):
 
 class TestGetFlagDOF(TestCase):
     def setUp(self) -> None:
+        """Setup"""
         self.flag_dofs = {
             "pongaterian": True,
             "foogetarian": False,
@@ -39,46 +41,48 @@ class TestGetFlagDOF(TestCase):
 
 
 class TestGetFlagValue(TestCase):
+    """Tests the get_flag_value method."""
     @fx.use_test_flags
-    @nut_fx.use_test_nutrients
+    @nfx.use_test_nutrients
     def test_direct_alias_returns_true_when_all_related_nutrients_agree(self):
-        nutrient_ratios = {
-            "foo": fx.get_mock_nutrient_ratio("foo", 0),
-            "foobing": fx.get_mock_nutrient_ratio("foobing", 0.9),
-            "foobar": fx.get_mock_nutrient_ratio("foobar", 0)
+        """Check that a direct alias flag returns True if all related nutrients agree."""
+        nutrient_ratios_data = {
+            "foo": nfx.get_nutrient_ratio_data(nutrient_mass_g=0, subject_qty_g=100),
+            "foobing": nfx.get_nutrient_ratio_data(nutrient_mass_g=0.9, subject_qty_g=100),
+            "foobar": nfx.get_nutrient_ratio_data(nutrient_mass_g=0, subject_qty_g=100)
         }
-        hf = fx.HasFlagsTestable(nutrient_ratios=nutrient_ratios)
+        hf = fx.HasFlagsTestable(nutrient_ratios_data=nutrient_ratios_data)
         self.assertTrue(hf.get_flag_value("foo_free"))
 
     @fx.use_test_flags
-    @nut_fx.use_test_nutrients
+    @nfx.use_test_nutrients
     def test_direct_alias_returns_false_if_nutrient_conflicts_even_with_undefined_nutrients(self):
-        nutrient_ratios = {
-            "foo": fx.get_mock_nutrient_ratio("foo", 0),
-            "foobing": fx.get_mock_nutrient_ratio("foobing", 0),
+        nutrient_ratios_data = {
+            "foo": nfx.get_nutrient_ratio_data(nutrient_mass_g=0, subject_qty_g=100),
+            "foobing": nfx.get_nutrient_ratio_data(nutrient_mass_g=0, subject_qty_g=100),
         }
-        hf = fx.HasFlagsTestable(nutrient_ratios=nutrient_ratios)
+        hf = fx.HasFlagsTestable(nutrient_ratios_data=nutrient_ratios_data)
         self.assertFalse(hf.get_flag_value("foo_free"))
 
     @fx.use_test_flags
-    @nut_fx.use_test_nutrients
+    @nfx.use_test_nutrients
     def test_direct_alias_returns_false_when_a_related_nutrient_disagrees(self):
-        nutrient_ratios = {
-            "foo": fx.get_mock_nutrient_ratio("foo", 0),
-            "foobing": fx.get_mock_nutrient_ratio("foobing", 0),
-            "foobar": fx.get_mock_nutrient_ratio("foobar", 0)
+        nutrient_ratios_data = {
+            "foo": nfx.get_nutrient_ratio_data(nutrient_mass_g=0, subject_qty_g=100),
+            "foobing": nfx.get_nutrient_ratio_data(nutrient_mass_g=0, subject_qty_g=100),
+            "foobar": nfx.get_nutrient_ratio_data(nutrient_mass_g=0, subject_qty_g=100)
         }
-        hf = fx.HasFlagsTestable(nutrient_ratios=nutrient_ratios)
+        hf = fx.HasFlagsTestable(nutrient_ratios_data=nutrient_ratios_data)
         self.assertFalse(hf.get_flag_value("foo_free"))
 
     @fx.use_test_flags
-    @nut_fx.use_test_nutrients
+    @nfx.use_test_nutrients
     def test_direct_alias_raises_exception_when_related_nutrient_undefined(self):
-        nutrient_ratios = {
-            "foo": fx.get_mock_nutrient_ratio("foo", 0),
-            "foobar": fx.get_mock_nutrient_ratio("foobar", 0)
+        nutrient_ratios_data = {
+            "foo": nfx.get_nutrient_ratio_data(nutrient_mass_g=0, subject_qty_g=100),
+            "foobar": nfx.get_nutrient_ratio_data(nutrient_mass_g=0, subject_qty_g=100)
         }
-        hf = fx.HasFlagsTestable(nutrient_ratios=nutrient_ratios)
+        hf = fx.HasFlagsTestable(nutrient_ratios_data=nutrient_ratios_data)
         with self.assertRaises(model.flags.exceptions.UndefinedFlagError):
             hf.get_flag_value("foo_free")
 
@@ -90,28 +94,28 @@ class TestGetFlagValue(TestCase):
         self.assertFalse(hf.get_flag_value("foogetarian"))
 
     @fx.use_test_flags
-    @nut_fx.use_test_nutrients
+    @nfx.use_test_nutrients
     def test_returns_dof_if_related_nutrient_is_undefined_but_no_related_nutrients_conflict(self):
-        nutrient_ratios = {
-            "foo": fx.get_mock_nutrient_ratio("foo", 0),
-            "foobing": fx.get_mock_nutrient_ratio("foobing", 0),
+        nutrient_ratios_data = {
+            "foo": nfx.get_nutrient_ratio_data(nutrient_mass_g=0, subject_qty_g=100),
+            "foobing": nfx.get_nutrient_ratio_data(nutrient_mass_g=0, subject_qty_g=100),
         }
-        hf = fx.HasFlagsTestable(flag_dofs={"pongaterian": True}, nutrient_ratios=nutrient_ratios)
+        hf = fx.HasFlagsTestable(flag_dofs={"pongaterian": True}, nutrient_ratios_data=nutrient_ratios_data)
         self.assertTrue(hf.get_flag_value("pongaterian"))
-        hf = fx.HasFlagsTestable(flag_dofs={"pongaterian": False}, nutrient_ratios=nutrient_ratios)
+        hf = fx.HasFlagsTestable(flag_dofs={"pongaterian": False}, nutrient_ratios_data=nutrient_ratios_data)
         self.assertFalse(hf.get_flag_value("pongaterian"))
 
     @fx.use_test_flags
-    @nut_fx.use_test_nutrients
+    @nfx.use_test_nutrients
     def test_dof_overrides_related_nutrients_when_no_conflict(self):
-        nutrient_ratios = {
-            "foo": fx.get_mock_nutrient_ratio("foo", 0),
-            "foobing": fx.get_mock_nutrient_ratio("foobing", 0),
-            "bazing": fx.get_mock_nutrient_ratio("bazing", 0.9)
+        nutrient_ratios_data = {
+            "foo": nfx.get_nutrient_ratio_data(nutrient_mass_g=0, subject_qty_g=100),
+            "foobing": nfx.get_nutrient_ratio_data(nutrient_mass_g=0, subject_qty_g=100),
+            "bazing": nfx.get_nutrient_ratio_data(nutrient_mass_g=90, subject_qty_g=100)
         }
-        hf = fx.HasFlagsTestable(flag_dofs={"pongaterian": True}, nutrient_ratios=nutrient_ratios)
+        hf = fx.HasFlagsTestable(flag_dofs={"pongaterian": True}, nutrient_ratios_data=nutrient_ratios_data)
         self.assertTrue(hf.get_flag_value("pongaterian"))
-        hf = fx.HasFlagsTestable(flag_dofs={"pongaterian": False}, nutrient_ratios=nutrient_ratios)
+        hf = fx.HasFlagsTestable(flag_dofs={"pongaterian": False}, nutrient_ratios_data=nutrient_ratios_data)
         self.assertFalse(hf.get_flag_value("pongaterian"))
 
     @fx.use_test_flags
@@ -121,38 +125,38 @@ class TestGetFlagValue(TestCase):
             hf.get_flag_value("foogetarian")
 
     @fx.use_test_flags
-    @nut_fx.use_test_nutrients
+    @nfx.use_test_nutrients
     def test_raises_exception_if_direct_alias_and_no_related_nutrients_set(self):
         hf = fx.HasFlagsTestable()
         with self.assertRaises(model.flags.exceptions.UndefinedFlagError):
             hf.get_flag_value("foo_free")
 
     @fx.use_test_flags
-    @nut_fx.use_test_nutrients
+    @nfx.use_test_nutrients
     def test_returns_false_if_dof_is_true_but_nutrient_conflicts(self):
-        nutrient_ratios = {
-            "foo": fx.get_mock_nutrient_ratio("foo", 0),
-            "foobing": fx.get_mock_nutrient_ratio("foobing", 0),
-            "bazing": fx.get_mock_nutrient_ratio("bazing", 0)
+        nutrient_ratios_data = {
+            "foo": nfx.get_nutrient_ratio_data(nutrient_mass_g=0, subject_qty_g=100),
+            "foobing": nfx.get_nutrient_ratio_data(nutrient_mass_g=0, subject_qty_g=100),
+            "bazing": nfx.get_nutrient_ratio_data(nutrient_mass_g=0, subject_qty_g=100)
         }
-        hf = fx.HasFlagsTestable(flag_dofs={"pongaterian": True}, nutrient_ratios=nutrient_ratios)
+        hf = fx.HasFlagsTestable(flag_dofs={"pongaterian": True}, nutrient_ratios_data=nutrient_ratios_data)
         self.assertFalse(hf.get_flag_value("pongaterian"))
 
 
 class TestGetUndefinedFlagNames(TestCase):
     @fx.use_test_flags
-    @nut_fx.use_test_nutrients
+    @nfx.use_test_nutrients
     def test_returns_names_correctly(self):
-        nutrient_ratios = {
-            "foo": fx.get_mock_nutrient_ratio("foo", 0),
-            "foobing": fx.get_mock_nutrient_ratio("foobing", 0.9),
-            "bazing": fx.get_mock_nutrient_ratio("bazing", 0)
+        nutrient_ratios_data = {
+            "foo": nfx.get_nutrient_ratio_data(nutrient_mass_g=0, subject_qty_g=100),
+            "foobing": nfx.get_nutrient_ratio_data(nutrient_mass_g=90, subject_qty_g=100),
+            "bazing": nfx.get_nutrient_ratio_data(nutrient_mass_g=0, subject_qty_g=100)
         }
         flag_dofs = {
             "pongaterian": True,
             "foogetarian": False
         }
-        hf = fx.HasFlagsTestable(flag_dofs=flag_dofs, nutrient_ratios=nutrient_ratios)
+        hf = fx.HasFlagsTestable(flag_dofs=flag_dofs, nutrient_ratios_data=nutrient_ratios_data)
         self.assertEqual(
             set(hf.get_undefined_flag_names()),
             {"foo_free", "bar_free", "tirbur_free"}
@@ -161,7 +165,7 @@ class TestGetUndefinedFlagNames(TestCase):
 
 class TestPersistableData(TestCase):
     @fx.use_test_flags
-    @nut_fx.use_test_nutrients
+    @nfx.use_test_nutrients
     def test_returns_correct_data(self):
         flag_dofs = {
             "bar_free": True,

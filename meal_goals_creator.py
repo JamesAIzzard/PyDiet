@@ -24,4 +24,4 @@ data = goals.MealGoalsData(
 )
 
 mg = goals.PersistableMealGoals(meal_goals_data=data)
-persistence.save(mg)
+persistence.save_instance(mg)

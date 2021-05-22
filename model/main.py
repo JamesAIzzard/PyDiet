@@ -1,3 +1,4 @@
+"""General use classes for model."""
 import abc
 from typing import List, Dict, Optional, Any
 
@@ -33,6 +34,7 @@ class HasName(persistence.CanLoadData):
         super().load_data(data)
         self._name = data['name']
 
+    @property
     def persistable_data(self) -> Dict[str, Any]:
         """Returns instance's persistable data."""
         data = super().persistable_data
@@ -53,6 +55,7 @@ class HasSettableName(HasName):
 
 
 class SupportsDefinition(abc.ABC):
+    """Models functionlity associated with being fully/not fully defined."""
     @property
     @abc.abstractmethod
     def is_defined(self) -> bool:
@@ -78,6 +81,7 @@ class HasMandatoryAttributes(SupportsDefinition, abc.ABC):
 
     @property
     def is_defined(self) -> bool:
+        """Returns True/False to indicate if the instance is defined."""
         # We are defined, if the list of mandatory attributes has no items in it.
         return len(self.missing_mandatory_attrs) == 0
 

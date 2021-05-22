@@ -254,7 +254,7 @@ class IngredientEditorController(gui.HasSubject):
                 return False
 
         # All OK, go ahead and save;
-        persistence.save(self.subject)
+        persistence.save_instance(self.subject)
         gui.app.root.title("Ingredient Editor")
         show_save_message(f"{self.subject.name} saved!")
         return True

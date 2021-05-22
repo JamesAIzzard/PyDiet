@@ -22,10 +22,6 @@ class HasFlags(model.nutrients.HasNutrientRatios, persistence.YieldsPersistableD
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        # # Check that this isntance also has nutrient ratios;
-        # if not isinstance(self, model.nutrients.HasNutrientRatios):
-        #     raise TypeError('HasFlags requires NutrientRatios to function.')
-
     @property
     @abc.abstractmethod
     def _flag_dofs(self) -> 'FlagDOFData':
@@ -121,6 +117,7 @@ class HasFlags(model.nutrients.HasNutrientRatios, persistence.YieldsPersistableD
 
     @property
     def persistable_data(self) -> Dict[str, Any]:
+        """Returns the persistable data dict with the flag data added."""
         # Grab the peristable data from the sibling classes;
         data = super().persistable_data
         data['flag_data'] = self._flag_dofs

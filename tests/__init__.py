@@ -1,1 +1,2 @@
-from . import goals, model, optimisation, configs
+from . import goals, model, optimisation
+from .persistence import configs

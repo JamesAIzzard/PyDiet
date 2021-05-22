@@ -1,0 +1,99 @@
+{
+  "cost_per_qty_data": {
+    "cost_per_g": 0.0015,
+    "pref_unit": "g",
+    "quantity_in_g": 100
+  },
+  "extended_units_data": {
+    "g_per_ml": null,
+    "piece_mass_g": 1000.0
+  },
+  "flag_data": {
+    "nut_free": true,
+    "vegan": true,
+    "vegetarian": true
+  },
+  "name": "Pineapple",
+  "nutrient_ratios_data": {
+    "alcohol": {
+      "nutrient_mass_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 0
+      },
+      "subject_ref_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 100
+      }
+    },
+    "carbohydrate": {
+      "nutrient_mass_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 0.10099999999999999
+      },
+      "subject_ref_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 100
+      }
+    },
+    "fat": {
+      "nutrient_mass_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 0.0012121212121212121
+      },
+      "subject_ref_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 100
+      }
+    },
+    "monounsaturated_fat": {
+      "nutrient_mass_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 0.0006060606060606061
+      },
+      "subject_ref_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 100
+      }
+    },
+    "polyunsaturated_fat": {
+      "nutrient_mass_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 0.0006060606060606061
+      },
+      "subject_ref_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 100
+      }
+    },
+    "protein": {
+      "nutrient_mass_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 0.005454545454545455
+      },
+      "subject_ref_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 100
+      }
+    },
+    "saturated_fat": {
+      "nutrient_mass_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 0.0
+      },
+      "subject_ref_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 100
+      }
+    },
+    "sodium": {
+      "nutrient_mass_data": {
+        "pref_unit": "mg",
+        "quantity_in_g": 1.0303030303030302e-05
+      },
+      "subject_ref_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 100
+      }
+    }
+  }
+}

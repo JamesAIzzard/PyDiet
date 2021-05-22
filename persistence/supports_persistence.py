@@ -73,7 +73,7 @@ class SupportsPersistence(CanLoadData, abc.ABC):
         if not self.datafile_name_is_defined:
             return True
         # Otherwise, compare the current data with the saved data.
-        saved_version = persistence.load(self.__class__, datafile_name=self.datafile_name)
+        saved_version = persistence.load_instance(self.__class__, datafile_name=self.datafile_name)
         return not self.persistable_data == saved_version.persistable_data
 
     @property

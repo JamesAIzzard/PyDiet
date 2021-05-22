@@ -11,7 +11,7 @@ import persistence
 T = TypeVar('T')
 
 
-def save(subject: 'persistence.SupportsPersistence') -> None:
+def save_instance(subject: 'persistence.SupportsPersistence') -> None:
     """Saves the subject."""
 
     # Check the name is available;
@@ -26,30 +26,31 @@ def save(subject: 'persistence.SupportsPersistence') -> None:
         _create_datafile(subject)
 
 
-def load(cls: Type[T], unique_value: Optional[str] = None,
-         datafile_name: Optional[str] = None) -> T:
+def load_instance(cls: Type[T], unique_value: Optional[str] = None,
+                  datafile_name: Optional[str] = None) -> T:
     """Loads and returns an instance of the specified type, corresponding to the
     unique field name provided."""
+    # Load & return;
+    data = load_datafile(cls=cls, unique_value=unique_value, datafile_name=datafile_name)
+    loaded_instance = cls(datafile_name=datafile_name)
+    loaded_instance.load_data(data)
+    return loaded_instance
 
-    # Assert that the class specified supports persistance;
-    if not issubclass(cls, persistence.SupportsPersistence):
-        raise TypeError("Type being loaded must support persistence.")
 
+def load_datafile(cls: Any, unique_value: Optional[str] = None, datafile_name: Optional[str] = None) -> Dict[str, Any]:
+    """Returns the datafile for the specified instance."""
     # Check the params are OK and get the datafile name if required;
     if unique_value is None and datafile_name is None:
         raise ValueError('Either name or datafile name must be provided.')
     if unique_value is not None:
         datafile_name = get_datafile_name_for_unique_value(cls, unique_value)
 
-    # Load & return;
-    data = _read_datafile(f"{cls.get_path_into_db()}/{datafile_name}.json")
-    loaded_instance = cls(datafile_name=datafile_name)
-    loaded_instance.load_data(data)
-    return loaded_instance
+    # Load and return;
+    return _read_datafile(f"{cls.get_path_into_db()}/{datafile_name}.json")
 
 
-def delete(cls: Type['persistence.SupportsPersistence'], name: Optional[str] = None,
-           datafile_name: Optional[str] = None) -> None:
+def delete_instances(cls: Type['persistence.SupportsPersistence'], name: Optional[str] = None,
+                     datafile_name: Optional[str] = None) -> None:
     """Deletes the instance of the specified type, with the specified unique qty, from the database."""
 
     # Check the params are OK and get the datafile name if required;

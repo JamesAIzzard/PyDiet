@@ -24,13 +24,17 @@ GLOBAL_NUTRIENTS = model.nutrients.build_global_nutrient_list(test_configs)
 
 class HasNutrientRatiosTestable(model.nutrients.HasNutrientRatios):
     """Minimal class to allow testing of the HasNutrientRatios abstract base class."""
-    def __init__(self):
-        self._nutrient_ratios: Dict[str, 'model.nutrients.NutrientRatio'] = {}
+
+    def __init__(self, nutrient_ratios_data: 'model.nutrients.NutrientRatiosData' = None):
+        if nutrient_ratios_data is None:
+            self._nutrient_ratios_data: 'model.nutrients.NutrientRatiosData' = {}
+        else:
+            self._nutrient_ratios_data = nutrient_ratios_data
 
     @property
-    def nutrient_ratios(self) -> Dict[str, 'model.nutrients.NutrientRatio']:
+    def nutrient_ratios_data(self) -> 'model.nutrients.NutrientRatiosData':
         """Returns the nutrient ratios for the instance;"""
-        return self._nutrient_ratios
+        return self._nutrient_ratios_data
 
 
 class HasSettableNutrientRatiosAndExtUnitsTestable(
@@ -55,6 +59,7 @@ class HasSettableNutrientRatiosAndExtUnitsTestable(
 
 def use_test_nutrients(func):
     """Decorator to apply all patches required to use the test nutrients."""
+
     @mock.patch('model.nutrients.GLOBAL_NUTRIENTS', GLOBAL_NUTRIENTS)
     @mock.patch('model.nutrients.NUTRIENT_GROUP_NAMES', NUTRIENT_GROUP_NAMES)
     @mock.patch('model.nutrients.OPTIONAL_NUTRIENT_NAMES', OPTIONAL_NUTRIENT_NAMES)
@@ -65,6 +70,25 @@ def use_test_nutrients(func):
         return func(*args, **kwargs)
 
     return wrapper
+
+
+def get_nutrient_ratio_data(
+        nutrient_mass_g: Optional[float] = None,
+        nutrient_mass_unit: str = 'g',
+        subject_qty_g: Optional[float] = None,
+        subject_qty_unit: str = 'g',
+) -> 'model.nutrients.NutrientRatioData':
+    """Helper function to create nutrient ratio data. Provides default values when values not specified."""
+    return model.nutrients.NutrientRatioData(
+        nutrient_mass_data=model.nutrients.NutrientMassData(
+            quantity_in_g=nutrient_mass_g,
+            pref_unit=nutrient_mass_unit
+        ),
+        subject_ref_qty_data=model.quantity.QuantityData(
+            quantity_in_g=subject_qty_g,
+            pref_unit=subject_qty_unit
+        )
+    )
 
 
 def init_10g_tirbur() -> 'model.nutrients.NutrientMass':

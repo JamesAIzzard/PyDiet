@@ -138,7 +138,7 @@ class App:
 
     def _on_ingredient_edit(self, event):
         """Handler for the edit ingredient event."""
-        i = persistence.load(
+        i = persistence.load_instance(
             cls=model.ingredients.Ingredient,
             unique_value=event.widget.ingredient_name
         )

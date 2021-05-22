@@ -3,13 +3,13 @@ from unittest import TestCase
 
 import model
 import persistence
-from tests import fixtures as tfx
+from tests.persistence import fixtures as pfx
 
 
 class TestConstructor(TestCase):
     """Constructor method tests."""
 
-    @tfx.use_test_database
+    @pfx.use_test_database
     def test_can_create_instance_from_unique_name(self):
         """Check we can initialise an instance from the unique name."""
         # First, create the instance;

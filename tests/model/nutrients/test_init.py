@@ -1,3 +1,4 @@
+"""Tests for the nutrient module initialisation functionality."""
 from unittest import TestCase
 
 import model

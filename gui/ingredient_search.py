@@ -94,7 +94,7 @@ class IngredientSearchController(gui.BaseController):
         response = messagebox.askyesno(title="PyDiet",
                                        message=f"Are you sure you want to delete {ingredient_name}")
         if response is True:
-            persistence.delete(
+            persistence.delete_instances(
                 cls=model.ingredients.Ingredient,
                 name=ingredient_name
             )
