@@ -24,11 +24,10 @@ class Ingredient(
     """Readonly ingredient model."""
 
     def __init__(self, unique_name: Optional[str] = None, datafile_name: Optional[str] = None, **kwargs):
-        super().__init__(**kwargs)
-
         # Raise an exception if no info was provided;
         if unique_name is None and datafile_name is None:
             raise ValueError("Either unique name or datafile name must be provided to init an Ingredient.")
+
         # OK, the unique name was provided, so use it to grab the datafile;
         elif unique_name is not None:
             super().__init__(
@@ -39,6 +38,7 @@ class Ingredient(
                 ),
                 **kwargs
             )
+
         # OK, the datafile name was provided, so use it to grab the unique name;
         elif datafile_name is not None:
             super().__init__(

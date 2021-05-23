@@ -68,7 +68,7 @@
     "protein": {
       "nutrient_mass_data": {
         "pref_unit": "g",
-        "quantity_in_g": 0.18823529411764706
+        "quantity_in_g": 0.1882
       },
       "subject_ref_qty_data": {
         "pref_unit": "g",

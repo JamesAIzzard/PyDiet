@@ -9,9 +9,9 @@
     "piece_mass_g": 84.0
   },
   "flag_data": {
-    "nut_free": true,
+    "nut_free": null,
     "vegan": true,
-    "vegetarian": true
+    "vegetarian": null
   },
   "name": "Lemon",
   "nutrient_ratios_data": {

@@ -10,7 +10,7 @@
   },
   "flag_data": {
     "nut_free": true,
-    "vegan": true,
+    "vegan": false,
     "vegetarian": true
   },
   "name": "Spinach",
