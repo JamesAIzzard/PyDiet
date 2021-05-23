@@ -18,14 +18,7 @@ class TestConstructor(TestCase):
         i = model.ingredients.Ingredient(unique_name=i_name)
 
         # Now load the instance's data directly;
-        fp = "{path_into_db}/{df_name}.json".format(
-            path_into_db=model.ingredients.Ingredient.get_path_into_db(),
-            df_name=persistence.main.get_datafile_name_for_unique_value(
-                cls=model.ingredients.Ingredient,
-                unique_value=i_name
-            )
-        )
-        data = persistence.main._read_datafile(filepath=fp)
+        data = fx.get_ingredient_data(for_unique_name=i_name)
 
         # Check that the instance data matches the data in the database;
         self.assertEqual(data, i.persistable_data)
@@ -209,7 +202,7 @@ class TestGetPathIntoDB(TestCase):
     def test_returns_correct_path(self):
         """Check that the property returns the correct path."""
         # Create a test instance;
-        i = model.ingredients.Ingredient(unique_name=fx.get_ingredient_name_with("properly_defined"))
+        i = model.ingredients.Ingredient(unique_name=fx.get_ingredient_name_with("typical_data"))
 
         # Check the db path is correct;
         self.assertEqual(f"{persistence.configs.path_into_db}/ingredients", i.get_path_into_db())
@@ -233,17 +226,10 @@ class TestPersistableData(TestCase):
     def test_returns_correct_data(self):
         """Checks that the correct persistable data is returned."""
         # First, create the instance;
-        i = model.ingredients.Ingredient(unique_name=fx.get_ingredient_name_with("properly_defined"))
+        i = model.ingredients.Ingredient(unique_name=fx.get_ingredient_name_with("typical_data"))
 
         # Now load the instance's data directly;
-        fp = "{path_into_db}/{df_name}.json".format(
-            path_into_db=model.ingredients.Ingredient.get_path_into_db(),
-            df_name=persistence.main.get_datafile_name_for_unique_value(
-                cls=model.ingredients.Ingredient,
-                unique_value=fx.get_ingredient_name_with("properly_defined")
-            )
-        )
-        data = persistence.main._read_datafile(filepath=fp)
+        data = fx.get_ingredient_data(for_unique_name=fx.get_ingredient_name_with("typical_data"))
 
         # Check that the instance data matches the data in the database;
         self.assertEqual(data, i.persistable_data)

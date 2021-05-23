@@ -1,8 +1,12 @@
 """Fixtures for ingredient module testing."""
+from typing import Optional
+
+import model
+import persistence
 
 INGREDIENT_NAME_WITH = {
     "name_raspberry": "Raspberry",
-    "properly_defined": "Raspberry",
+    "typical_data": "Raspberry",
     "density_defined": "Lemon Juice",
     "density_undefined": "Aubergine",
     "piece_mass_defined": "Aubergine",
@@ -22,3 +26,16 @@ def get_ingredient_name_with(characteristic: str) -> str:
     Performs a lookup on the table above.
     """
     return INGREDIENT_NAME_WITH[characteristic]
+
+
+def get_ingredient_data(
+        for_unique_name: Optional[str] = None
+):
+    """Returns ingredient data.
+    Args:
+        for_unique_name (Optional[str]): When specified, loads and returns data corresponding to this particular name.
+    """
+    # If a unique name was specified;
+    if for_unique_name is not None:
+        # Fetch the data corresponding to that name;
+        return persistence.load_datafile(cls=model.ingredients.Ingredient, unique_value=for_unique_name)

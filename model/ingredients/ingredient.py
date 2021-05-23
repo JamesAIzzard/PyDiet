@@ -21,7 +21,7 @@ class Ingredient(
     model.cost.SupportsCostPerQuantity,
     model.flags.HasFlags
 ):
-    """Readonly ingredient model."""
+    """Models an ingredient with readonly attributes."""
 
     def __init__(self, unique_name: Optional[str] = None, datafile_name: Optional[str] = None, **kwargs):
         # Raise an exception if no info was provided;
@@ -104,3 +104,18 @@ class Ingredient(
     def persistable_data(self) -> 'model.ingredients.IngredientData':
         """Returns the persistable data for the ingredient instance."""
         return super().persistable_data
+
+
+class SettableIngredient(
+    model.HasSettableName,
+    model.quantity.SupportsExtendedUnitSetting,
+    model.cost.SupportsSettableCostPerQuantity,
+    model.flags.HasSettableFlags
+):
+    """Models an ingredient with settable attributes."""
+
+    def __init__(self, ingredient_data: Optional['model.ingredients.IngredientData'] = None, **kwargs):
+        super().__init__(**kwargs)
+
+        if ingredient_data is not None:
+            self.load_data(ingredient_data)
