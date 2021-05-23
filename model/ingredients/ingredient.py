@@ -15,12 +15,12 @@ class IngredientData(TypedDict):
 
 
 class Ingredient(
-    persistence.SupportsPersistence,
     model.HasMandatoryAttributes,
     model.HasName,
-    model.quantity.SupportsExtendedUnits,
     model.cost.SupportsCostPerQuantity,
-    model.flags.HasFlags
+    model.quantity.SupportsExtendedUnits,
+    model.flags.HasFlags,
+    persistence.SupportsPersistence,
 ):
     """Models an ingredient with readonly attributes."""
 
@@ -131,13 +131,15 @@ class Ingredient(
 
 class SettableIngredient(
     model.HasSettableName,
-    model.quantity.SupportsExtendedUnitSetting,
     model.cost.SupportsSettableCostPerQuantity,
-    model.flags.HasSettableFlags
+    model.quantity.SupportsExtendedUnitSetting,
+    model.flags.HasSettableFlags,
+    Ingredient,
 ):
     """Models an ingredient with settable attributes."""
 
     def __init__(self, ingredient_data: Optional['model.ingredients.IngredientData'] = None, **kwargs):
+
         super().__init__(**kwargs)
 
         if ingredient_data is not None:

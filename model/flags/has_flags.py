@@ -8,7 +8,7 @@ import persistence
 FlagDOFData = Dict[str, Optional[bool]]
 
 
-class HasFlags(model.nutrients.HasNutrientRatios, persistence.YieldsPersistableData, abc.ABC):
+class HasFlags(model.nutrients.HasNutrientRatios, abc.ABC):
     """Models an object which has flag_data to characterise its content.
     Flags are either direct alias or not. A direct alias flag will derive its value entirely from a
     nutrient ratio on the same instance. For example, "caffiene-free" derives its value entirely from
@@ -126,7 +126,7 @@ class HasFlags(model.nutrients.HasNutrientRatios, persistence.YieldsPersistableD
         return data
 
 
-class HasSettableFlags(HasFlags, model.nutrients.HasSettableNutrientRatios, persistence.CanLoadData):
+class HasSettableFlags(HasFlags, model.nutrients.HasSettableNutrientRatios):
     """Models an object with configurable flag_data to characterise its content."""
 
     def __init__(self, flag_data: Optional['FlagDOFData'] = None, **kwargs):

@@ -16,7 +16,7 @@ class YieldsPersistableData(abc.ABC):
         return {}
 
 
-class CanLoadData(YieldsPersistableData, abc.ABC):
+class CanLoadData(abc.ABC):
     """Base class for objects that can load persistable data."""
 
     @abc.abstractmethod
@@ -25,7 +25,7 @@ class CanLoadData(YieldsPersistableData, abc.ABC):
         pass
 
 
-class SupportsPersistence(CanLoadData, abc.ABC):
+class SupportsPersistence(YieldsPersistableData, abc.ABC):
     """ABC for object persistence functionality."""
 
     def __init__(self, datafile_name: Optional[str] = None, **kwargs):

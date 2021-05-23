@@ -6,7 +6,7 @@ import model
 import persistence
 
 
-class HasName(persistence.CanLoadData):
+class HasName(persistence.YieldsPersistableData, persistence.CanLoadData):
     """Abstract class to define readonly name functionality."""
 
     def __init__(self, name: Optional[str] = None, **kwargs):
