@@ -11,48 +11,17 @@ class TestConstructor(TestCase):
     """Constructor method tests."""
 
     @pfx.use_test_database
-    def test_can_create_instance_from_unique_name(self):
-        """Check we can initialise an instance from the unique name."""
+    def test_can_create_instance(self):
+        """Check we can initialise an instance."""
         # First, create the instance;
         i_name = "Honey"
-        i = model.ingredients.Ingredient(unique_name=i_name)
+        i = model.ingredients.Ingredient(ingredient_data_src=fx.get_ingredient_data_src(i_name))
 
         # Now load the instance's data directly;
         data = fx.get_ingredient_data(for_unique_name=i_name)
 
         # Check that the instance data matches the data in the database;
         self.assertEqual(data, i.persistable_data)
-
-    @pfx.use_test_database
-    def test_can_create_instance_from_datafile_name(self):
-        """Check we can initialise the ingredient from the datafile name."""
-        # First, create the instance;
-        df_name = "1198a703-ae23-4303-9b21-dd8ef9d16548"
-        i = model.ingredients.Ingredient(datafile_name=df_name)
-
-        # Now load the instance's data directly;
-        fp = "{path_into_db}/{df_name}.json".format(
-            path_into_db=model.ingredients.Ingredient.get_path_into_db(),
-            df_name=df_name
-            )
-        data = persistence.main._read_datafile(filepath=fp)
-
-        # Check that the instance data matches the data in the database;
-        self.assertEqual(data, i.persistable_data)
-
-    @pfx.use_test_database
-    def test_raises_exception_if_no_name_provided(self):
-        """Check we get an exception if we try and initialise an ingredient without providing a name."""
-        with self.assertRaises(ValueError):
-            _ = model.ingredients.Ingredient()
-
-    @pfx.use_test_database
-    def test_raises_exception_if_name_not_recognised(self):
-        """Check we get an exception if the ingredient name isn't recognised."""
-        # Try to create a test instance for an ingredient which doesn't exist in the
-        # database;
-        with self.assertRaises(persistence.exceptions.UniqueValueNotFoundError):
-            _ = model.ingredients.Ingredient(unique_name="Fake")
 
 
 class TestMissingMandatoryAttrs(TestCase):
@@ -62,7 +31,11 @@ class TestMissingMandatoryAttrs(TestCase):
     def test_list_empty_if_ingredient_completely_defined(self):
         """Checks we don't get any missing attributes if the data is fully defined;"""
         # Create a test instance with fully defined data;
-        i = model.ingredients.Ingredient(unique_name=fx.get_ingredient_name_with("typical_fully_defined_data"))
+        i = model.ingredients.Ingredient(
+            ingredient_data_src=fx.get_ingredient_data_src(
+                fx.get_ingredient_name_with("typical_fully_defined_data")
+            )
+        )
 
         # Assert that the list is empty;
         self.assertEqual(0, len(i.missing_mandatory_attrs))
@@ -71,7 +44,11 @@ class TestMissingMandatoryAttrs(TestCase):
     def test_cost_listed_if_cost_undefined(self):
         """Checks we don't get any missing attributes if the data is fully defined;"""
         # Create a test instance with an undefined cost;
-        i = model.ingredients.Ingredient(unique_name=fx.get_ingredient_name_with("cost_per_g_undefined"))
+        i = model.ingredients.Ingredient(
+            ingredient_data_src=fx.get_ingredient_data_src(
+                fx.get_ingredient_name_with("cost_per_g_undefined")
+            )
+        )
 
         # Assert that the list is empty;
         self.assertEqual({"cost"}, set(i.missing_mandatory_attrs))
@@ -81,7 +58,9 @@ class TestMissingMandatoryAttrs(TestCase):
         """Checks we get the mandatory attributes listed if any are undefined."""
         # Create an instance with some mandatory nutrient ratios missing;
         i = model.ingredients.Ingredient(
-            unique_name=fx.get_ingredient_name_with("nutrient_ratios_protein_carbs_undefined")
+            ingredient_data_src=fx.get_ingredient_data_src(
+                fx.get_ingredient_name_with("nutrient_ratios_protein_carbs_undefined")
+            )
         )
 
         # Assert that the missing nutrients show up in the missing attrs list;
@@ -95,7 +74,11 @@ class Test_GPerMl(TestCase):
     def test_returns_correct_value_if_defined(self):
         """Check that the property returns the correct value."""
         # Create a test instance of an ingredient with g_per_ml populated;
-        i = model.ingredients.Ingredient(unique_name=fx.get_ingredient_name_with("density_defined"))
+        i = model.ingredients.Ingredient(
+            ingredient_data_src=fx.get_ingredient_data_src(
+                fx.get_ingredient_name_with("density_defined")
+            )
+        )
 
         # Check the g_per_ml is correct;
         self.assertEqual(0.9736, i._g_per_ml)
@@ -106,7 +89,11 @@ class Test_GPerMl(TestCase):
         Since this is the private method, it returns None
         """
         # Create a test instance of an ingredient with g_per_ml undefined;
-        i = model.ingredients.Ingredient(unique_name=fx.get_ingredient_name_with("density_undefined"))
+        i = model.ingredients.Ingredient(
+            ingredient_data_src=fx.get_ingredient_data_src(
+                fx.get_ingredient_name_with("density_undefined")
+            )
+        )
 
         # Check the return value is None;
         self.assertIsNone(i._g_per_ml)
@@ -120,7 +107,11 @@ class Test_PieceMassG(TestCase):
     def test_returns_correct_value_if_defined(self):
         """Check that the property returns the correct value."""
         # Create a test instance of an ingredient with piece mass populated;
-        i = model.ingredients.Ingredient(unique_name=fx.get_ingredient_name_with("piece_mass_defined"))
+        i = model.ingredients.Ingredient(
+            ingredient_data_src=fx.get_ingredient_data_src(
+                fx.get_ingredient_name_with("piece_mass_defined")
+            )
+        )
 
         # Check the g_per_ml is correct;
         self.assertEqual(300, i._piece_mass_g)
@@ -131,7 +122,11 @@ class Test_PieceMassG(TestCase):
         Since this is the private method, it returns None
         """
         # Create a test instance of an ingredient with piece_mass undefined;
-        i = model.ingredients.Ingredient(unique_name=fx.get_ingredient_name_with("piece_mass_undefined"))
+        i = model.ingredients.Ingredient(
+            ingredient_data_src=fx.get_ingredient_data_src(
+                fx.get_ingredient_name_with("piece_mass_undefined")
+            )
+        )
 
         # Check the return value is None;
         self.assertIsNone(i._piece_mass_g)
@@ -145,7 +140,11 @@ class Test_CostPerQtyData(TestCase):
     def test_returns_correct_data_if_defined(self):
         """Checks we get the correct data back."""
         # Create the test instance;
-        i = model.ingredients.Ingredient(unique_name=fx.get_ingredient_name_with("cost_per_g_defined"))
+        i = model.ingredients.Ingredient(
+            ingredient_data_src=fx.get_ingredient_data_src(
+                fx.get_ingredient_name_with("cost_per_g_defined")
+            )
+        )
 
         # Check the values are correct;
         self.assertEqual(0.002, i._cost_per_qty_data['cost_per_g'])
@@ -156,7 +155,11 @@ class Test_CostPerQtyData(TestCase):
     def test_returns_correct_data_if_undefined(self):
         """Checks we get the correct data back."""
         # Create the test instance;
-        i = model.ingredients.Ingredient(unique_name=fx.get_ingredient_name_with("cost_per_g_undefined"))
+        i = model.ingredients.Ingredient(
+            ingredient_data_src=fx.get_ingredient_data_src(
+                fx.get_ingredient_name_with("cost_per_g_undefined")
+            )
+        )
 
         # Check the values are correct;
         self.assertIsNone(i._cost_per_qty_data['cost_per_g'])
@@ -172,7 +175,11 @@ class Test_FlagDOFs(TestCase):
     def test_returns_correct_data_if_defined(self):
         """Checks we get the correct data back."""
         # Create the test instance;
-        i = model.ingredients.Ingredient(unique_name=fx.get_ingredient_name_with("flag_dofs_all_defined"))
+        i = model.ingredients.Ingredient(
+            ingredient_data_src=fx.get_ingredient_data_src(
+                fx.get_ingredient_name_with("flag_dofs_all_defined")
+            )
+        )
 
         # Check the values are correct;
         self.assertTrue(i._flag_dofs['nut_free'])
@@ -183,7 +190,11 @@ class Test_FlagDOFs(TestCase):
     def test_returns_correct_data_if_undefined(self):
         """Checks we get the correct data back."""
         # Create the test instance;
-        i = model.ingredients.Ingredient(unique_name=fx.get_ingredient_name_with("flag_dofs_two_undefined"))
+        i = model.ingredients.Ingredient(
+            ingredient_data_src=fx.get_ingredient_data_src(
+                fx.get_ingredient_name_with("flag_dofs_two_undefined")
+            )
+        )
 
         # Check the values are correct;
         self.assertIsNone(i._flag_dofs['nut_free'])
@@ -199,7 +210,11 @@ class Test_NutrientRatiosData(TestCase):
     def test_returns_correct_data_for_defined_nutrient_ratios(self):
         """Checks we get the correct data back for defined nutrient ratios."""
         # Create the test instance;
-        i = model.ingredients.Ingredient(unique_name=fx.get_ingredient_name_with("nutrient_ratios_protein_defined"))
+        i = model.ingredients.Ingredient(
+            ingredient_data_src=fx.get_ingredient_data_src(
+                fx.get_ingredient_name_with("nutrient_ratios_protein_defined")
+            )
+        )
 
         # Check that there is a heading for protein;
         self.assertTrue("protein" in i._nutrient_ratios_data.keys())
@@ -214,7 +229,11 @@ class Test_NutrientRatiosData(TestCase):
     def test_excludes_undefined_nutrients(self):
         """Checks undefined nutrients do not show up in the nutrient data dict."""
         # Create the test instance;
-        i = model.ingredients.Ingredient(unique_name=fx.get_ingredient_name_with("nutrient_ratios_iron_undefined"))
+        i = model.ingredients.Ingredient(
+            ingredient_data_src=fx.get_ingredient_data_src(
+                fx.get_ingredient_name_with("nutrient_ratios_iron_undefined")
+            )
+        )
 
         # Check that there is no heading for iron;
         self.assertFalse("iron" in i._nutrient_ratios_data.keys())
@@ -223,7 +242,11 @@ class Test_NutrientRatiosData(TestCase):
     def test_correct_number_nutrients_included(self):
         """Checks that the correct number of nutrients show up in the data dict."""
         # Create the test instance;
-        i = model.ingredients.Ingredient(unique_name=fx.get_ingredient_name_with("nutrient_ratios_8_ratios_defined"))
+        i = model.ingredients.Ingredient(
+            ingredient_data_src=fx.get_ingredient_data_src(
+                fx.get_ingredient_name_with("nutrient_ratios_8_ratios_defined")
+            )
+        )
 
         # Check that there is no heading for iron;
         self.assertEqual(8, len(i._nutrient_ratios_data))
@@ -236,7 +259,11 @@ class TestGetPathIntoDB(TestCase):
     def test_returns_correct_path(self):
         """Check that the property returns the correct path."""
         # Create a test instance;
-        i = model.ingredients.Ingredient(unique_name=fx.get_ingredient_name_with("typical_fully_defined_data"))
+        i = model.ingredients.Ingredient(
+            ingredient_data_src=fx.get_ingredient_data_src(
+                fx.get_ingredient_name_with("typical_fully_defined_data")
+            )
+        )
 
         # Check the db path is correct;
         self.assertEqual(f"{persistence.configs.path_into_db}/ingredients", i.get_path_into_db())
@@ -248,7 +275,11 @@ class TestUniqueValue(TestCase):
     def test_returns_unique_value_correctly(self):
         """Check that the property returns the unique value correctly."""
         # Create a test instance;
-        i = model.ingredients.Ingredient(unique_name=fx.get_ingredient_name_with("name_raspberry"))
+        i = model.ingredients.Ingredient(
+            ingredient_data_src=fx.get_ingredient_data_src(
+                fx.get_ingredient_name_with("name_raspberry")
+            )
+        )
 
         # Check the name returns the correct value;
         self.assertEqual("Raspberry", i.unique_value)
@@ -260,7 +291,11 @@ class TestPersistableData(TestCase):
     def test_returns_correct_data(self):
         """Checks that the correct persistable data is returned."""
         # First, create the instance;
-        i = model.ingredients.Ingredient(unique_name=fx.get_ingredient_name_with("typical_fully_defined_data"))
+        i = model.ingredients.Ingredient(
+            ingredient_data_src=fx.get_ingredient_data_src(
+                fx.get_ingredient_name_with("typical_fully_defined_data")
+            )
+        )
 
         # Now load the instance's data directly;
         data = fx.get_ingredient_data(for_unique_name=fx.get_ingredient_name_with("typical_fully_defined_data"))

@@ -6,17 +6,17 @@ import model
 import persistence
 
 
-class HasName(persistence.YieldsPersistableData, persistence.CanLoadData):
+class HasName(persistence.YieldsPersistableData):
     """Abstract class to define readonly name functionality."""
 
-    def __init__(self, name: Optional[str] = None, **kwargs):
+    def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        # Always stores name locally;
-        self._name: Optional[str] = None
-
-        if name is not None:
-            self.load_data(data={'name': name})
+    @property
+    @abc.abstractmethod
+    def _name(self) -> Optional[str]:
+        """Returns the name if defined, None if not."""
+        raise NotImplementedError
 
     @property
     def name(self) -> str:
@@ -37,11 +37,6 @@ class HasName(persistence.YieldsPersistableData, persistence.CanLoadData):
         else:
             return True
 
-    def load_data(self, data: Dict[str, Any]) -> None:
-        """Loads instance data."""
-        super().load_data(data)
-        self._name = data['name']
-
     @property
     def persistable_data(self) -> Dict[str, Any]:
         """Returns instance's persistable data."""
@@ -50,16 +45,28 @@ class HasName(persistence.YieldsPersistableData, persistence.CanLoadData):
         return data
 
 
-class HasSettableName(HasName):
+class HasSettableName(HasName, persistence.CanLoadData):
     """Abstract class to define writeable name functionality."""
 
-    def __init__(self, **kwargs):
+    def __init__(self, name: Optional[str] = None, **kwargs):
         super().__init__(**kwargs)
+
+        self._name_ = name
+
+    @property
+    def _name(self) -> Optional[str]:
+        """Returns the locally stored name."""
+        return self._name_
 
     @HasName.name.setter
     def name(self, name: Optional[str]) -> None:
         """Gets the instance's name."""
-        self._name = name
+        self._name_ = name
+
+    def load_data(self, data: Dict[str, Any]) -> None:
+        """Loads instance data."""
+        super().load_data(data)
+        self._name_ = data['name']
 
 
 class SupportsDefinition(abc.ABC):

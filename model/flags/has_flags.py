@@ -3,7 +3,6 @@ import abc
 from typing import Dict, List, Union, Optional, Any
 
 import model
-import persistence
 
 FlagDOFData = Dict[str, Optional[bool]]
 

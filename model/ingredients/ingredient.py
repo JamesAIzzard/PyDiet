@@ -1,5 +1,5 @@
 """Ingredient functionality module."""
-from typing import Optional, TypedDict, List
+from typing import Optional, TypedDict, List, Callable
 
 import model
 import persistence
@@ -24,32 +24,11 @@ class Ingredient(
 ):
     """Models an ingredient with readonly attributes."""
 
-    def __init__(self, unique_name: Optional[str] = None, datafile_name: Optional[str] = None, **kwargs):
-        # Raise an exception if no info was provided;
-        if unique_name is None and datafile_name is None:
-            raise ValueError("Either unique name or datafile name must be provided to init an Ingredient.")
+    def __init__(self, ingredient_data_src: Callable[[], 'IngredientData'], **kwargs):
+        super().__init__(**kwargs)
 
-        # OK, the unique name was provided, so use it to grab the datafile;
-        elif unique_name is not None:
-            super().__init__(
-                name=unique_name,
-                datafile_name=persistence.get_datafile_name_for_unique_value(
-                    cls=model.ingredients.Ingredient,
-                    unique_value=unique_name
-                ),
-                **kwargs
-            )
-
-        # OK, the datafile name was provided, so use it to grab the unique name;
-        elif datafile_name is not None:
-            super().__init__(
-                name=persistence.get_unique_value_from_datafile_name(
-                    cls=model.ingredients.Ingredient,
-                    datafile_name=datafile_name
-                ),
-                datafile_name=datafile_name,
-                **kwargs
-            )
+        # Stash the callable;
+        self._ingredient_data_src = ingredient_data_src
 
     @property
     def missing_mandatory_attrs(self) -> List[str]:
@@ -74,44 +53,34 @@ class Ingredient(
         return missing_attrs
 
     @property
+    def _name(self) -> Optional[str]:
+        """Returns the ingredient's name if defined, otherwise returns None."""
+        return self._ingredient_data_src()['name']
+
+    @property
     def _g_per_ml(self) -> Optional[float]:
         """Returns the grams per ml for the ingredient if defined, otherwise returns None."""
-        return persistence.load_datafile(
-            cls=Ingredient,
-            datafile_name=self.datafile_name
-        )['extended_units_data']['g_per_ml']
+        return self._ingredient_data_src()['extended_units_data']['g_per_ml']
 
     @property
     def _piece_mass_g(self) -> Optional[float]:
         """Returns the piece mass in grams for the ingredient, if defined, otherwise, returns None."""
-        return persistence.load_datafile(
-            cls=Ingredient,
-            datafile_name=self.datafile_name
-        )['extended_units_data']['piece_mass_g']
+        return self._ingredient_data_src()['extended_units_data']['piece_mass_g']
 
     @property
     def _cost_per_qty_data(self) -> 'model.cost.CostPerQtyData':
         """Returns the cost_per_qty data for this ingredient."""
-        return persistence.load_datafile(
-            cls=Ingredient,
-            datafile_name=self.datafile_name
-        )['cost_per_qty_data']
+        return self._ingredient_data_src()['cost_per_qty_data']
 
     @property
     def _flag_dofs(self) -> 'model.flags.FlagDOFData':
         """Returns the flag data for this ingredient."""
-        return persistence.load_datafile(
-            cls=Ingredient,
-            datafile_name=self.datafile_name
-        )['flag_data']
+        return self._ingredient_data_src()['flag_data']
 
     @property
     def _nutrient_ratios_data(self) -> 'model.nutrients.NutrientRatiosData':
         """Returns the nutrient ratio data for this ingredient."""
-        return persistence.load_datafile(
-            cls=Ingredient,
-            datafile_name=self.datafile_name
-        )['nutrient_ratios_data']
+        return self._ingredient_data_src()['nutrient_ratios_data']
 
     @staticmethod
     def get_path_into_db() -> str:
@@ -121,7 +90,7 @@ class Ingredient(
     @property
     def unique_value(self) -> str:
         """Returns the ingredient's unique name."""
-        return self.name
+        return self._ingredient_data_src()['name']
 
     @property
     def persistable_data(self) -> 'model.ingredients.IngredientData':
@@ -129,18 +98,18 @@ class Ingredient(
         return super().persistable_data
 
 
-class SettableIngredient(
-    model.HasSettableName,
-    model.cost.SupportsSettableCostPerQuantity,
-    model.quantity.SupportsExtendedUnitSetting,
-    model.flags.HasSettableFlags,
-    Ingredient,
-):
-    """Models an ingredient with settable attributes."""
-
-    def __init__(self, ingredient_data: Optional['model.ingredients.IngredientData'] = None, **kwargs):
-
-        super().__init__(**kwargs)
-
-        if ingredient_data is not None:
-            self.load_data(ingredient_data)
+# class SettableIngredient(
+#     model.HasSettableName,
+#     model.cost.SupportsSettableCostPerQuantity,
+#     model.quantity.SupportsExtendedUnitSetting,
+#     model.flags.HasSettableFlags,
+#     Ingredient,
+# ):
+#     """Models an ingredient with settable attributes."""
+#
+#     def __init__(self, ingredient_data: Optional['model.ingredients.IngredientData'] = None, **kwargs):
+#
+#         super().__init__(**kwargs)
+#
+#         if ingredient_data is not None:
+#             self.load_data(ingredient_data)
