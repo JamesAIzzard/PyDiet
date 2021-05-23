@@ -1,5 +1,5 @@
 """Ingredient functionality module."""
-from typing import Optional, TypedDict
+from typing import Optional, TypedDict, List
 
 import model
 import persistence
@@ -16,6 +16,7 @@ class IngredientData(TypedDict):
 
 class Ingredient(
     persistence.SupportsPersistence,
+    model.HasMandatoryAttributes,
     model.HasName,
     model.quantity.SupportsExtendedUnits,
     model.cost.SupportsCostPerQuantity,
@@ -49,6 +50,28 @@ class Ingredient(
                 datafile_name=datafile_name,
                 **kwargs
             )
+
+    @property
+    def missing_mandatory_attrs(self) -> List[str]:
+        """Returns a list of undefined mandatory properties on the ingredient."""
+        # Create a list to store the results;
+        missing_attrs: List[str] = []
+
+        # Check the name;
+        if not self.name_is_defined:
+            missing_attrs.append("name")
+
+        # Check the cost;
+        if not self.cost_is_defined:
+            missing_attrs.append("cost")
+
+        # Check for any missing mandatory nutrients;
+        missing_nrs = self.undefined_mandatory_nutrient_ratio_names
+        if len(missing_nrs) > 0:
+            missing_attrs += missing_nrs
+
+        # Return the list of missing attributes;
+        return missing_attrs
 
     @property
     def _g_per_ml(self) -> Optional[float]:

@@ -29,6 +29,14 @@ class HasName(persistence.CanLoadData):
             raise model.exceptions.UndefinedNameError(subject=self)
         return self._name
 
+    @property
+    def name_is_defined(self) -> bool:
+        """Returns True/False to indicate if the name is defined."""
+        if self._name is None:
+            return False
+        else:
+            return True
+
     def load_data(self, data: Dict[str, Any]) -> None:
         """Loads instance data."""
         super().load_data(data)
@@ -62,6 +70,7 @@ class SupportsDefinition(abc.ABC):
         """Returns True/False to indicate if the instance is defined."""
         raise NotImplementedError
 
+    @property
     def is_undefined(self) -> bool:
         """Returns True/False to indicate if the instance is undefined."""
         return not self.is_defined

@@ -55,6 +55,40 @@ class TestConstructor(TestCase):
             _ = model.ingredients.Ingredient(unique_name="Fake")
 
 
+class TestMissingMandatoryAttrs(TestCase):
+    """Tests the missing_mandatory_attrs property on the Ingredient class."""
+
+    @pfx.use_test_database
+    def test_list_empty_if_ingredient_completely_defined(self):
+        """Checks we don't get any missing attributes if the data is fully defined;"""
+        # Create a test instance with fully defined data;
+        i = model.ingredients.Ingredient(unique_name=fx.get_ingredient_name_with("typical_fully_defined_data"))
+
+        # Assert that the list is empty;
+        self.assertEqual(0, len(i.missing_mandatory_attrs))
+
+    @pfx.use_test_database
+    def test_cost_listed_if_cost_undefined(self):
+        """Checks we don't get any missing attributes if the data is fully defined;"""
+        # Create a test instance with an undefined cost;
+        i = model.ingredients.Ingredient(unique_name=fx.get_ingredient_name_with("cost_per_g_undefined"))
+
+        # Assert that the list is empty;
+        self.assertEqual({"cost"}, set(i.missing_mandatory_attrs))
+
+    @pfx.use_test_database
+    def test_mandatory_nutrient_ratios_listed_when_undefined(self):
+        """Checks we get the mandatory attributes listed if any are undefined."""
+        # Create an instance with some mandatory nutrient ratios missing;
+        i = model.ingredients.Ingredient(
+            unique_name=fx.get_ingredient_name_with("nutrient_ratios_protein_carbs_undefined")
+        )
+
+        # Assert that the missing nutrients show up in the missing attrs list;
+        self.assertTrue("protein" in i.missing_mandatory_attrs)
+        self.assertTrue("carbohydrate" in i.missing_mandatory_attrs)
+
+
 # noinspection PyPep8Naming
 class Test_GPerMl(TestCase):
     @pfx.use_test_database
@@ -202,7 +236,7 @@ class TestGetPathIntoDB(TestCase):
     def test_returns_correct_path(self):
         """Check that the property returns the correct path."""
         # Create a test instance;
-        i = model.ingredients.Ingredient(unique_name=fx.get_ingredient_name_with("typical_data"))
+        i = model.ingredients.Ingredient(unique_name=fx.get_ingredient_name_with("typical_fully_defined_data"))
 
         # Check the db path is correct;
         self.assertEqual(f"{persistence.configs.path_into_db}/ingredients", i.get_path_into_db())
@@ -226,10 +260,10 @@ class TestPersistableData(TestCase):
     def test_returns_correct_data(self):
         """Checks that the correct persistable data is returned."""
         # First, create the instance;
-        i = model.ingredients.Ingredient(unique_name=fx.get_ingredient_name_with("typical_data"))
+        i = model.ingredients.Ingredient(unique_name=fx.get_ingredient_name_with("typical_fully_defined_data"))
 
         # Now load the instance's data directly;
-        data = fx.get_ingredient_data(for_unique_name=fx.get_ingredient_name_with("typical_data"))
+        data = fx.get_ingredient_data(for_unique_name=fx.get_ingredient_name_with("typical_fully_defined_data"))
 
         # Check that the instance data matches the data in the database;
         self.assertEqual(data, i.persistable_data)

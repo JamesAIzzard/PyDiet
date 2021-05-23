@@ -6,7 +6,7 @@ import persistence
 
 INGREDIENT_NAME_WITH = {
     "name_raspberry": "Raspberry",
-    "typical_data": "Raspberry",
+    "typical_fully_defined_data": "Raspberry",
     "density_defined": "Lemon Juice",
     "density_undefined": "Aubergine",
     "piece_mass_defined": "Aubergine",
@@ -18,6 +18,7 @@ INGREDIENT_NAME_WITH = {
     "nutrient_ratios_protein_defined": "Smoked Salmon",
     "nutrient_ratios_iron_undefined": "Smoked Salmon",
     "nutrient_ratios_8_ratios_defined": "Red Pepper",
+    "nutrient_ratios_protein_carbs_undefined": "Bacon"
 }
 
 

@@ -28,6 +28,14 @@ class SupportsCostPerQuantity(persistence.YieldsPersistableData, abc.ABC):
         raise NotImplementedError
 
     @property
+    def cost_is_defined(self) -> bool:
+        """Returns True/False to indicate if the cost per qty is defined."""
+        if self._cost_per_qty_data['cost_per_g'] is None:
+            return False
+        else:
+            return True
+
+    @property
     def cost_ref_subject_quantity(self) -> 'model.quantity.QuantityOf':
         """Returns the subject quantity against which the cost is defined.
         Notes:

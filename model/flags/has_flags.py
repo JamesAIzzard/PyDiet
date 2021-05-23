@@ -106,7 +106,8 @@ class HasFlags(model.nutrients.HasNutrientRatios, persistence.YieldsPersistableD
             # Cool, it's defined, so just return the DOF;
             return self._get_flag_dof(flag_name)
 
-    def get_undefined_flag_names(self) -> List[str]:
+    @property
+    def undefined_flag_names(self) -> List[str]:
         """Returns a list of all flag names that are undefined."""
         undefined_flags = []
         for flag_name in model.flags.ALL_FLAGS.keys():

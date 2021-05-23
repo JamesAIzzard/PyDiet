@@ -13,22 +13,12 @@
     "vegan": false,
     "vegetarian": false
   },
-  "name": "Bacon ",
+  "name": "Bacon",
   "nutrient_ratios_data": {
     "alcohol": {
       "nutrient_mass_data": {
         "pref_unit": "g",
         "quantity_in_g": 0.0
-      },
-      "subject_ref_qty_data": {
-        "pref_unit": "g",
-        "quantity_in_g": 100
-      }
-    },
-    "carbohydrate": {
-      "nutrient_mass_data": {
-        "pref_unit": "g",
-        "quantity_in_g": 0.002
       },
       "subject_ref_qty_data": {
         "pref_unit": "g",
@@ -59,16 +49,6 @@
       "nutrient_mass_data": {
         "pref_unit": "g",
         "quantity_in_g": 0.013999999999999999
-      },
-      "subject_ref_qty_data": {
-        "pref_unit": "g",
-        "quantity_in_g": 100
-      }
-    },
-    "protein": {
-      "nutrient_mass_data": {
-        "pref_unit": "g",
-        "quantity_in_g": 0.032
       },
       "subject_ref_qty_data": {
         "pref_unit": "g",

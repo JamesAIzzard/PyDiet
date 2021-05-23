@@ -94,7 +94,7 @@ class TestNutrientRatioIsDefined(TestCase):
 
 
 class TestUndefinedMandatoryNutrientRatioNames(TestCase):
-    """Tests the """
+    """Tests the mandatory nutrient ratio names are returned correctly;"""
     @fx.use_test_nutrients
     def test_correctly_returns_undefined_mandatory_ratio_names(self):
         # Create a test instance;

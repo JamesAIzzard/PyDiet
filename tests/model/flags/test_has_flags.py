@@ -158,7 +158,7 @@ class TestGetUndefinedFlagNames(TestCase):
         }
         hf = fx.HasFlagsTestable(flag_dofs=flag_dofs, nutrient_ratios_data=nutrient_ratios_data)
         self.assertEqual(
-            set(hf.get_undefined_flag_names()),
+            set(hf.undefined_flag_names),
             {"foo_free", "bar_free", "tirbur_free"}
         )
 
