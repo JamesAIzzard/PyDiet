@@ -1,6 +1,8 @@
 """Fixtures for ingredient module testing."""
 
 INGREDIENT_NAME_WITH = {
+    "name_raspberry": "Raspberry",
+    "properly_defined": "Raspberry",
     "density_defined": "Lemon Juice",
     "density_undefined": "Aubergine",
     "piece_mass_defined": "Aubergine",

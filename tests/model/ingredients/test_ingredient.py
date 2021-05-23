@@ -200,3 +200,50 @@ class Test_NutrientRatiosData(TestCase):
 
         # Check that there is no heading for iron;
         self.assertEqual(8, len(i._nutrient_ratios_data))
+
+
+class TestGetPathIntoDB(TestCase):
+    """Tests the get_path_into_db property on the Ingredient class."""
+
+    @pfx.use_test_database
+    def test_returns_correct_path(self):
+        """Check that the property returns the correct path."""
+        # Create a test instance;
+        i = model.ingredients.Ingredient(unique_name=fx.get_ingredient_name_with("properly_defined"))
+
+        # Check the db path is correct;
+        self.assertEqual(f"{persistence.configs.path_into_db}/ingredients", i.get_path_into_db())
+
+
+class TestUniqueValue(TestCase):
+    """Tests the unique_value property on the Ingredient class."""
+
+    def test_returns_unique_value_correctly(self):
+        """Check that the property returns the unique value correctly."""
+        # Create a test instance;
+        i = model.ingredients.Ingredient(unique_name=fx.get_ingredient_name_with("name_raspberry"))
+
+        # Check the name returns the correct value;
+        self.assertEqual("Raspberry", i.unique_value)
+
+
+class TestPersistableData(TestCase):
+    """Tests the persistable data property on the Ingredient class."""
+
+    def test_returns_correct_data(self):
+        """Checks that the correct persistable data is returned."""
+        # First, create the instance;
+        i = model.ingredients.Ingredient(unique_name=fx.get_ingredient_name_with("properly_defined"))
+
+        # Now load the instance's data directly;
+        fp = "{path_into_db}/{df_name}.json".format(
+            path_into_db=model.ingredients.Ingredient.get_path_into_db(),
+            df_name=persistence.main.get_datafile_name_for_unique_value(
+                cls=model.ingredients.Ingredient,
+                unique_value=fx.get_ingredient_name_with("properly_defined")
+            )
+        )
+        data = persistence.main._read_datafile(filepath=fp)
+
+        # Check that the instance data matches the data in the database;
+        self.assertEqual(data, i.persistable_data)
