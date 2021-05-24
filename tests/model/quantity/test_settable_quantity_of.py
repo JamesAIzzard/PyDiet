@@ -96,21 +96,36 @@ class TestUnsetQuantity(TestCase):
 
 
 class TestLoadData(TestCase):
-    def test_loads_data_with_mass_pref_unit_correctly(self):
+    """Tests the load_data method on SettableQuantityOf."""
+    def test_loads_data_with_mass_pref_unit_correctly_when_subject_has_no_extended_units(self):
+        """Check that we can load data correctly if the pref unit in the data is a mass, and
+        the subject does not support extended units."""
+        # Create a test instance, with a mass as a pref unit;
         sqo = model.quantity.SettableQuantityOf(
             subject=mock.Mock(),
         )
+
+        # Try and load the data;
         sqo.load_data(model.quantity.QuantityData(quantity_in_g=150, pref_unit='kg'))
-        self.assertTrue(sqo.quantity_in_g == 150)
-        self.assertTrue(sqo.pref_unit == 'kg')
+
+        # Check that the data is set correctly;
+        self.assertEqual(150, sqo.quantity_in_g)
+        self.assertTrue('kg', sqo.pref_unit)
 
     def test_loads_data_with_vol_pref_unit_correctly(self):
+        """Check that we can load data correctly if the pref unit is a volume, and density is configured
+        on the subject."""
+        # Create a test instance, with a subject with density configured;
         sqo = model.quantity.SettableQuantityOf(
             subject=fx.SupportsExtendedUnitsTestable(g_per_ml=2)
         )
+
+        # Load the data in;
         sqo.load_data(model.quantity.QuantityData(quantity_in_g=60, pref_unit='ml'))
-        self.assertTrue(sqo.quantity_in_g == 60)
-        self.assertTrue(sqo.pref_unit == 'ml')
+
+        # Check the data is what it should be;
+        self.assertEqual(60, sqo.quantity_in_g)
+        self.assertEqual('ml', sqo.pref_unit)
 
     def test_raises_exception_if_pref_unit_extended_and_extended_not_available(self):
         sqo = model.quantity.SettableQuantityOf(

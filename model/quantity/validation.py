@@ -1,3 +1,4 @@
+"""Defines the validation functionality associated with the quantity module."""
 from typing import Any
 
 import model
@@ -80,4 +81,28 @@ def validate_pc_unit(unit: str) -> str:
     if unit not in model.quantity.PC_UNITS:
         raise model.quantity.exceptions.IncorrectUnitTypeError(unit=unit)
     # All must be OK, return it;
+    return unit
+
+
+def validate_pref_unit(unit: str, subject: Any) -> str:
+    """Validates the provided unit in the context of the subject provided.
+    Raises exceptions for any of the normal reasons, but also if the unit
+    is not configured on the subject.
+    """
+    # First, check the unit is known by the system;
+    unit = model.quantity.validation.validate_qty_unit(unit)
+
+    # If the subject doesn't support extended units, and the unit is a mass or volume;
+    if model.quantity.unit_is_extended(unit) \
+            and not isinstance(subject, model.quantity.SupportsExtendedUnits):
+        raise model.quantity.exceptions.UnsupportedExtendedUnitsError(subject=subject)
+
+    # OK, so the subject does support extended units;
+    # If the unit is a volume, and the subject doesn't have density defined;
+    if model.quantity.units_are_volumes(unit) and not subject.density_is_defined:
+        raise model.quantity.exceptions.UndefinedDensityError(subject=subject)
+    elif model.quantity.units_are_pieces(unit) and not subject.piece_mass_is_defined:
+        raise model.quantity.exceptions.UndefinedPcMassError(subject=subject)
+
+    # OK, return the unit;
     return unit

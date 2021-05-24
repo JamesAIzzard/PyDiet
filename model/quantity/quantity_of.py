@@ -41,39 +41,28 @@ class QuantityOf(model.SupportsDefinition, persistence.YieldsPersistableData):
         else:
             return _qty_in_g
 
-    def _validate_pref_unit(self, unit: str) -> str:
-        # First, check the unit is known by the system;
-        unit = model.quantity.validation.validate_qty_unit(unit)
-
-        # If the subject doesn't support extended units, and the unit is a mass or volume;
-        if model.quantity.unit_is_extended(unit) \
-                and not isinstance(self._subject, model.quantity.SupportsExtendedUnits):
-            raise model.quantity.exceptions.UnsupportedExtendedUnitsError(subject=self)
-
-        # OK, so the subject does support extended units;
-        # If the unit is a volume, and the subject doesn't have density defined;
-        if model.quantity.units_are_volumes(unit) and not self._subject.density_is_defined:
-            raise model.quantity.exceptions.UndefinedDensityError(subject=self.subject)
-        elif model.quantity.units_are_pieces(unit) and not self._subject.piece_mass_is_defined:
-            raise model.quantity.exceptions.UndefinedPcMassError(subject=self.subject)
-
-        # OK, return the unit;
-        return unit
-
     @property
     def pref_unit(self) -> str:
         """Returns the unit used to define the subject quantity."""
         # Return the validated unit
-        return self._validate_pref_unit(self._quantity_data_src()['pref_unit'])
+        return model.quantity.validation.validate_pref_unit(
+            unit=self._quantity_data_src()['pref_unit'],
+            subject=self.subject
+        )
 
     @property
     def ref_qty(self) -> float:
         """Returns the reference quantity used to define the subject quantity."""
+
+        # Configure the extended unit variables to match the subject;
         g_per_ml = None
         piece_mass_g = None
+        # If we have exended units, place them in if they are set;
         if isinstance(self.subject, model.quantity.SupportsExtendedUnits):
             g_per_ml = self.subject.g_per_ml if self.subject.density_is_defined else None
             piece_mass_g = self.subject.piece_mass_g if self.subject.piece_mass_is_defined else None
+
+        # Do the conversion and return the result;
         return model.quantity.convert_qty_unit(
             qty=self.quantity_in_g,
             start_unit='g',
@@ -90,7 +79,11 @@ class QuantityOf(model.SupportsDefinition, persistence.YieldsPersistableData):
     @property
     def persistable_data(self) -> 'QuantityData':
         """Returns the quantity data in the persistable format."""
-        self._validate_pref_unit(self._quantity_data_src()['pref_unit'])
+        # Validate the unit before returning the data;
+        _ = model.quantity.validation.validate_pref_unit(
+            unit=self._quantity_data_src()['pref_unit'],
+            subject=self.subject
+        )
         return self._quantity_data_src()
 
 
@@ -120,7 +113,10 @@ class SettableQuantityOf(QuantityOf, persistence.CanLoadData):
     def _sanitise_pref_unit(self) -> None:
         """Tries to validate the pref unit, and if not valid/not configured, it is reset to 'g'"""
         try:
-            _ = self._validate_pref_unit(self._quantity_data['pref_unit'])
+            _ = model.quantity.validation.validate_pref_unit(
+                unit=self._quantity_data_src()['pref_unit'],
+                subject=self.subject
+            )
         except (
                 model.quantity.exceptions.UnknownUnitError,
                 model.quantity.exceptions.UnitNotConfiguredError
@@ -141,7 +137,10 @@ class SettableQuantityOf(QuantityOf, persistence.CanLoadData):
             quantity = model.quantity.validation.validate_quantity(quantity)
 
         # Check the unit is OK;
-        unit = self._validate_pref_unit(unit)
+        unit = model.quantity.validation.validate_pref_unit(
+            unit=unit,
+            subject=self.subject
+        )
 
         # Calculate the qty in grams;
         g_per_ml = None
@@ -170,7 +169,10 @@ class SettableQuantityOf(QuantityOf, persistence.CanLoadData):
         """Load the any available data into the instance."""
         # If the pref unit is defined, make sure it is available on this subject;
         if quantity_data['pref_unit'] is not None:
-            quantity_data['pref_unit'] = self._validate_pref_unit(quantity_data['pref_unit'])
+            quantity_data['pref_unit'] = model.quantity.validation.validate_pref_unit(
+                unit=quantity_data['pref_unit'],
+                subject=self.subject
+            )
 
         # Put the data onto the subject.
         self._quantity_data = quantity_data

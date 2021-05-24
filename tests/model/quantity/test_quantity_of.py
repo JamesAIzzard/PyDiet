@@ -120,10 +120,16 @@ class TestRefQty(TestCase):
         self.assertEqual(qo.ref_qty, 2)
 
     def test_raises_exception_if_pref_unit_is_volume_and_density_not_defined(self):
+        """Check that we get an exception if we ask for the ref quantity and the unit
+        is not defined on the instance."""
+
+        # Create a test instance which does not define density;
         qo = model.quantity.QuantityOf(
             subject=fx.SupportsExtendedUnitsTestable(),
             quantity_data_src=fx.get_qty_data_src(qty_in_g=120, pref_unit="L")
         )
+
+        # Check that we get an exception when we ask for the ref quantity;
         with self.assertRaises(model.quantity.exceptions.UndefinedDensityError):
             _ = qo.ref_qty
 
