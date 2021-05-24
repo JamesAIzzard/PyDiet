@@ -131,7 +131,10 @@ class HasSettableFlags(HasFlags, model.nutrients.HasSettableNutrientRatios):
     def __init__(self, flag_data: Optional['FlagDOFData'] = None, **kwargs):
         super().__init__(**kwargs)
 
+        # Store the data locally now;
         self._flag_dof_data: 'FlagDOFData' = {}
+
+        # If data was passed in, then load it;
         if flag_data is not None:
             self.load_data({'flag_data': flag_data})
 

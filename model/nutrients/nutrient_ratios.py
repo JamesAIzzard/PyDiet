@@ -31,7 +31,7 @@ class NutrientRatio(model.SupportsDefinition, persistence.YieldsPersistableData)
         # Stash the primary name for the nutrient;
         self._nutrient_name = model.nutrients.get_nutrient_primary_name(nutrient_name)
 
-        # Stash the callable;
+        # Stash the data source callable;
         self._nutrient_ratio_data_src = nutrient_ratio_data_src
 
         # Stash the subject;
@@ -125,13 +125,20 @@ class SettableNutrientRatio(NutrientRatio):
     """
 
     def __init__(self, subject: Any, nutrient_ratio_data: Optional['NutrientRatioData'] = None, **kwargs):
+
+        # Now we are storing the data locally;
         # Create the component nutrient mass and subject quantity instances;
         self._nutrient_mass = model.nutrients.SettableNutrientMass(
             nutrient_name=kwargs['nutrient_name']
         )
         self._subject_ref_qty = model.quantity.SettableQuantityOf(subject=subject)
 
-        # Pass these objects to the superclass as the data source;
+        # Create a data src function which uses these local variables, and pass it to
+        # the superclass.
+        # This is perhaps not the nicest way of doing this, the way the class ends up storing
+        # and retrieving data is more convoluted then nescessary. I should probably split out
+        # a NutrientRatioBase class, put the common functionality in there. This would mean
+        # SettableNutrientRatio was not a superclass of
         super().__init__(
             subject=subject,
             nutrient_ratio_data_src=lambda: model.nutrients.NutrientRatioData(
@@ -343,7 +350,10 @@ class HasSettableNutrientRatios(HasNutrientRatios, persistence.CanLoadData):
     def __init__(self, nutrient_ratios_data: Optional[Dict[str, 'NutrientRatioData']] = None, **kwargs):
         super().__init__(**kwargs)
 
-        # Create somewhere to store the data;
+        # Now we are storing the data locally, so create somewhere to store it.
+        # Since nutrient ratios are complex classes, we initialise them, instead of just storing
+        # persistable data. This means we don't have to re-initailise them every time we want to do
+        # utilise functionality from the NutrientRatio class.
         self._nutrient_ratios: Dict[str, 'SettableNutrientRatio'] = {}
 
         # If we got data, then load it up;

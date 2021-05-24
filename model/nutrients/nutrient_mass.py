@@ -1,3 +1,4 @@
+"""Defines functionality related to nutrient masses in the model."""
 import model
 
 # Define an alias for nutrient mass data;
@@ -18,6 +19,7 @@ class NutrientMass(model.quantity.QuantityOf):
 
     @property
     def nutrient(self) -> 'model.nutrients.Nutrient':
+        """Returns the nutrient associated with this nutrient mass."""
         return self._subject
 
 

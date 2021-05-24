@@ -97,6 +97,7 @@ class SupportsSettableCostPerQuantity(SupportsCostPerQuantity, persistence.CanLo
     def __init__(self, cost_per_qty_data: Optional['CostPerQtyData'] = None, **kwargs):
         super().__init__(**kwargs)
 
+        # Create vars to store the data locally now;
         # Create a subject quantity instance;
         self._cost_ref_qty = model.quantity.SettableQuantityOf(
             subject=self,
@@ -105,7 +106,6 @@ class SupportsSettableCostPerQuantity(SupportsCostPerQuantity, persistence.CanLo
                 pref_unit='g'
             )
         )
-
         # Create somewhere to put the cost per gram value;
         self._cost_per_g_: Optional[float] = None
 

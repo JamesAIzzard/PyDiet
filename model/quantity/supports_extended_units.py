@@ -102,20 +102,24 @@ class SupportsExtendedUnitSetting(SupportsExtendedUnits, persistence.CanLoadData
     def __init__(self, extended_units_data: Optional['ExtendedUnitsData'] = None, **kwargs):
         super().__init__(**kwargs)
 
+        # Now we are storing data locally on the instance, so create somewhere to put it.
         self._extended_units_data: 'ExtendedUnitsData' = ExtendedUnitsData(
             g_per_ml=None,
             piece_mass_g=None
         )
 
+        # If we got data, then load it up;
         if extended_units_data is not None:
             self.load_data({'extended_units_data': extended_units_data})
 
     @property
     def _g_per_ml(self) -> Optional[float]:
+        """Returns the grams per ml for the instance, if defined, None if not."""
         return self._extended_units_data['g_per_ml']
 
     @property
     def _piece_mass_g(self) -> Optional[float]:
+        """Returns the peice mass in grams for the instance, if defined, None if not."""
         return self._extended_units_data['piece_mass_g']
 
     @SupportsExtendedUnits.g_per_ml.setter

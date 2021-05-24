@@ -1,3 +1,4 @@
+"""Defines functionality associated with quantities of substances."""
 from typing import TypedDict, Optional, Any, Callable
 
 import model
@@ -5,6 +6,7 @@ import persistence
 
 
 class QuantityData(TypedDict):
+    """Persistable data format for modelling quantities of substances."""
     quantity_in_g: Optional[float]
     pref_unit: str
 
@@ -82,10 +84,12 @@ class QuantityOf(model.SupportsDefinition, persistence.YieldsPersistableData):
 
     @property
     def is_defined(self) -> bool:
+        """Returns True/False to indicate if the quantity is defined."""
         return self._quantity_data_src()['quantity_in_g'] is not None
 
     @property
     def persistable_data(self) -> 'QuantityData':
+        """Returns the quantity data in the persistable format."""
         self._validate_pref_unit(self._quantity_data_src()['pref_unit'])
         return self._quantity_data_src()
 
@@ -94,15 +98,18 @@ class SettableQuantityOf(QuantityOf, persistence.CanLoadData):
     """Models a settable quantity of substance."""
 
     def __init__(self, quantity_data: Optional['QuantityData'] = None, **kwargs):
-        # Create place to stash the quantity data on the instance;
+
+        # Now we are storing the data locally, so create a place to stash the data on the instance;
         self._quantity_data: 'QuantityData' = QuantityData(
             quantity_in_g=None,
             pref_unit='g'
         )
 
         # Now configure the superclass to use this as the data source;
+        # This will change following the update proposed.
         super().__init__(quantity_data_src=lambda: self._quantity_data, **kwargs)
 
+        # If we got quantity data, then load it;
         if quantity_data is not None:
             self.load_data(quantity_data)
 
@@ -159,7 +166,11 @@ class SettableQuantityOf(QuantityOf, persistence.CanLoadData):
         """Unsets the quantity."""
         self._quantity_data['quantity_in_g'] = None
 
-    def load_data(self, data: 'QuantityData') -> None:
-        # Make sure the unit is actually available on this subject;
-        data['pref_unit'] = self._validate_pref_unit(data['pref_unit'])
-        self._quantity_data = data
+    def load_data(self, quantity_data: 'QuantityData') -> None:
+        """Load the any available data into the instance."""
+        # If the pref unit is defined, make sure it is available on this subject;
+        if quantity_data['pref_unit'] is not None:
+            quantity_data['pref_unit'] = self._validate_pref_unit(quantity_data['pref_unit'])
+
+        # Put the data onto the subject.
+        self._quantity_data = quantity_data
