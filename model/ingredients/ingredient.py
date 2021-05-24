@@ -1,4 +1,5 @@
 """Ingredient functionality module."""
+import abc
 from typing import Optional, TypedDict, List, Callable
 
 import model
@@ -14,21 +15,16 @@ class IngredientData(TypedDict):
     extended_units_data: model.quantity.ExtendedUnitsData
 
 
-class Ingredient(
+class IngredientBase(
     model.HasMandatoryAttributes,
     model.HasName,
     model.cost.SupportsCostPerQuantity,
     model.quantity.SupportsExtendedUnits,
     model.flags.HasFlags,
     persistence.SupportsPersistence,
+    abc.ABC
 ):
-    """Models an ingredient with readonly attributes."""
-
-    def __init__(self, ingredient_data_src: Callable[[], 'IngredientData'], **kwargs):
-        super().__init__(**kwargs)
-
-        # Stash the callable;
-        self._ingredient_data_src = ingredient_data_src
+    """Base class to host common functionality shared between Ingredient and Settable Ingredient."""
 
     @property
     def missing_mandatory_attrs(self) -> List[str]:
@@ -51,6 +47,23 @@ class Ingredient(
 
         # Return the list of missing attributes;
         return missing_attrs
+
+    @staticmethod
+    def get_path_into_db() -> str:
+        """Returns the path into the ingredient database."""
+        return f"{persistence.configs.path_into_db}/ingredients"
+
+
+class Ingredient(
+    IngredientBase,
+):
+    """Models an ingredient with readonly attributes."""
+
+    def __init__(self, ingredient_data_src: Callable[[], 'IngredientData'], **kwargs):
+        super().__init__(**kwargs)
+
+        # Stash the callable;
+        self._ingredient_data_src = ingredient_data_src
 
     @property
     def _name(self) -> Optional[str]:
@@ -82,34 +95,33 @@ class Ingredient(
         """Returns the nutrient ratio data for this ingredient."""
         return self._ingredient_data_src()['nutrient_ratios_data']
 
-    @staticmethod
-    def get_path_into_db() -> str:
-        """Returns the path into the ingredient database."""
-        return f"{persistence.configs.path_into_db}/ingredients"
+    @property
+    def persistable_data(self) -> 'model.ingredients.IngredientData':
+        """Returns the persistable data for the ingredient instance."""
+        return super().persistable_data
 
     @property
     def unique_value(self) -> str:
         """Returns the ingredient's unique name."""
         return self._ingredient_data_src()['name']
 
+
+class SettableIngredient(
+    IngredientBase,
+    model.HasSettableName,
+    model.cost.SupportsSettableCostPerQuantity,
+    model.quantity.SupportsExtendedUnitSetting,
+    model.flags.HasSettableFlags,
+):
+    """Models an ingredient with settable attributes."""
+
+    def __init__(self, ingredient_data: Optional['IngredientData'] = None, **kwargs):
+        super().__init__(**kwargs)
+
+        if ingredient_data is not None:
+            self.load_data(ingredient_data)
+
     @property
-    def persistable_data(self) -> 'model.ingredients.IngredientData':
-        """Returns the persistable data for the ingredient instance."""
-        return super().persistable_data
-
-
-# class SettableIngredient(
-#     model.HasSettableName,
-#     model.cost.SupportsSettableCostPerQuantity,
-#     model.quantity.SupportsExtendedUnitSetting,
-#     model.flags.HasSettableFlags,
-#     Ingredient,
-# ):
-#     """Models an ingredient with settable attributes."""
-#
-#     def __init__(self, ingredient_data: Optional['model.ingredients.IngredientData'] = None, **kwargs):
-#
-#         super().__init__(**kwargs)
-#
-#         if ingredient_data is not None:
-#             self.load_data(ingredient_data)
+    def unique_value(self) -> str:
+        """Retrurns the unique value for the settable ingredient;"""
+        return self._name

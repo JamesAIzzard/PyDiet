@@ -132,7 +132,6 @@ class HasSettableFlags(HasFlags, model.nutrients.HasSettableNutrientRatios):
         super().__init__(**kwargs)
 
         self._flag_dof_data: 'FlagDOFData' = {}
-
         if flag_data is not None:
             self.load_data({'flag_data': flag_data})
 

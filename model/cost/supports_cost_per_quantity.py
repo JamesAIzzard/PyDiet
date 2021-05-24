@@ -98,7 +98,7 @@ class SupportsSettableCostPerQuantity(SupportsCostPerQuantity, persistence.CanLo
         super().__init__(**kwargs)
 
         # Create a subject quantity instance;
-        self._subject_quantity = model.quantity.SettableQuantityOf(
+        self._cost_ref_qty = model.quantity.SettableQuantityOf(
             subject=self,
             quantity_data=model.quantity.QuantityData(
                 quantity_in_g=None,
@@ -125,7 +125,7 @@ class SupportsSettableCostPerQuantity(SupportsCostPerQuantity, persistence.CanLo
     def cost_ref_subject_quantity(self) -> 'model.quantity.SettableQuantityOf':
         """Returns the subject quantity instance."""
         # Override to return the local instance, now we have one;
-        return self._subject_quantity
+        return self._cost_ref_qty
 
     def set_cost(self, cost_gbp: Optional[float], qty: Optional[float] = None, unit: str = 'g') -> None:
         """Sets the cost in gbp of any quanitity of any unit."""
@@ -169,9 +169,13 @@ class SupportsSettableCostPerQuantity(SupportsCostPerQuantity, persistence.CanLo
 
     def load_data(self, data: Dict[str, Any]) -> None:
         """Load data into the instance."""
+        # Load the data on the superclass;
         super().load_data(data)
-        self._subject_quantity.load_data(model.quantity.QuantityData(
+
+        # Load the data on this isntance;
+        self._cost_ref_qty.load_data(model.quantity.QuantityData(
             quantity_in_g=data['cost_per_qty_data']['quantity_in_g'],
             pref_unit=data['cost_per_qty_data']['pref_unit']
         ))
+
         self._cost_per_g_ = data['cost_per_qty_data']['cost_per_g']
