@@ -3,6 +3,8 @@ from typing import Optional
 
 import model
 import persistence
+from tests.model.cost import fixtures as cfx
+from tests.model.quantity import fixtures as qfx
 
 INGREDIENT_NAME_WITH = {
     "name_raspberry": "Raspberry",
@@ -20,6 +22,51 @@ INGREDIENT_NAME_WITH = {
     "nutrient_ratios_8_ratios_defined": "Red Pepper",
     "nutrient_ratios_protein_carbs_undefined": "Bacon"
 }
+
+
+class IngredientBaseTestable(model.ingredients.IngredientBase):
+    """Minimal implementation to allow BaseIngredient testing."""
+
+    def __init__(self, ingredient_data: 'model.ingredients.IngredientData', **kwargs):
+        super().__init__(**kwargs)
+
+        # Init the data locally to return during tests;
+        self._ingredient_data = ingredient_data
+
+    @property
+    def _name(self) -> Optional[str]:
+        """Returns instance name."""
+        return self._ingredient_data['name']
+
+    @property
+    def _cost_per_qty_data(self) -> 'model.cost.CostPerQtyData':
+        """Returns instance cost data."""
+        return self._ingredient_data['cost_per_qty_data']
+
+    @property
+    def _g_per_ml(self) -> Optional[float]:
+        """Returns instance g_per_ml."""
+        return self._ingredient_data['extended_units_data']['g_per_ml']
+
+    @property
+    def _piece_mass_g(self) -> Optional[float]:
+        """Returns instance pc mass."""
+        return self._ingredient_data['extended_units_data']['piece_mass_g']
+
+    @property
+    def _flag_dofs(self) -> 'model.flags.FlagDOFData':
+        """Returns instance flag data."""
+        return self._ingredient_data['flag_data']
+
+    @property
+    def _nutrient_ratios_data(self) -> 'model.nutrients.NutrientRatiosData':
+        """Returns instance's nutrient ratios data."""
+        return self._ingredient_data['nutrient_ratios_data']
+
+    @property
+    def unique_value(self) -> str:
+        """Returns instance's unique value, in this case name."""
+        return self._ingredient_data['name']
 
 
 def get_ingredient_name_with(characteristic: str) -> str:
@@ -51,3 +98,12 @@ def get_ingredient_data(
     if for_unique_name is not None:
         # Fetch the data corresponding to that name;
         return persistence.load_datafile(cls=model.ingredients.Ingredient, unique_value=for_unique_name)
+
+    # If nothing was specifed;
+    return model.ingredients.IngredientData(
+        cost_per_qty_data=cfx.get_cost_per_qty_data(),
+        flag_data={},
+        name=None,
+        nutrient_ratios_data={},
+        extended_units_data=qfx.get_extended_units_data()
+    )
