@@ -1,6 +1,8 @@
+"""Tests for the flag class."""
 from unittest import TestCase, mock
 
 import model
+from tests.model.nutrients import fixtures as nfx
 
 
 class TestConstructor(TestCase):
@@ -46,16 +48,39 @@ class TestGetImplicationForNutrient(TestCase):
 
 
 class TestNutrientRatioMatchesRelation(TestCase):
+    """Tests the nutrient_ratio_matches_relation method."""
     def test_returns_true_when_nutrient_matches(self):
-        nr = mock.Mock()
-        nr.nutrient_name = "alcohol"
-        nr.g_per_subject_g = 0
+        """Check the method returns True if the nutrient ratio matches the relation."""
+        # Create a test nutrient ratio which matches a flag;
+        nr = model.nutrients.NutrientRatio(
+            subject=mock.Mock(),
+            nutrient_name="alcohol",
+            nutrient_ratio_data_src=nfx.get_nutrient_ratio_data_src(nfx.get_nutrient_ratio_data(
+                nutrient_mass_g=0,
+                subject_qty_g=100
+            ))
+        )
+
+        # Grab the flag you want to test against;
         af = model.flags.Flag("alcohol_free")
+
+        # Assert the flag confirms the nutrient matches;
         self.assertTrue(af.nutrient_ratio_matches_relation(nr))
 
     def test_returns_false_when_nutrient_does_not_match(self):
-        nr = mock.Mock()
-        nr.nutrient_name = "alcohol"
-        nr.g_per_subject_g = 0.1
+        """Check the method returns False if the nutrient ratio opposes the relation."""
+        # Create a test nutrient ratio which opposes a flag;
+        nr = model.nutrients.NutrientRatio(
+            subject=mock.Mock(),
+            nutrient_name="alcohol",
+            nutrient_ratio_data_src=nfx.get_nutrient_ratio_data_src(nfx.get_nutrient_ratio_data(
+                nutrient_mass_g=10,
+                subject_qty_g=100
+            ))
+        )
+
+        # Grab the flag you want to test against;
         af = model.flags.Flag("alcohol_free")
+
+        # Assert the flag confirms the nutrient matches;
         self.assertFalse(af.nutrient_ratio_matches_relation(nr))

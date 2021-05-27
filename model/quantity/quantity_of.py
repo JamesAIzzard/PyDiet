@@ -1,4 +1,5 @@
 """Defines functionality associated with quantities of substances."""
+import abc
 from typing import TypedDict, Optional, Any, Callable
 
 import model
@@ -11,21 +12,13 @@ class QuantityData(TypedDict):
     pref_unit: str
 
 
-class QuantityOf(model.SupportsDefinition, persistence.YieldsPersistableData):
-    """Models a quantity of a substance.
-    Since this quantity may come from anywhere, it is not stored locally. This class
-    may also be instantiated directly, so we can't rely on an abstract class.
-    Instead we take advantage of closures and pass in a callback as a data source.
-    """
-
-    def __init__(self, subject: Any, quantity_data_src: Callable[[], 'QuantityData'], **kwargs):
+class BaseQuantityOf(model.SupportsDefinition, persistence.YieldsPersistableData, abc.ABC):
+    """Defines the base functionality common to both readonly and writable QuantityOf classes."""
+    def __init__(self, subject: Any, **kwargs):
         super().__init__(**kwargs)
 
-        # Stash the subject;
+        # Subject is *always* stored locally on all subclasses, so stash here;
         self._subject = subject
-
-        # Stash the data source callable;
-        self._quantity_data_src = quantity_data_src
 
     @property
     def subject(self) -> Any:
@@ -33,27 +26,38 @@ class QuantityOf(model.SupportsDefinition, persistence.YieldsPersistableData):
         return self._subject
 
     @property
+    @abc.abstractmethod
+    def _quantity_in_g(self) -> Optional[float]:
+        """Returns the object's quantity in grams if defined, otherwise None."""
+        raise NotImplementedError
+
+    @property
     def quantity_in_g(self) -> float:
         """Returns the object's quantity in grams."""
-        _qty_in_g = self._quantity_data_src()['quantity_in_g']
+        _qty_in_g = self._quantity_in_g
         if _qty_in_g is None:
             raise model.quantity.exceptions.UndefinedQuantityError()
         else:
             return _qty_in_g
 
     @property
+    @abc.abstractmethod
+    def _unvalidated_pref_unit(self) -> str:
+        """Reterns the preferred unit for referencing the object's quantity."""
+        raise NotImplementedError
+
+    @property
     def pref_unit(self) -> str:
         """Returns the unit used to define the subject quantity."""
         # Return the validated unit
         return model.quantity.validation.validate_pref_unit(
-            unit=self._quantity_data_src()['pref_unit'],
+            unit=self._unvalidated_pref_unit,
             subject=self.subject
         )
 
     @property
     def ref_qty(self) -> float:
         """Returns the reference quantity used to define the subject quantity."""
-
         # Configure the extended unit variables to match the subject;
         g_per_ml = None
         piece_mass_g = None
@@ -74,23 +78,53 @@ class QuantityOf(model.SupportsDefinition, persistence.YieldsPersistableData):
     @property
     def is_defined(self) -> bool:
         """Returns True/False to indicate if the quantity is defined."""
-        return self._quantity_data_src()['quantity_in_g'] is not None
+        return self._quantity_in_g is not None
 
     @property
     def persistable_data(self) -> 'QuantityData':
         """Returns the quantity data in the persistable format."""
         # Validate the unit before returning the data;
         _ = model.quantity.validation.validate_pref_unit(
-            unit=self._quantity_data_src()['pref_unit'],
+            unit=self.pref_unit,
             subject=self.subject
         )
-        return self._quantity_data_src()
+
+        # Construct the data object and return it;
+        return model.quantity.QuantityData(
+            quantity_in_g=self._quantity_in_g,
+            pref_unit=self.pref_unit
+        )
 
 
-class SettableQuantityOf(QuantityOf, persistence.CanLoadData):
+class QuantityOf(BaseQuantityOf):
+    """Models a quantity of a substance.
+    Since this quantity may come from anywhere, it is not stored locally. This class
+    may also be instantiated directly, so we can't rely on an abstract class.
+    Instead we take advantage of closures and pass in a callback as a data source.
+    """
+
+    def __init__(self, quantity_data_src: Callable[[], 'QuantityData'], **kwargs):
+        super().__init__(**kwargs)
+
+        # Stash the data source callable;
+        self._quantity_data_src = quantity_data_src
+
+    @property
+    def _quantity_in_g(self) -> Optional[float]:
+        """Returns the raw quantity in grams from the source function."""
+        return self._quantity_data_src()['quantity_in_g']
+
+    @property
+    def _unvalidated_pref_unit(self) -> str:
+        """Returns the raw pref unit from the src function."""
+        return self._quantity_data_src()['pref_unit']
+
+
+class SettableQuantityOf(BaseQuantityOf, persistence.CanLoadData):
     """Models a settable quantity of substance."""
 
     def __init__(self, quantity_data: Optional['QuantityData'] = None, **kwargs):
+        super().__init__(**kwargs)
 
         # Now we are storing the data locally, so create a place to stash the data on the instance;
         self._quantity_data: 'QuantityData' = QuantityData(
@@ -98,13 +132,18 @@ class SettableQuantityOf(QuantityOf, persistence.CanLoadData):
             pref_unit='g'
         )
 
-        # Now configure the superclass to use this as the data source;
-        # This will change following the update proposed.
-        super().__init__(quantity_data_src=lambda: self._quantity_data, **kwargs)
-
         # If we got quantity data, then load it;
         if quantity_data is not None:
             self.load_data(quantity_data)
+
+    @property
+    def _quantity_in_g(self) -> Optional[float]:
+        """Returns the locally stored quantity in grams if defined, otherwise None."""
+        return self._quantity_data['quantity_in_g']
+
+    @property
+    def _unvalidated_pref_unit(self) -> str:
+        return self._quantity_data['pref_unit']
 
     def _reset_pref_unit(self) -> None:
         """Resets the pref unit"""
@@ -114,7 +153,7 @@ class SettableQuantityOf(QuantityOf, persistence.CanLoadData):
         """Tries to validate the pref unit, and if not valid/not configured, it is reset to 'g'"""
         try:
             _ = model.quantity.validation.validate_pref_unit(
-                unit=self._quantity_data_src()['pref_unit'],
+                unit=self._unvalidated_pref_unit,
                 subject=self.subject
             )
         except (

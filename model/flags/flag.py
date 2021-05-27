@@ -1,3 +1,4 @@
+"""Flag functionality"""
 from typing import Dict, List
 
 import model
@@ -27,10 +28,12 @@ class Flag:
 
     @property
     def name(self) -> str:
+        """Returns the flag's name."""
         return self._name
 
     @property
     def direct_alias(self) -> bool:
+        """Returns True/False to indicate if the flag is a direct alias."""
         return self._direct_alias
 
     @property
@@ -55,7 +58,7 @@ class Flag:
         """Returns True/False/None to indicate if the nutrient relation
         matches the nutrient ratio supplied."""
         # Grab the implication first;
-        implication = self.get_implication_for_nutrient(nutrient_ratio.nutrient_name)
+        implication = self.get_implication_for_nutrient(nutrient_ratio.nutrient_mass.nutrient.primary_name)
 
         # If implication is zero;
         if implication is model.flags.FlagImpliesNutrient.zero:

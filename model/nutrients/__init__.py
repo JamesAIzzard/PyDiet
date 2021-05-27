@@ -1,16 +1,14 @@
+"""Initialisation or the nutrients module."""
 import copy
 from typing import List, Dict
 
-from . import configs, exceptions, main
+from . import configs, exceptions, main, validation
 from .main import (
     get_nutrient_primary_name,
     get_nutrient_alias_names,
     get_calories_per_g,
     nutrient_ratio_data_is_defined,
-    validate_nutrient_family_masses,
     get_n_closest_nutrient_names,
-    validate_nutrient_name,
-    validate_configs
 )
 from .nutrient import Nutrient
 from .nutrient_mass import (
@@ -20,6 +18,7 @@ from .nutrient_mass import (
 )
 from .nutrient_ratios import (
     NutrientRatioData,
+    BaseNutrientRatio,
     NutrientRatio,
     SettableNutrientRatio,
     NutrientRatiosData,
@@ -221,4 +220,4 @@ OPTIONAL_NUTRIENT_NAMES: List[str] = build_optional_nutrient_name_list(configs)
 GLOBAL_NUTRIENTS = build_global_nutrient_list(configs)
 
 # Check the configs are OK;
-validate_configs(configs)
+validation.validate_configs(configs)

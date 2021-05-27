@@ -14,55 +14,23 @@ class NutrientRatioData(TypedDict):
     subject_ref_qty_data: model.quantity.QuantityData
 
 
+# Define a datatype for nutrient ratios data;
 NutrientRatiosData = Dict[str, 'NutrientRatioData']
 
 
-class NutrientRatio(model.SupportsDefinition, persistence.YieldsPersistableData):
-    """Models an amount of nutrient per substance.
-    This class will be instantiated directly, and we are unsure of it's data source in advance.
-    Therefore, we pass in a callback to supply the NutrientRatioData the class requires.
-    """
-
-    def __init__(self,
-                 subject: Any, nutrient_name: str,
-                 nutrient_ratio_data_src: Callable[[], 'NutrientRatioData'], **kwargs):
-        super().__init__(**kwargs)
-
-        # Stash the primary name for the nutrient;
-        self._nutrient_name = model.nutrients.get_nutrient_primary_name(nutrient_name)
-
-        # Stash the data source callable;
-        self._nutrient_ratio_data_src = nutrient_ratio_data_src
-
-        # Stash the subject;
-        self._subject = subject
+class BaseNutrientRatio(model.SupportsDefinition, persistence.YieldsPersistableData, abc.ABC):
+    """Base class to host common functionality between readonly and writable nutrient ratios."""
 
     @property
-    def subject(self) -> Any:
-        """Returns the subject on which the nutrient ratio exists."""
-        return self._subject
-
-    @property
+    @abc.abstractmethod
     def nutrient_mass(self) -> 'model.nutrients.NutrientMass':
-        """Returns the nutrient associated with the nutrient ratio."""
-        # Init the nutrient mass instance and return it;
-        return model.nutrients.NutrientMass(
-            nutrient_name=self.nutrient_name,
-            quantity_data_src=lambda: self._nutrient_ratio_data_src()['nutrient_mass_data']
-        )
+        """Returns the nutrient mass associated with this nutrient ratio."""
 
     @property
-    def nutrient_name(self) -> str:
-        """Shortcut property to pull out the nutrient name."""
-        return self._nutrient_name
-
-    @property
+    @abc.abstractmethod
     def subject_ref_quantity(self) -> 'model.quantity.QuantityOf':
-        """Returns the subject quantity associated with the nutrient ratio."""
-        return model.quantity.QuantityOf(
-            subject=self.subject,
-            quantity_data_src=lambda: self._nutrient_ratio_data_src()['subject_ref_qty_data']
-        )
+        """Returns the reference subject quantity associated with this nutrient ratio."""
+        raise NotImplementedError
 
     @property
     def g_per_subject_g(self) -> float:
@@ -73,8 +41,8 @@ class NutrientRatio(model.SupportsDefinition, persistence.YieldsPersistableData)
         # Catch an undefined nutrient mass first off;
         if not nutrient_mass.is_defined:
             raise model.nutrients.exceptions.UndefinedNutrientRatioError(
-                subject=self.subject,
-                nutrient_name=self.nutrient_name
+                subject=self.subject_ref_quantity.subject,
+                nutrient_name=self.nutrient_mass.nutrient.primary_name
             )
 
         # OK, calc and return;
@@ -98,17 +66,12 @@ class NutrientRatio(model.SupportsDefinition, persistence.YieldsPersistableData)
     @property
     def is_defined(self) -> bool:
         """Returns True/False to indicate if the nutrient ratio is fully defined."""
-        return model.nutrients.nutrient_ratio_data_is_defined(self._nutrient_ratio_data_src())
+        return model.nutrients.nutrient_ratio_data_is_defined(self.persistable_data)
 
     @property
     def is_zero(self) -> bool:
         """Returns True/False to indicate if the nutrient ratio is explicitly set to zero."""
         return self.g_per_subject_g == 0
-
-    @property
-    def is_non_zero(self) -> bool:
-        """Returns True/False to indicate if the nutrient ratio is not zero."""
-        return not self.is_zero
 
     @property
     def persistable_data(self) -> 'model.nutrients.NutrientRatioData':
@@ -119,36 +82,79 @@ class NutrientRatio(model.SupportsDefinition, persistence.YieldsPersistableData)
         )
 
 
-class SettableNutrientRatio(NutrientRatio):
+class NutrientRatio(BaseNutrientRatio):
+    """Models an amount of nutrient per substance.
+    This is the non-writeable version of nutrient ratio, so it extends the base by accepting a data
+    sournce and then uses it to create the NutrientMass and subject ref qty instances required.
+    """
+
+    def __init__(self, subject: Any,
+                 nutrient_name: str,
+                 nutrient_ratio_data_src: Callable[[], 'NutrientRatioData']):
+        super().__init__()
+
+        # Stash the nutrient name and the reference to the subject;
+        self._nutrient_name = model.nutrients.get_nutrient_primary_name(nutrient_name)
+        self._subject = subject
+
+        # Stash the data source callable;
+        self._nutrient_ratio_data_src = nutrient_ratio_data_src
+
+    @property
+    def nutrient_mass(self) -> 'model.nutrients.NutrientMass':
+        """Returns the nutrient associated with the nutrient ratio."""
+        # Init the nutrient mass instance and return it;
+        return model.nutrients.NutrientMass(
+            nutrient_name=self._nutrient_name,
+            quantity_data_src=lambda: self._nutrient_ratio_data_src()['nutrient_mass_data']
+        )
+
+    @property
+    def subject_ref_quantity(self) -> 'model.quantity.QuantityOf':
+        """Returns the subject quantity associated with the nutrient ratio."""
+        return model.quantity.QuantityOf(
+            subject=self._subject,
+            quantity_data_src=lambda: self._nutrient_ratio_data_src()['subject_ref_qty_data']
+        )
+
+
+class SettableNutrientRatio(BaseNutrientRatio):
     """Models a settable nutrient ratio. Careful where you return these! Nutrient ratios
     shouldn't be set without mutually validating all nutrients on the subject.
     """
 
-    def __init__(self, subject: Any, nutrient_ratio_data: Optional['NutrientRatioData'] = None, **kwargs):
+    def __init__(self, subject: Any,
+                 nutrient_name: str,
+                 nutrient_ratio_data: Optional['NutrientRatioData'] = None):
+        super().__init__()
 
-        # Now we are storing the data locally;
-        # Create the component nutrient mass and subject quantity instances;
+        # Now we are storing the data locally so create local component nutrient mass and subject quantity instances;
         self._nutrient_mass = model.nutrients.SettableNutrientMass(
-            nutrient_name=kwargs['nutrient_name']
+            nutrient_name=model.nutrients.get_nutrient_primary_name(nutrient_name),
+
         )
-        self._subject_ref_qty = model.quantity.SettableQuantityOf(subject=subject)
+        self._subject_ref_qty = model.quantity.SettableQuantityOf(subject=subject,)
 
-        # Create a data src function which uses these local variables, and pass it to
-        # the superclass.
-        # This is perhaps not the nicest way of doing this, the way the class ends up storing
-        # and retrieving data is more convoluted then nescessary. I should probably split out
-        # a NutrientRatioBase class, put the common functionality in there. This would mean
-        # SettableNutrientRatio was not a superclass of
-        super().__init__(
-            subject=subject,
-            nutrient_ratio_data_src=lambda: model.nutrients.NutrientRatioData(
-                nutrient_mass_data=self._nutrient_mass.persistable_data,
-                subject_ref_qty_data=self._subject_ref_qty.persistable_data
-            ),
-            **kwargs)
-
+        # If we got data, then load it;
         if nutrient_ratio_data is not None:
             self.load_data(nutrient_ratio_data)
+
+    @property
+    def nutrient_mass(self) -> 'model.nutrients.NutrientMass':
+        """Returns the nutrient associated with the nutrient ratio."""
+        # Init the nutrient mass instance and return it;
+        return model.nutrients.NutrientMass(
+            nutrient_name=self._nutrient_mass.nutrient.primary_name,
+            quantity_data_src=lambda: self._nutrient_mass.persistable_data
+        )
+
+    @property
+    def subject_ref_quantity(self) -> 'model.quantity.QuantityOf':
+        """Returns the subject quantity associated with the nutrient ratio."""
+        return model.quantity.QuantityOf(
+            subject=self._subject_ref_qty.subject,
+            quantity_data_src=lambda: self._subject_ref_qty.persistable_data
+        )
 
     def set_ratio(self, nutrient_mass: Optional[float],
                   nutrient_mass_unit: str,
@@ -181,7 +187,7 @@ class SettableNutrientRatio(NutrientRatio):
             self.load_data(backup_data)
             raise model.nutrients.exceptions.NutrientQtyExceedsSubjectQtyError(
                 subject=self,
-                nutrient_name=self.nutrient_name,
+                nutrient_name=self._nutrient_mass.nutrient.primary_name,
                 nutrient_mass=nutrient_mass,
                 nutrient_mass_units=nutrient_mass_unit,
                 subject_qty=subject_qty,
@@ -317,7 +323,7 @@ class HasNutrientRatios(persistence.YieldsPersistableData, abc.ABC):
                 )
 
         # Call the validator function, passing in our tweaked getter;
-        model.nutrients.validate_nutrient_family_masses(
+        model.nutrients.validation.validate_nutrient_family_masses(
             nutrient_name=nutrient_name,
             get_nutrient_mass_g=get_nutrient_mass_g
         )
@@ -484,4 +490,6 @@ class HasSettableNutrientRatios(HasNutrientRatios, persistence.CanLoadData):
                 nutrient_name=nutrient_name,
                 nutrient_ratio_data=nutrient_ratio_data
             )
+
+            # Run validation now this nr has been added;
             self.validate_nutrient_ratio(nutrient_name)

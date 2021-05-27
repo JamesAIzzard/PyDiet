@@ -9,11 +9,10 @@ class NutrientMass(model.quantity.QuantityOf):
     """Models a mass of a nutrient."""
 
     def __init__(self, nutrient_name: str, **kwargs):
-        # Grab the primary version of the nutrient name;
-        nutrient_name = model.nutrients.get_nutrient_primary_name(nutrient_name)
-
         super().__init__(
-            subject=model.nutrients.GLOBAL_NUTRIENTS[nutrient_name],
+            subject=model.nutrients.GLOBAL_NUTRIENTS[
+                model.nutrients.get_nutrient_primary_name(nutrient_name)
+            ],
             **kwargs
         )
 
@@ -23,5 +22,18 @@ class NutrientMass(model.quantity.QuantityOf):
         return self._subject
 
 
-class SettableNutrientMass(NutrientMass, model.quantity.SettableQuantityOf):
+class SettableNutrientMass(model.quantity.SettableQuantityOf):
     """Models a settable nutrient mass."""
+
+    def __init__(self, nutrient_name: str, **kwargs):
+        super().__init__(
+            subject=model.nutrients.GLOBAL_NUTRIENTS[
+                model.nutrients.get_nutrient_primary_name(nutrient_name)
+            ],
+            **kwargs
+        )
+
+    @property
+    def nutrient(self) -> 'model.nutrients.Nutrient':
+        """Returns the nutrient associated with this nutrient mass."""
+        return self._subject

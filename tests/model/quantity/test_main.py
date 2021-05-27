@@ -1,3 +1,4 @@
+"""Tests for quantity.main module."""
 from unittest import TestCase
 
 import model

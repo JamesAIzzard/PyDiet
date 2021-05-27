@@ -4,10 +4,11 @@ from unittest import mock
 
 import model
 # Import test configs to allow us to build the test globals;
-from . import test_configs
+from tests.model.nutrients import test_configs
+from tests.model.quantity import fixtures as qfx
 
 # Validate the test flag configs;
-model.nutrients.main.validate_configs(test_configs)
+model.nutrients.validation.validate_configs(test_configs)
 
 PRIMARY_AND_ALIAS_NUTRIENT_NAMES: List[str]
 NUTRIENT_GROUP_NAMES: List[str]
@@ -21,12 +22,49 @@ PRIMARY_AND_ALIAS_NUTRIENT_NAMES = model.nutrients.build_primary_and_alias_nutri
 GLOBAL_NUTRIENTS = model.nutrients.build_global_nutrient_list(test_configs)
 
 
+class BaseNutrientRatioTestable(model.nutrients.BaseNutrientRatio):
+    """A minimal implementation of BaseNutrientRatio to allow its testing."""
+
+    def __init__(self, subject: Any,
+                 nutrient_name: str,
+                 nutrient_ratio_data: 'model.nutrients.NutrientRatioData'):
+        # Store nutrient mass and subject ref qty locally for testing;
+        self._nutrient_mass = model.nutrients.NutrientMass(
+            nutrient_name=nutrient_name,
+            quantity_data_src=qfx.get_qty_data_src(qfx.get_qty_data(
+                qty_in_g=nutrient_ratio_data['nutrient_mass_data']['quantity_in_g'],
+                pref_unit=nutrient_ratio_data['nutrient_mass_data']['pref_unit']
+            ))
+        )
+        self._subject_ref_qty = model.quantity.QuantityOf(
+            subject=subject,
+            quantity_data_src=qfx.get_qty_data_src(qfx.get_qty_data(
+                qty_in_g=nutrient_ratio_data['subject_ref_qty_data']['quantity_in_g'],
+                pref_unit=nutrient_ratio_data['subject_ref_qty_data']['pref_unit']
+            ))
+        )
+
+    @property
+    def nutrient_mass(self) -> 'model.nutrients.NutrientMass':
+        """Return the locally stored instance."""
+        return self._nutrient_mass
+
+    @property
+    def subject_ref_quantity(self) -> 'model.quantity.QuantityOf':
+        """Return the locally stored ref quantity."""
+        return self._subject_ref_qty
+
+
 class HasNutrientRatiosTestable(model.nutrients.HasNutrientRatios):
     """Minimal class to allow testing of the HasNutrientRatios abstract base class."""
 
-    def __init__(self, nutrient_ratios_data: 'model.nutrients.NutrientRatiosData' = None):
+    def __init__(self, nutrient_ratios_data: 'model.nutrients.NutrientRatiosData' = None, **kwargs):
+        super().__init__(**kwargs)
+
+        # If no data was provided, init an empty dict;
         if nutrient_ratios_data is None:
             self._nutrient_ratios_data_: 'model.nutrients.NutrientRatiosData' = {}
+        # Otherwise go ahead and load the data;
         else:
             self._nutrient_ratios_data_ = nutrient_ratios_data
 
@@ -36,11 +74,21 @@ class HasNutrientRatiosTestable(model.nutrients.HasNutrientRatios):
         return self._nutrient_ratios_data_
 
 
+class HasNutrientRatiosAndExtUnitsTestable(
+    HasNutrientRatiosTestable,
+    qfx.SupportsExtendedUnitsTestable
+):
+    """Minimal implementation to allow testing of HasNutrientRatios in conjunction with SupportsExtendedUnits."""
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+
 class HasSettableNutrientRatiosAndExtUnitsTestable(
     model.nutrients.HasSettableNutrientRatios,
     model.quantity.SupportsExtendedUnits
 ):
-    """Minimal class to allow testing of the HasNutrientRatios while also supporting extended units."""
+    """Minimal class to allow testing of the HasSettableNutrientRatios while also supporting extended units."""
 
     def __init__(self, g_per_ml: Optional[float] = None, piece_mass_g: Optional[float] = None):  # noqa
         super().__init__()
@@ -90,79 +138,7 @@ def get_nutrient_ratio_data(
     )
 
 
-def init_10g_tirbur() -> 'model.nutrients.NutrientMass':
-    """Returns 10g of the nutrient Tirbur"""
-    return model.nutrients.NutrientMass(
-        nutrient_name="tirbur",
-        quantity_data_src=lambda: model.quantity.QuantityData(
-            quantity_in_g=10,
-            pref_unit='g'
-        )
-    )
-
-
-def init_100mg_docbe() -> 'model.nutrients.NutrientMass':
-    """Returns 100mg of the nutrient Docbe."""
-    return model.nutrients.NutrientMass(
-        nutrient_name="docbe",
-        quantity_data_src=lambda: model.quantity.QuantityData(
-            quantity_in_g=0.1,
-            pref_unit='mg'
-        )
-    )
-
-
-def init_undefined_docbe() -> 'model.nutrients.NutrientMass':
-    """Returns an undefined quantity of the nutrient Docbe."""
-    return model.nutrients.NutrientMass(
-        nutrient_name="docbe",
-        quantity_data_src=lambda: model.quantity.QuantityData(
-            quantity_in_g=None,
-            pref_unit='g'
-        )
-    )
-
-
-def init_settable_nutrient_mass(nutrient_name: str) -> model.nutrients.SettableNutrientMass:
-    """Initialises a settable nutrient mass of the specified nutrient, with a quantity of 1.2mg"""
-    return model.nutrients.SettableNutrientMass(
-        nutrient_name=nutrient_name,
-        quantity_data=model.quantity.QuantityData(
-            quantity_in_g=1.2,
-            pref_unit="mg"
-        )
-    )
-
-
-def init_nutrient_ratio(subject: Any, nutrient_name: str, data_src: Callable) -> 'model.nutrients.NutrientRatio':
-    """Initialises a nutrient ratio."""
-    return model.nutrients.NutrientRatio(subject, nutrient_name, data_src)
-
-
-def init_nutrient_ratio_data(
-        nutrient_qty_g: Optional[float] = None,
-        nutrient_pref_unit: str = 'g',
-        subject_qty_g: Optional[float] = None,
-        subject_pref_unit: str = 'g'
-) -> 'model.nutrients.NutrientRatioData':
-    """Returns a nutrient ratio data instance, providing default values."""
-    return model.nutrients.NutrientRatioData(
-        nutrient_mass_data=model.quantity.QuantityData(
-            quantity_in_g=nutrient_qty_g,
-            pref_unit=nutrient_pref_unit
-        ),
-        subject_ref_qty_data=model.quantity.QuantityData(
-            quantity_in_g=subject_qty_g,
-            pref_unit=subject_pref_unit
-        )
-    )
-
-
-def init_nutrient_ratio_data_src(
-        nutrient_qty_g: Optional[float] = None,
-        nutrient_pref_unit: str = 'g',
-        subject_qty_g: Optional[float] = None,
-        subject_pref_unit: str = 'g'
-) -> Callable[[None], 'model.nutrients.NutrientRatioData']:
+def get_nutrient_ratio_data_src(nutrient_ratio_data: 'model.nutrients.NutrientRatioData') \
+        -> Callable[[None], 'model.nutrients.NutrientRatioData']:
     """Returns a nutrient ratio data source callable."""
-    return lambda: init_nutrient_ratio_data(nutrient_qty_g, nutrient_pref_unit, subject_qty_g, subject_pref_unit)
+    return lambda: nutrient_ratio_data

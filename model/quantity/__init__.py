@@ -15,9 +15,10 @@ from .main import (
     convert_density_unit
 )
 from .quantity_of import (
+    QuantityData,
+    BaseQuantityOf,
     QuantityOf,
-    SettableQuantityOf,
-    QuantityData
+    SettableQuantityOf
 )
 from .supports_extended_units import (
     ExtendedUnitsData,
