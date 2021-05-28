@@ -124,13 +124,18 @@ class SettableIngredient(
     @model.HasSettableName.name.setter
     def name(self, name: Optional[str]) -> None:
         """Sets name if unique to ingredient class, otherwise raises an exception."""
-        # If the name is available;
+        # If the name is None, just set it and return;
+        if name is None:
+            self._name_ = name
+            return
+
+        # OK, the name isn't None, so we need to check if it is available;
         if persistence.check_unique_value_available(
             cls=self.__class__,
             proposed_name=name,
             ignore_datafile=self.datafile_name if self.datafile_name_is_defined else None
         ):
-            # Go ahead and set it;
+            # It is available, go ahead and set it;
             self._name_ = name
         # Otherwise, raise an exception;
         else:

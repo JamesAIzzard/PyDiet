@@ -97,6 +97,24 @@ class TestsName(TestCase):
         self.assertEqual("Made Up Ingredient", si.name)
 
     @pfx.use_test_database
+    def test_name_can_be_set_to_none(self):
+        """Checks the name can be set to None without an exception."""
+        # Create a test instance, providing data;
+        si = model.ingredients.SettableIngredient(ingredient_data=fx.get_ingredient_data(
+            for_unique_name=fx.get_ingredient_name_with("typical_fully_defined_data")
+        ))
+
+        # Assert the name is set;
+        self.assertTrue(si.name_is_defined)
+
+        # Set the name to None;
+        si.name = None
+
+        # Assert that the name is no longer set;
+        self.assertFalse(si.name_is_defined)
+        self.assertTrue("name" in si.missing_mandatory_attrs)
+
+    @pfx.use_test_database
     def test_exception_if_name_already_in_use(self):
         """Tests that we get an exception if we try to set a name that is already in use in the database."""
         # Create a fresh test instance;
