@@ -121,6 +121,21 @@ class SettableIngredient(
         if ingredient_data is not None:
             self.load_data(ingredient_data)
 
+    @model.HasSettableName.name.setter
+    def name(self, name: Optional[str]) -> None:
+        """Sets name if unique to ingredient class, otherwise raises an exception."""
+        # If the name is available;
+        if persistence.check_unique_value_available(
+            cls=self.__class__,
+            proposed_name=name,
+            ignore_datafile=self.datafile_name if self.datafile_name_is_defined else None
+        ):
+            # Go ahead and set it;
+            self._name_ = name
+        # Otherwise, raise an exception;
+        else:
+            raise persistence.exceptions.UniqueValueDuplicatedError(duplicated_value=name)
+
     @property
     def unique_value(self) -> str:
         """Retrurns the unique value for the settable ingredient;"""
