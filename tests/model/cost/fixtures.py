@@ -26,9 +26,14 @@ class SupportsCostPerQuantityTestable(model.cost.SupportsCostPerQuantity):
         )
 
 
-def get_cost_per_qty_data(quantity_in_g: Optional[float] = None, pref_unit: str = 'g') -> 'model.cost.CostPerQtyData':
+def get_cost_per_qty_data(
+        cost_per_g: Optional[float] = None,
+        quantity_in_g: Optional[float] = None,
+        pref_unit: str = 'g'
+) -> 'model.cost.CostPerQtyData':
     """Returns CostPerQtyData instance, with defaults if values not specified."""
     return model.cost.CostPerQtyData(
+        cost_per_g=cost_per_g,
         quantity_in_g=quantity_in_g,
         pref_unit=pref_unit
     )

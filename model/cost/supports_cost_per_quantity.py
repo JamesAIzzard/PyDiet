@@ -172,6 +172,10 @@ class SupportsSettableCostPerQuantity(SupportsCostPerQuantity, persistence.CanLo
         # Load the data on the superclass;
         super().load_data(data)
 
+        # If there is no cost data in the dict, just return;
+        if 'cost_per_qty_data' not in data.keys():
+            return
+
         # Load the data on this isntance;
         self._cost_ref_qty.load_data(model.quantity.QuantityData(
             quantity_in_g=data['cost_per_qty_data']['quantity_in_g'],

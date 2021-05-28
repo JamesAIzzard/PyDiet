@@ -4,6 +4,7 @@ from unittest import TestCase
 import model
 import persistence
 from tests.model.ingredients import fixtures as fx
+from tests.model.quantity import fixtures as qfx
 from tests.persistence import fixtures as pfx
 
 
@@ -77,7 +78,7 @@ class TestMissingMandatoryAttrs(TestCase):
         self.assertFalse('cost' in si.missing_mandatory_attrs)
 
 
-class TestsName(TestCase):
+class TestName(TestCase):
     """Tests the name property."""
 
     @pfx.use_test_database
@@ -127,3 +128,81 @@ class TestsName(TestCase):
         # Assert we get an exception if we try to set a name that is already in use;
         with self.assertRaises(persistence.exceptions.UniqueValueDuplicatedError):
             si.name = "Lemon"
+
+
+class TestSetCost(TestCase):
+    """Tests the set cost method."""
+
+    def test_valid_cost_can_be_set(self):
+        """Checks a valid cost can be set."""
+        # Create a fresh test instance;
+        si = model.ingredients.SettableIngredient()
+
+        # Assert the cost is not defined;
+        self.assertFalse(si.cost_is_defined)
+
+        # Set the cost;
+        si.set_cost(
+            cost_gbp=12.50,
+            qty=3.5,
+            unit="kg"
+        )
+
+        # Assert the cost has been set;
+        self.assertTrue(si.cost_is_defined)
+        self.assertEqual(12.5, si.cost_of_ref_qty)
+        self.assertEqual("kg", si.cost_ref_subject_quantity.pref_unit)
+        self.assertEqual(3.5, si.cost_ref_subject_quantity.ref_qty)
+
+    def test_exception_if_cost_value_invalid(self):
+        """Checks we get an exception if the cost being set is invalid."""
+        # Create a fresh test instance;
+        si = model.ingredients.SettableIngredient()
+
+        # Check we get an exception if the cost value is invalid;
+        with self.assertRaises(model.cost.exceptions.InvalidCostError):
+            si.set_cost(
+                cost_gbp="invalid", # noqa
+                qty=3.5,
+                unit="kg"
+            )
+
+    def test_exception_if_ref_qty_zero(self):
+        """Checks we get an exception if the reference quantity the cost is being set against is zero."""
+        # Create a fresh test instance;
+        si = model.ingredients.SettableIngredient()
+
+        # Check we get an exception if the cost ref qty is zero;
+        with self.assertRaises(model.quantity.exceptions.ZeroQtyError):
+            si.set_cost(
+                cost_gbp=2.50,
+                qty=0,
+                unit="kg"
+            )
+
+    def test_can_use_ext_units_if_configured(self):
+        """Checks that we can set the cost against an extended unit if the correct units are configured."""
+        # Create a fresh test instance, with extended units configured;
+        si = model.ingredients.SettableIngredient(
+            ingredient_data={
+                'extended_units_data': qfx.get_extended_units_data(g_per_ml=1.2)
+            }
+        )
+
+        # Assert the cost is not defined;
+        self.assertFalse(si.cost_is_defined)
+
+        # Assert we can set the cost against an extended unit;
+        si.set_cost(
+            cost_gbp=2.50,
+            qty=1.5,
+            unit="L"
+        )
+
+        # Assert the cost has now been set;
+        self.assertTrue(si.cost_is_defined)
+
+    def test_exception_if_ext_units_when_not_configured(self):
+        """Checks we get an exception if we try to use extended units to define the cost,
+        when extended units are not configured."""
+        raise NotImplementedError
