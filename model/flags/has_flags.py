@@ -48,6 +48,18 @@ class HasFlags(model.nutrients.HasNutrientRatios, abc.ABC):
             # Ahh, we don't have a dof listed, just return None.
             return None
 
+    def flag_is_defined(self, flag_name: str) -> bool:
+        """Returns True/False to indicate if the flag is defined."""
+        # Try and access the flag;
+        try:
+            _ = self.get_flag_value(flag_name=flag_name)
+        # If we get an exception, then return False;
+        except model.flags.exceptions.UndefinedFlagError:
+            return False
+
+        # Otherwise, everything worked, so return True;
+        return True
+
     def get_flag_value(self, flag_name: str) -> bool:
         """Get the value of a particular flag by name."""
 

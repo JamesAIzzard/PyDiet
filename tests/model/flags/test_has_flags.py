@@ -40,8 +40,33 @@ class TestGetFlagDOF(TestCase):
         self.assertEqual(hf._get_flag_dof("pongaterian"), None)
 
 
+class TestFlagIsDefined(TestCase):
+    """Tests the flag_is_defined method."""
+
+    @fx.use_test_flags
+    @nfx.use_test_nutrients
+    def test_returns_true_if_flag_is_defined(self):
+        """Checks that the method returns True if the flag is defined."""
+        # Create a test instance with a flag defined;
+        hf = fx.HasFlagsTestable(flag_dofs={"bar_free": True})
+
+        # Assert that the flag shows as defined;
+        self.assertTrue(hf.flag_is_defined("bar_free"))
+
+    @fx.use_test_flags
+    @nfx.use_test_nutrients
+    def test_returns_false_if_flag_is_undefined(self):
+        """Checks that the method returns False if the flag is undefined."""
+        # Create a test instance;
+        hf = fx.HasFlagsTestable(flag_dofs={"bar_free": True})
+
+        # Assert that an undefined flag shows as undefined;
+        self.assertFalse(hf.flag_is_defined("foo_free"))
+
+
 class TestGetFlagValue(TestCase):
     """Tests the get_flag_value method."""
+
     @fx.use_test_flags
     @nfx.use_test_nutrients
     def test_direct_alias_returns_true_when_all_related_nutrients_agree(self):

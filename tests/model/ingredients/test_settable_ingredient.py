@@ -5,6 +5,8 @@ import model
 import persistence
 from tests.model.ingredients import fixtures as fx
 from tests.model.quantity import fixtures as qfx
+from tests.model.flags import fixtures as ffx
+from tests.model.nutrients import fixtures as nfx
 from tests.persistence import fixtures as pfx
 
 
@@ -162,7 +164,7 @@ class TestSetCost(TestCase):
         # Check we get an exception if the cost value is invalid;
         with self.assertRaises(model.cost.exceptions.InvalidCostError):
             si.set_cost(
-                cost_gbp="invalid", # noqa
+                cost_gbp="invalid",  # noqa
                 qty=3.5,
                 unit="kg"
             )
@@ -205,4 +207,85 @@ class TestSetCost(TestCase):
     def test_exception_if_ext_units_when_not_configured(self):
         """Checks we get an exception if we try to use extended units to define the cost,
         when extended units are not configured."""
-        raise NotImplementedError
+        # Create a fresh test instance, with extended units configured;
+        si = model.ingredients.SettableIngredient()
+
+        # Assert the cost is not defined;
+        self.assertFalse(si.cost_is_defined)
+
+        # Assert we get an exception if we try to set the cost on an extended unit;
+        with self.assertRaises(model.quantity.exceptions.UndefinedDensityError):
+            si.set_cost(
+                cost_gbp=2.50,
+                qty=1.5,
+                unit="L"
+            )
+
+
+class TestSetDensity(TestCase):
+    """Tests the set_density method in the context of the SettableIngredient class."""
+
+    def test_density_can_be_set(self):
+        """Checks that a valid density can be set;"""
+        # Create a test instance;
+        si = model.ingredients.SettableIngredient()
+
+        # Assert the density is not defined;
+        self.assertFalse(si.density_is_defined)
+
+        # Set the density;
+        si.set_density(
+            mass_qty=100,
+            mass_unit='g',
+            vol_qty=120,
+            vol_unit='ml'
+        )
+
+        # Assert the density was set;
+        self.assertTrue(si.density_is_defined)
+
+
+class TestSetPieceMass(TestCase):
+    """Tests the set_piece_mass method in the context of the SettableIngredient class."""
+
+    def test_pc_mass_can_be_set(self):
+        """Checks a valid piece mass can be set."""
+        # Create a test instance;
+        si = model.ingredients.SettableIngredient()
+
+        # Assert the pc mass is not defined'
+        self.assertFalse(si.piece_mass_is_defined)
+
+        # Set the piece mass;
+        si.set_piece_mass(
+            num_pieces=1,
+            mass_qty=200,
+            mass_unit='g'
+        )
+
+        # Assert the piece mass is now defined;
+        self.assertTrue(si.piece_mass_is_defined)
+
+
+class TestSetFlagValue(TestCase):
+    """Tests the set_flag_value method in the context of the SettableIngredient class."""
+
+    @ffx.use_test_flags
+    @nfx.use_test_nutrients
+    def test_flag_can_be_set(self):
+        """Checks that a flag can be set."""
+        # Create a test instance;
+        si = model.ingredients.SettableIngredient()
+
+        # Assert the flag is not yet defined;
+        self.assertFalse(si.flag_is_defined('tirbur_free'))
+
+        # Now define the flag;
+        si.set_flag_value(
+            flag_name='tirbur_free',
+            flag_value=True,
+            can_modify_nutrients=True
+        )
+
+        # Now assert the flag has been set;
+        self.assertTrue(si.flag_is_defined('tirbur_free'))
