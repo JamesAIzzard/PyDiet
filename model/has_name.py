@@ -65,5 +65,12 @@ class HasSettableName(HasName, persistence.CanLoadData):
 
     def load_data(self, data: Dict[str, Any]) -> None:
         """Loads instance data."""
+        # Load the data on the superclass;
         super().load_data(data)
+
+        # If we don't have any data in this dict, just return;
+        if 'name' not in data.keys():
+            return
+
+        # OK, we do have data, so load it;
         self._name_ = data['name']
