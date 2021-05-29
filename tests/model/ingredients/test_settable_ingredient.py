@@ -289,3 +289,27 @@ class TestSetFlagValue(TestCase):
 
         # Now assert the flag has been set;
         self.assertTrue(si.flag_is_defined('tirbur_free'))
+
+
+class TestSetNutrientRatio(TestCase):
+    """Tests the set_nutrient_ratio method in the context of the SettableIngredient class."""
+    @nfx.use_test_nutrients
+    def test_nutrient_ratio_can_be_set(self):
+        """Checks that a nutrient ratio can be set."""
+        # Create a test instance;
+        si = model.ingredients.SettableIngredient()
+
+        # Assert the nutrient isn't defined yet;
+        self.assertFalse(si.nutrient_ratio_is_defined("tirbur"))
+
+        # Set the nutrient ratio;
+        si.set_nutrient_ratio(
+            nutrient_name="tirbur",
+            nutrient_mass=20,
+            nutrient_mass_unit="mg",
+            subject_qty=120,
+            subject_qty_unit='g'
+        )
+
+        # Check the nutrient ratio is defined now;
+        self.assertTrue(si.nutrient_ratio_is_defined("tirbur"))
