@@ -38,7 +38,7 @@
     "carbohydrate": {
       "nutrient_mass_data": {
         "pref_unit": "g",
-        "quantity_in_g": 0.05870967741935484
+        "quantity_in_g": 5.870967741935484
       },
       "subject_ref_qty_data": {
         "pref_unit": "g",
@@ -48,7 +48,7 @@
     "fat": {
       "nutrient_mass_data": {
         "pref_unit": "g",
-        "quantity_in_g": 0.001935483870967742
+        "quantity_in_g": 0.1935483870967742
       },
       "subject_ref_qty_data": {
         "pref_unit": "g",
@@ -98,7 +98,7 @@
     "protein": {
       "nutrient_mass_data": {
         "pref_unit": "g",
-        "quantity_in_g": 0.00967741935483871
+        "quantity_in_g": 0.967741935483871
       },
       "subject_ref_qty_data": {
         "pref_unit": "g",
@@ -118,7 +118,7 @@
     "sodium": {
       "nutrient_mass_data": {
         "pref_unit": "mg",
-        "quantity_in_g": 0.0006096774193548387
+        "quantity_in_g": 0.06096774193548387
       },
       "subject_ref_qty_data": {
         "pref_unit": "g",

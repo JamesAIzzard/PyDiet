@@ -18,7 +18,7 @@
     "alcohol": {
       "nutrient_mass_data": {
         "pref_unit": "g",
-        "quantity_in_g": 0
+        "quantity_in_g": 0.0
       },
       "subject_ref_qty_data": {
         "pref_unit": "g",
@@ -28,7 +28,7 @@
     "carbohydrate": {
       "nutrient_mass_data": {
         "pref_unit": "g",
-        "quantity_in_g": 0.47700000000000004
+        "quantity_in_g": 47.7
       },
       "subject_ref_qty_data": {
         "pref_unit": "g",
@@ -38,7 +38,7 @@
     "fat": {
       "nutrient_mass_data": {
         "pref_unit": "g",
-        "quantity_in_g": 0.035
+        "quantity_in_g": 3.5000000000000004
       },
       "subject_ref_qty_data": {
         "pref_unit": "g",
@@ -58,7 +58,7 @@
     "polyunsaturated_fat": {
       "nutrient_mass_data": {
         "pref_unit": "g",
-        "quantity_in_g": 0.018000000000000002
+        "quantity_in_g": 1.8000000000000003
       },
       "subject_ref_qty_data": {
         "pref_unit": "g",
@@ -68,7 +68,7 @@
     "protein": {
       "nutrient_mass_data": {
         "pref_unit": "g",
-        "quantity_in_g": 0.1
+        "quantity_in_g": 10.0
       },
       "subject_ref_qty_data": {
         "pref_unit": "g",
@@ -78,7 +78,7 @@
     "saturated_fat": {
       "nutrient_mass_data": {
         "pref_unit": "g",
-        "quantity_in_g": 0.017
+        "quantity_in_g": 1.7000000000000002
       },
       "subject_ref_qty_data": {
         "pref_unit": "g",
@@ -88,7 +88,7 @@
     "sodium": {
       "nutrient_mass_data": {
         "pref_unit": "g",
-        "quantity_in_g": 0.0085
+        "quantity_in_g": 0.8500000000000001
       },
       "subject_ref_qty_data": {
         "pref_unit": "g",

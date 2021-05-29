@@ -38,7 +38,7 @@
     "carbohydrate": {
       "nutrient_mass_data": {
         "pref_unit": "g",
-        "quantity_in_g": 0.07307692307692308
+        "quantity_in_g": 7.307692307692308
       },
       "subject_ref_qty_data": {
         "pref_unit": "g",
@@ -48,7 +48,7 @@
     "fat": {
       "nutrient_mass_data": {
         "pref_unit": "g",
-        "quantity_in_g": 0.002136752136752137
+        "quantity_in_g": 0.2136752136752137
       },
       "subject_ref_qty_data": {
         "pref_unit": "g",

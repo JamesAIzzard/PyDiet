@@ -28,7 +28,7 @@
     "carbohydrate": {
       "nutrient_mass_data": {
         "pref_unit": "g",
-        "quantity_in_g": 1.0
+        "quantity_in_g": 100.0
       },
       "subject_ref_qty_data": {
         "pref_unit": "g",

@@ -4,6 +4,7 @@ from unittest import TestCase, mock
 import model
 from tests.model.ingredients import fixtures as fx
 from tests.model.quantity import fixtures as qfx
+from tests.persistence import fixtures as pfx
 
 
 class TestConstructor(TestCase):
@@ -64,3 +65,21 @@ class TestReqQty(TestCase):
 
         # Assert that the correct reference quantity is returned;
         self.assertAlmostEqual(0.2646, iq.ref_qty, delta=0.001)
+
+
+# class TestNumCalories(TestCase):
+#     """Tests the num_calories property on the IngredientQuantity class."""
+#     @pfx.use_test_database
+#     def test_returns_the_correct_number_of_calories(self):
+#         """Checks that the method returns the correct number of calories."""
+#         # Create a test instance of an ingrediet with defined qty;
+#         iq = model.ingredients.IngredientQuantity(
+#             ingredient=model.ingredients.Ingredient(
+#                 ingredient_data_src=fx.get_ingredient_data_src(
+#                     for_ingredient_name=fx.get_ingredient_name_with("x_calories_per_g")
+#                 )
+#             ),
+#             quantity_data_src=qfx.get_qty_data_src(qfx.get_qty_data(
+#                 qty_in_g=120
+#             ))
+#         )

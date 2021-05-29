@@ -48,7 +48,7 @@
     "fat": {
       "nutrient_mass_data": {
         "pref_unit": "g",
-        "quantity_in_g": 0.1411764705882353
+        "quantity_in_g": 14.117647058823529
       },
       "subject_ref_qty_data": {
         "pref_unit": "g",
@@ -98,7 +98,7 @@
     "protein": {
       "nutrient_mass_data": {
         "pref_unit": "g",
-        "quantity_in_g": 0.25882352941176473
+        "quantity_in_g": 25.882352941176475
       },
       "subject_ref_qty_data": {
         "pref_unit": "g",
@@ -108,7 +108,7 @@
     "saturated_fat": {
       "nutrient_mass_data": {
         "pref_unit": "g",
-        "quantity_in_g": 0.03529411764705882
+        "quantity_in_g": 3.5294117647058822
       },
       "subject_ref_qty_data": {
         "pref_unit": "g",
@@ -118,7 +118,7 @@
     "sodium": {
       "nutrient_mass_data": {
         "pref_unit": "mg",
-        "quantity_in_g": 0.004
+        "quantity_in_g": 0.4
       },
       "subject_ref_qty_data": {
         "pref_unit": "g",
