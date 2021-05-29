@@ -44,3 +44,23 @@ class TestIngredient(TestCase):
 
         # Assert the ingredient we get out is the same as we passed in;
         self.assertTrue(i is iq.ingredient)
+
+
+class TestReqQty(TestCase):
+    """Tests the ref_qty property in the context of ingredient."""
+    def test_returns_correct_ref_qty(self):
+        """Checks that the method returns the correct reference quantity."""
+        # Create an IngredientQuantity, passing quantity data in;
+        # Create an IngredientQuantity, passing the mock ingredient in;
+        iq = model.ingredients.IngredientQuantity(
+            ingredient=mock.Mock(),
+            quantity_data_src=qfx.get_qty_data_src(
+                quantity_data=qfx.get_qty_data(
+                    qty_in_g=120,
+                    pref_unit="lb"
+                )
+            )
+        )
+
+        # Assert that the correct reference quantity is returned;
+        self.assertAlmostEqual(0.2646, iq.ref_qty, delta=0.001)
