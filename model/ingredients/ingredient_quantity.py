@@ -1,3 +1,4 @@
+"""Defines functionality related to ingredient quantities."""
 import abc
 from typing import Dict, List, Optional, Any
 
@@ -16,7 +17,6 @@ class IngredientQuantity(model.quantity.QuantityOf):
     @property
     def ingredient(self) -> 'model.ingredients.Ingredient':
         """Returns the ingredient instance associated with the ingredient amount."""
-        assert (isinstance(self._subject, model.ingredients.Ingredient))
         return self._subject
 
 

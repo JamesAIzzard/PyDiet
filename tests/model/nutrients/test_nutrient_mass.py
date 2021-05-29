@@ -15,7 +15,7 @@ class TestConstructor(TestCase):
         # Create an empty instance;
         nm = model.nutrients.NutrientMass(
             nutrient_name="tirbur",
-            quantity_data_src=fx.get_nutrient_ratio_data_src(nutrient_ratio_data={})
+            quantity_data_src=qfx.get_qty_data_src(qfx.get_qty_data())
         )
         # Assert it is the right type;
         self.assertTrue(isinstance(nm, model.nutrients.NutrientMass))

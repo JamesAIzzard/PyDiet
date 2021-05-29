@@ -77,14 +77,14 @@ def get_ingredient_name_with(characteristic: str) -> str:
 
 
 def get_ingredient_data_src(
-        for_unique_name: Optional[str] = None
+        for_ingredient_name: Optional[str] = None
 ):
     """Returns a callable that returns ingredient data.
     Args:
-        for_unique_name (Optional[str]): When specified, returns callable for data corresponding
+        for_ingredient_name (Optional[str]): When specified, returns callable for data corresponding
             this particular name.
     """
-    return lambda: get_ingredient_data(for_unique_name=for_unique_name)
+    return lambda: get_ingredient_data(for_unique_name=for_ingredient_name)
 
 
 def get_ingredient_data(
