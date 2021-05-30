@@ -1,21 +1,9 @@
 """Module defining nutrient ratio functionality."""
 import abc
-from typing import Dict, List, Any, Optional, TypedDict, Callable
+from typing import Dict, List, Any, Optional, Callable
 
 import model
 import persistence
-# Import things required during init;
-from . import NutrientMassData
-
-
-class NutrientRatioData(TypedDict):
-    """Persisted data format for NutrientRatio instances."""
-    nutrient_mass_data: NutrientMassData
-    subject_ref_qty_data: model.quantity.QuantityData
-
-
-# Define a datatype for nutrient ratios data;
-NutrientRatiosData = Dict[str, 'NutrientRatioData']
 
 
 class BaseNutrientRatio(model.SupportsDefinition, persistence.YieldsPersistableData, abc.ABC):
@@ -90,7 +78,7 @@ class NutrientRatio(BaseNutrientRatio):
 
     def __init__(self, subject: Any,
                  nutrient_name: str,
-                 nutrient_ratio_data_src: Callable[[], 'NutrientRatioData']):
+                 nutrient_ratio_data_src: Callable[[], 'model.nutrients.NutrientRatioData']):
         super().__init__()
 
         # Stash the nutrient name and the reference to the subject;
@@ -125,7 +113,7 @@ class SettableNutrientRatio(BaseNutrientRatio):
 
     def __init__(self, subject: Any,
                  nutrient_name: str,
-                 nutrient_ratio_data: Optional['NutrientRatioData'] = None):
+                 nutrient_ratio_data: Optional['model.nutrients.NutrientRatioData'] = None):
         super().__init__()
 
         # Now we are storing the data locally so create local component nutrient mass and subject quantity instances;
@@ -208,7 +196,7 @@ class SettableNutrientRatio(BaseNutrientRatio):
             subject_qty_unit=self._subject_ref_qty.pref_unit
         )
 
-    def load_data(self, nutrient_ratio_data: 'NutrientRatioData') -> None:
+    def load_data(self, nutrient_ratio_data: 'model.nutrients.NutrientRatioData') -> None:
         """Loads the nutrient ratio data into the instance."""
         self._nutrient_mass.load_data(nutrient_ratio_data['nutrient_mass_data'])
         self._subject_ref_qty.load_data(nutrient_ratio_data['subject_ref_qty_data'])
@@ -233,7 +221,7 @@ class HasNutrientRatios(persistence.YieldsPersistableData, abc.ABC):
 
     @property
     @abc.abstractmethod
-    def _nutrient_ratios_data(self) -> 'NutrientRatiosData':
+    def nutrient_ratios_data(self) -> 'model.nutrients.NutrientRatiosData':
         """Returns the instance's nutrient ratios data."""
         raise NotImplementedError
 
@@ -248,7 +236,7 @@ class HasNutrientRatios(persistence.YieldsPersistableData, abc.ABC):
         nrs: Dict[str, 'NutrientRatio'] = {}
 
         # Next, work the dict and populate the nutrient ratio instances;
-        for nutrient_name in self._nutrient_ratios_data.keys():
+        for nutrient_name in self.nutrient_ratios_data.keys():
             nrs[nutrient_name] = self.get_nutrient_ratio(nutrient_name)
 
         # Now, return the dict of readonly instances;
@@ -261,13 +249,13 @@ class HasNutrientRatios(persistence.YieldsPersistableData, abc.ABC):
         nutrient_name = model.nutrients.get_nutrient_primary_name(nutrient_name)
 
         # If the nutrient is defined (i.e if it is in the dictionary);
-        if nutrient_name in self._nutrient_ratios_data.keys():
+        if nutrient_name in self.nutrient_ratios_data.keys():
 
             # Instantiate and return it;
             return NutrientRatio(
                 subject=self,
                 nutrient_name=nutrient_name,
-                nutrient_ratio_data_src=lambda: self._nutrient_ratios_data[nutrient_name]
+                nutrient_ratio_data_src=lambda: self.nutrient_ratios_data[nutrient_name]
             )
 
         # Otherwise, return an error to indicate it isn't defined;
@@ -276,6 +264,21 @@ class HasNutrientRatios(persistence.YieldsPersistableData, abc.ABC):
                 subject=self,
                 nutrient_name=nutrient_name
             )
+
+    @property
+    def calories_per_g(self):
+        """Returns the number of calories per gram for the instance."""
+        # Total the cals/g and return it;
+        total_cals_per_g = 0
+        for nutrient_name, cals_per_g in model.nutrients.configs.CALORIE_NUTRIENTS.items():
+            try:
+                total_cals_per_g += self.get_nutrient_ratio(nutrient_name).g_per_subject_g * cals_per_g
+            except model.nutrients.exceptions.UndefinedNutrientRatioError:
+                raise model.nutrients.exceptions.UndefinedCalorieNutrientRatioError(
+                    subject=self,
+                    nutrient_name=nutrient_name
+                )
+        return total_cals_per_g
 
     def nutrient_ratio_is_defined(self, nutrient_name: str) -> bool:
         """Returns True/False to indiciate if the named nutrient ratio has been defined."""
@@ -288,12 +291,12 @@ class HasNutrientRatios(persistence.YieldsPersistableData, abc.ABC):
     def undefined_mandatory_nutrient_ratio_names(self) -> List[str]:
         """Returns a list of the mandatory nutrient ratios which are undefined."""
         return list(set(model.nutrients.configs.MANDATORY_NUTRIENT_NAMES).difference(
-            set(self._nutrient_ratios_data.keys())))
+            set(self.nutrient_ratios_data.keys())))
 
     @property
     def defined_optional_nutrient_ratio_names(self) -> List[str]:
         """Returns a list of optional nutrient names which are defined."""
-        return list(set(model.nutrients.OPTIONAL_NUTRIENT_NAMES).intersection(set(self._nutrient_ratios_data.keys())))
+        return list(set(model.nutrients.OPTIONAL_NUTRIENT_NAMES).intersection(set(self.nutrient_ratios_data.keys())))
 
     def get_nutrient_mass_in_pref_unit_per_subject_ref_qty(self, nutrient_name: str) -> float:
         """Returns the mass of a nutrient in its preferred unit, per reference mass of the subject."""
@@ -334,7 +337,7 @@ class HasNutrientRatios(persistence.YieldsPersistableData, abc.ABC):
         data = super().persistable_data
 
         # Add a heading for the nutrient ratios data;
-        data['nutrient_ratios_data'] = self._nutrient_ratios_data
+        data['nutrient_ratios_data'] = self.nutrient_ratios_data
 
         # Return the data;
         return data
@@ -353,7 +356,7 @@ class HasSettableNutrientRatios(HasNutrientRatios, persistence.CanLoadData):
         concrete implementations of its methods to get data into and out of the instance.
     """
 
-    def __init__(self, nutrient_ratios_data: Optional[Dict[str, 'NutrientRatioData']] = None, **kwargs):
+    def __init__(self, nutrient_ratios_data: Optional[Dict[str, 'model.nutrients.NutrientRatioData']] = None, **kwargs):
         super().__init__(**kwargs)
 
         # Now we are storing the data locally, so create somewhere to store it.
@@ -367,10 +370,10 @@ class HasSettableNutrientRatios(HasNutrientRatios, persistence.CanLoadData):
             self.load_data({'nutrient_ratios_data': nutrient_ratios_data})
 
     @property
-    def _nutrient_ratios_data(self) -> 'NutrientRatiosData':
+    def nutrient_ratios_data(self) -> 'model.nutrients.NutrientRatiosData':
         """Returns the instance's current nutrient ratios data."""
         # Init the dict;
-        data: 'NutrientRatiosData' = {}
+        data: 'model.nutrients.NutrientRatiosData' = {}
 
         # Compile the data;
         for nutrient_name, nutrient_ratio in self._nutrient_ratios.items():

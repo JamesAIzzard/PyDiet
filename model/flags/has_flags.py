@@ -24,7 +24,7 @@ class HasFlags(model.nutrients.HasNutrientRatios, abc.ABC):
 
     @property
     @abc.abstractmethod
-    def _flag_dofs(self) -> 'FlagDOFData':
+    def flag_dofs(self) -> 'FlagDOFData':
         """Returns a dictionary of each non-direct alias flag."""
         raise NotImplementedError
 
@@ -43,7 +43,7 @@ class HasFlags(model.nutrients.HasNutrientRatios, abc.ABC):
 
         # OK, go ahead and return it;
         try:
-            return self._flag_dofs[flag_name]
+            return self.flag_dofs[flag_name]
         except KeyError:
             # Ahh, we don't have a dof listed, just return None.
             return None
@@ -133,7 +133,7 @@ class HasFlags(model.nutrients.HasNutrientRatios, abc.ABC):
         """Returns the persistable data dict with the flag data added."""
         # Grab the peristable data from the sibling classes;
         data = super().persistable_data
-        data['flag_data'] = self._flag_dofs
+        data['flag_data'] = self.flag_dofs
         return data
 
 
@@ -151,7 +151,7 @@ class HasSettableFlags(HasFlags, model.nutrients.HasSettableNutrientRatios):
             self.load_data({'flag_data': flag_data})
 
     @property
-    def _flag_dofs(self) -> 'FlagDOFData':
+    def flag_dofs(self) -> 'FlagDOFData':
         """Implements the superclass' abstract method to return the local flag dof data."""
         return self._flag_dof_data
 
@@ -409,7 +409,7 @@ class HasSettableFlags(HasFlags, model.nutrients.HasSettableNutrientRatios):
 
         # Finally, set the flag's dof if flag is not a direct alias;
         if not flag.direct_alias:
-            self._flag_dofs[flag_name] = flag_value
+            self.flag_dofs[flag_name] = flag_value
 
     def load_data(self, data: Dict[str, Any]) -> None:
         """Load the flag data onto the instance."""

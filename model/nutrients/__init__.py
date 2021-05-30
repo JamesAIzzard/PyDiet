@@ -3,6 +3,7 @@ import copy
 from typing import List, Dict
 
 from . import configs, exceptions, main, validation
+from .data_types import NutrientMassData, NutrientRatiosData, NutrientRatioData
 from .main import (
     get_nutrient_primary_name,
     get_nutrient_alias_names,
@@ -11,19 +12,17 @@ from .main import (
     get_n_closest_nutrient_names,
 )
 from .nutrient import Nutrient
-from .nutrient_mass import (
-    NutrientMass,
-    SettableNutrientMass,
-    NutrientMassData
-)
 from .nutrient_ratios import (
-    NutrientRatioData,
     BaseNutrientRatio,
     NutrientRatio,
     SettableNutrientRatio,
-    NutrientRatiosData,
     HasNutrientRatios,
     HasSettableNutrientRatios
+)
+from .nutrient_mass import (
+    NutrientMass,
+    SettableNutrientMass,
+    HasNutrientMasses
 )
 
 

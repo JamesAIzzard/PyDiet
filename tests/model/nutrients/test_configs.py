@@ -1,3 +1,4 @@
+"""Configuration for use with nutrient testing."""
 from typing import List, Dict
 
 ALL_PRIMARY_NUTRIENT_NAMES: List[str] = [

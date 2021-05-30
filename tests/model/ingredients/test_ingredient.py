@@ -103,9 +103,9 @@ class Test_CostPerQtyData(TestCase):
         )
 
         # Check the values are correct;
-        self.assertEqual(0.002, i._cost_per_qty_data['cost_per_g'])
-        self.assertEqual("g", i._cost_per_qty_data['pref_unit'])
-        self.assertEqual(100, i._cost_per_qty_data['quantity_in_g'])
+        self.assertEqual(0.002, i.cost_per_qty_data['cost_per_g'])
+        self.assertEqual("g", i.cost_per_qty_data['pref_unit'])
+        self.assertEqual(100, i.cost_per_qty_data['quantity_in_g'])
 
     @pfx.use_test_database
     def test_returns_correct_data_if_undefined(self):
@@ -118,9 +118,9 @@ class Test_CostPerQtyData(TestCase):
         )
 
         # Check the values are correct;
-        self.assertIsNone(i._cost_per_qty_data['cost_per_g'])
-        self.assertEqual("g", i._cost_per_qty_data['pref_unit'])
-        self.assertIsNone(i._cost_per_qty_data['quantity_in_g'])
+        self.assertIsNone(i.cost_per_qty_data['cost_per_g'])
+        self.assertEqual("g", i.cost_per_qty_data['pref_unit'])
+        self.assertIsNone(i.cost_per_qty_data['quantity_in_g'])
 
 
 # noinspection PyPep8Naming
@@ -138,9 +138,9 @@ class Test_FlagDOFs(TestCase):
         )
 
         # Check the values are correct;
-        self.assertTrue(i._flag_dofs['nut_free'])
-        self.assertFalse(i._flag_dofs['vegan'])
-        self.assertTrue(i._flag_dofs['vegetarian'])
+        self.assertTrue(i.flag_dofs['nut_free'])
+        self.assertFalse(i.flag_dofs['vegan'])
+        self.assertTrue(i.flag_dofs['vegetarian'])
 
     @pfx.use_test_database
     def test_returns_correct_data_if_undefined(self):
@@ -153,9 +153,9 @@ class Test_FlagDOFs(TestCase):
         )
 
         # Check the values are correct;
-        self.assertIsNone(i._flag_dofs['nut_free'])
-        self.assertTrue(i._flag_dofs['vegan'])
-        self.assertIsNone(i._flag_dofs['vegetarian'])
+        self.assertIsNone(i.flag_dofs['nut_free'])
+        self.assertTrue(i.flag_dofs['vegan'])
+        self.assertIsNone(i.flag_dofs['vegetarian'])
 
 
 # noinspection PyPep8Naming
@@ -173,13 +173,13 @@ class Test_NutrientRatiosData(TestCase):
         )
 
         # Check that there is a heading for protein;
-        self.assertTrue("protein" in i._nutrient_ratios_data.keys())
+        self.assertTrue("protein" in i.nutrient_ratios_data.keys())
 
         # Check the data is correct;
-        self.assertEqual(0.1882, i._nutrient_ratios_data['protein']['nutrient_mass_data']['quantity_in_g'])
-        self.assertEqual("g", i._nutrient_ratios_data['protein']['nutrient_mass_data']['pref_unit'])
-        self.assertEqual(100, i._nutrient_ratios_data['protein']['subject_ref_qty_data']['quantity_in_g'])
-        self.assertEqual("g", i._nutrient_ratios_data['protein']['subject_ref_qty_data']['pref_unit'])
+        self.assertEqual(18.82, i.nutrient_ratios_data['protein']['nutrient_mass_data']['quantity_in_g'])
+        self.assertEqual("g", i.nutrient_ratios_data['protein']['nutrient_mass_data']['pref_unit'])
+        self.assertEqual(100, i.nutrient_ratios_data['protein']['subject_ref_qty_data']['quantity_in_g'])
+        self.assertEqual("g", i.nutrient_ratios_data['protein']['subject_ref_qty_data']['pref_unit'])
 
     @pfx.use_test_database
     def test_excludes_undefined_nutrients(self):
@@ -192,7 +192,7 @@ class Test_NutrientRatiosData(TestCase):
         )
 
         # Check that there is no heading for iron;
-        self.assertFalse("iron" in i._nutrient_ratios_data.keys())
+        self.assertFalse("iron" in i.nutrient_ratios_data.keys())
 
     @pfx.use_test_database
     def test_correct_number_nutrients_included(self):
@@ -205,7 +205,7 @@ class Test_NutrientRatiosData(TestCase):
         )
 
         # Check that there is no heading for iron;
-        self.assertEqual(8, len(i._nutrient_ratios_data))
+        self.assertEqual(8, len(i.nutrient_ratios_data))
 
 
 class TestGetPathIntoDB(TestCase):

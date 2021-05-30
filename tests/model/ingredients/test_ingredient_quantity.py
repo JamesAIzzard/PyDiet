@@ -67,19 +67,45 @@ class TestReqQty(TestCase):
         self.assertAlmostEqual(0.2646, iq.ref_qty, delta=0.001)
 
 
-# class TestNumCalories(TestCase):
-#     """Tests the num_calories property on the IngredientQuantity class."""
-#     @pfx.use_test_database
-#     def test_returns_the_correct_number_of_calories(self):
-#         """Checks that the method returns the correct number of calories."""
-#         # Create a test instance of an ingrediet with defined qty;
-#         iq = model.ingredients.IngredientQuantity(
-#             ingredient=model.ingredients.Ingredient(
-#                 ingredient_data_src=fx.get_ingredient_data_src(
-#                     for_ingredient_name=fx.get_ingredient_name_with("x_calories_per_g")
-#                 )
-#             ),
-#             quantity_data_src=qfx.get_qty_data_src(qfx.get_qty_data(
-#                 qty_in_g=120
-#             ))
-#         )
+class TestGetNutrientMass(TestCase):
+    """Tests the get_nutrient_mass property on the IngredientQuantity class."""
+
+    @pfx.use_test_database
+    def test_returns_the_correct_nutrient_mass(self):
+        """Checks the method returns the correct nutrient mass."""
+        # Create a test instance with a known ratio of a nutrient;
+        iq = model.ingredients.IngredientQuantity(
+            ingredient=model.ingredients.Ingredient(
+                ingredient_data_src=fx.get_ingredient_data_src(
+                    for_ingredient_name=fx.get_ingredient_name_with("14_grams_of_protein_per_100_g")
+                )
+            ),
+            quantity_data_src=qfx.get_qty_data_src(qfx.get_qty_data(
+                qty_in_g=50
+            ))
+        )
+
+        # Assert that we get the correct mass of that nutrient back, for a given quantity;
+        self.assertAlmostEqual(7, iq.get_nutrient_mass_g("protein"), delta=0.001)
+
+
+class TestNumCalories(TestCase):
+    """Tests the num_calories property on the IngredientQuantity class."""
+
+    @pfx.use_test_database
+    def test_returns_the_correct_number_of_calories(self):
+        """Checks that the method returns the correct number of calories."""
+        # Create a test instance of an ingrediet with defined qty;
+        iq = model.ingredients.IngredientQuantity(
+            ingredient=model.ingredients.Ingredient(
+                ingredient_data_src=fx.get_ingredient_data_src(
+                    for_ingredient_name=fx.get_ingredient_name_with("7.2_calories_per_g")
+                )
+            ),
+            quantity_data_src=qfx.get_qty_data_src(qfx.get_qty_data(
+                qty_in_g=120
+            ))
+        )
+
+        # Check we get the correct number of calories
+        self.assertAlmostEqual(864, iq.num_calories, delta=0.001)

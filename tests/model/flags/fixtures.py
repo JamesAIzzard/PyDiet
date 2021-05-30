@@ -41,11 +41,11 @@ class HasFlagsTestable(model.flags.HasFlags):
         self._nutrient_ratios_data_ = nutrient_ratios_data if nutrient_ratios_data is not None else {}
 
     @property
-    def _flag_dofs(self) -> 'model.flags.FlagDOFData':
+    def flag_dofs(self) -> 'model.flags.FlagDOFData':
         return self._flag_dofs_
 
     @property
-    def _nutrient_ratios_data(self) -> Dict[str, 'mock.Mock']:
+    def nutrient_ratios_data(self) -> Dict[str, 'mock.Mock']:
         """Returns nutrient ratios data."""
         return self._nutrient_ratios_data_
 

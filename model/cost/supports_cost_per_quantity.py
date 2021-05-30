@@ -23,14 +23,14 @@ class SupportsCostPerQuantity(persistence.YieldsPersistableData, abc.ABC):
 
     @property
     @abc.abstractmethod
-    def _cost_per_qty_data(self) -> 'CostPerQtyData':
+    def cost_per_qty_data(self) -> 'CostPerQtyData':
         """Returns the cost data for the instance."""
         raise NotImplementedError
 
     @property
     def cost_is_defined(self) -> bool:
         """Returns True/False to indicate if the cost per qty is defined."""
-        if self._cost_per_qty_data['cost_per_g'] is None:
+        if self.cost_per_qty_data['cost_per_g'] is None:
             return False
         else:
             return True
@@ -46,18 +46,18 @@ class SupportsCostPerQuantity(persistence.YieldsPersistableData, abc.ABC):
         return model.quantity.QuantityOf(
             subject=self,
             quantity_data_src=lambda: model.quantity.QuantityData(
-                quantity_in_g=self._cost_per_qty_data['quantity_in_g'],
-                pref_unit=self._cost_per_qty_data['pref_unit']
+                quantity_in_g=self.cost_per_qty_data['quantity_in_g'],
+                pref_unit=self.cost_per_qty_data['pref_unit']
             )
         )
 
     @property
     def cost_per_g(self) -> float:
         """Returns the cost of a single gram of the subject."""
-        if self._cost_per_qty_data['cost_per_g'] is None:
+        if self.cost_per_qty_data['cost_per_g'] is None:
             raise model.cost.exceptions.UndefinedCostError(subject=self)
 
-        return self._cost_per_qty_data['cost_per_g']
+        return self.cost_per_qty_data['cost_per_g']
 
     @property
     def cost_per_pref_unit(self) -> float:
@@ -87,7 +87,7 @@ class SupportsCostPerQuantity(persistence.YieldsPersistableData, abc.ABC):
     def persistable_data(self) -> Dict[str, Any]:
         """Returns the persistable data dict, updated with the cost data."""
         data = super().persistable_data
-        data['cost_per_qty_data'] = self._cost_per_qty_data
+        data['cost_per_qty_data'] = self.cost_per_qty_data
         return data
 
 
@@ -114,7 +114,7 @@ class SupportsSettableCostPerQuantity(SupportsCostPerQuantity, persistence.CanLo
             self.load_data({'cost_per_qty_data': cost_per_qty_data})
 
     @property
-    def _cost_per_qty_data(self) -> 'CostPerQtyData':
+    def cost_per_qty_data(self) -> 'CostPerQtyData':
         """Compiles and returns teh cost per qty data for the instance."""
         data = {}
         data.update(dict(self.cost_ref_subject_quantity.persistable_data))

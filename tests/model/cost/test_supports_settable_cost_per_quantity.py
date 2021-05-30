@@ -15,7 +15,7 @@ class TestConstructor(TestCase):
             quantity_in_g=1200,
             cost_per_g=0.25
         ))
-        self.assertEqual(sc._cost_per_qty_data, model.cost.CostPerQtyData(
+        self.assertEqual(sc.cost_per_qty_data, model.cost.CostPerQtyData(
             pref_unit='kg',
             quantity_in_g=1200,
             cost_per_g=0.25

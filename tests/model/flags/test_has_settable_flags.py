@@ -48,7 +48,7 @@ class TestFlagDOFS(TestCase):
         hsf = model.flags.HasSettableFlags(flag_data=data)
 
         # Check we get the same data back;
-        self.assertEqual(data, hsf._flag_dofs)
+        self.assertEqual(data, hsf.flag_dofs)
 
 
 # noinspection DuplicatedCode
@@ -636,9 +636,9 @@ class TestSetFlagValue(TestCase):
         )):
             hr = model.flags.HasSettableFlags()
             hr.set_flag_value("bar_free", False)
-            self.assertTrue(hr._flag_dofs["bar_free"] is False)
+            self.assertTrue(hr.flag_dofs["bar_free"] is False)
             hr.set_flag_value("bar_free", True)
-            self.assertTrue(hr._flag_dofs["bar_free"] is True)
+            self.assertTrue(hr.flag_dofs["bar_free"] is True)
 
 
 class TestLoadData(TestCase):
@@ -652,7 +652,7 @@ class TestLoadData(TestCase):
             'bar_free': False,
             'foo_free': False  # Should be ignored, not a DOF.
         }})
-        self.assertEqual(hr._flag_dofs, {
+        self.assertEqual(hr.flag_dofs, {
             'foogetarian': True,
             'bar_free': False
         })

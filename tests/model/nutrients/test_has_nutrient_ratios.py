@@ -65,6 +65,40 @@ class TestGetNutrientRatio(TestCase):
             _ = hnr.get_nutrient_ratio("bazing")
 
 
+class TestCaloriesPerG(TestCase):
+    """Tests the calories_per_g property."""
+    @fx.use_test_nutrients
+    def test_returns_correct_value(self):
+        """Checks the method returns the correct number of calories per gram."""
+        # Create a test instance with some nutrient ratios with associated calories;
+        hnr = fx.HasNutrientRatiosTestable(nutrient_ratios_data={
+            "tirbur": fx.get_nutrient_ratio_data(nutrient_mass_g=10, subject_qty_g=100),
+            "regatur": fx.get_nutrient_ratio_data(nutrient_mass_g=10, subject_qty_g=100),
+            "foo": fx.get_nutrient_ratio_data(nutrient_mass_g=20, subject_qty_g=100),
+            "fillydon": fx.get_nutrient_ratio_data(nutrient_mass_g=30, subject_qty_g=100),
+            "busskie": fx.get_nutrient_ratio_data(nutrient_mass_g=10, subject_qty_g=100),
+            "bingtong": fx.get_nutrient_ratio_data(nutrient_mass_g=25, subject_qty_g=100)
+        })
+
+        # Assert we get the correct number of calories per gram;
+        self.assertEqual(1.8, hnr.calories_per_g)
+
+    @fx.use_test_nutrients
+    def test_raises_exception_if_cal_nutrient_undefined(self):
+        """Checks we get an exception if one of the nutrient calories is undefined."""
+        # Create a test instance with some calorie nutrients undefined.
+        hnr = fx.HasNutrientRatiosTestable(nutrient_ratios_data={
+            "tirbur": fx.get_nutrient_ratio_data(nutrient_mass_g=10, subject_qty_g=100),
+            "regatur": fx.get_nutrient_ratio_data(nutrient_mass_g=10, subject_qty_g=100),
+            "foo": fx.get_nutrient_ratio_data(nutrient_mass_g=20, subject_qty_g=100),
+            "fillydon": fx.get_nutrient_ratio_data(nutrient_mass_g=30, subject_qty_g=100),
+        })
+
+        # Assert we get an exception if we try to access the property;
+        with self.assertRaises(model.nutrients.exceptions.UndefinedCalorieNutrientRatioError):
+            _ = hnr.calories_per_g
+
+
 class TestNutrientRatioIsDefined(TestCase):
     """Tests the nutrient_ratio_is_defined property."""
 

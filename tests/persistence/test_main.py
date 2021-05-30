@@ -15,7 +15,10 @@ class TestGetDatafileNameForUniqueValue(TestCase):
         # Assert we get the df name we are expecting;
         self.assertEqual(
             "1198a703-ae23-4303-9b21-dd8ef9d16548",
-            persistence.get_datafile_name_for_unique_value(cls=model.ingredients.Ingredient, unique_value="Honey")
+            persistence.get_datafile_name_for_unique_value(
+                cls=model.ingredients.Ingredient,
+                unique_value="Honey"
+            )
         )
 
     @fx.use_test_database
@@ -23,4 +26,7 @@ class TestGetDatafileNameForUniqueValue(TestCase):
         """Check that we get an exception if we don't recognise the unique name."""
         # Check we see the exception;
         with self.assertRaises(persistence.exceptions.UniqueValueNotFoundError):
-            _ = persistence.get_datafile_name_for_unique_value(cls=model.ingredients.Ingredient, unique_value="fake")
+            _ = persistence.get_datafile_name_for_unique_value(
+                cls=model.ingredients.Ingredient,
+                unique_value="fake"
+            )

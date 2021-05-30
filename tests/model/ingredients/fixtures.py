@@ -20,7 +20,9 @@ INGREDIENT_NAME_WITH = {
     "nutrient_ratios_protein_defined": "Smoked Salmon",
     "nutrient_ratios_iron_undefined": "Smoked Salmon",
     "nutrient_ratios_8_ratios_defined": "Red Pepper",
-    "nutrient_ratios_protein_carbs_undefined": "Bacon"
+    "nutrient_ratios_protein_carbs_undefined": "Bacon",
+    "7.2_calories_per_g": "Pine Nuts",
+    "14_grams_of_protein_per_100_g": "Pine Nuts"
 }
 
 
@@ -39,7 +41,7 @@ class IngredientBaseTestable(model.ingredients.IngredientBase):
         return self._ingredient_data['name']
 
     @property
-    def _cost_per_qty_data(self) -> 'model.cost.CostPerQtyData':
+    def cost_per_qty_data(self) -> 'model.cost.CostPerQtyData':
         """Returns instance cost data."""
         return self._ingredient_data['cost_per_qty_data']
 
@@ -54,12 +56,12 @@ class IngredientBaseTestable(model.ingredients.IngredientBase):
         return self._ingredient_data['extended_units_data']['piece_mass_g']
 
     @property
-    def _flag_dofs(self) -> 'model.flags.FlagDOFData':
+    def flag_dofs(self) -> 'model.flags.FlagDOFData':
         """Returns instance flag data."""
         return self._ingredient_data['flag_data']
 
     @property
-    def _nutrient_ratios_data(self) -> 'model.nutrients.NutrientRatiosData':
+    def nutrient_ratios_data(self) -> 'model.nutrients.NutrientRatiosData':
         """Returns instance's nutrient ratios data."""
         return self._ingredient_data['nutrient_ratios_data']
 

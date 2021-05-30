@@ -81,17 +81,17 @@ class Ingredient(
         return self._ingredient_data_src()['extended_units_data']['piece_mass_g']
 
     @property
-    def _cost_per_qty_data(self) -> 'model.cost.CostPerQtyData':
+    def cost_per_qty_data(self) -> 'model.cost.CostPerQtyData':
         """Returns the cost_per_qty data for this ingredient."""
         return self._ingredient_data_src()['cost_per_qty_data']
 
     @property
-    def _flag_dofs(self) -> 'model.flags.FlagDOFData':
+    def flag_dofs(self) -> 'model.flags.FlagDOFData':
         """Returns the flag data for this ingredient."""
         return self._ingredient_data_src()['flag_data']
 
     @property
-    def _nutrient_ratios_data(self) -> 'model.nutrients.NutrientRatiosData':
+    def nutrient_ratios_data(self) -> 'model.nutrients.NutrientRatiosData':
         """Returns the nutrient ratio data for this ingredient."""
         return self._ingredient_data_src()['nutrient_ratios_data']
 

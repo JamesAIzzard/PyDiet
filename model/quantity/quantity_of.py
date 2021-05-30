@@ -97,7 +97,12 @@ class BaseQuantityOf(model.SupportsDefinition, persistence.YieldsPersistableData
 
 
 class QuantityOf(BaseQuantityOf):
-    """Models a quantity of a substance.
+    """Models a quantity of a substance which is independently defined and whose data should
+    be referenced only.
+
+    Instances inheriting from QuantityOf do not export the subject's persistable data in
+    their persistable data.
+
     Since this quantity may come from anywhere, it is not stored locally. This class
     may also be instantiated directly, so we can't rely on an abstract class.
     Instead we take advantage of closures and pass in a callback as a data source.

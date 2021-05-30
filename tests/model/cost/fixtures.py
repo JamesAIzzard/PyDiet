@@ -18,7 +18,7 @@ class SupportsCostPerQuantityTestable(model.cost.SupportsCostPerQuantity):
         self._cost_per_g_ = cost_per_g
 
     @property
-    def _cost_per_qty_data(self) -> 'model.cost.CostPerQtyData':
+    def cost_per_qty_data(self) -> 'model.cost.CostPerQtyData':
         return model.cost.CostPerQtyData(
             quantity_in_g=self.ref_qty_g,
             pref_unit=self.pref_unit,

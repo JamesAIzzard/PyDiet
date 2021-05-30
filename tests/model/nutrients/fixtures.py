@@ -69,7 +69,7 @@ class HasNutrientRatiosTestable(model.nutrients.HasNutrientRatios):
             self._nutrient_ratios_data_ = nutrient_ratios_data
 
     @property
-    def _nutrient_ratios_data(self) -> 'model.nutrients.NutrientRatiosData':
+    def nutrient_ratios_data(self) -> 'model.nutrients.NutrientRatiosData':
         """Returns the nutrient ratios for the instance;"""
         return self._nutrient_ratios_data_
 

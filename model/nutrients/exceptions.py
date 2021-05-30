@@ -1,3 +1,4 @@
+"""Defines exception classes for the nutrients module."""
 from typing import Union, Optional
 
 import model
@@ -52,6 +53,12 @@ class UndefinedNutrientRatioError(NamedNutrientError):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
+
+class UndefinedCalorieNutrientRatioError(UndefinedNutrientRatioError):
+    """Indicates that a nutrient ratio required to calculate the caloric density is undefined."""
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
 
 class NutrientRatioNotSettableError(NamedNutrientError):
