@@ -104,6 +104,10 @@ class HasSettableNutrientRatiosAndExtUnitsTestable(
         return self._piece_mass_g_
 
 
+class HasNutrientMassesTestable(model.nutrients.HasNutrientMasses, model.quantity.SettableQuantityOf):
+    """Minimal implementation for testing HasNutrientMasses."""
+
+
 def use_test_nutrients(func):
     """Decorator to apply all patches required to use the test nutrients."""
 

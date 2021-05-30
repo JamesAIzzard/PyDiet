@@ -28,13 +28,13 @@ class SettableNutrientMass(BaseNutrientMass, model.quantity.SettableQuantityOf):
     """Models a settable nutrient mass."""
 
 
-class HasNutrientMasses(model.quantity.QuantityOf):
+class HasNutrientMasses(model.quantity.BaseQuantityOf, abc.ABC):
     """Models functionality for all classes which have nutrient masses."""
 
     def __init__(self, subject: 'model.nutrients.HasNutrientRatios', **kwargs):
         """Constructor.
         Notes:
-            All subject's must have nutrient ratios.
+            All subjects must have nutrient ratios.
         """
         super().__init__(subject=subject, **kwargs)
 

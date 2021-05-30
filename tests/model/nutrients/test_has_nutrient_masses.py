@@ -12,7 +12,7 @@ class TestNumCalories(TestCase):
     def test_correct_num_calories_is_returned(self):
         """Checks that the method returns the correct number of calories."""
         # Create a test instance with a full set of calorie nutrients defined;
-        hnm = model.nutrients.HasNutrientMasses(
+        hnm = fx.HasNutrientMassesTestable(
             subject=fx.HasNutrientRatiosTestable(
                 nutrient_ratios_data={
                     "tirbur": fx.get_nutrient_ratio_data(nutrient_mass_g=10, subject_qty_g=100),
@@ -23,16 +23,14 @@ class TestNumCalories(TestCase):
                     "bingtong": fx.get_nutrient_ratio_data(nutrient_mass_g=25, subject_qty_g=100)
                 }
             ),
-            quantity_data_src=qfx.get_qty_data_src(
-                quantity_data=qfx.get_qty_data(qty_in_g=90)
-            )
+            quantity_data=qfx.get_qty_data(qty_in_g=90)
         )
 
     @fx.use_test_nutrients
     def test_raises_exception_if_calorie_nutrient_missing(self):
         """Checks we get an exception if one of the calorie nutrients are missing."""
         # Create a test instance with one of the calorie nutrients missing;
-        hnm = model.nutrients.HasNutrientMasses(
+        hnm = fx.HasNutrientMassesTestable(
             subject=fx.HasNutrientRatiosTestable(
                 nutrient_ratios_data={
                     "tirbur": fx.get_nutrient_ratio_data(nutrient_mass_g=10, subject_qty_g=100),
@@ -42,9 +40,7 @@ class TestNumCalories(TestCase):
                     "bingtong": fx.get_nutrient_ratio_data(nutrient_mass_g=25, subject_qty_g=100)
                 }
             ),
-            quantity_data_src=qfx.get_qty_data_src(
-                quantity_data=qfx.get_qty_data(qty_in_g=90)
-            )
+            quantity_data=qfx.get_qty_data(qty_in_g=90)
         )
 
         # Check we get an exception if we try at access the num calories;
@@ -57,15 +53,13 @@ class TestGetNutrientMassG(TestCase):
     def test_correct_mass_is_returned(self):
         """Checks the method returns the correct nutrient mass."""
         # Create a test instance, with a specified nutrient ratio;
-        hnm = model.nutrients.HasNutrientMasses(
+        hnm = fx.HasNutrientMassesTestable(
             subject=fx.HasNutrientRatiosTestable(
                 nutrient_ratios_data={
                     "protein": fx.get_nutrient_ratio_data(nutrient_mass_g=12, subject_qty_g=100)
                 }
             ),
-            quantity_data_src=qfx.get_qty_data_src(
-                quantity_data=qfx.get_qty_data(qty_in_g=50)
-            )
+            quantity_data=qfx.get_qty_data(qty_in_g=50)
         )
 
         # Assert that we get the correct mass returned for that nutrient;
@@ -74,13 +68,11 @@ class TestGetNutrientMassG(TestCase):
     def test_raises_exception_if_nutrient_mass_undefined(self):
         """Checks we get an exception if we try to access a nutrient mass which is undefined."""
         # Create a test instance;
-        hnm = model.nutrients.HasNutrientMasses(
+        hnm = fx.HasNutrientMassesTestable(
             subject=fx.HasNutrientRatiosTestable(
                 nutrient_ratios_data={}
             ),
-            quantity_data_src=qfx.get_qty_data_src(
-                quantity_data=qfx.get_qty_data(qty_in_g=50)
-            )
+            quantity_data=qfx.get_qty_data(qty_in_g=50)
         )
 
         # Assert we get an exception if we try to access an undefined nutrient mass;

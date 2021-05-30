@@ -21,7 +21,7 @@ class BaseIngredientQuantity(model.nutrients.HasNutrientMasses, abc.ABC):
         return self._subject
 
 
-class IngredientQuantity(BaseIngredientQuantity):
+class IngredientQuantity(BaseIngredientQuantity, model.quantity.QuantityOf):
     """Models a readonly quantity of an ingredient."""
 
 
