@@ -6,7 +6,7 @@ import model
 import persistence
 
 
-class BaseNutrientRatio(model.SupportsDefinition, persistence.YieldsPersistableData, abc.ABC):
+class BaseNutrientRatio(persistence.YieldsPersistableData, abc.ABC):
     """Base class to host common functionality between readonly and writable nutrient ratios."""
 
     @property

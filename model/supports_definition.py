@@ -3,22 +3,7 @@ import abc
 from typing import List, Optional
 
 
-class SupportsDefinition(abc.ABC):
-    """Models functionlity associated with being fully/not fully defined."""
-
-    @property
-    @abc.abstractmethod
-    def is_defined(self) -> bool:
-        """Returns True/False to indicate if the instance is defined."""
-        raise NotImplementedError
-
-    @property
-    def is_undefined(self) -> bool:
-        """Returns True/False to indicate if the instance is undefined."""
-        return not self.is_defined
-
-
-class HasMandatoryAttributes(SupportsDefinition, abc.ABC):
+class HasMandatoryAttributes(abc.ABC):
     """ABC for mandatory attribute functionalitly."""
 
     def __init__(self, **kwargs):
@@ -31,7 +16,7 @@ class HasMandatoryAttributes(SupportsDefinition, abc.ABC):
         raise NotImplementedError
 
     @property
-    def is_defined(self) -> bool:
+    def mandatory_attributes_defined(self) -> bool:
         """Returns True/False to indicate if the instance is defined."""
         # We are defined, if the list of mandatory attributes has no items in it.
         return len(self.missing_mandatory_attrs) == 0
@@ -39,7 +24,7 @@ class HasMandatoryAttributes(SupportsDefinition, abc.ABC):
     @property
     def definition_status_summary(self) -> str:
         """Returns a readable summary of the instance's definition status."""
-        if self.is_defined:
+        if self.mandatory_attributes_defined:
             return 'Complete'
         else:
             return 'Incomplete, needs {}'.format(self.next_mandatory_attr_required)
