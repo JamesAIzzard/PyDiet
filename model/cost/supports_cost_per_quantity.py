@@ -6,11 +6,6 @@ import model
 import persistence
 
 
-class CostPerQtyData(model.quantity.QuantityData):
-    """Cost data persistence format."""
-    cost_per_g: Optional[float]
-
-
 class SupportsCostPerQuantity(persistence.YieldsPersistableData, abc.ABC):
     """Base class for objects which support a readonly cost per quantity.
     Notes:
@@ -23,7 +18,7 @@ class SupportsCostPerQuantity(persistence.YieldsPersistableData, abc.ABC):
 
     @property
     @abc.abstractmethod
-    def cost_per_qty_data(self) -> 'CostPerQtyData':
+    def cost_per_qty_data(self) -> 'model.cost.CostPerQtyData':
         """Returns the cost data for the instance."""
         raise NotImplementedError
 
@@ -94,7 +89,7 @@ class SupportsCostPerQuantity(persistence.YieldsPersistableData, abc.ABC):
 class SupportsSettableCostPerQuantity(SupportsCostPerQuantity, persistence.CanLoadData):
     """Models objects with a settable cost per quantity."""
 
-    def __init__(self, cost_per_qty_data: Optional['CostPerQtyData'] = None, **kwargs):
+    def __init__(self, cost_per_qty_data: Optional['model.cost.CostPerQtyData'] = None, **kwargs):
         super().__init__(**kwargs)
 
         # Create vars to store the data locally now;
@@ -114,7 +109,7 @@ class SupportsSettableCostPerQuantity(SupportsCostPerQuantity, persistence.CanLo
             self.load_data({'cost_per_qty_data': cost_per_qty_data})
 
     @property
-    def cost_per_qty_data(self) -> 'CostPerQtyData':
+    def cost_per_qty_data(self) -> 'model.cost.CostPerQtyData':
         """Compiles and returns teh cost per qty data for the instance."""
         data = {}
         data.update(dict(self.cost_ref_subject_quantity.persistable_data))

@@ -4,8 +4,6 @@ from typing import Dict, List, Union, Optional, Any
 
 import model
 
-FlagDOFData = Dict[str, Optional[bool]]
-
 
 class HasFlags(model.nutrients.HasNutrientRatios, abc.ABC):
     """Models an object which has flag_data to characterise its content.
@@ -24,7 +22,7 @@ class HasFlags(model.nutrients.HasNutrientRatios, abc.ABC):
 
     @property
     @abc.abstractmethod
-    def flag_dofs(self) -> 'FlagDOFData':
+    def flag_dofs(self) -> 'model.flags.FlagDOFData':
         """Returns a dictionary of each non-direct alias flag."""
         raise NotImplementedError
 
@@ -140,18 +138,18 @@ class HasFlags(model.nutrients.HasNutrientRatios, abc.ABC):
 class HasSettableFlags(HasFlags, model.nutrients.HasSettableNutrientRatios):
     """Models an object with configurable flag_data to characterise its content."""
 
-    def __init__(self, flag_data: Optional['FlagDOFData'] = None, **kwargs):
+    def __init__(self, flag_data: Optional['model.flags.FlagDOFData'] = None, **kwargs):
         super().__init__(**kwargs)
 
         # Store the data locally now;
-        self._flag_dof_data: 'FlagDOFData' = {}
+        self._flag_dof_data: 'model.flags.FlagDOFData' = {}
 
         # If data was passed in, then load it;
         if flag_data is not None:
             self.load_data({'flag_data': flag_data})
 
     @property
-    def flag_dofs(self) -> 'FlagDOFData':
+    def flag_dofs(self) -> 'model.flags.FlagDOFData':
         """Implements the superclass' abstract method to return the local flag dof data."""
         return self._flag_dof_data
 

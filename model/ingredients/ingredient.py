@@ -1,18 +1,9 @@
 """Ingredient functionality module."""
 import abc
-from typing import Optional, TypedDict, List, Callable
+from typing import Optional, List, Callable
 
 import model
 import persistence
-
-
-class IngredientData(TypedDict):
-    """Ingredient data dictionary."""
-    cost_per_qty_data: model.cost.CostPerQtyData
-    flag_data: model.flags.FlagDOFData
-    name: Optional[str]
-    nutrient_ratios_data: model.nutrients.NutrientRatiosData
-    extended_units_data: model.quantity.ExtendedUnitsData
 
 
 class IngredientBase(
@@ -59,7 +50,7 @@ class Ingredient(
 ):
     """Models an ingredient with readonly attributes."""
 
-    def __init__(self, ingredient_data_src: Callable[[], 'IngredientData'], **kwargs):
+    def __init__(self, ingredient_data_src: Callable[[], 'model.ingredients.IngredientData'], **kwargs):
         super().__init__(**kwargs)
 
         # Stash the callable;
@@ -115,7 +106,7 @@ class SettableIngredient(
 ):
     """Models an ingredient with settable attributes."""
 
-    def __init__(self, ingredient_data: Optional['IngredientData'] = None, **kwargs):
+    def __init__(self, ingredient_data: Optional['model.ingredients.IngredientData'] = None, **kwargs):
         super().__init__(**kwargs)
 
         if ingredient_data is not None:

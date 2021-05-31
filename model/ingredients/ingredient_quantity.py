@@ -5,9 +5,6 @@ from typing import Dict, List, Callable, Optional, Any
 import model
 import persistence
 
-# Define the data type to represent ingredient quantities data;
-IngredientQuantitiesData = Dict[str, model.quantity.QuantityData]
-
 
 class BaseIngredientQuantity(model.nutrients.HasNutrientMasses, abc.ABC):
     """Base class for readonly and settable IngredientQuantity classes."""
