@@ -3,6 +3,7 @@ from . import validation, exceptions
 from .data_types import ExtendedUnitsData
 from .data_types import QuantityData
 from .data_types import RatioData
+from .ratio_of import RatioOfBase
 from .configs import (
     MASS_UNITS,
     VOL_UNITS,

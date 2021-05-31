@@ -27,7 +27,7 @@ class BaseNutrientRatio(model.SupportsDefinition, persistence.YieldsPersistableD
         subject_ref_quantity = self.subject_ref_quantity
 
         # Catch an undefined nutrient mass first off;
-        if not nutrient_mass.is_defined:
+        if not nutrient_mass.quantity_is_defined:
             raise model.nutrients.exceptions.UndefinedNutrientRatioError(
                 subject=self.subject_ref_quantity.subject,
                 nutrient_name=self.nutrient_mass.nutrient.primary_name

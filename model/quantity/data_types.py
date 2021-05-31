@@ -17,5 +17,5 @@ class QuantityData(TypedDict):
 class RatioData(TypedDict):
     """Persistable data format for modelling ratios of one substance (numerator) in
     another (denominator)"""
-    numerator_qty: QuantityData  # This is the numerator.
-    denominator_qty: QuantityData  # This is the denominator.
+    numerator_qty_data: QuantityData  # This is the numerator.
+    denominator_qty_data: QuantityData  # This is the denominator.

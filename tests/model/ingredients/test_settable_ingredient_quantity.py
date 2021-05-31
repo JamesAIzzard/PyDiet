@@ -39,7 +39,7 @@ class TestSetQuantity(TestCase):
         )
 
         # Assert that the quantity is not defined;
-        self.assertFalse(siq.is_defined)
+        self.assertFalse(siq.quantity_is_defined)
 
         # Set the quantity;
         siq.set_quantity(
@@ -48,7 +48,7 @@ class TestSetQuantity(TestCase):
         )
 
         # Assert that the quantity has been set;
-        self.assertTrue(siq.is_defined)
+        self.assertTrue(siq.quantity_is_defined)
         self.assertEqual(100, siq.quantity_in_g)
 
     def test_can_set_quantity_with_extended_units_if_configured(self):
@@ -65,7 +65,7 @@ class TestSetQuantity(TestCase):
         )
 
         # Assert that the quantity is not defined;
-        self.assertFalse(siq.is_defined)
+        self.assertFalse(siq.quantity_is_defined)
 
         # Set the quantity;
         siq.set_quantity(
@@ -74,7 +74,7 @@ class TestSetQuantity(TestCase):
         )
 
         # Assert that the quantity has been set;
-        self.assertTrue(siq.is_defined)
+        self.assertTrue(siq.quantity_is_defined)
 
     def test_cant_set_quantity_with_extended_units_if_not_configured(self):
         """Checks that we can't set quantity with extended units if they are not configured."""

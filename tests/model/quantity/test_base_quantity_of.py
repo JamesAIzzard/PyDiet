@@ -231,9 +231,9 @@ class TestIsDefined(TestCase):
         )
 
         # Check we get True from the method;
-        self.assertTrue(bqo.is_defined)
+        self.assertTrue(bqo.quantity_is_defined)
 
-    def test_returns_false_if_quantity_in_g_notdefined(self):
+    def test_returns_false_if_quantity_in_g_not_defined(self):
         """Check the property returns False if the quantity_in_g is not defined."""
         # Create a test instance with the quantity fully not defined;
         bqo = fx.BaseQuantityOfTestable(
@@ -242,7 +242,7 @@ class TestIsDefined(TestCase):
         )
 
         # Check we get True from the method;
-        self.assertFalse(bqo.is_defined)
+        self.assertFalse(bqo.quantity_is_defined)
 
 
 class TestPersistableData(TestCase):

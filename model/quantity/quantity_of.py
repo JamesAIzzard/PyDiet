@@ -6,7 +6,7 @@ import model
 import persistence
 
 
-class BaseQuantityOf(model.SupportsDefinition, persistence.YieldsPersistableData, abc.ABC):
+class BaseQuantityOf(persistence.YieldsPersistableData, abc.ABC):
     """Defines the base functionality common to both readonly and writable QuantityOf classes."""
     def __init__(self, subject: Any, **kwargs):
         super().__init__(**kwargs)
@@ -70,7 +70,7 @@ class BaseQuantityOf(model.SupportsDefinition, persistence.YieldsPersistableData
         )
 
     @property
-    def is_defined(self) -> bool:
+    def quantity_is_defined(self) -> bool:
         """Returns True/False to indicate if the quantity is defined."""
         return self._quantity_in_g is not None
 

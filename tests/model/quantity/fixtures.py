@@ -40,6 +40,34 @@ class SupportsExtendedUnitsTestable(model.quantity.SupportsExtendedUnits):
         return self._piece_mass_g_
 
 
+class IsRatioBaseTestable(model.quantity.RatioOfBase):
+    """Minimal implementation to allow testing of IsRatioBase class."""
+
+    def __init__(self,
+                 numerator: Any,
+                 denominator: Any,
+    ):
+        """Constructor
+        Notes:
+            I opted to pass in numerator and denominator instances, instead of just their
+            data, because that allowed me to configure them with things like extended units.
+            This allows testing ratio functionality that relies on the denominator/numerator
+            having particular attributes.
+        """
+        self._numerator = numerator
+        self._denominator = denominator
+
+    @property
+    def numerator(self) -> Any:
+        """Returns the numerator."""
+        return self._numerator
+
+    @property
+    def denominator(self) -> Any:
+        """Returns the denominator."""
+        return self._denominator
+
+
 def get_qty_data(
         qty_in_g: Optional[float] = None,
         pref_unit: str = 'g'
