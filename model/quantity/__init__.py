@@ -1,5 +1,8 @@
 """Initialisation for quantity module."""
 from . import validation, exceptions
+from .data_types import ExtendedUnitsData
+from .data_types import QuantityData
+from .data_types import RatioData
 from .configs import (
     MASS_UNITS,
     VOL_UNITS,
@@ -15,13 +18,11 @@ from .main import (
     convert_density_unit
 )
 from .quantity_of import (
-    QuantityData,
     BaseQuantityOf,
     QuantityOf,
     SettableQuantityOf
 )
 from .supports_extended_units import (
-    ExtendedUnitsData,
     SupportsExtendedUnits,
     SupportsExtendedUnitSetting
 )

@@ -1,15 +1,9 @@
 """Defines functionality associated with quantities of substances."""
 import abc
-from typing import TypedDict, Optional, Any, Callable
+from typing import Optional, Any, Callable
 
 import model
 import persistence
-
-
-class QuantityData(TypedDict):
-    """Persistable data format for modelling quantities of substances."""
-    quantity_in_g: Optional[float]
-    pref_unit: str
 
 
 class BaseQuantityOf(model.SupportsDefinition, persistence.YieldsPersistableData, abc.ABC):
@@ -81,7 +75,7 @@ class BaseQuantityOf(model.SupportsDefinition, persistence.YieldsPersistableData
         return self._quantity_in_g is not None
 
     @property
-    def persistable_data(self) -> 'QuantityData':
+    def persistable_data(self) -> 'model.quantity.QuantityData':
         """Returns the quantity data in the persistable format."""
         # Validate the unit before returning the data;
         _ = model.quantity.validation.validate_pref_unit(
@@ -108,7 +102,7 @@ class QuantityOf(BaseQuantityOf):
     Instead we take advantage of closures and pass in a callback as a data source.
     """
 
-    def __init__(self, quantity_data_src: Callable[[], 'QuantityData'], **kwargs):
+    def __init__(self, quantity_data_src: Callable[[], 'model.quantity.QuantityData'], **kwargs):
         super().__init__(**kwargs)
 
         # Stash the data source callable;
@@ -128,11 +122,11 @@ class QuantityOf(BaseQuantityOf):
 class SettableQuantityOf(BaseQuantityOf, persistence.CanLoadData):
     """Models a settable quantity of substance."""
 
-    def __init__(self, quantity_data: Optional['QuantityData'] = None, **kwargs):
+    def __init__(self, quantity_data: Optional['model.quantity.QuantityData'] = None, **kwargs):
         super().__init__(**kwargs)
 
         # Now we are storing the data locally, so create a place to stash the data on the instance;
-        self._quantity_data: 'QuantityData' = QuantityData(
+        self._quantity_data: 'model.quantity.QuantityData' = model.quantity.QuantityData(
             quantity_in_g=None,
             pref_unit='g'
         )
@@ -209,7 +203,7 @@ class SettableQuantityOf(BaseQuantityOf, persistence.CanLoadData):
         """Unsets the quantity."""
         self._quantity_data['quantity_in_g'] = None
 
-    def load_data(self, quantity_data: 'QuantityData') -> None:
+    def load_data(self, quantity_data: 'model.quantity.QuantityData') -> None:
         """Load the any available data into the instance."""
         # If the pref unit is defined, make sure it is available on this subject;
         if quantity_data['pref_unit'] is not None:

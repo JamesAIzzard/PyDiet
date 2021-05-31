@@ -2,16 +2,10 @@
 """
 import abc
 import copy
-from typing import List, TypedDict, Optional, Dict, Any
+from typing import List, Optional, Dict, Any
 
 import model
 import persistence
-
-
-class ExtendedUnitsData(TypedDict):
-    """Persistable data format for the extended units class."""
-    g_per_ml: Optional[float]
-    piece_mass_g: Optional[float]
 
 
 class SupportsExtendedUnits(persistence.YieldsPersistableData, abc.ABC):
@@ -89,7 +83,7 @@ class SupportsExtendedUnits(persistence.YieldsPersistableData, abc.ABC):
     def persistable_data(self) -> Dict[str, Any]:
         """Returns the persistable data to include extended units data."""
         data = super().persistable_data
-        data['extended_units_data'] = ExtendedUnitsData(
+        data['extended_units_data'] = model.quantity.ExtendedUnitsData(
             g_per_ml=self._g_per_ml,
             piece_mass_g=self._piece_mass_g
         )
@@ -99,11 +93,11 @@ class SupportsExtendedUnits(persistence.YieldsPersistableData, abc.ABC):
 class SupportsExtendedUnitSetting(SupportsExtendedUnits, persistence.CanLoadData):
     """Models an object on which density and peice mass can be set."""
 
-    def __init__(self, extended_units_data: Optional['ExtendedUnitsData'] = None, **kwargs):
+    def __init__(self, extended_units_data: Optional['model.quantity.ExtendedUnitsData'] = None, **kwargs):
         super().__init__(**kwargs)
 
         # Now we are storing data locally on the instance, so create somewhere to put it.
-        self._extended_units_data: 'ExtendedUnitsData' = ExtendedUnitsData(
+        self._extended_units_data: 'model.quantity.ExtendedUnitsData' = model.quantity.ExtendedUnitsData(
             g_per_ml=None,
             piece_mass_g=None
         )
