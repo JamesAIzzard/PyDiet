@@ -6,5 +6,5 @@ import model
 class BaseIngredientError(model.exceptions.PyDietModelError):
     """Base exception for all ingredient errors."""
 
-    def __init__(self, ingredient: Optional['model.ingredients.Ingredient'] = None):
+    def __init__(self, ingredient: Optional['model.ingredients.ReadonlyIngredient'] = None):
         self.ingredient = ingredient

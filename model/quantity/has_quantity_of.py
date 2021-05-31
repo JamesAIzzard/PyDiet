@@ -6,8 +6,8 @@ import model
 import persistence
 
 
-class BaseQuantityOf(persistence.YieldsPersistableData, abc.ABC):
-    """Defines the base functionality common to both readonly and writable QuantityOf classes."""
+class HasQuantityOf(persistence.YieldsPersistableData, abc.ABC):
+    """Abstract base class to readonly and writable quantities of substances."""
     def __init__(self, subject: Any, **kwargs):
         super().__init__(**kwargs)
 
@@ -56,7 +56,7 @@ class BaseQuantityOf(persistence.YieldsPersistableData, abc.ABC):
         g_per_ml = None
         piece_mass_g = None
         # If we have exended units, place them in if they are set;
-        if isinstance(self.subject, model.quantity.SupportsExtendedUnits):
+        if isinstance(self.subject, model.quantity.HasReadableExtendedUnits):
             g_per_ml = self.subject.g_per_ml if self.subject.density_is_defined else None
             piece_mass_g = self.subject.piece_mass_g if self.subject.piece_mass_is_defined else None
 
@@ -90,16 +90,16 @@ class BaseQuantityOf(persistence.YieldsPersistableData, abc.ABC):
         )
 
 
-class QuantityOf(BaseQuantityOf):
-    """Models a quantity of a substance which is independently defined and whose data should
-    be referenced only.
+class HasReadonlyQuantityOf(HasQuantityOf):
+    """Implements functionality associated with a readonly quantity of substance.
 
-    Instances inheriting from QuantityOf do not export the subject's persistable data in
-    their persistable data.
+    Notes:
+        Instances inheriting from QuantityOf do not export the subject's persistable data in
+        their persistable data.
 
-    Since this quantity may come from anywhere, it is not stored locally. This class
-    may also be instantiated directly, so we can't rely on an abstract class.
-    Instead we take advantage of closures and pass in a callback as a data source.
+        Since this quantity may come from anywhere, it is not stored locally. This class
+        may also be instantiated directly, so we can't rely on an abstract class.
+        Instead we take advantage of closures and pass in a callback as a data source.
     """
 
     def __init__(self, quantity_data_src: Callable[[], 'model.quantity.QuantityData'], **kwargs):
@@ -119,8 +119,8 @@ class QuantityOf(BaseQuantityOf):
         return self._quantity_data_src()['pref_unit']
 
 
-class SettableQuantityOf(BaseQuantityOf, persistence.CanLoadData):
-    """Models a settable quantity of substance."""
+class HasSettableQuantityOf(HasQuantityOf, persistence.CanLoadData):
+    """Implements functionality associated with a settable quantity of substance."""
 
     def __init__(self, quantity_data: Optional['model.quantity.QuantityData'] = None, **kwargs):
         super().__init__(**kwargs)
@@ -183,7 +183,7 @@ class SettableQuantityOf(BaseQuantityOf, persistence.CanLoadData):
         # Calculate the qty in grams;
         g_per_ml = None
         piece_mass_g = None
-        if isinstance(self.subject, model.quantity.SupportsExtendedUnits):
+        if isinstance(self.subject, model.quantity.HasReadableExtendedUnits):
             g_per_ml = self.subject.g_per_ml if self.subject.density_is_defined else None
             piece_mass_g = self.subject.piece_mass_g if self.subject.piece_mass_is_defined else None
 

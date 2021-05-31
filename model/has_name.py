@@ -6,7 +6,7 @@ import persistence
 import model
 
 
-class HasName(persistence.YieldsPersistableData):
+class HasReadableName(persistence.YieldsPersistableData):
     """Abstract class to define readonly name functionality."""
 
     def __init__(self, **kwargs):
@@ -45,7 +45,7 @@ class HasName(persistence.YieldsPersistableData):
         return data
 
 
-class HasSettableName(HasName, persistence.CanLoadData):
+class HasSettableName(HasReadableName, persistence.CanLoadData):
     """Abstract class to define writeable name functionality."""
 
     def __init__(self, name: Optional[str] = None, **kwargs):
@@ -58,7 +58,7 @@ class HasSettableName(HasName, persistence.CanLoadData):
         """Returns the locally stored name."""
         return self._name_
 
-    @HasName.name.setter
+    @HasReadableName.name.setter
     def name(self, name: Optional[str]) -> None:
         """Gets the instance's name."""
         self._name_ = name

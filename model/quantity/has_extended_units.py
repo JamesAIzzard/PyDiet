@@ -8,8 +8,8 @@ import model
 import persistence
 
 
-class SupportsExtendedUnits(persistence.YieldsPersistableData, abc.ABC):
-    """Models an object which can host density and piece mass values."""
+class HasReadableExtendedUnits(persistence.YieldsPersistableData, abc.ABC):
+    """Implements functionality associated with readable extended units."""
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -90,8 +90,8 @@ class SupportsExtendedUnits(persistence.YieldsPersistableData, abc.ABC):
         return data
 
 
-class SupportsExtendedUnitSetting(SupportsExtendedUnits, persistence.CanLoadData):
-    """Models an object on which density and peice mass can be set."""
+class HasSettableExtendedUnits(HasReadableExtendedUnits, persistence.CanLoadData):
+    """Implements functionality associated with settable extended units."""
 
     def __init__(self, extended_units_data: Optional['model.quantity.ExtendedUnitsData'] = None, **kwargs):
         super().__init__(**kwargs)
@@ -116,7 +116,7 @@ class SupportsExtendedUnitSetting(SupportsExtendedUnits, persistence.CanLoadData
         """Returns the peice mass in grams for the instance, if defined, None if not."""
         return self._extended_units_data['piece_mass_g']
 
-    @SupportsExtendedUnits.g_per_ml.setter
+    @HasReadableExtendedUnits.g_per_ml.setter
     def g_per_ml(self, g_per_ml: Optional[float]) -> None:
         """Implements gram/ml setting."""
         # If density is being unset;
@@ -150,7 +150,7 @@ class SupportsExtendedUnitSetting(SupportsExtendedUnits, persistence.CanLoadData
         """Unsets the substance's density."""
         self._extended_units_data['g_per_ml'] = None
 
-    @SupportsExtendedUnits.piece_mass_g.setter
+    @HasReadableExtendedUnits.piece_mass_g.setter
     def piece_mass_g(self, piece_mass_g: Optional[float]) -> None:
         """Implements piece mass setting."""
         # If unsetting

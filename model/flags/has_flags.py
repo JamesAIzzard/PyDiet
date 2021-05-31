@@ -5,16 +5,17 @@ from typing import Dict, List, Union, Optional, Any
 import model
 
 
-class HasFlags(model.nutrients.HasNutrientRatios, abc.ABC):
-    """Models an object which has flag_data to characterise its content.
-    Flags are either direct alias or not. A direct alias flag will derive its value entirely from a
-    nutrient ratio on the same instance. For example, "caffiene-free" derives its value entirely from
-    the presence of caffiene in the nutrient ratios list. However, flags such as "vegan" are not
-    direct aliases, and therefore have a "degree of freedom" or DOF. This allows them to store their
-    True/False/None value independently of any nutrient ratios. A flag which is not a direct
-    alias cannot have a True value if any related nutrients are conflicting. However, it may have a
-    False value even if all of its related nutrients do not conflict. Equally, it may have an undefined
-    value even if all of its related nutrients are defined.
+class HasReadableFlags(model.nutrients.HasReadableNutrientRatios, abc.ABC):
+    """Abstract class to implement functionality associated with readable flags.
+    Notes:
+        Flags are either direct alias or not. A direct alias flag will derive its value entirely from a
+        nutrient ratio on the same instance. For example, "caffiene-free" derives its value entirely from
+        the presence of caffiene in the nutrient ratios list. However, flags such as "vegan" are not
+        direct aliases, and therefore have a "degree of freedom" or DOF. This allows them to store any
+        True/False/None value, provided no related nutrients oppose the flag, or are undefined.
+        A flag which is not a direct alias cannot have a True value if any related nutrients are conflicting.
+        However, it may have a False value even if all of its related nutrients do not conflict. Equally, it
+        may have an undefined value even if all of its related nutrients are defined.
     """
 
     def __init__(self, **kwargs):
@@ -135,8 +136,8 @@ class HasFlags(model.nutrients.HasNutrientRatios, abc.ABC):
         return data
 
 
-class HasSettableFlags(HasFlags, model.nutrients.HasSettableNutrientRatios):
-    """Models an object with configurable flag_data to characterise its content."""
+class HasSettableFlags(HasReadableFlags, model.nutrients.HasSettableNutrientRatios):
+    """Class to implement functionality associated with a settable cost per quantity."""
 
     def __init__(self, flag_data: Optional['model.flags.FlagDOFData'] = None, **kwargs):
         super().__init__(**kwargs)

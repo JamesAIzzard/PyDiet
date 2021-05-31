@@ -6,12 +6,8 @@ import model
 import persistence
 
 
-class SupportsCostPerQuantity(persistence.YieldsPersistableData, abc.ABC):
-    """Base class for objects which support a readonly cost per quantity.
-    Notes:
-        Some subclasses (e.g Recipe) won't store the cost per gram or the reference quantity
-        used to define it on the instance, so we get this via an abstract method.
-    """
+class HasReadableCostPerQuantity(persistence.YieldsPersistableData, abc.ABC):
+    """Abstract class to implement functionality associated with a readable cost per quantity."""
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -31,14 +27,14 @@ class SupportsCostPerQuantity(persistence.YieldsPersistableData, abc.ABC):
             return True
 
     @property
-    def cost_ref_subject_quantity(self) -> 'model.quantity.QuantityOf':
+    def cost_ref_subject_quantity(self) -> 'model.quantity.HasReadonlyQuantityOf':
         """Returns the subject quantity against which the cost is defined.
         Notes:
             Since the cost data is readonly here, we just generate a quantity
             object from the information in cost data. This allows us to
             leverage its unit manipulation methods elsewhere.
         """
-        return model.quantity.QuantityOf(
+        return model.quantity.HasReadonlyQuantityOf(
             subject=self,
             quantity_data_src=lambda: model.quantity.QuantityData(
                 quantity_in_g=self.cost_per_qty_data['quantity_in_g'],
@@ -60,7 +56,7 @@ class SupportsCostPerQuantity(persistence.YieldsPersistableData, abc.ABC):
         # How many grams in one pref unit?
         g_per_ml = None
         piece_mass_g = None
-        if isinstance(self, model.quantity.SupportsExtendedUnits):
+        if isinstance(self, model.quantity.HasReadableExtendedUnits):
             g_per_ml = self.g_per_ml if self.density_is_defined else None
             piece_mass_g = self.piece_mass_g if self.piece_mass_is_defined else None
         g_per_pref_unit = model.quantity.convert_qty_unit(
@@ -86,15 +82,15 @@ class SupportsCostPerQuantity(persistence.YieldsPersistableData, abc.ABC):
         return data
 
 
-class SupportsSettableCostPerQuantity(SupportsCostPerQuantity, persistence.CanLoadData):
-    """Models objects with a settable cost per quantity."""
+class HasSettableCostPerQuantity(HasReadableCostPerQuantity, persistence.CanLoadData):
+    """Class to implement functionality associated with a settable cost per quantity."""
 
     def __init__(self, cost_per_qty_data: Optional['model.cost.CostPerQtyData'] = None, **kwargs):
         super().__init__(**kwargs)
 
         # Create vars to store the data locally now;
         # Create a subject quantity instance;
-        self._cost_ref_qty = model.quantity.SettableQuantityOf(
+        self._cost_ref_qty = model.quantity.HasSettableQuantityOf(
             subject=self,
             quantity_data=model.quantity.QuantityData(
                 quantity_in_g=None,
@@ -117,7 +113,7 @@ class SupportsSettableCostPerQuantity(SupportsCostPerQuantity, persistence.CanLo
         return data
 
     @property
-    def cost_ref_subject_quantity(self) -> 'model.quantity.SettableQuantityOf':
+    def cost_ref_subject_quantity(self) -> 'model.quantity.HasSettableQuantityOf':
         """Returns the subject quantity instance."""
         # Override to return the local instance, now we have one;
         return self._cost_ref_qty
@@ -141,7 +137,7 @@ class SupportsSettableCostPerQuantity(SupportsCostPerQuantity, persistence.CanLo
         # Find the original quantity in grams;
         g_per_ml = None
         piece_mass_g = None
-        if isinstance(self, model.quantity.SupportsExtendedUnits):
+        if isinstance(self, model.quantity.HasReadableExtendedUnits):
             g_per_ml = self.g_per_ml if self.density_is_defined else None
             piece_mass_g = self.piece_mass_g if self.piece_mass_is_defined else None
         k = model.quantity.convert_qty_unit(

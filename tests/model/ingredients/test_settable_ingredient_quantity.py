@@ -12,7 +12,7 @@ class TestConstructor(TestCase):
         """Test we can create a simple instance."""
         # Create a simple instance;
         siq = model.ingredients.SettableIngredientQuantity(
-            ingredient=model.ingredients.Ingredient(
+            ingredient=model.ingredients.ReadonlyIngredient(
                 ingredient_data_src=fx.get_ingredient_data_src(
                     for_ingredient_name=fx.get_ingredient_name_with("typical_fully_defined_data")
                 )
@@ -30,7 +30,7 @@ class TestSetQuantity(TestCase):
         """Checks that we can set the quantity of the ingredient."""
         # Create a simple instance;
         siq = model.ingredients.SettableIngredientQuantity(
-            ingredient=model.ingredients.Ingredient(
+            ingredient=model.ingredients.ReadonlyIngredient(
                 ingredient_data_src=fx.get_ingredient_data_src(
                     for_ingredient_name=fx.get_ingredient_name_with("typical_fully_defined_data")
                 )
@@ -56,7 +56,7 @@ class TestSetQuantity(TestCase):
         has extended units configured."""
         # Create a test instance with extended units configured;
         siq = model.ingredients.SettableIngredientQuantity(
-            ingredient=model.ingredients.Ingredient(
+            ingredient=model.ingredients.ReadonlyIngredient(
                 ingredient_data_src=fx.get_ingredient_data_src(
                     for_ingredient_name=fx.get_ingredient_name_with("density_defined")
                 )
@@ -80,7 +80,7 @@ class TestSetQuantity(TestCase):
         """Checks that we can't set quantity with extended units if they are not configured."""
         # Create a test instance without extended units.
         siq = model.ingredients.SettableIngredientQuantity(
-            ingredient=model.ingredients.Ingredient(
+            ingredient=model.ingredients.ReadonlyIngredient(
                 ingredient_data_src=fx.get_ingredient_data_src(
                     for_ingredient_name=fx.get_ingredient_name_with("density_undefined")
                 )
@@ -99,7 +99,7 @@ class TestNumCalories(TestCase):
         """Checks that the number of calories doubles if we double the quantity of ingredient."""
         # Create a test instance of defined quantity;
         siq = model.ingredients.SettableIngredientQuantity(
-            ingredient=model.ingredients.Ingredient(
+            ingredient=model.ingredients.ReadonlyIngredient(
                 ingredient_data_src=fx.get_ingredient_data_src(
                     for_ingredient_name=fx.get_ingredient_name_with("typical_fully_defined_data")
                 )
@@ -123,7 +123,7 @@ class TestIngredient(TestCase):
         """Checks that the ingredient is not mutable in this context."""
         # Create a test instance;
         siq = model.ingredients.SettableIngredientQuantity(
-            ingredient=model.ingredients.Ingredient(
+            ingredient=model.ingredients.ReadonlyIngredient(
                 ingredient_data_src=fx.get_ingredient_data_src(
                     for_ingredient_name=fx.get_ingredient_name_with("typical_fully_defined_data")
                 )

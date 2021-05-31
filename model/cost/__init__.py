@@ -1,5 +1,5 @@
 """Cost module initialisation."""
-from . import exceptions, validation
+from . import exceptions
+from . import validation
 from .data_types import CostPerQtyData
-from .supports_cost_per_quantity import SupportsCostPerQuantity
-from .supports_cost_per_quantity import SupportsSettableCostPerQuantity
+from .has_cost_per_quantity import HasReadableCostPerQuantity, HasSettableCostPerQuantity

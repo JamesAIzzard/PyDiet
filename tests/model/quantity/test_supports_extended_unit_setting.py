@@ -11,14 +11,14 @@ class TestConstructor(TestCase):
     def test_can_be_instantiated(self):
         """Check that the instance can be instantiated."""
         self.assertTrue(
-            isinstance(model.quantity.SupportsExtendedUnitSetting(),
-                       model.quantity.SupportsExtendedUnitSetting)
+            isinstance(model.quantity.HasSettableExtendedUnits(),
+                       model.quantity.HasSettableExtendedUnits)
         )
 
     def test_data_provided_is_loaded(self):
         """Check that any data provided gets loaded into the instance."""
         # Create the instance first;
-        seus = model.quantity.SupportsExtendedUnitSetting(
+        seus = model.quantity.HasSettableExtendedUnits(
             extended_units_data=fx.get_extended_units_data(
                 g_per_ml=1.2, piece_mass_g=150
             )
@@ -36,7 +36,7 @@ class Test_GPerMl(TestCase):
     def test_returns_float_if_defined(self):
         """Returns float if value is set."""
         # Create instance;
-        seus = model.quantity.SupportsExtendedUnitSetting(fx.get_extended_units_data(g_per_ml=1.2))
+        seus = model.quantity.HasSettableExtendedUnits(fx.get_extended_units_data(g_per_ml=1.2))
 
         # Check we get the value back;
         self.assertEqual(1.2, seus._g_per_ml)
@@ -44,7 +44,7 @@ class Test_GPerMl(TestCase):
     def test_returns_none_if_undefined(self):
         """Returns None if value is not set."""
         # Create instance;
-        seus = model.quantity.SupportsExtendedUnitSetting(fx.get_extended_units_data())
+        seus = model.quantity.HasSettableExtendedUnits(fx.get_extended_units_data())
 
         # Check we get None back;
         self.assertEqual(None, seus._g_per_ml)
@@ -57,7 +57,7 @@ class Test_PieceMassG(TestCase):
     def test_returns_float_if_defined(self):
         """Returns float if value is set."""
         # Create instance;
-        seus = model.quantity.SupportsExtendedUnitSetting(fx.get_extended_units_data(piece_mass_g=150))
+        seus = model.quantity.HasSettableExtendedUnits(fx.get_extended_units_data(piece_mass_g=150))
 
         # Check we get the value back;
         self.assertEqual(150, seus._piece_mass_g)
@@ -65,7 +65,7 @@ class Test_PieceMassG(TestCase):
     def test_returns_none_if_undefined(self):
         """Returns None if value is not set."""
         # Create instance;
-        seus = model.quantity.SupportsExtendedUnitSetting(fx.get_extended_units_data())
+        seus = model.quantity.HasSettableExtendedUnits(fx.get_extended_units_data())
 
         # Check we get None back;
         self.assertEqual(None, seus._piece_mass_g)
@@ -77,7 +77,7 @@ class TestGPerMl(TestCase):
     def test_sets_value_correctly(self):
         """Check that a valid value is set correctly."""
         # Create the test instance;
-        seus = model.quantity.SupportsExtendedUnitSetting()
+        seus = model.quantity.HasSettableExtendedUnits()
 
         # Check nothing is set;
         with self.assertRaises(model.quantity.exceptions.UndefinedDensityError):
@@ -92,7 +92,7 @@ class TestGPerMl(TestCase):
     def test_sets_none_correctly(self):
         """Make sure we can pass in None to unset the value."""
         # Create a test instance, passing in a value;
-        seus = model.quantity.SupportsExtendedUnitSetting(fx.get_extended_units_data(g_per_ml=1.2))
+        seus = model.quantity.HasSettableExtendedUnits(fx.get_extended_units_data(g_per_ml=1.2))
 
         # Check we have the value;
         self.assertEqual(1.2, seus.g_per_ml)
@@ -107,7 +107,7 @@ class TestGPerMl(TestCase):
     def test_raises_exception_if_value_invalid(self):
         """Check we get an exception if the value is invalid."""
         # Create test instance;
-        seus = model.quantity.SupportsExtendedUnitSetting()
+        seus = model.quantity.HasSettableExtendedUnits()
 
         # Check we get an exception if we try to set an invalid value;
         # Try with string;
@@ -127,7 +127,7 @@ class TestPieceMassG(TestCase):
     def test_sets_value_correctly(self):
         """Check that a valid value is set correctly."""
         # Create the test instance;
-        seus = model.quantity.SupportsExtendedUnitSetting()
+        seus = model.quantity.HasSettableExtendedUnits()
 
         # Check nothing is set;
         with self.assertRaises(model.quantity.exceptions.UndefinedPcMassError):
@@ -142,7 +142,7 @@ class TestPieceMassG(TestCase):
     def test_sets_none_correctly(self):
         """Make sure we can pass in None to unset the value."""
         # Create a test instance, passing in a value;
-        seus = model.quantity.SupportsExtendedUnitSetting(fx.get_extended_units_data(piece_mass_g=150))
+        seus = model.quantity.HasSettableExtendedUnits(fx.get_extended_units_data(piece_mass_g=150))
 
         # Check we have the value;
         self.assertEqual(150, seus.piece_mass_g)
@@ -157,7 +157,7 @@ class TestPieceMassG(TestCase):
     def test_raises_exception_if_value_invalid(self):
         """Check we get an exception if the value is invalid."""
         # Create test instance;
-        seus = model.quantity.SupportsExtendedUnitSetting()
+        seus = model.quantity.HasSettableExtendedUnits()
 
         # Check we get an exception if we try to set an invalid value;
         # Try with string;
@@ -177,7 +177,7 @@ class TestSetDensity(TestCase):
     def test_sets_density_correctly(self):
         """Check the density can be set with arbitrary units correctly."""
         # Create the test instance;
-        seus = model.quantity.SupportsExtendedUnitSetting()
+        seus = model.quantity.HasSettableExtendedUnits()
 
         # Check the density is not configured;
         self.assertFalse(seus.density_is_defined)
@@ -197,7 +197,7 @@ class TestSetDensity(TestCase):
         """Check that we can't pass None values into this method. We
         should be using the unset_density method to unset the instance's density."""
         # Create the test instance;
-        seus = model.quantity.SupportsExtendedUnitSetting()
+        seus = model.quantity.HasSettableExtendedUnits()
 
         # Check we get an exception if we pass in None to both;
         with self.assertRaises(model.quantity.exceptions.InvalidQtyError):
@@ -212,7 +212,7 @@ class TestSetDensity(TestCase):
     def test_raises_exception_if_either_qty_is_zero(self):
         """Check that we can't pass zero as a parameter to either of the qty values."""
         # Create the test instance;
-        seus = model.quantity.SupportsExtendedUnitSetting()
+        seus = model.quantity.HasSettableExtendedUnits()
 
         # Check we get an exception if we pass in zero to either;
         with self.assertRaises(model.quantity.exceptions.ZeroQtyError):
@@ -233,7 +233,7 @@ class TestSetDensity(TestCase):
     def test_raises_exception_if_unit_not_recognised(self):
         """Checks we get an exception if one of the units are invalid."""
         # Create the test instance;
-        seus = model.quantity.SupportsExtendedUnitSetting()
+        seus = model.quantity.HasSettableExtendedUnits()
 
         # Check we get an exception if either argument has an unknown unit;
         with self.assertRaises(model.quantity.exceptions.UnknownUnitError):
@@ -254,7 +254,7 @@ class TestSetDensity(TestCase):
     def test_raises_exception_if_unit_is_incorrect_type(self):
         """Checks we get an exception if one of the units are of an incorrect type."""
         # Create the test instance;
-        seus = model.quantity.SupportsExtendedUnitSetting()
+        seus = model.quantity.HasSettableExtendedUnits()
 
         # Check we get an exception if either argument has an incorrect unit type;
         with self.assertRaises(model.quantity.exceptions.IncorrectUnitTypeError):
@@ -279,7 +279,7 @@ class TestUnsetDensity(TestCase):
     def test_unset_density_unsets_density(self):
         """Checks the method does actually unset the density."""
         # Create the test instance;
-        seus = model.quantity.SupportsExtendedUnitSetting(fx.get_extended_units_data(g_per_ml=1.2))
+        seus = model.quantity.HasSettableExtendedUnits(fx.get_extended_units_data(g_per_ml=1.2))
 
         # Check the density started out as defined;
         self.assertTrue(seus.density_is_defined)
@@ -297,7 +297,7 @@ class TestSetPieceMass(TestCase):
     def test_sets_piece_mass_correctly(self):
         """Check the density can be set with arbitrary units correctly."""
         # Create the test instance;
-        seus = model.quantity.SupportsExtendedUnitSetting()
+        seus = model.quantity.HasSettableExtendedUnits()
 
         # Check the density is not configured;
         self.assertFalse(seus.piece_mass_is_defined)
@@ -316,7 +316,7 @@ class TestSetPieceMass(TestCase):
         """Check that we can't pass None values into this method. We
         should be using the unset_piece_mass method to unset the instance's density."""
         # Create the test instance;
-        seus = model.quantity.SupportsExtendedUnitSetting()
+        seus = model.quantity.HasSettableExtendedUnits()
 
         # Check we get an exception if we pass in None to both;
         with self.assertRaises(model.quantity.exceptions.InvalidQtyError):
@@ -330,7 +330,7 @@ class TestSetPieceMass(TestCase):
     def test_raises_exception_if_either_qty_is_zero(self):
         """Check that we can't pass zero as a parameter to either of the qty values."""
         # Create the test instance;
-        seus = model.quantity.SupportsExtendedUnitSetting()
+        seus = model.quantity.HasSettableExtendedUnits()
 
         # Check we get an exception if we pass in zero to either;
         with self.assertRaises(model.quantity.exceptions.ZeroQtyError):
@@ -349,7 +349,7 @@ class TestSetPieceMass(TestCase):
     def test_raises_exception_if_unit_not_recognised(self):
         """Checks we get an exception if one of the units are invalid."""
         # Create the test instance;
-        seus = model.quantity.SupportsExtendedUnitSetting()
+        seus = model.quantity.HasSettableExtendedUnits()
 
         # Check we get an exception if either argument has an unknown unit;
         with self.assertRaises(model.quantity.exceptions.UnknownUnitError):
@@ -362,7 +362,7 @@ class TestSetPieceMass(TestCase):
     def test_raises_exception_if_unit_is_incorrect_type(self):
         """Checks we get an exception if the mass unit is not a mass unit."""
         # Create the test instance;
-        seus = model.quantity.SupportsExtendedUnitSetting()
+        seus = model.quantity.HasSettableExtendedUnits()
 
         # Check we get an exception if either argument has an incorrect unit type;
         with self.assertRaises(model.quantity.exceptions.IncorrectUnitTypeError):
@@ -385,7 +385,7 @@ class TestUnsetPieceMass(TestCase):
     def test_unset_density_unsets_piece_mass(self):
         """Checks the method does actually unset the piece mass."""
         # Create the test instance;
-        seus = model.quantity.SupportsExtendedUnitSetting(fx.get_extended_units_data(piece_mass_g=100))
+        seus = model.quantity.HasSettableExtendedUnits(fx.get_extended_units_data(piece_mass_g=100))
 
         # Check the piece mass started out as defined;
         self.assertTrue(seus.piece_mass_is_defined)
@@ -403,7 +403,7 @@ class TestLoadData(TestCase):
     def test_data_loaded_correctly(self):
         """Checks that data is loaded in correctly."""
         # Create a test instance without data;
-        seus = model.quantity.SupportsExtendedUnitSetting()
+        seus = model.quantity.HasSettableExtendedUnits()
 
         # Check the persistable data is empty;
         self.assertEqual(
@@ -430,7 +430,7 @@ class TestLoadData(TestCase):
     def test_raises_exception_if_field_missing_from_data(self):
         """Checks that data is loaded in correctly."""
         # Create a test instance without data;
-        seus = model.quantity.SupportsExtendedUnitSetting()
+        seus = model.quantity.HasSettableExtendedUnits()
 
         # Check we get an exception if we try to load data with a field missing;
         with self.assertRaises(KeyError):
@@ -440,7 +440,7 @@ class TestLoadData(TestCase):
     def test_raises_exception_if_try_to_load_invalid_data(self):
         """Checks that we get an exception if we try to load invalid data;"""
         # Create a test instance without data;
-        seus = model.quantity.SupportsExtendedUnitSetting()
+        seus = model.quantity.HasSettableExtendedUnits()
 
         # Check we get an exception if we try to load invalid data;
         with self.assertRaises(model.quantity.exceptions.InvalidQtyError):
@@ -467,7 +467,7 @@ class TestLoadData(TestCase):
     def test_no_error_if_dict_has_no_extended_units_key(self):
         """Check that we don't get an exception if the dict has not extended units key."""
         # Create a test instance;
-        seus = model.quantity.SupportsExtendedUnitSetting()
+        seus = model.quantity.HasSettableExtendedUnits()
 
         # Check we get no error if we load an empty dict;
         seus.load_data({})

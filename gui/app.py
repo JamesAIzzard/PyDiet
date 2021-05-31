@@ -102,7 +102,7 @@ class App:
         self.ingredient_editor = gui.IngredientEditorController(
             view=gui.IngredientEditorView(master=self._view_pane)
         )
-        self.ingredient_editor.set_subject(model.ingredients.Ingredient())
+        self.ingredient_editor.set_subject(model.ingredients.ReadonlyIngredient())
 
         # Ingredient search page;
         self.ingredient_search = gui.IngredientSearchController(
@@ -139,7 +139,7 @@ class App:
     def _on_ingredient_edit(self, event):
         """Handler for the edit ingredient event."""
         i = persistence.load_instance(
-            cls=model.ingredients.Ingredient,
+            cls=model.ingredients.ReadonlyIngredient,
             unique_value=event.widget.ingredient_name
         )
         self.ingredient_editor.set_subject(i)

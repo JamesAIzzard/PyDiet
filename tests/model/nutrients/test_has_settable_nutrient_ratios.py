@@ -61,7 +61,7 @@ class TestNutrientRatios(TestCase):
 
         # Check the instances are the right type;
         for nutrient_ratio in hsnr.nutrient_ratios.values():
-            self.assertTrue(isinstance(nutrient_ratio, model.nutrients.NutrientRatio))
+            self.assertTrue(isinstance(nutrient_ratio, model.nutrients.ReadonlyNutrientRatio))
             self.assertFalse(isinstance(nutrient_ratio, model.nutrients.SettableNutrientRatio))
 
 

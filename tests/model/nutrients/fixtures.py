@@ -22,21 +22,21 @@ PRIMARY_AND_ALIAS_NUTRIENT_NAMES = model.nutrients.build_primary_and_alias_nutri
 GLOBAL_NUTRIENTS = model.nutrients.build_global_nutrient_list(test_configs)
 
 
-class BaseNutrientRatioTestable(model.nutrients.BaseNutrientRatio):
+class BaseNutrientRatioTestable(model.nutrients.NutrientRatio):
     """A minimal implementation of BaseNutrientRatio to allow its testing."""
 
     def __init__(self, subject: Any,
                  nutrient_name: str,
                  nutrient_ratio_data: 'model.nutrients.NutrientRatioData'):
         # Store nutrient mass and subject ref qty locally for testing;
-        self._nutrient_mass = model.nutrients.NutrientMass(
+        self._nutrient_mass = model.nutrients.ReadonlyNutrientMass(
             nutrient_name=nutrient_name,
             quantity_data_src=qfx.get_qty_data_src(qfx.get_qty_data(
                 qty_in_g=nutrient_ratio_data['nutrient_mass_data']['quantity_in_g'],
                 pref_unit=nutrient_ratio_data['nutrient_mass_data']['pref_unit']
             ))
         )
-        self._subject_ref_qty = model.quantity.QuantityOf(
+        self._subject_ref_qty = model.quantity.HasReadonlyQuantityOf(
             subject=subject,
             quantity_data_src=qfx.get_qty_data_src(qfx.get_qty_data(
                 qty_in_g=nutrient_ratio_data['subject_ref_qty_data']['quantity_in_g'],
@@ -45,17 +45,17 @@ class BaseNutrientRatioTestable(model.nutrients.BaseNutrientRatio):
         )
 
     @property
-    def nutrient_mass(self) -> 'model.nutrients.NutrientMass':
+    def nutrient_mass(self) -> 'model.nutrients.ReadonlyNutrientMass':
         """Return the locally stored instance."""
         return self._nutrient_mass
 
     @property
-    def subject_ref_quantity(self) -> 'model.quantity.QuantityOf':
+    def subject_ref_quantity(self) -> 'model.quantity.HasReadonlyQuantityOf':
         """Return the locally stored ref quantity."""
         return self._subject_ref_qty
 
 
-class HasNutrientRatiosTestable(model.nutrients.HasNutrientRatios):
+class HasReadableNutrientRatiosTestable(model.nutrients.HasReadableNutrientRatios):
     """Minimal class to allow testing of the HasNutrientRatios abstract base class."""
 
     def __init__(self, nutrient_ratios_data: 'model.nutrients.NutrientRatiosData' = None, **kwargs):
@@ -75,8 +75,8 @@ class HasNutrientRatiosTestable(model.nutrients.HasNutrientRatios):
 
 
 class HasNutrientRatiosAndExtUnitsTestable(
-    HasNutrientRatiosTestable,
-    qfx.SupportsExtendedUnitsTestable
+    HasReadableNutrientRatiosTestable,
+    qfx.HasReadableExtendedUnitsTestable
 ):
     """Minimal implementation to allow testing of HasNutrientRatios in conjunction with SupportsExtendedUnits."""
 
@@ -86,7 +86,7 @@ class HasNutrientRatiosAndExtUnitsTestable(
 
 class HasSettableNutrientRatiosAndExtUnitsTestable(
     model.nutrients.HasSettableNutrientRatios,
-    model.quantity.SupportsExtendedUnits
+    model.quantity.HasReadableExtendedUnits
 ):
     """Minimal class to allow testing of the HasSettableNutrientRatios while also supporting extended units."""
 
@@ -104,7 +104,7 @@ class HasSettableNutrientRatiosAndExtUnitsTestable(
         return self._piece_mass_g_
 
 
-class HasNutrientMassesTestable(model.nutrients.HasNutrientMasses, model.quantity.SettableQuantityOf):
+class HasReadableNutrientMassesTestable(model.nutrients.HasReadableNutrientMasses, model.quantity.HasSettableQuantityOf):
     """Minimal implementation for testing HasNutrientMasses."""
 
 

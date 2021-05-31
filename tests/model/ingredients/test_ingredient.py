@@ -15,7 +15,7 @@ class TestConstructor(TestCase):
         """Check we can initialise an instance."""
         # First, create the instance;
         i_name = "Honey"
-        i = model.ingredients.Ingredient(ingredient_data_src=fx.get_ingredient_data_src(i_name))
+        i = model.ingredients.ReadonlyIngredient(ingredient_data_src=fx.get_ingredient_data_src(i_name))
 
         # Now load the instance's data directly;
         data = fx.get_ingredient_data(for_unique_name=i_name)
@@ -30,7 +30,7 @@ class Test_GPerMl(TestCase):
     def test_returns_correct_value_if_defined(self):
         """Check that the property returns the correct value."""
         # Create a test instance of an ingredient with g_per_ml populated;
-        i = model.ingredients.Ingredient(
+        i = model.ingredients.ReadonlyIngredient(
             ingredient_data_src=fx.get_ingredient_data_src(
                 fx.get_ingredient_name_with("density_defined")
             )
@@ -45,7 +45,7 @@ class Test_GPerMl(TestCase):
         Since this is the private method, it returns None
         """
         # Create a test instance of an ingredient with g_per_ml undefined;
-        i = model.ingredients.Ingredient(
+        i = model.ingredients.ReadonlyIngredient(
             ingredient_data_src=fx.get_ingredient_data_src(
                 fx.get_ingredient_name_with("density_undefined")
             )
@@ -63,7 +63,7 @@ class Test_PieceMassG(TestCase):
     def test_returns_correct_value_if_defined(self):
         """Check that the property returns the correct value."""
         # Create a test instance of an ingredient with piece mass populated;
-        i = model.ingredients.Ingredient(
+        i = model.ingredients.ReadonlyIngredient(
             ingredient_data_src=fx.get_ingredient_data_src(
                 fx.get_ingredient_name_with("piece_mass_defined")
             )
@@ -78,7 +78,7 @@ class Test_PieceMassG(TestCase):
         Since this is the private method, it returns None
         """
         # Create a test instance of an ingredient with piece_mass undefined;
-        i = model.ingredients.Ingredient(
+        i = model.ingredients.ReadonlyIngredient(
             ingredient_data_src=fx.get_ingredient_data_src(
                 fx.get_ingredient_name_with("piece_mass_undefined")
             )
@@ -96,7 +96,7 @@ class Test_CostPerQtyData(TestCase):
     def test_returns_correct_data_if_defined(self):
         """Checks we get the correct data back."""
         # Create the test instance;
-        i = model.ingredients.Ingredient(
+        i = model.ingredients.ReadonlyIngredient(
             ingredient_data_src=fx.get_ingredient_data_src(
                 fx.get_ingredient_name_with("cost_per_g_defined")
             )
@@ -111,7 +111,7 @@ class Test_CostPerQtyData(TestCase):
     def test_returns_correct_data_if_undefined(self):
         """Checks we get the correct data back."""
         # Create the test instance;
-        i = model.ingredients.Ingredient(
+        i = model.ingredients.ReadonlyIngredient(
             ingredient_data_src=fx.get_ingredient_data_src(
                 fx.get_ingredient_name_with("cost_per_g_undefined")
             )
@@ -131,7 +131,7 @@ class Test_FlagDOFs(TestCase):
     def test_returns_correct_data_if_defined(self):
         """Checks we get the correct data back."""
         # Create the test instance;
-        i = model.ingredients.Ingredient(
+        i = model.ingredients.ReadonlyIngredient(
             ingredient_data_src=fx.get_ingredient_data_src(
                 fx.get_ingredient_name_with("flag_dofs_all_defined")
             )
@@ -146,7 +146,7 @@ class Test_FlagDOFs(TestCase):
     def test_returns_correct_data_if_undefined(self):
         """Checks we get the correct data back."""
         # Create the test instance;
-        i = model.ingredients.Ingredient(
+        i = model.ingredients.ReadonlyIngredient(
             ingredient_data_src=fx.get_ingredient_data_src(
                 fx.get_ingredient_name_with("flag_dofs_two_undefined")
             )
@@ -166,7 +166,7 @@ class Test_NutrientRatiosData(TestCase):
     def test_returns_correct_data_for_defined_nutrient_ratios(self):
         """Checks we get the correct data back for defined nutrient ratios."""
         # Create the test instance;
-        i = model.ingredients.Ingredient(
+        i = model.ingredients.ReadonlyIngredient(
             ingredient_data_src=fx.get_ingredient_data_src(
                 fx.get_ingredient_name_with("nutrient_ratios_protein_defined")
             )
@@ -185,7 +185,7 @@ class Test_NutrientRatiosData(TestCase):
     def test_excludes_undefined_nutrients(self):
         """Checks undefined nutrients do not show up in the nutrient data dict."""
         # Create the test instance;
-        i = model.ingredients.Ingredient(
+        i = model.ingredients.ReadonlyIngredient(
             ingredient_data_src=fx.get_ingredient_data_src(
                 fx.get_ingredient_name_with("nutrient_ratios_iron_undefined")
             )
@@ -198,7 +198,7 @@ class Test_NutrientRatiosData(TestCase):
     def test_correct_number_nutrients_included(self):
         """Checks that the correct number of nutrients show up in the data dict."""
         # Create the test instance;
-        i = model.ingredients.Ingredient(
+        i = model.ingredients.ReadonlyIngredient(
             ingredient_data_src=fx.get_ingredient_data_src(
                 fx.get_ingredient_name_with("nutrient_ratios_8_ratios_defined")
             )
@@ -215,7 +215,7 @@ class TestGetPathIntoDB(TestCase):
     def test_returns_correct_path(self):
         """Check that the property returns the correct path."""
         # Create a test instance;
-        i = model.ingredients.Ingredient(
+        i = model.ingredients.ReadonlyIngredient(
             ingredient_data_src=fx.get_ingredient_data_src(
                 fx.get_ingredient_name_with("typical_fully_defined_data")
             )
@@ -231,7 +231,7 @@ class TestUniqueValue(TestCase):
     def test_returns_unique_value_correctly(self):
         """Check that the property returns the unique value correctly."""
         # Create a test instance;
-        i = model.ingredients.Ingredient(
+        i = model.ingredients.ReadonlyIngredient(
             ingredient_data_src=fx.get_ingredient_data_src(
                 fx.get_ingredient_name_with("name_raspberry")
             )
@@ -247,7 +247,7 @@ class TestPersistableData(TestCase):
     def test_returns_correct_data(self):
         """Checks that the correct persistable data is returned."""
         # First, create the instance;
-        i = model.ingredients.Ingredient(
+        i = model.ingredients.ReadonlyIngredient(
             ingredient_data_src=fx.get_ingredient_data_src(
                 fx.get_ingredient_name_with("typical_fully_defined_data")
             )

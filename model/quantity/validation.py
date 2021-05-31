@@ -94,7 +94,7 @@ def validate_pref_unit(unit: str, subject: Any) -> str:
 
     # If the subject doesn't support extended units, and the unit is a mass or volume;
     if model.quantity.unit_is_extended(unit) \
-            and not isinstance(subject, model.quantity.SupportsExtendedUnits):
+            and not isinstance(subject, model.quantity.HasReadableExtendedUnits):
         raise model.quantity.exceptions.UnsupportedExtendedUnitsError(subject=subject)
 
     # OK, so the subject does support extended units;

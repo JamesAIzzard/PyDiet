@@ -6,17 +6,17 @@ import model
 import persistence
 
 
-class BaseNutrientRatio(persistence.YieldsPersistableData, abc.ABC):
-    """Base class to host common functionality between readonly and writable nutrient ratios."""
+class NutrientRatio(persistence.YieldsPersistableData, abc.ABC):
+    """Abstract base class for readonly and writable nutrient ratios."""
 
     @property
     @abc.abstractmethod
-    def nutrient_mass(self) -> 'model.nutrients.NutrientMass':
+    def nutrient_mass(self) -> 'model.nutrients.ReadonlyNutrientMass':
         """Returns the nutrient mass associated with this nutrient ratio."""
 
     @property
     @abc.abstractmethod
-    def subject_ref_quantity(self) -> 'model.quantity.QuantityOf':
+    def subject_ref_quantity(self) -> 'model.quantity.HasReadonlyQuantityOf':
         """Returns the reference subject quantity associated with this nutrient ratio."""
         raise NotImplementedError
 
@@ -70,10 +70,11 @@ class BaseNutrientRatio(persistence.YieldsPersistableData, abc.ABC):
         )
 
 
-class NutrientRatio(BaseNutrientRatio):
-    """Models an amount of nutrient per substance.
-    This is the non-writeable version of nutrient ratio, so it extends the base by accepting a data
-    sournce and then uses it to create the NutrientMass and subject ref qty instances required.
+class ReadonlyNutrientRatio(NutrientRatio):
+    """Models a readonly nutrient ratio.
+    Notes:
+        This is the non-writeable version of nutrient ratio, so it extends the base by accepting a data
+        sournce and then uses it to create the NutrientMass and subject ref qty instances required.
     """
 
     def __init__(self, subject: Any,
@@ -89,26 +90,28 @@ class NutrientRatio(BaseNutrientRatio):
         self._nutrient_ratio_data_src = nutrient_ratio_data_src
 
     @property
-    def nutrient_mass(self) -> 'model.nutrients.NutrientMass':
+    def nutrient_mass(self) -> 'model.nutrients.ReadonlyNutrientMass':
         """Returns the nutrient associated with the nutrient ratio."""
         # Init the nutrient mass instance and return it;
-        return model.nutrients.NutrientMass(
+        return model.nutrients.ReadonlyNutrientMass(
             nutrient_name=self._nutrient_name,
             quantity_data_src=lambda: self._nutrient_ratio_data_src()['nutrient_mass_data']
         )
 
     @property
-    def subject_ref_quantity(self) -> 'model.quantity.QuantityOf':
+    def subject_ref_quantity(self) -> 'model.quantity.HasReadonlyQuantityOf':
         """Returns the subject quantity associated with the nutrient ratio."""
-        return model.quantity.QuantityOf(
+        return model.quantity.HasReadonlyQuantityOf(
             subject=self._subject,
             quantity_data_src=lambda: self._nutrient_ratio_data_src()['subject_ref_qty_data']
         )
 
 
-class SettableNutrientRatio(BaseNutrientRatio):
-    """Models a settable nutrient ratio. Careful where you return these! Nutrient ratios
-    shouldn't be set without mutually validating all nutrients on the subject.
+class SettableNutrientRatio(NutrientRatio):
+    """Models a writable nutrient ratio.
+    Notes:
+        Careful where you return these! Nutrient ratios shouldn't be set without mutually validating
+        all nutrients on the subject.
     """
 
     def __init__(self, subject: Any,
@@ -121,25 +124,25 @@ class SettableNutrientRatio(BaseNutrientRatio):
             nutrient_name=model.nutrients.get_nutrient_primary_name(nutrient_name),
 
         )
-        self._subject_ref_qty = model.quantity.SettableQuantityOf(subject=subject,)
+        self._subject_ref_qty = model.quantity.HasSettableQuantityOf(subject=subject, )
 
         # If we got data, then load it;
         if nutrient_ratio_data is not None:
             self.load_data(nutrient_ratio_data)
 
     @property
-    def nutrient_mass(self) -> 'model.nutrients.NutrientMass':
+    def nutrient_mass(self) -> 'model.nutrients.ReadonlyNutrientMass':
         """Returns the nutrient associated with the nutrient ratio."""
         # Init the nutrient mass instance and return it;
-        return model.nutrients.NutrientMass(
+        return model.nutrients.ReadonlyNutrientMass(
             nutrient_name=self._nutrient_mass.nutrient.primary_name,
             quantity_data_src=lambda: self._nutrient_mass.persistable_data
         )
 
     @property
-    def subject_ref_quantity(self) -> 'model.quantity.QuantityOf':
+    def subject_ref_quantity(self) -> 'model.quantity.HasReadonlyQuantityOf':
         """Returns the subject quantity associated with the nutrient ratio."""
-        return model.quantity.QuantityOf(
+        return model.quantity.HasReadonlyQuantityOf(
             subject=self._subject_ref_qty.subject,
             quantity_data_src=lambda: self._subject_ref_qty.persistable_data
         )
@@ -202,8 +205,8 @@ class SettableNutrientRatio(BaseNutrientRatio):
         self._subject_ref_qty.load_data(nutrient_ratio_data['subject_ref_qty_data'])
 
 
-class HasNutrientRatios(persistence.YieldsPersistableData, abc.ABC):
-    """Abstract class to model objects with readonly nutrient ratios.
+class HasReadableNutrientRatios(persistence.YieldsPersistableData, abc.ABC):
+    """Abstract class to implement functionality associated with readable nutrient ratios.
     Notes:
         This implementation assumes that only *defined* nutrient ratios are returned by
         the nutrient ratio method. This is useful for various reasons;
@@ -226,14 +229,14 @@ class HasNutrientRatios(persistence.YieldsPersistableData, abc.ABC):
         raise NotImplementedError
 
     @property
-    def nutrient_ratios(self) -> Dict[str, 'NutrientRatio']:
+    def nutrient_ratios(self) -> Dict[str, 'ReadonlyNutrientRatio']:
         """Returns a list of nutrient ratios associated with the instance.
         Notes
             These must be readonly instances, to prevent out of context modification without validation.
         """
 
         # First, create somewhere to store the nutrient ratio instances;
-        nrs: Dict[str, 'NutrientRatio'] = {}
+        nrs: Dict[str, 'ReadonlyNutrientRatio'] = {}
 
         # Next, work the dict and populate the nutrient ratio instances;
         for nutrient_name in self.nutrient_ratios_data.keys():
@@ -242,7 +245,7 @@ class HasNutrientRatios(persistence.YieldsPersistableData, abc.ABC):
         # Now, return the dict of readonly instances;
         return nrs
 
-    def get_nutrient_ratio(self, nutrient_name: str) -> 'NutrientRatio':
+    def get_nutrient_ratio(self, nutrient_name: str) -> 'ReadonlyNutrientRatio':
         """Returns a NutrientRatio by name."""
 
         # Convert to the primary name, in case we were given an alias;
@@ -252,7 +255,7 @@ class HasNutrientRatios(persistence.YieldsPersistableData, abc.ABC):
         if nutrient_name in self.nutrient_ratios_data.keys():
 
             # Instantiate and return it;
-            return NutrientRatio(
+            return ReadonlyNutrientRatio(
                 subject=self,
                 nutrient_name=nutrient_name,
                 nutrient_ratio_data_src=lambda: self.nutrient_ratios_data[nutrient_name]
@@ -343,8 +346,8 @@ class HasNutrientRatios(persistence.YieldsPersistableData, abc.ABC):
         return data
 
 
-class HasSettableNutrientRatios(HasNutrientRatios, persistence.CanLoadData):
-    """Abstract class to model objects with settable nutrient ratios.
+class HasSettableNutrientRatios(HasReadableNutrientRatios, persistence.CanLoadData):
+    """Class to implement functionality associated with settable nutrient ratios.
     Notes:
         To make sure any changes to NutrientRatio instances pass through the family validation
         process, its important not to give out SettableNutrientRatio instances. All changes to nutrient

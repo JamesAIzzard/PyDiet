@@ -4,7 +4,7 @@ from typing import Callable, Optional, Any
 import model
 
 
-class BaseQuantityOfTestable(model.quantity.BaseQuantityOf):
+class HasQuantityOfTestable(model.quantity.HasQuantityOf):
     """Minimal implementation of BaseQuantityOf for testing."""
 
     def __init__(self, subject: Any, quantity_data: 'model.quantity.QuantityData'):
@@ -23,7 +23,7 @@ class BaseQuantityOfTestable(model.quantity.BaseQuantityOf):
         return self._quantity_data['pref_unit']
 
 
-class SupportsExtendedUnitsTestable(model.quantity.SupportsExtendedUnits):
+class HasReadableExtendedUnitsTestable(model.quantity.HasReadableExtendedUnits):
     """Minimal concrete implementation of the SupportsExtendedUnits base class."""
 
     def __init__(self, g_per_ml: float = None, piece_mass_g: float = None, **kwargs):
@@ -40,7 +40,7 @@ class SupportsExtendedUnitsTestable(model.quantity.SupportsExtendedUnits):
         return self._piece_mass_g_
 
 
-class IsRatioBaseTestable(model.quantity.RatioOfBase):
+class IsRatioBaseTestable(model.quantity.HasRatioOf):
     """Minimal implementation to allow testing of IsRatioBase class."""
 
     def __init__(self,

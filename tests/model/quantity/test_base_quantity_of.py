@@ -14,7 +14,7 @@ class TestSubject(TestCase):
         s = mock.Mock()
 
         # Create the test instance, passing the subject in;
-        bqo = fx.BaseQuantityOfTestable(
+        bqo = fx.HasQuantityOfTestable(
             subject=s,
             quantity_data=fx.get_qty_data()
         )
@@ -29,7 +29,7 @@ class TestQuantityInG(TestCase):
     def test_returns_qty_in_g_if_set(self):
         """Check the quantity in grams is returned correctly if set."""
         # Create a test instance with a quantity in grams value set;
-        bqo = fx.BaseQuantityOfTestable(subject=mock.Mock(), quantity_data=fx.get_qty_data(qty_in_g=22))
+        bqo = fx.HasQuantityOfTestable(subject=mock.Mock(), quantity_data=fx.get_qty_data(qty_in_g=22))
 
         # Check that we get the same value for the qty in grams back out;
         self.assertEqual(22, bqo.quantity_in_g)
@@ -37,7 +37,7 @@ class TestQuantityInG(TestCase):
     def test_raises_exception_if_not_set(self):
         """Check we get an exception if the quantity in grams is not set."""
         # Create a test instance with no value for quantity in grams;
-        bqo = fx.BaseQuantityOfTestable(subject=mock.Mock(), quantity_data=fx.get_qty_data())
+        bqo = fx.HasQuantityOfTestable(subject=mock.Mock(), quantity_data=fx.get_qty_data())
 
         # Now check we get an exception if we try and access the qty in grams property;
         with self.assertRaises(model.quantity.exceptions.UndefinedQuantityError):
@@ -51,7 +51,7 @@ class TestPrefUnit(TestCase):
         """Checks the pref unit is returned correctly if the unit is a mass, and the subject
         does not support extended units."""
         # Create a test instance with the pref unit set as kg.
-        bqo = fx.BaseQuantityOfTestable(subject=mock.Mock(), quantity_data=fx.get_qty_data(
+        bqo = fx.HasQuantityOfTestable(subject=mock.Mock(), quantity_data=fx.get_qty_data(
             pref_unit='kg'
         ))
 
@@ -61,8 +61,8 @@ class TestPrefUnit(TestCase):
     def test_pref_vol_unit_returned_correctly_if_dens_configured(self):
         """Checks we get a volume pref qty back, if one is set and the subject has density configured."""
         # Create a test instance with a volume pref unit and density configured;
-        bqo = fx.BaseQuantityOfTestable(
-            subject=fx.SupportsExtendedUnitsTestable(g_per_ml=1.2),
+        bqo = fx.HasQuantityOfTestable(
+            subject=fx.HasReadableExtendedUnitsTestable(g_per_ml=1.2),
             quantity_data=fx.get_qty_data(
                 pref_unit='l'
             )
@@ -74,8 +74,8 @@ class TestPrefUnit(TestCase):
     def test_pref_pc_unit_returned_correctly_if_pc_mass_configured(self):
         """Checks we get a pc mass pref qty back, if one is set and the subject has pc mass configured."""
         # Create a test instance with a pc mass pref unit and piece mass configured;
-        bqo = fx.BaseQuantityOfTestable(
-            subject=fx.SupportsExtendedUnitsTestable(piece_mass_g=120),
+        bqo = fx.HasQuantityOfTestable(
+            subject=fx.HasReadableExtendedUnitsTestable(piece_mass_g=120),
             quantity_data=fx.get_qty_data(
                 pref_unit='pc'
             )
@@ -87,8 +87,8 @@ class TestPrefUnit(TestCase):
     def test_pref_unit_case_corrected(self):
         """Checks the case will be corrected if the pref unit is supplied in incorrect case."""
         # Create a test instance with a unit specified with incorrect case;
-        bqo = fx.BaseQuantityOfTestable(
-            subject=fx.SupportsExtendedUnitsTestable(g_per_ml=1.2),
+        bqo = fx.HasQuantityOfTestable(
+            subject=fx.HasReadableExtendedUnitsTestable(g_per_ml=1.2),
             quantity_data=fx.get_qty_data(
                 pref_unit='L'
             )
@@ -100,7 +100,7 @@ class TestPrefUnit(TestCase):
     def test_exception_if_unit_not_recognised(self):
         """Checks we get an exception if we try and access a pref unit which is not recognised."""
         # Create a test instance with a unit specified with an unrecognised unit;
-        bqo = fx.BaseQuantityOfTestable(
+        bqo = fx.HasQuantityOfTestable(
             subject=mock.Mock(),
             quantity_data=fx.get_qty_data(
                 pref_unit='fake'
@@ -114,7 +114,7 @@ class TestPrefUnit(TestCase):
     def test_exception_if_extended_units_used_and_subject_does_not_support_them(self):
         """Checks we get an exception if an extended unit is used with a subject that does not support it."""
         # Create a test instance with an extended unit, and a subject that doesn't support ext units;
-        bqo = fx.BaseQuantityOfTestable(
+        bqo = fx.HasQuantityOfTestable(
             subject=mock.Mock(),
             quantity_data=fx.get_qty_data(
                 pref_unit='l'
@@ -129,8 +129,8 @@ class TestPrefUnit(TestCase):
         """Checks we get an exception if pref unit is a volume, and the subject supports extended units
         but does not have density configured."""
         # Create a test instance with a subject which supports extended units, but does not have dens configured;
-        bqo = fx.BaseQuantityOfTestable(
-            subject=fx.SupportsExtendedUnitsTestable(),
+        bqo = fx.HasQuantityOfTestable(
+            subject=fx.HasReadableExtendedUnitsTestable(),
             quantity_data=fx.get_qty_data(
                 pref_unit='L'
             )
@@ -144,8 +144,8 @@ class TestPrefUnit(TestCase):
         """Checks we get an exception if pref unit is a pc mass, and the subject supports extended units
         but does not have piece mass configured."""
         # Create a test instance with a subject which supports extended units, but does not have piece mass configured;
-        bqo = fx.BaseQuantityOfTestable(
-            subject=fx.SupportsExtendedUnitsTestable(),
+        bqo = fx.HasQuantityOfTestable(
+            subject=fx.HasReadableExtendedUnitsTestable(),
             quantity_data=fx.get_qty_data(
                 pref_unit='pc'
             )
@@ -162,7 +162,7 @@ class TestRefQty(TestCase):
     def test_returns_ref_mass_qty_correctly(self):
         """Test we get the correct value if pref unit is a mass."""
         # Create a test instance with qty defined and pref unit as mass unit.
-        bqo = fx.BaseQuantityOfTestable(
+        bqo = fx.HasQuantityOfTestable(
             subject=mock.Mock(),
             quantity_data=fx.get_qty_data(qty_in_g=120, pref_unit='kg')
         )
@@ -173,8 +173,8 @@ class TestRefQty(TestCase):
     def test_returns_ref_vol_qty_correctly(self):
         """Test we get the correct value if the pref unit is a volume."""
         # Create a test instance with qty defined as a volume;
-        bqo = fx.BaseQuantityOfTestable(
-            subject=fx.SupportsExtendedUnitsTestable(g_per_ml=1.2),
+        bqo = fx.HasQuantityOfTestable(
+            subject=fx.HasReadableExtendedUnitsTestable(g_per_ml=1.2),
             quantity_data=fx.get_qty_data(qty_in_g=60, pref_unit="L")
         )
 
@@ -184,8 +184,8 @@ class TestRefQty(TestCase):
     def test_returns_ref_pc_mass_correctly(self):
         """Test we get the correct value if the pref unit is a pc mass."""
         # Create a test instance wity qty defined as a pc mass;
-        qo = fx.BaseQuantityOfTestable(
-            subject=fx.SupportsExtendedUnitsTestable(piece_mass_g=150),
+        qo = fx.HasQuantityOfTestable(
+            subject=fx.HasReadableExtendedUnitsTestable(piece_mass_g=150),
             quantity_data=fx.get_qty_data(qty_in_g=300, pref_unit="pc")
         )
 
@@ -197,8 +197,8 @@ class TestRefQty(TestCase):
         is not defined on the instance."""
 
         # Create a test instance which does not define density;
-        bqo = fx.BaseQuantityOfTestable(
-            subject=fx.SupportsExtendedUnitsTestable(),
+        bqo = fx.HasQuantityOfTestable(
+            subject=fx.HasReadableExtendedUnitsTestable(),
             quantity_data=fx.get_qty_data(qty_in_g=120, pref_unit="L")
         )
 
@@ -209,7 +209,7 @@ class TestRefQty(TestCase):
     def test_raises_exception_if_extended_units_not_supported_and_unit_is_volume(self):
         """Check that we get an excpetion if the pref unit is a volume and extended units are not supported."""
         # Create a test instance with a volume unit, and a subject that does not support extended units;
-        bqo = fx.BaseQuantityOfTestable(
+        bqo = fx.HasQuantityOfTestable(
             subject=mock.Mock(),
             quantity_data=fx.get_qty_data(qty_in_g=120, pref_unit="L")
         )
@@ -225,7 +225,7 @@ class TestIsDefined(TestCase):
     def test_returns_true_if_quantity_in_g_defined(self):
         """Check the property returns True if the quantity_in_g is defined."""
         # Create a test instance with the quantity fully defined;
-        bqo = fx.BaseQuantityOfTestable(
+        bqo = fx.HasQuantityOfTestable(
             subject=mock.Mock(),
             quantity_data=fx.get_qty_data(qty_in_g=120)
         )
@@ -236,7 +236,7 @@ class TestIsDefined(TestCase):
     def test_returns_false_if_quantity_in_g_not_defined(self):
         """Check the property returns False if the quantity_in_g is not defined."""
         # Create a test instance with the quantity fully not defined;
-        bqo = fx.BaseQuantityOfTestable(
+        bqo = fx.HasQuantityOfTestable(
             subject=mock.Mock(),
             quantity_data=fx.get_qty_data()
         )
@@ -254,7 +254,7 @@ class TestPersistableData(TestCase):
         data = fx.get_qty_data(qty_in_g=120, pref_unit='kg')
 
         # Create a test instance, passing the data in;
-        bqo = fx.BaseQuantityOfTestable(
+        bqo = fx.HasQuantityOfTestable(
             subject=mock.Mock(),
             quantity_data=data
         )
@@ -266,8 +266,8 @@ class TestPersistableData(TestCase):
         """Check we get an exception if the pref unit is an extended unit, and the subject, doesn't
         have it configured."""
         # Create a test instance with extended units supported but not configured;
-        bqo = fx.BaseQuantityOfTestable(
-            subject=fx.SupportsExtendedUnitsTestable(),
+        bqo = fx.HasQuantityOfTestable(
+            subject=fx.HasReadableExtendedUnitsTestable(),
             quantity_data=fx.get_qty_data(qty_in_g=1.2, pref_unit='L')
         )
 
@@ -279,7 +279,7 @@ class TestPersistableData(TestCase):
         """Check we get an exception if the pref unit is an extended unit, and the subject, doesn't
         support extended units."""
         # Create a test instance with a subject that does not support extended units;
-        bqo = fx.BaseQuantityOfTestable(
+        bqo = fx.HasQuantityOfTestable(
             subject=mock.Mock(),
             quantity_data=fx.get_qty_data(qty_in_g=1.2, pref_unit='L')
         )

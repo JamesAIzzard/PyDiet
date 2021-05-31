@@ -75,7 +75,7 @@ class TestSetRatio(TestCase):
         # Create a test instance that supports extended units;
         snr = model.nutrients.SettableNutrientRatio(
             nutrient_name="tirbur",
-            subject=qfx.SupportsExtendedUnitsTestable(g_per_ml=1.5)
+            subject=qfx.HasReadableExtendedUnitsTestable(g_per_ml=1.5)
         )
 
         # Assert that the nutrient ratio is undefined to start with;
@@ -102,7 +102,7 @@ class TestSetRatio(TestCase):
         # Create a test instance, with a subject that supports extended units, but does not have them configured;
         snr = model.nutrients.SettableNutrientRatio(
             nutrient_name="tirbur",
-            subject=qfx.SupportsExtendedUnitsTestable(g_per_ml=None)
+            subject=qfx.HasReadableExtendedUnitsTestable(g_per_ml=None)
         )
 
         # Assert we get an exception if we try to use volumetric units;
@@ -139,7 +139,7 @@ class TestSetRatio(TestCase):
         # Create a test instance with a subject that has an extended unit defined;
         snr = model.nutrients.SettableNutrientRatio(
             nutrient_name="tirbur",
-            subject=qfx.SupportsExtendedUnitsTestable(g_per_ml=1.1)
+            subject=qfx.HasReadableExtendedUnitsTestable(g_per_ml=1.1)
         )
 
         # Check that, even with ext unit defined on subject, the mass still has to be a mass;

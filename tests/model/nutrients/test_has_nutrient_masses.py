@@ -12,8 +12,8 @@ class TestNumCalories(TestCase):
     def test_correct_num_calories_is_returned(self):
         """Checks that the method returns the correct number of calories."""
         # Create a test instance with a full set of calorie nutrients defined;
-        hnm = fx.HasNutrientMassesTestable(
-            subject=fx.HasNutrientRatiosTestable(
+        hnm = fx.HasReadableNutrientMassesTestable(
+            subject=fx.HasReadableNutrientRatiosTestable(
                 nutrient_ratios_data={
                     "tirbur": fx.get_nutrient_ratio_data(nutrient_mass_g=10, subject_qty_g=100),
                     "regatur": fx.get_nutrient_ratio_data(nutrient_mass_g=10, subject_qty_g=100),
@@ -30,8 +30,8 @@ class TestNumCalories(TestCase):
     def test_raises_exception_if_calorie_nutrient_missing(self):
         """Checks we get an exception if one of the calorie nutrients are missing."""
         # Create a test instance with one of the calorie nutrients missing;
-        hnm = fx.HasNutrientMassesTestable(
-            subject=fx.HasNutrientRatiosTestable(
+        hnm = fx.HasReadableNutrientMassesTestable(
+            subject=fx.HasReadableNutrientRatiosTestable(
                 nutrient_ratios_data={
                     "tirbur": fx.get_nutrient_ratio_data(nutrient_mass_g=10, subject_qty_g=100),
                     "regatur": fx.get_nutrient_ratio_data(nutrient_mass_g=10, subject_qty_g=100),
@@ -53,8 +53,8 @@ class TestGetNutrientMassG(TestCase):
     def test_correct_mass_is_returned(self):
         """Checks the method returns the correct nutrient mass."""
         # Create a test instance, with a specified nutrient ratio;
-        hnm = fx.HasNutrientMassesTestable(
-            subject=fx.HasNutrientRatiosTestable(
+        hnm = fx.HasReadableNutrientMassesTestable(
+            subject=fx.HasReadableNutrientRatiosTestable(
                 nutrient_ratios_data={
                     "protein": fx.get_nutrient_ratio_data(nutrient_mass_g=12, subject_qty_g=100)
                 }
@@ -68,8 +68,8 @@ class TestGetNutrientMassG(TestCase):
     def test_raises_exception_if_nutrient_mass_undefined(self):
         """Checks we get an exception if we try to access a nutrient mass which is undefined."""
         # Create a test instance;
-        hnm = fx.HasNutrientMassesTestable(
-            subject=fx.HasNutrientRatiosTestable(
+        hnm = fx.HasReadableNutrientMassesTestable(
+            subject=fx.HasReadableNutrientRatiosTestable(
                 nutrient_ratios_data={}
             ),
             quantity_data=qfx.get_qty_data(qty_in_g=50)

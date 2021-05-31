@@ -5,18 +5,18 @@ import model
 import persistence
 
 
-class RatioOfBase(persistence.YieldsPersistableData, abc.ABC):
+class HasRatioOf(persistence.YieldsPersistableData, abc.ABC):
     """Base class for all RatioOf classes."""
 
     @property
     @abc.abstractmethod
-    def numerator(self) -> 'model.quantity.BaseQuantityOf':
+    def numerator(self) -> 'model.quantity.HasQuantityOf':
         """Returns the numerator."""
         raise NotImplementedError
 
     @property
     @abc.abstractmethod
-    def denominator(self) -> 'model.quantity.BaseQuantityOf':
+    def denominator(self) -> 'model.quantity.HasQuantityOf':
         """Returns the denominator"""
         raise NotImplementedError
 

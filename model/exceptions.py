@@ -23,7 +23,7 @@ class NutrientRatioConflictError(PyDietModelError):
 
     def __init__(self,
                  flag_name: str, flag_value: Optional[bool],
-                 conflicting_nutrient_ratios: List['model.nutrients.NutrientRatio'],
+                 conflicting_nutrient_ratios: List['model.nutrients.ReadonlyNutrientRatio'],
                  **kwargs
                  ):
         super().__init__(**kwargs)

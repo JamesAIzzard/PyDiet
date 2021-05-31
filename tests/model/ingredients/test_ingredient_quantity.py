@@ -13,8 +13,8 @@ class TestConstructor(TestCase):
     def test_instance_can_be_created(self):
         """Checks that we can create a simple instance without error."""
         self.assertTrue(isinstance(
-            model.ingredients.IngredientQuantity(
-                ingredient=model.ingredients.Ingredient(
+            model.ingredients.ReadonlyIngredientQuantity(
+                ingredient=model.ingredients.ReadonlyIngredient(
                     ingredient_data_src=fx.get_ingredient_data_src(
                         for_ingredient_name=fx.get_ingredient_name_with("typical_fully_defined_data")
                     )
@@ -23,7 +23,7 @@ class TestConstructor(TestCase):
                     quantity_data=qfx.get_qty_data()
                 )
             ),
-            model.ingredients.IngredientQuantity
+            model.ingredients.ReadonlyIngredientQuantity
         ))
 
 
@@ -36,7 +36,7 @@ class TestIngredient(TestCase):
         i = mock.Mock()
 
         # Create an IngredientQuantity, passing the mock ingredient in;
-        iq = model.ingredients.IngredientQuantity(
+        iq = model.ingredients.ReadonlyIngredientQuantity(
             ingredient=i,
             quantity_data_src=qfx.get_qty_data_src(
                 quantity_data=qfx.get_qty_data()
@@ -53,7 +53,7 @@ class TestReqQty(TestCase):
         """Checks that the method returns the correct reference quantity."""
         # Create an IngredientQuantity, passing quantity data in;
         # Create an IngredientQuantity, passing the mock ingredient in;
-        iq = model.ingredients.IngredientQuantity(
+        iq = model.ingredients.ReadonlyIngredientQuantity(
             ingredient=mock.Mock(),
             quantity_data_src=qfx.get_qty_data_src(
                 quantity_data=qfx.get_qty_data(
@@ -74,8 +74,8 @@ class TestGetNutrientMass(TestCase):
     def test_returns_the_correct_nutrient_mass(self):
         """Checks the method returns the correct nutrient mass."""
         # Create a test instance with a known ratio of a nutrient;
-        iq = model.ingredients.IngredientQuantity(
-            ingredient=model.ingredients.Ingredient(
+        iq = model.ingredients.ReadonlyIngredientQuantity(
+            ingredient=model.ingredients.ReadonlyIngredient(
                 ingredient_data_src=fx.get_ingredient_data_src(
                     for_ingredient_name=fx.get_ingredient_name_with("14_grams_of_protein_per_100_g")
                 )
@@ -96,8 +96,8 @@ class TestNumCalories(TestCase):
     def test_returns_the_correct_number_of_calories(self):
         """Checks that the method returns the correct number of calories."""
         # Create a test instance of an ingrediet with defined qty;
-        iq = model.ingredients.IngredientQuantity(
-            ingredient=model.ingredients.Ingredient(
+        iq = model.ingredients.ReadonlyIngredientQuantity(
+            ingredient=model.ingredients.ReadonlyIngredient(
                 ingredient_data_src=fx.get_ingredient_data_src(
                     for_ingredient_name=fx.get_ingredient_name_with("7.2_calories_per_g")
                 )

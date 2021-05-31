@@ -1,4 +1,4 @@
-"""Defines functionality associated with classes that can be defined/undefined."""
+"""Defines functionality associated with classes that have mandatory attributes whch must be populated."""
 import abc
 from typing import List, Optional
 

@@ -16,7 +16,7 @@ class TestGetDatafileNameForUniqueValue(TestCase):
         self.assertEqual(
             "1198a703-ae23-4303-9b21-dd8ef9d16548",
             persistence.get_datafile_name_for_unique_value(
-                cls=model.ingredients.Ingredient,
+                cls=model.ingredients.ReadonlyIngredient,
                 unique_value="Honey"
             )
         )
@@ -27,6 +27,6 @@ class TestGetDatafileNameForUniqueValue(TestCase):
         # Check we see the exception;
         with self.assertRaises(persistence.exceptions.UniqueValueNotFoundError):
             _ = persistence.get_datafile_name_for_unique_value(
-                cls=model.ingredients.Ingredient,
+                cls=model.ingredients.ReadonlyIngredient,
                 unique_value="fake"
             )

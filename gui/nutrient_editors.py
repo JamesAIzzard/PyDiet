@@ -129,7 +129,7 @@ class NutrientRatioEditorController(gui.BaseController, gui.SupportsValidity, gu
     def view(self) -> 'NutrientRatioEditorView':
         return super().view
 
-    def update_view(self, subject: 'model.nutrients.HasNutrientRatios') -> None:
+    def update_view(self, subject: 'model.nutrients.HasReadableNutrientRatios') -> None:
         """Update the view to reflect the argument values.
         Notes:
             It feels like we should only submit the nutrient ratio to this argument, but

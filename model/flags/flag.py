@@ -54,7 +54,7 @@ class Flag:
                 nutrient_name=nutrient_name
             )
 
-    def nutrient_ratio_matches_relation(self, nutrient_ratio: 'model.nutrients.NutrientRatio') -> bool:
+    def nutrient_ratio_matches_relation(self, nutrient_ratio: 'model.nutrients.ReadonlyNutrientRatio') -> bool:
         """Returns True/False/None to indicate if the nutrient relation
         matches the nutrient ratio supplied."""
         # Grab the implication first;

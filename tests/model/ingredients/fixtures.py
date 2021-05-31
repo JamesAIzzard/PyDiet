@@ -26,7 +26,7 @@ INGREDIENT_NAME_WITH = {
 }
 
 
-class IngredientBaseTestable(model.ingredients.IngredientBase):
+class IngredientTestable(model.ingredients.Ingredient):
     """Minimal implementation to allow BaseIngredient testing."""
 
     def __init__(self, ingredient_data: 'model.ingredients.IngredientData', **kwargs):
@@ -99,7 +99,7 @@ def get_ingredient_data(
     # If a unique name was specified;
     if for_unique_name is not None:
         # Fetch the data corresponding to that name;
-        return persistence.load_datafile(cls=model.ingredients.Ingredient, unique_value=for_unique_name)
+        return persistence.load_datafile(cls=model.ingredients.ReadonlyIngredient, unique_value=for_unique_name)
 
     # If nothing was specifed;
     return model.ingredients.IngredientData(

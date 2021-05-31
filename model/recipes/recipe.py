@@ -18,9 +18,9 @@ class Recipe(persistence.SupportsPersistence,
              model.HasSettableName,
              model.HasMandatoryAttributes,
              model.quantity.HasSettableBulk,
-             model.cost.SupportsCostPerQuantity,
-             model.flags.HasFlags,
-             model.nutrients.HasNutrientRatios,
+             model.cost.HasReadableCostPerQuantity,
+             model.flags.HasReadableFlags,
+             model.nutrients.HasReadableNutrientRatios,
              model.ingredients.HasSettableIngredientQuantities):
 
     def __init__(self, recipe_data: Optional['RecipeData'] = None, **kwargs):
@@ -52,7 +52,7 @@ class Recipe(persistence.SupportsPersistence,
         return missing_attr_names
 
     @property
-    def nutrient_ratios(self) -> Dict[str, 'model.nutrients.NutrientRatio']:
+    def nutrient_ratios(self) -> Dict[str, 'model.nutrients.ReadonlyNutrientRatio']:
         raise NotImplementedError
         # # We need to average the ingredient ratios across the number of ingredients.
         # # First, create a dictionary to store rolling totals of each nutrient ratio;

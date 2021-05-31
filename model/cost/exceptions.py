@@ -8,8 +8,8 @@ class BaseCostError(model.exceptions.PyDietModelError):
 
     def __init__(self,
                  subject: Optional[Union[
-                     'model.cost.SupportsCostPerQuantity',
-                     'model.cost.SupportsSettableCostPerQuantity']
+                     'model.cost.HasReadableCostPerQuantity',
+                     'model.cost.HasSettableCostPerQuantity']
                  ] = None, **kwargs):
         super().__init__(**kwargs)
         self.subject = subject

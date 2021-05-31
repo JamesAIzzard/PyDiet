@@ -9,9 +9,9 @@ class BaseNutrientError(model.exceptions.PyDietModelError):
 
     def __init__(self, subject: Optional[Union[
         'model.nutrients.NutrientRatioData',
-        'model.nutrients.NutrientRatio',
+        'model.nutrients.ReadonlyNutrientRatio',
         'model.nutrients.SettableNutrientRatio',
-        'model.nutrients.HasNutrientRatios',
+        'model.nutrients.HasReadableNutrientRatios',
         'model.nutrients.HasSettableNutrientRatios'
     ]] = None, **kwargs):
         super().__init__(**kwargs)

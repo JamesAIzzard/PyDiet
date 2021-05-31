@@ -52,7 +52,7 @@ class TestNutrientRatioMatchesRelation(TestCase):
     def test_returns_true_when_nutrient_matches(self):
         """Check the method returns True if the nutrient ratio matches the relation."""
         # Create a test nutrient ratio which matches a flag;
-        nr = model.nutrients.NutrientRatio(
+        nr = model.nutrients.ReadonlyNutrientRatio(
             subject=mock.Mock(),
             nutrient_name="alcohol",
             nutrient_ratio_data_src=nfx.get_nutrient_ratio_data_src(nfx.get_nutrient_ratio_data(
@@ -70,7 +70,7 @@ class TestNutrientRatioMatchesRelation(TestCase):
     def test_returns_false_when_nutrient_does_not_match(self):
         """Check the method returns False if the nutrient ratio opposes the relation."""
         # Create a test nutrient ratio which opposes a flag;
-        nr = model.nutrients.NutrientRatio(
+        nr = model.nutrients.ReadonlyNutrientRatio(
             subject=mock.Mock(),
             nutrient_name="alcohol",
             nutrient_ratio_data_src=nfx.get_nutrient_ratio_data_src(nfx.get_nutrient_ratio_data(

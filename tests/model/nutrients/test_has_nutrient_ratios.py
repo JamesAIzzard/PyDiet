@@ -12,7 +12,7 @@ class TestNutrientRatios(TestCase):
     def test_returns_test_nutrients_correctly(self):
         """Checks that we get the correct dict of readonly nutrient ratios."""
         # Create a test instance;
-        hnr = fx.HasNutrientRatiosTestable(nutrient_ratios_data={
+        hnr = fx.HasReadableNutrientRatiosTestable(nutrient_ratios_data={
             "foo": fx.get_nutrient_ratio_data(nutrient_mass_g=20, subject_qty_g=1, subject_qty_unit='kg'),
             "bar": fx.get_nutrient_ratio_data(nutrient_mass_g=30, nutrient_mass_unit='lb', subject_qty_g=140)
         })
@@ -22,7 +22,7 @@ class TestNutrientRatios(TestCase):
 
         # Check that each nutrient ratio instance is the right type;
         for nr in hnr.nutrient_ratios.values():
-            self.assertTrue(isinstance(nr, model.nutrients.NutrientRatio))
+            self.assertTrue(isinstance(nr, model.nutrients.ReadonlyNutrientRatio))
 
         # Check some of the values
         self.assertEqual(20, hnr.nutrient_ratios["foo"].nutrient_mass.quantity_in_g)
@@ -38,14 +38,14 @@ class TestGetNutrientRatio(TestCase):
     def test_gets_nutrient_ratio_correctly(self):
         """Check that we can get the correct nutrient ratio instance by name."""
         # Create a test instance;
-        hnr = fx.HasNutrientRatiosTestable(nutrient_ratios_data={
+        hnr = fx.HasReadableNutrientRatiosTestable(nutrient_ratios_data={
             "tirbur": fx.get_nutrient_ratio_data(nutrient_mass_g=10, subject_qty_g=100),
             "foo": fx.get_nutrient_ratio_data(nutrient_mass_g=20, subject_qty_g=90)
         })
 
         # Check we get an instance of the correct type;
         foo = hnr.get_nutrient_ratio("foo")
-        self.assertTrue(isinstance(foo, model.nutrients.NutrientRatio))
+        self.assertTrue(isinstance(foo, model.nutrients.ReadonlyNutrientRatio))
 
         # Check some of the details;
         self.assertEqual(20, foo.nutrient_mass.quantity_in_g)
@@ -55,7 +55,7 @@ class TestGetNutrientRatio(TestCase):
     def test_raises_exception_if_nutrient_ratio_unset(self):
         """Check that we get an exception if the nutrient ratio is unset;"""
         # Create a test instance;
-        hnr = fx.HasNutrientRatiosTestable(nutrient_ratios_data={
+        hnr = fx.HasReadableNutrientRatiosTestable(nutrient_ratios_data={
             "tirbur": fx.get_nutrient_ratio_data(nutrient_mass_g=10, subject_qty_g=100),
             "foo": fx.get_nutrient_ratio_data(nutrient_mass_g=20, subject_qty_g=90)
         })
@@ -71,7 +71,7 @@ class TestCaloriesPerG(TestCase):
     def test_returns_correct_value(self):
         """Checks the method returns the correct number of calories per gram."""
         # Create a test instance with some nutrient ratios with associated calories;
-        hnr = fx.HasNutrientRatiosTestable(nutrient_ratios_data={
+        hnr = fx.HasReadableNutrientRatiosTestable(nutrient_ratios_data={
             "tirbur": fx.get_nutrient_ratio_data(nutrient_mass_g=10, subject_qty_g=100),
             "regatur": fx.get_nutrient_ratio_data(nutrient_mass_g=10, subject_qty_g=100),
             "foo": fx.get_nutrient_ratio_data(nutrient_mass_g=20, subject_qty_g=100),
@@ -87,7 +87,7 @@ class TestCaloriesPerG(TestCase):
     def test_raises_exception_if_cal_nutrient_undefined(self):
         """Checks we get an exception if one of the nutrient calories is undefined."""
         # Create a test instance with some calorie nutrients undefined.
-        hnr = fx.HasNutrientRatiosTestable(nutrient_ratios_data={
+        hnr = fx.HasReadableNutrientRatiosTestable(nutrient_ratios_data={
             "tirbur": fx.get_nutrient_ratio_data(nutrient_mass_g=10, subject_qty_g=100),
             "regatur": fx.get_nutrient_ratio_data(nutrient_mass_g=10, subject_qty_g=100),
             "foo": fx.get_nutrient_ratio_data(nutrient_mass_g=20, subject_qty_g=100),
@@ -106,7 +106,7 @@ class TestNutrientRatioIsDefined(TestCase):
     def test_returns_true_if_nutrient_ratio_defined(self):
         """Check that we get True if the nutrient ratio is defined."""
         # Create a test instance;
-        hnr = fx.HasNutrientRatiosTestable(nutrient_ratios_data={
+        hnr = fx.HasReadableNutrientRatiosTestable(nutrient_ratios_data={
             "tirbur": fx.get_nutrient_ratio_data(nutrient_mass_g=10, subject_qty_g=100),
             "foo": fx.get_nutrient_ratio_data(nutrient_mass_g=20, subject_qty_g=90)
         })
@@ -118,7 +118,7 @@ class TestNutrientRatioIsDefined(TestCase):
     def test_returns_false_if_nutrient_ratio_undefined(self):
         """Check we get a False if the nutrient ratio is undefined."""
         # Create a test instance;
-        hnr = fx.HasNutrientRatiosTestable(nutrient_ratios_data={
+        hnr = fx.HasReadableNutrientRatiosTestable(nutrient_ratios_data={
             "tirbur": fx.get_nutrient_ratio_data(nutrient_mass_g=10, subject_qty_g=100),
             "foo": fx.get_nutrient_ratio_data(nutrient_mass_g=20, subject_qty_g=90)
         })
@@ -132,7 +132,7 @@ class TestUndefinedMandatoryNutrientRatioNames(TestCase):
     @fx.use_test_nutrients
     def test_correctly_returns_undefined_mandatory_ratio_names(self):
         # Create a test instance;
-        hnr = fx.HasNutrientRatiosTestable(nutrient_ratios_data={
+        hnr = fx.HasReadableNutrientRatiosTestable(nutrient_ratios_data={
             "cufmagif": fx.get_nutrient_ratio_data(nutrient_mass_g=10, subject_qty_g=100),
             "foo": fx.get_nutrient_ratio_data(nutrient_mass_g=20, subject_qty_g=90),
             "foobar": fx.get_nutrient_ratio_data(nutrient_mass_g=10, subject_qty_g=100)
@@ -150,7 +150,7 @@ class TestDefinedOptionalNutrientRatioNames(TestCase):
     def test_correctly_returns_defined_optional_names(self):
         """Check that we do get the defined optional nutrient names back."""
         # Create a test instnace;
-        hnr = fx.HasNutrientRatiosTestable(nutrient_ratios_data={
+        hnr = fx.HasReadableNutrientRatiosTestable(nutrient_ratios_data={
             "cufmagif": fx.get_nutrient_ratio_data(nutrient_mass_g=10, subject_qty_g=100),
             "foo": fx.get_nutrient_ratio_data(nutrient_mass_g=20, subject_qty_g=90),
             "foobar": fx.get_nutrient_ratio_data(nutrient_mass_g=10, subject_qty_g=100)
@@ -170,7 +170,7 @@ class TestGetNutrientMassInPrefUnitPerSubjectRefQuantity(TestCase):
         """Check we get the correct value back."""
 
         # Create a test instance, with some test data;
-        hnr = fx.HasNutrientRatiosTestable({
+        hnr = fx.HasReadableNutrientRatiosTestable({
             "tirbur": fx.get_nutrient_ratio_data(nutrient_mass_g=0.02, nutrient_mass_unit="mg",
                                                  subject_qty_g=150, subject_qty_unit="kg"),
             "foo": fx.get_nutrient_ratio_data(nutrient_mass_g=20, subject_qty_g=90),
@@ -191,7 +191,7 @@ class TestValidateNutrientRatio(TestCase):
     @fx.use_test_nutrients
     def test_no_exception_if_no_error(self):
         """Test we get no exception if there is no error."""
-        hnr = fx.HasNutrientRatiosTestable(nutrient_ratios_data={
+        hnr = fx.HasReadableNutrientRatiosTestable(nutrient_ratios_data={
             "cufmagif": fx.get_nutrient_ratio_data(nutrient_mass_g=0.3, subject_qty_g=1),
             "foo": fx.get_nutrient_ratio_data(nutrient_mass_g=0.4, subject_qty_g=1),
             "foobar": fx.get_nutrient_ratio_data(nutrient_mass_g=0.5, subject_qty_g=1)
@@ -203,7 +203,7 @@ class TestValidateNutrientRatio(TestCase):
     @fx.use_test_nutrients
     def test_raises_exception_if_error(self):
         """Checks that we do get an exception if there is an error."""
-        hnr = fx.HasNutrientRatiosTestable(nutrient_ratios_data={
+        hnr = fx.HasReadableNutrientRatiosTestable(nutrient_ratios_data={
             "cufmagif": fx.get_nutrient_ratio_data(nutrient_mass_g=0.3, subject_qty_g=1),
             "bar": fx.get_nutrient_ratio_data(nutrient_mass_g=0.3, subject_qty_g=1),
             "foobar": fx.get_nutrient_ratio_data(nutrient_mass_g=0.3, subject_qty_g=1),

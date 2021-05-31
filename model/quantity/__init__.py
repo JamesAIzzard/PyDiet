@@ -3,7 +3,7 @@ from . import validation, exceptions
 from .data_types import ExtendedUnitsData
 from .data_types import QuantityData
 from .data_types import RatioData
-from .ratio_of import RatioOfBase
+from .has_ratio_of import HasRatioOf
 from .configs import (
     MASS_UNITS,
     VOL_UNITS,
@@ -18,12 +18,12 @@ from .main import (
     convert_qty_unit,
     convert_density_unit
 )
-from .quantity_of import (
-    BaseQuantityOf,
-    QuantityOf,
-    SettableQuantityOf
+from .has_quantity_of import (
+    HasQuantityOf,
+    HasReadonlyQuantityOf,
+    HasSettableQuantityOf
 )
-from .supports_extended_units import (
-    SupportsExtendedUnits,
-    SupportsExtendedUnitSetting
+from .has_extended_units import (
+    HasReadableExtendedUnits,
+    HasSettableExtendedUnits
 )

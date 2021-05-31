@@ -4,7 +4,7 @@ from .configs import FlagImpliesNutrient
 from .data_types import FlagDOFData
 from .flag import Flag
 from .flag_implies_nutrient import FlagImpliesNutrient
-from .has_flags import HasFlags, HasSettableFlags
+from .has_flags import HasReadableFlags, HasSettableFlags
 from .main import ALL_FLAGS, NRConflicts, get_flag, flag_has_dof, build_global_flag_list
 
 # Check the configs are OK;

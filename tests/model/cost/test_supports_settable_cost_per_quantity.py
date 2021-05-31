@@ -7,10 +7,10 @@ from tests.model.cost import fixtures as fx
 
 class TestConstructor(TestCase):
     def test_correct_instance(self):
-        self.assertTrue(model.cost.SupportsSettableCostPerQuantity(), model.cost.SupportsSettableCostPerQuantity)
+        self.assertTrue(model.cost.HasSettableCostPerQuantity(), model.cost.HasSettableCostPerQuantity)
 
     def test_loads_data(self):
-        sc = model.cost.SupportsSettableCostPerQuantity(cost_per_qty_data=model.cost.CostPerQtyData(
+        sc = model.cost.HasSettableCostPerQuantity(cost_per_qty_data=model.cost.CostPerQtyData(
             pref_unit='kg',
             quantity_in_g=1200,
             cost_per_g=0.25
@@ -24,13 +24,13 @@ class TestConstructor(TestCase):
 
 class TestSubjectQuantity(TestCase):
     def test_subject_quantity_is_settable(self):
-        sc = model.cost.SupportsSettableCostPerQuantity()
-        self.assertTrue(isinstance(sc.cost_ref_subject_quantity, model.quantity.SettableQuantityOf))
+        sc = model.cost.HasSettableCostPerQuantity()
+        self.assertTrue(isinstance(sc.cost_ref_subject_quantity, model.quantity.HasSettableQuantityOf))
 
 
 class TestSetCost(TestCase):
     def test_sets_cost_correctly(self):
-        sc = model.cost.SupportsSettableCostPerQuantity()
+        sc = model.cost.HasSettableCostPerQuantity()
         sc.set_cost(
             cost_gbp=12.50,
             qty=2,
@@ -41,7 +41,7 @@ class TestSetCost(TestCase):
         self.assertEqual(sc.cost_ref_subject_quantity.ref_qty, 2)
 
     def test_unsets_correctly(self):
-        sc = model.cost.SupportsSettableCostPerQuantity(cost_per_qty_data=model.cost.CostPerQtyData(
+        sc = model.cost.HasSettableCostPerQuantity(cost_per_qty_data=model.cost.CostPerQtyData(
             pref_unit='kg',
             quantity_in_g=1200,
             cost_per_g=0.25
@@ -62,7 +62,7 @@ class TestLoadData(TestCase):
         )
 
         # Create a test instance;
-        sc = model.cost.SupportsSettableCostPerQuantity()
+        sc = model.cost.HasSettableCostPerQuantity()
 
         # Check the cost is not defined;
         self.assertFalse(sc.cost_is_defined)
@@ -79,7 +79,7 @@ class TestLoadData(TestCase):
     def test_no_exception_if_data_not_present(self):
         """Checks the load method does not fail if there is no cost data in the data dict."""
         # Create a fresh instance;
-        sc = model.cost.SupportsSettableCostPerQuantity()
+        sc = model.cost.HasSettableCostPerQuantity()
 
         # Try and load an empty data dict;
         sc.load_data(data={})

@@ -62,7 +62,7 @@ class IngredientEditorView(tk.Frame):
 
 class IngredientNameEntryController(gui.HasSubject, gui.SupportsValidity, gui.SupportsDefinition):
     def __init__(self, view: 'gui.SmartEntryWidget', **kwargs):
-        super().__init__(view=view, subject_type=model.ingredients.Ingredient, **kwargs)
+        super().__init__(view=view, subject_type=model.ingredients.ReadonlyIngredient, **kwargs)
         self.view.bind("<<Value-Changed>>", self.process_view_changes)
 
     @property
@@ -95,10 +95,10 @@ class IngredientNameEntryController(gui.HasSubject, gui.SupportsValidity, gui.Su
         return view
 
     @property
-    def subject(self) -> 'model.ingredients.Ingredient':
+    def subject(self) -> 'model.ingredients.ReadonlyIngredient':
         return super().subject
 
-    def set_subject(self, subject: 'model.ingredients.Ingredient') -> None:
+    def set_subject(self, subject: 'model.ingredients.ReadonlyIngredient') -> None:
         super().set_subject(subject)
 
     def update_view(self) -> None:
@@ -115,7 +115,7 @@ class IngredientNameEntryController(gui.HasSubject, gui.SupportsValidity, gui.Su
             self.subject.name = None
         else:
             if persistence.check_unique_value_available(
-                    cls=model.ingredients.Ingredient,
+                    cls=model.ingredients.ReadonlyIngredient,
                     proposed_name=value,
                     ignore_datafile=self.subject.datafile_name
             ):
@@ -127,7 +127,7 @@ class IngredientNameEntryController(gui.HasSubject, gui.SupportsValidity, gui.Su
 
 class IngredientEditorController(gui.HasSubject):
     def __init__(self, view: 'IngredientEditorView', **kwargs):
-        super().__init__(subject_type=model.ingredients.Ingredient, view=view, **kwargs)
+        super().__init__(subject_type=model.ingredients.ReadonlyIngredient, view=view, **kwargs)
 
         # Child controllers;
         self.name_entry = IngredientNameEntryController(view=view.name_entry, **kwargs)
@@ -168,10 +168,10 @@ class IngredientEditorController(gui.HasSubject):
         self.nutrient_flag_status.show_ok()
 
     @property
-    def subject(self) -> 'model.ingredients.Ingredient':
+    def subject(self) -> 'model.ingredients.ReadonlyIngredient':
         return super().subject
 
-    def set_subject(self, subject: 'model.ingredients.Ingredient') -> None:
+    def set_subject(self, subject: 'model.ingredients.ReadonlyIngredient') -> None:
         self.name_entry.set_subject(subject)
         self.cost_editor.set_subject(subject)
         self.bulk_editor.set_subject(subject)

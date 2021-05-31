@@ -4,7 +4,7 @@ from typing import Optional
 import model
 
 
-class SupportsCostPerQuantityTestable(model.cost.SupportsCostPerQuantity):
+class HasReadableCostPerQuantityTestable(model.cost.HasReadableCostPerQuantity):
     """Minimal concrete implementation for use with testing the SupportsCostPerQuantity
     base class."""
 

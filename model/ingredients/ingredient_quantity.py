@@ -6,35 +6,39 @@ import model
 import persistence
 
 
-class BaseIngredientQuantity(model.nutrients.HasNutrientMasses, abc.ABC):
-    """Base class for readonly and settable IngredientQuantity classes."""
+class IngredientQuantity(
+    model.nutrients.HasReadableNutrientMasses,
+    model.quantity.HasQuantityOf,
+    abc.ABC
+):
+    """Abstract base class for readonly and writable ingredient quantity classes."""
 
-    def __init__(self, ingredient: 'model.ingredients.Ingredient', **kwargs):
+    def __init__(self, ingredient: 'model.ingredients.ReadonlyIngredient', **kwargs):
         super().__init__(subject=ingredient, **kwargs)
 
     @property
-    def ingredient(self) -> 'model.ingredients.Ingredient':
+    def ingredient(self) -> 'model.ingredients.ReadonlyIngredient':
         """Returns the ingredient instance associated with the ingredient amount."""
         return self._subject
 
 
-class IngredientQuantity(BaseIngredientQuantity, model.quantity.QuantityOf):
+class ReadonlyIngredientQuantity(IngredientQuantity, model.quantity.HasReadonlyQuantityOf):
     """Models a readonly quantity of an ingredient."""
 
 
-class SettableIngredientQuantity(BaseIngredientQuantity, model.quantity.SettableQuantityOf):
+class SettableIngredientQuantity(IngredientQuantity, model.quantity.HasSettableQuantityOf):
     """Models a settable quantity of an ingredient."""
 
 
-class HasIngredientQuantities(persistence.YieldsPersistableData, abc.ABC):
-    """Models an object which has readonly quantities of ingredients."""
+class HasReadableIngredientQuantities(persistence.YieldsPersistableData, abc.ABC):
+    """Models an object which has readable ingredient quantities."""
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
     @property
     @abc.abstractmethod
-    def ingredient_quantities(self) -> Dict[str, 'model.ingredients.IngredientQuantity']:
+    def ingredient_quantities(self) -> Dict[str, 'model.ingredients.ReadonlyIngredientQuantity']:
         """Returns a dictionary of all ingredient amounts assigned to the instance.
         The dictionary key is the ingredient amount datafile name."""
         raise NotImplementedError
@@ -94,7 +98,7 @@ class HasSettableIngredientQuantities(persistence.CanLoadData):
             # Go ahead and populate the local dictionary;
             for ingredient_df_name, ingredient_quantity_data in data['ingredient_quantities_data'].items():
                 self._ingredient_quantities[ingredient_df_name] = SettableIngredientQuantity(
-                    ingredient=model.ingredients.Ingredient(
+                    ingredient=model.ingredients.ReadonlyIngredient(
                         ingredient_data_src=get_ingredient_data_src(df_name=ingredient_df_name)
                     ),
                     quantity_data=model.quantity.QuantityData(

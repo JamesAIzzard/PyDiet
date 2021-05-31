@@ -83,13 +83,13 @@ class HasSettableGoals(persistence.HasPersistableData, abc.ABC):
         nutrient_name = model.nutrients.get_nutrient_primary_name(nutrient_name)
         return nutrient_name in self.targeted_nutrient_names
 
-    def get_nutrient_mass_goal(self, nutrient_name: str) -> 'model.nutrients.NutrientMass':
+    def get_nutrient_mass_goal(self, nutrient_name: str) -> 'model.nutrients.ReadonlyNutrientMass':
         """Returns a non-writable nutrient mass instance. See note in class docstring for
         reasoning behind returning the non-writeable version."""
 
         # Convert the SettableNutrientMass instance into a readonly version;
         settable_nm = self._get_settable_nutrient_mass_goal(nutrient_name)
-        return model.nutrients.NutrientMass(nutrient_mass_data=settable_nm.persistable_data)
+        return model.nutrients.ReadonlyNutrientMass(nutrient_mass_data=settable_nm.persistable_data)
 
     def _get_settable_nutrient_mass_goal(self, nutrient_name: str) -> 'model.nutrients.SettableNutrientMass':
         """Returns a the specified settable nutrient mass goal.

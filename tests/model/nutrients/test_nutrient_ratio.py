@@ -11,20 +11,20 @@ class TestConstructor(TestCase):
     def test_can_instantiate(self):
         """Check we can instantiate an instance."""
         # Create a simple test instance;
-        nr = model.nutrients.NutrientRatio(
+        nr = model.nutrients.ReadonlyNutrientRatio(
             subject=mock.Mock(),
             nutrient_name="tirbur",
             nutrient_ratio_data_src=fx.get_nutrient_ratio_data_src(fx.get_nutrient_ratio_data())
         )
 
         # Check the instance was created correctly;
-        self.assertTrue(isinstance(nr, model.nutrients.NutrientRatio))
+        self.assertTrue(isinstance(nr, model.nutrients.ReadonlyNutrientRatio))
 
     @fx.use_test_nutrients
     def test_can_instantiate_with_data(self):
         """Check the instance has the correct data available, if data was passed in."""
         # Create a simple test instance;
-        nr = model.nutrients.NutrientRatio(
+        nr = model.nutrients.ReadonlyNutrientRatio(
             subject=mock.Mock(),
             nutrient_name="tirbur",
             nutrient_ratio_data_src=fx.get_nutrient_ratio_data_src(fx.get_nutrient_ratio_data(

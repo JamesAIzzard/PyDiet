@@ -85,7 +85,7 @@ class TopMenuController:
 
     def _on_new_ingredient_click(self, _):
         if self._check_save():
-            self._app.ingredient_editor.set_subject(model.ingredients.Ingredient())
+            self._app.ingredient_editor.set_subject(model.ingredients.ReadonlyIngredient())
             self._app.set_current_view(self._app.ingredient_editor.view, "New Ingredient")
 
     def _on_edit_ingredient_click(self, _):

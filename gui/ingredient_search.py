@@ -95,7 +95,7 @@ class IngredientSearchController(gui.BaseController):
                                        message=f"Are you sure you want to delete {ingredient_name}")
         if response is True:
             persistence.delete_instances(
-                cls=model.ingredients.Ingredient,
+                cls=model.ingredients.ReadonlyIngredient,
                 name=ingredient_name
             )
             self.process_view_changes()
@@ -103,10 +103,10 @@ class IngredientSearchController(gui.BaseController):
     def process_view_changes(self, *args, **kwargs) -> None:
         # If the search bar is empty, just show all the ingredients;
         if self.view.search_entry.get() == "":
-            self.load_results(persistence.get_saved_unique_values(model.ingredients.Ingredient))
+            self.load_results(persistence.get_saved_unique_values(model.ingredients.ReadonlyIngredient))
         else:
             result_names = persistence.search_for_unique_values(
-                subject_type=model.ingredients.Ingredient,
+                subject_type=model.ingredients.ReadonlyIngredient,
                 search_name=self.view.search_entry.get(),
                 num_results=29
             )

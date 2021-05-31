@@ -6,16 +6,16 @@ import model
 import persistence
 
 
-class IngredientBase(
+class Ingredient(
     model.HasMandatoryAttributes,
-    model.HasName,
-    model.cost.SupportsCostPerQuantity,
-    model.quantity.SupportsExtendedUnits,
-    model.flags.HasFlags,
+    model.HasReadableName,
+    model.cost.HasReadableCostPerQuantity,
+    model.quantity.HasReadableExtendedUnits,
+    model.flags.HasReadableFlags,
     persistence.SupportsPersistence,
     abc.ABC
 ):
-    """Base class to host common functionality shared between Ingredient and Settable Ingredient."""
+    """Abstract base class for readonly and writable ingredient classes."""
 
     @property
     def missing_mandatory_attrs(self) -> List[str]:
@@ -45,9 +45,7 @@ class IngredientBase(
         return f"{persistence.configs.path_into_db}/ingredients"
 
 
-class Ingredient(
-    IngredientBase,
-):
+class ReadonlyIngredient(Ingredient):
     """Models an ingredient with readonly attributes."""
 
     def __init__(self, ingredient_data_src: Callable[[], 'model.ingredients.IngredientData'], **kwargs):
@@ -98,10 +96,10 @@ class Ingredient(
 
 
 class SettableIngredient(
-    IngredientBase,
+    Ingredient,
     model.HasSettableName,
-    model.cost.SupportsSettableCostPerQuantity,
-    model.quantity.SupportsExtendedUnitSetting,
+    model.cost.HasSettableCostPerQuantity,
+    model.quantity.HasSettableExtendedUnits,
     model.flags.HasSettableFlags,
 ):
     """Models an ingredient with settable attributes."""

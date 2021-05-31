@@ -13,16 +13,16 @@ from .main import (
 )
 from .nutrient import Nutrient
 from .nutrient_ratios import (
-    BaseNutrientRatio,
     NutrientRatio,
+    ReadonlyNutrientRatio,
     SettableNutrientRatio,
-    HasNutrientRatios,
+    HasReadableNutrientRatios,
     HasSettableNutrientRatios
 )
 from .nutrient_mass import (
-    NutrientMass,
+    ReadonlyNutrientMass,
     SettableNutrientMass,
-    HasNutrientMasses
+    HasReadableNutrientMasses
 )
 
 

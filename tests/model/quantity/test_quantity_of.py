@@ -12,12 +12,12 @@ class TestConstructor(TestCase):
         """Check that we can instantiate an instance."""
         self.assertTrue(
             isinstance(
-                model.quantity.QuantityOf(
+                model.quantity.HasReadonlyQuantityOf(
                     subject=mock.Mock(),
                     quantity_data_src=fx.get_qty_data_src(
                         fx.get_qty_data()
                     )
                 ),
-                model.quantity.QuantityOf
+                model.quantity.HasReadonlyQuantityOf
             )
         )

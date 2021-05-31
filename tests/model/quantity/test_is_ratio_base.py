@@ -12,11 +12,11 @@ class TestNumeratorGPerDenominatorG(TestCase):
         """Checks that we get the correct value back."""
         # Create a test instance with numerator and denominator quantities defined;
         bro = qfx.IsRatioBaseTestable(
-            numerator=model.quantity.QuantityOf(
+            numerator=model.quantity.HasReadonlyQuantityOf(
                 subject=mock.Mock(),
                 quantity_data_src=qfx.get_qty_data_src(qfx.get_qty_data(qty_in_g=10))
             ),
-            denominator=model.quantity.QuantityOf(
+            denominator=model.quantity.HasReadonlyQuantityOf(
                 subject=mock.Mock(),
                 quantity_data_src=qfx.get_qty_data_src(qfx.get_qty_data(qty_in_g=20))
             )
@@ -34,11 +34,11 @@ class TestNumeratorMassInPrefUnitPerGOfDenominator(TestCase):
         # OK, lets simulate a ratio with 10mg of x for every 40g of y.
         # Create a testable instance to represent this scenario;
         bro = qfx.IsRatioBaseTestable(
-            numerator=model.quantity.QuantityOf(
+            numerator=model.quantity.HasReadonlyQuantityOf(
                 subject=mock.Mock(),
                 quantity_data_src=qfx.get_qty_data_src(qfx.get_qty_data(qty_in_g=0.01, pref_unit='mg'))
             ),
-            denominator=model.quantity.QuantityOf(
+            denominator=model.quantity.HasReadonlyQuantityOf(
                 subject=mock.Mock(),
                 quantity_data_src=qfx.get_qty_data_src(qfx.get_qty_data(qty_in_g=40, pref_unit='g'))
             )
@@ -55,11 +55,11 @@ class TestNumeratorMassInPrefUnitPerRefQtyOfDenominator(TestCase):
         """Checks that the property returns the correct value."""
         # Create a test instance with 10mg of x per 40g of y
         bro = qfx.IsRatioBaseTestable(
-            numerator=model.quantity.QuantityOf(
+            numerator=model.quantity.HasReadonlyQuantityOf(
                 subject=mock.Mock(),
                 quantity_data_src=qfx.get_qty_data_src(qfx.get_qty_data(qty_in_g=0.01, pref_unit='mg'))
             ),
-            denominator=model.quantity.QuantityOf(
+            denominator=model.quantity.HasReadonlyQuantityOf(
                 subject=mock.Mock(),
                 quantity_data_src=qfx.get_qty_data_src(qfx.get_qty_data(qty_in_g=40, pref_unit='g'))
             )
@@ -76,11 +76,11 @@ class TestRatioIsDefined(TestCase):
         """Checks that the property returns True if the ratio is defined."""
         # Create a fully defined test instance;
         bro = qfx.IsRatioBaseTestable(
-            numerator=model.quantity.QuantityOf(
+            numerator=model.quantity.HasReadonlyQuantityOf(
                 subject=mock.Mock(),
                 quantity_data_src=qfx.get_qty_data_src(qfx.get_qty_data(qty_in_g=0.01, pref_unit='mg'))
             ),
-            denominator=model.quantity.QuantityOf(
+            denominator=model.quantity.HasReadonlyQuantityOf(
                 subject=mock.Mock(),
                 quantity_data_src=qfx.get_qty_data_src(qfx.get_qty_data(qty_in_g=40, pref_unit='g'))
             )
@@ -93,11 +93,11 @@ class TestRatioIsDefined(TestCase):
         """Checks that the property returns False if the ratio is undefined."""
         # Create a partially undefined test instance;
         bro = qfx.IsRatioBaseTestable(
-            numerator=model.quantity.QuantityOf(
+            numerator=model.quantity.HasReadonlyQuantityOf(
                 subject=mock.Mock(),
                 quantity_data_src=qfx.get_qty_data_src(qfx.get_qty_data(qty_in_g=None, pref_unit='mg'))
             ),
-            denominator=model.quantity.QuantityOf(
+            denominator=model.quantity.HasReadonlyQuantityOf(
                 subject=mock.Mock(),
                 quantity_data_src=qfx.get_qty_data_src(qfx.get_qty_data(qty_in_g=40, pref_unit='g'))
             )
@@ -118,11 +118,11 @@ class TestPersistableData(TestCase):
 
         # Create a test instance, passing in the test data;
         bro = qfx.IsRatioBaseTestable(
-            numerator=model.quantity.QuantityOf(
+            numerator=model.quantity.HasReadonlyQuantityOf(
                 subject=mock.Mock(),
                 quantity_data_src=qfx.get_qty_data_src(numerator_data)
             ),
-            denominator=model.quantity.QuantityOf(
+            denominator=model.quantity.HasReadonlyQuantityOf(
                 subject=mock.Mock(),
                 quantity_data_src=qfx.get_qty_data_src(denominator_data)
             )

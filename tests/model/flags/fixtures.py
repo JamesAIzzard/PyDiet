@@ -30,7 +30,7 @@ def use_test_flags(func):
     return wrapper
 
 
-class HasFlagsTestable(model.flags.HasFlags):
+class HasReadableFlagsTestable(model.flags.HasReadableFlags):
     """Minimal concrete implementation of HasFlags."""
     def __init__(self,
                  flag_dofs: Optional[Dict[str, Optional[bool]]] = None,
