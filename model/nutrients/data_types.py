@@ -8,7 +8,7 @@ NutrientMassData = model.quantity.QuantityData
 
 
 class NutrientRatioData(TypedDict):
-    """Persisted data format for NutrientRatio instances."""
+    """Persisted data format for ReadableNutrientRatio instances."""
     nutrient_mass_data: NutrientMassData
     subject_ref_qty_data: model.quantity.QuantityData
 

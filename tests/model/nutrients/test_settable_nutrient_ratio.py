@@ -53,7 +53,7 @@ class TestSetRatio(TestCase):
         )
 
         # Assert that the nutrient ratio is undefined to start with;
-        self.assertFalse(snr.is_defined)
+        self.assertFalse(snr.ratio_is_defined)
 
         # Set a the nutrient ratio with valid data;
         snr.set_ratio(
@@ -79,7 +79,7 @@ class TestSetRatio(TestCase):
         )
 
         # Assert that the nutrient ratio is undefined to start with;
-        self.assertFalse(snr.is_defined)
+        self.assertFalse(snr.ratio_is_defined)
 
         # Now set the ratio, using volumetric units for the subject qty;
         snr.set_ratio(
@@ -190,13 +190,13 @@ class TestUndefine(TestCase):
         )
 
         # Assert that the ratio is defined;
-        self.assertTrue(snr.is_defined)
+        self.assertTrue(snr.ratio_is_defined)
 
         # Undefine it;
         snr.undefine()
 
         # Assert that the ratio has been undefined;
-        self.assertFalse(snr.is_defined)
+        self.assertFalse(snr.ratio_is_defined)
 
 
 class TestZero(TestCase):
@@ -226,7 +226,7 @@ class TestZero(TestCase):
 
         # Assert that the instance is now zero;
         self.assertEqual(0, snr.nutrient_mass.quantity_in_g)
-        self.assertTrue(snr.is_zero)
+        self.assertTrue(snr.ratio_is_zero)
 
 
 class TestLoadData(TestCase):
@@ -247,7 +247,7 @@ class TestLoadData(TestCase):
         snr = model.nutrients.SettableNutrientRatio(nutrient_name="tirbur", subject=mock.Mock())
 
         # Assert the instance is undefined;
-        self.assertFalse(snr.is_defined)
+        self.assertFalse(snr.ratio_is_defined)
 
         # Load the data;
         snr.load_data(data)

@@ -343,13 +343,13 @@ class TestZeroNutrientRatio(TestCase):
         })
 
         # Assert that the nutrient is defined;
-        self.assertFalse(hsnr.get_nutrient_ratio("regatur").is_zero)
+        self.assertFalse(hsnr.get_nutrient_ratio("regatur").ratio_is_zero)
 
         # Undefine it;
         hsnr.zero_nutrient_ratio("regatur")
 
         # Assert that the nutrient ratio is undefined;
-        self.assertTrue(hsnr.get_nutrient_ratio("regatur").is_zero)
+        self.assertTrue(hsnr.get_nutrient_ratio("regatur").ratio_is_zero)
 
 
 class TestLoadData(TestCase):

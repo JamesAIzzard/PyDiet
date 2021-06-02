@@ -40,12 +40,13 @@ class HasReadableExtendedUnitsTestable(model.quantity.HasReadableExtendedUnits):
         return self._piece_mass_g_
 
 
-class HasReadableRatioOfTestable(model.quantity.HasReadableRatioOf):
+class HasRatioOfTestable(model.quantity.HasRatioOf):
     """Minimal implementation to allow testing of IsRatioBase class."""
 
-    def __init__(self,
-                 numerator: Any,
-                 denominator: Any,
+    def __init__(
+            self,
+            numerator: Any,
+            denominator: Any,
     ):
         """Constructor
         Notes:
@@ -54,18 +55,18 @@ class HasReadableRatioOfTestable(model.quantity.HasReadableRatioOf):
             This allows testing ratio functionality that relies on the denominator/numerator
             having particular attributes.
         """
-        self._numerator = numerator
-        self._denominator = denominator
+        self._numerator_ = numerator
+        self._denominator_ = denominator
 
     @property
-    def numerator(self) -> Any:
+    def _numerator(self) -> Any:
         """Returns the numerator."""
-        return self._numerator
+        return self._numerator_
 
     @property
-    def denominator(self) -> Any:
+    def _denominator(self) -> Any:
         """Returns the denominator."""
-        return self._denominator
+        return self._denominator_
 
 
 def get_qty_data(

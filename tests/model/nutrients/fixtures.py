@@ -22,7 +22,7 @@ PRIMARY_AND_ALIAS_NUTRIENT_NAMES = model.nutrients.build_primary_and_alias_nutri
 GLOBAL_NUTRIENTS = model.nutrients.build_global_nutrient_list(test_configs)
 
 
-class BaseNutrientRatioTestable(model.nutrients.NutrientRatio):
+class BaseNutrientRatioTestable(model.nutrients.ReadableNutrientRatio):
     """A minimal implementation of BaseNutrientRatio to allow its testing."""
 
     def __init__(self, subject: Any,

@@ -6,7 +6,11 @@ import model
 import persistence
 
 
-class NutrientRatio(persistence.YieldsPersistableData, abc.ABC):
+class ReadableNutrientRatio(
+    model.quantity.HasRatioOf,
+    persistence.YieldsPersistableData,
+    abc.ABC
+):
     """Abstract base class for readonly and writable nutrient ratios."""
 
     @property
@@ -21,45 +25,48 @@ class NutrientRatio(persistence.YieldsPersistableData, abc.ABC):
         raise NotImplementedError
 
     @property
+    def _numerator(self) -> 'model.quantity.HasReadableQuantityOf':
+        """Returns the ratio numerator."""
+        return self.nutrient_mass
+
+    @property
+    def _denominator(self) -> 'model.quantity.HasReadableQuantityOf':
+        """Returns the ratio denominator."""
+        return self.subject_ref_quantity
+
+    @property
     def g_per_subject_g(self) -> float:
         """Returns the grams of the nutrient per gram of subject."""
-        nutrient_mass = self.nutrient_mass
-        subject_ref_quantity = self.subject_ref_quantity
-
-        # Catch an undefined nutrient mass first off;
-        if not nutrient_mass.quantity_is_defined:
+        try:
+            return self._numerator_g_per_denominator_g
+        except model.quantity.exceptions.UndefinedQuantityError:
             raise model.nutrients.exceptions.UndefinedNutrientRatioError(
-                subject=self.subject_ref_quantity.qty_subject,
+                subject=self,
                 nutrient_name=self.nutrient_mass.nutrient.primary_name
             )
-
-        # OK, calc and return;
-        return nutrient_mass.quantity_in_g / subject_ref_quantity.quantity_in_g
 
     @property
     def mass_in_nutrient_pref_unit_per_subject_g(self) -> float:
         """Returns the mass of the nutrient in its pref units, per gram of subject."""
-        return model.quantity.convert_qty_unit(
-            qty=self.g_per_subject_g,
-            start_unit='g',
-            end_unit=self.nutrient_mass.qty_pref_unit
-        )
+        try:
+            return self._numerator_mass_in_pref_unit_per_g_of_denominator
+        except model.quantity.exceptions.UndefinedQuantityError:
+            raise model.nutrients.exceptions.UndefinedNutrientRatioError(
+                subject=self,
+                nutrient_name=self.nutrient_mass.nutrient.primary_name
+            )
 
     @property
     def mass_in_nutrient_pref_unit_per_subject_ref_qty(self) -> float:
         """Returns the mass of the nutrient in its preferred unit, which is present in
         the reference quantity/unit of the subject."""
-        return self.mass_in_nutrient_pref_unit_per_subject_g * self.subject_ref_quantity.quantity_in_g
-
-    @property
-    def is_defined(self) -> bool:
-        """Returns True/False to indicate if the nutrient ratio is fully defined."""
-        return model.nutrients.nutrient_ratio_data_is_defined(self.persistable_data)
-
-    @property
-    def is_zero(self) -> bool:
-        """Returns True/False to indicate if the nutrient ratio is explicitly set to zero."""
-        return self.g_per_subject_g == 0
+        try:
+            return self._numerator_mass_in_pref_unit_per_ref_qty_of_denominator
+        except model.quantity.exceptions.UndefinedQuantityError:
+            raise model.nutrients.exceptions.UndefinedNutrientRatioError(
+                subject=self,
+                nutrient_name=self.nutrient_mass.nutrient.primary_name
+            )
 
     @property
     def persistable_data(self) -> 'model.nutrients.NutrientRatioData':
@@ -70,7 +77,7 @@ class NutrientRatio(persistence.YieldsPersistableData, abc.ABC):
         )
 
 
-class ReadonlyNutrientRatio(NutrientRatio):
+class ReadonlyNutrientRatio(ReadableNutrientRatio):
     """Models a readonly nutrient ratio.
     Notes:
         This is the non-writeable version of nutrient ratio, so it extends the base by accepting a data
@@ -107,7 +114,7 @@ class ReadonlyNutrientRatio(NutrientRatio):
         )
 
 
-class SettableNutrientRatio(NutrientRatio):
+class SettableNutrientRatio(ReadableNutrientRatio):
     """Models a writable nutrient ratio.
     Notes:
         Careful where you return these! Nutrient ratios shouldn't be set without mutually validating
@@ -217,7 +224,7 @@ class HasReadableNutrientRatios(persistence.YieldsPersistableData, abc.ABC):
 
         We don't put a store data on this class because not all child classes which have nutrient ratios
         will store/define the data in the same way. For example, the Ingredient class will simply store
-        a dictionary of (Settable)NutrientRatio while a recipe will just store a collection of Ingredient
+        a dictionary of (Settable)ReadableNutrientRatio while a recipe will just store a collection of Ingredient
         instances. Therefore, the way we obtain the nutrient ratios here will depend on the concrete
         implementation of the child class.
     """
@@ -246,7 +253,7 @@ class HasReadableNutrientRatios(persistence.YieldsPersistableData, abc.ABC):
         return nrs
 
     def get_nutrient_ratio(self, nutrient_name: str) -> 'ReadonlyNutrientRatio':
-        """Returns a NutrientRatio by name."""
+        """Returns a ReadableNutrientRatio by name."""
 
         # Convert to the primary name, in case we were given an alias;
         nutrient_name = model.nutrients.get_nutrient_primary_name(nutrient_name)
@@ -349,7 +356,7 @@ class HasReadableNutrientRatios(persistence.YieldsPersistableData, abc.ABC):
 class HasSettableNutrientRatios(HasReadableNutrientRatios, persistence.CanLoadData):
     """Class to implement functionality associated with settable nutrient ratios.
     Notes:
-        To make sure any changes to NutrientRatio instances pass through the family validation
+        To make sure any changes to ReadableNutrientRatio instances pass through the family validation
         process, its important not to give out SettableNutrientRatio instances. All changes to nutrient
         ratios must be implemented through this class' methods.
 
@@ -365,7 +372,7 @@ class HasSettableNutrientRatios(HasReadableNutrientRatios, persistence.CanLoadDa
         # Now we are storing the data locally, so create somewhere to store it.
         # Since nutrient ratios are complex classes, we initialise them, instead of just storing
         # persistable data. This means we don't have to re-initailise them every time we want to do
-        # utilise functionality from the NutrientRatio class.
+        # utilise functionality from the ReadableNutrientRatio class.
         self._nutrient_ratios: Dict[str, 'SettableNutrientRatio'] = {}
 
         # If we got data, then load it up;
@@ -414,7 +421,7 @@ class HasSettableNutrientRatios(HasReadableNutrientRatios, persistence.CanLoadDa
             self.undefine_nutrient_ratio(nutrient_name)
 
         # Take a backup, in case the change breaks something;
-        # Since this converts our SettableNutrientRatio into a NutrientRatio, we get a whole new instance,
+        # Since this converts our SettableNutrientRatio into a ReadableNutrientRatio, we get a whole new instance,
         # so its OK to use it as a backup - its independent of the version we are about to mess with;
         try:
             backup_nutrient_ratio = self.get_nutrient_ratio(nutrient_name)

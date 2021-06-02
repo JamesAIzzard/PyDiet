@@ -161,7 +161,7 @@ class TestMassInNutrientPrefUnitPerSubjectReqQty(TestCase):
             _ = bnr.mass_in_nutrient_pref_unit_per_subject_ref_qty
 
 
-class TestIsDefined(TestCase):
+class TestRatioIsDefined(TestCase):
     """Tests the is_defined property."""
 
     @fx.use_test_nutrients
@@ -180,7 +180,7 @@ class TestIsDefined(TestCase):
         )
 
         # Assert we get a True result;
-        self.assertTrue(bnr.is_defined)
+        self.assertTrue(bnr.ratio_is_defined)
 
     @fx.use_test_nutrients
     def test_returns_false_if_nutrient_ratio_defined(self):
@@ -193,10 +193,10 @@ class TestIsDefined(TestCase):
         )
 
         # Assert we get a False result;
-        self.assertFalse(bnr.is_defined)
+        self.assertFalse(bnr.ratio_is_defined)
 
 
-class TestIsZero(TestCase):
+class TestRatioIsZero(TestCase):
     """Tests the is_zero property."""
 
     @fx.use_test_nutrients
@@ -213,7 +213,7 @@ class TestIsZero(TestCase):
         )
 
         # Assert we get a True result;
-        self.assertTrue(bnr.is_zero)
+        self.assertTrue(bnr.ratio_is_zero)
 
     @fx.use_test_nutrients
     def test_returns_false_if_nutrient_non_zero(self):
@@ -231,7 +231,7 @@ class TestIsZero(TestCase):
         )
 
         # Assert we get a False result;
-        self.assertFalse(bnr.is_zero)
+        self.assertFalse(bnr.ratio_is_zero)
 
 
 class TestPersistableData(TestCase):
