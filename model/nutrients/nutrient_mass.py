@@ -31,12 +31,12 @@ class SettableNutrientMass(ReadableNutrientMass, model.quantity.HasSettableQuant
 class HasReadableNutrientMasses(model.quantity.HasReadableQuantityOf, abc.ABC):
     """Models functionality for all classes which have readable nutrient masses."""
 
-    def __init__(self, qty_subject: 'model.nutrients.HasReadableNutrientRatios', **kwargs):
+    def __init__(self, **kwargs):
         """Constructor.
         Notes:
             All subjects must have nutrient ratios.
         """
-        super().__init__(qty_subject=qty_subject, **kwargs)
+        super().__init__(**kwargs)
 
     @property
     def nutrient_ratios_data(self) -> 'model.nutrients.NutrientRatiosData':
@@ -50,4 +50,4 @@ class HasReadableNutrientMasses(model.quantity.HasReadableQuantityOf, abc.ABC):
 
     def get_nutrient_mass_g(self, nutrient_name: str) -> float:
         """Returns the mass of the named nutrient."""
-        return self.qty_subject.get_nutrient_ratio(nutrient_name=nutrient_name).g_per_subject_g * self.quantity_in_g
+        return self.qty_subject.get_nutrient_ratio(nutrient_name=nutrient_name).nutrient_g_per_subject_g * self.quantity_in_g

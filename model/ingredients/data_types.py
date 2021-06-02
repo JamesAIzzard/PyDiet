@@ -14,3 +14,9 @@ class IngredientData(TypedDict):
 
 
 IngredientQuantitiesData = Dict[str, model.quantity.QuantityData]
+
+
+class IngredientRatioData(TypedDict):
+    """Ingredient ratio data dictionary."""
+    subject_qty_data: model.quantity.QuantityData
+    host_qty_data: model.quantity.QuantityData

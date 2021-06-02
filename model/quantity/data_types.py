@@ -12,3 +12,9 @@ class QuantityData(TypedDict):
     """Persistable data format for modelling quantities of substances."""
     quantity_in_g: Optional[float]
     pref_unit: str
+
+
+class QuantityRatioData(TypedDict):
+    """Persistable data format for modelling ratios of quantities of substances."""
+    subject_qty_data: QuantityData
+    host_qty_data: QuantityData

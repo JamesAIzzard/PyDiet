@@ -35,10 +35,10 @@ class ReadableNutrientRatio(
         return self.subject_ref_quantity
 
     @property
-    def g_per_subject_g(self) -> float:
+    def nutrient_g_per_subject_g(self) -> float:
         """Returns the grams of the nutrient per gram of subject."""
         try:
-            return self._numerator_g_per_denominator_g
+            return self.g_per_subject_g
         except model.quantity.exceptions.UndefinedQuantityError:
             raise model.nutrients.exceptions.UndefinedNutrientRatioError(
                 subject=self,
@@ -282,7 +282,7 @@ class HasReadableNutrientRatios(persistence.YieldsPersistableData, abc.ABC):
         total_cals_per_g = 0
         for nutrient_name, cals_per_g in model.nutrients.configs.CALORIE_NUTRIENTS.items():
             try:
-                total_cals_per_g += self.get_nutrient_ratio(nutrient_name).g_per_subject_g * cals_per_g
+                total_cals_per_g += self.get_nutrient_ratio(nutrient_name).nutrient_g_per_subject_g * cals_per_g
             except model.nutrients.exceptions.UndefinedNutrientRatioError:
                 raise model.nutrients.exceptions.UndefinedCalorieNutrientRatioError(
                     subject=self,
@@ -328,7 +328,7 @@ class HasReadableNutrientRatios(persistence.YieldsPersistableData, abc.ABC):
         def get_nutrient_mass_g(nutr_name: str) -> float:
             """Accessor function for the nutrient mass, which raises the correct type of exception."""
             try:
-                return self.get_nutrient_ratio(nutr_name).g_per_subject_g
+                return self.get_nutrient_ratio(nutr_name).nutrient_g_per_subject_g
             except model.nutrients.exceptions.UndefinedNutrientRatioError:
                 raise model.nutrients.exceptions.UndefinedNutrientMassError(
                     subject=self,

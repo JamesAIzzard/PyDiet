@@ -62,8 +62,8 @@ class Flag:
 
         # If implication is zero;
         if implication is model.flags.FlagImpliesNutrient.zero:
-            return not nutrient_ratio.g_per_subject_g > 0
+            return not nutrient_ratio.nutrient_g_per_subject_g > 0
 
         # If implication is non-zero;
         elif implication is model.flags.FlagImpliesNutrient.non_zero:
-            return nutrient_ratio.g_per_subject_g > 0
+            return nutrient_ratio.nutrient_g_per_subject_g > 0

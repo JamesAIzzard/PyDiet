@@ -23,7 +23,7 @@ class TestNumeratorGPerDenominatorG(TestCase):
         )
 
         # Assert we get the correct ratio;
-        self.assertEqual(0.5, bro._numerator_g_per_denominator_g)
+        self.assertEqual(0.5, bro.g_per_subject_g)
 
 
 class TestNumeratorMassInPrefUnitPerGOfDenominator(TestCase):

@@ -1,5 +1,5 @@
 """Fixtures for ingredient module testing."""
-from typing import Optional
+from typing import Optional, Any, Dict
 
 import model
 import persistence
@@ -26,7 +26,7 @@ INGREDIENT_NAME_WITH = {
 }
 
 
-class IngredientTestable(model.ingredients.Ingredient):
+class IngredientTestable(model.ingredients.ReadableIngredient):
     """Minimal implementation to allow BaseIngredient testing."""
 
     def __init__(self, ingredient_data: 'model.ingredients.IngredientData', **kwargs):
@@ -71,6 +71,47 @@ class IngredientTestable(model.ingredients.Ingredient):
         return self._ingredient_data['name']
 
 
+class IngredientRatioBaseTestable(model.ingredients.IngredientRatioBase):
+    """Minimal implementation to allow testing of the IngredientRatioBase class."""
+
+    def __init__(
+            self,
+            host: Any,
+            subject: Any,
+            ratio_data: 'model.quantity.QuantityRatioData'
+    ):
+        self._host = host
+        self._subject = subject
+        self._ratio_data = ratio_data
+
+    @property
+    def ingredient_qty(self) -> 'model.ingredients.ReadonlyIngredientQuantity':
+        """Returns the ingredient quantity instance."""
+        return model.ingredients.ReadonlyIngredientQuantity(
+            ingredient=self._subject,
+            quantity_data_src=qfx.get_qty_data_src(quantity_data=qfx.get_qty_data(
+                qty_in_g=self._ratio_data['subject_qty_data']['quantity_in_g'],
+                pref_unit=self._ratio_data['subject_qty_data']['pref_unit']
+            ))
+        )
+
+    @property
+    def subject_ref_qty(self) -> 'model.quantity.HasReadableQuantityOf':
+        """Returns the subject ref qty instance."""
+        return model.quantity.HasReadonlyQuantityOf(
+            qty_subject=self._host,
+            quantity_data_src=qfx.get_qty_data_src(quantity_data=qfx.get_qty_data(
+                qty_in_g=self._ratio_data['host_qty_data']['quantity_in_g'],
+                pref_unit=self._ratio_data['host_qty_data']['pref_unit']
+            ))
+        )
+
+    @property
+    def persistable_data(self) -> Dict[str, Any]:
+        pass
+
+
+
 def get_ingredient_name_with(characteristic: str) -> str:
     """Returns an ingredient name matching the specified characteristic.
     Performs a lookup on the table above.
@@ -108,4 +149,22 @@ def get_ingredient_data(
         name=None,
         nutrient_ratios_data={},
         extended_units_data=qfx.get_extended_units_data()
+    )
+
+def get_ingredient_ratio_data(
+        ingredient_qty_g: Optional[float] = None,
+        ingredient_qty_unit: str = 'g',
+        host_qty_g: Optional[float] = None,
+        host_qty_unit: str = 'g'
+) -> 'model.ingredients.IngredientRatioData':
+    """Creates an ingredient qty data instance, applying defaults if values not specified."""
+    return model.ingredients.IngredientRatioData(
+        subject_qty_data=model.quantity.QuantityData(
+            quantity_in_g=ingredient_qty_g,
+            pref_unit=ingredient_qty_unit
+        ),
+        host_qty_data=model.quantity.QuantityData(
+            quantity_in_g=host_qty_g,
+            pref_unit=host_qty_unit
+        )
     )

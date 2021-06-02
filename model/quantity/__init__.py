@@ -1,6 +1,6 @@
 """Initialisation for quantity module."""
 from . import validation, exceptions
-from .data_types import QuantityData, ExtendedUnitsData
+from .data_types import QuantityData, QuantityRatioData, ExtendedUnitsData
 from .has_ratio_of import HasRatioOf
 from .configs import (
     MASS_UNITS,

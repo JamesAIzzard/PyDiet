@@ -24,7 +24,7 @@ class TestGPerSubjectG(TestCase):
         )
 
         # Assert we get the correct ratio back;
-        self.assertEqual(0.1, bnr.g_per_subject_g)
+        self.assertEqual(0.1, bnr.nutrient_g_per_subject_g)
 
     @fx.use_test_nutrients
     def test_g_per_subject_g_is_correct_when_zero(self):
@@ -40,7 +40,7 @@ class TestGPerSubjectG(TestCase):
         )
 
         # Check the ratio is zero;
-        self.assertEqual(0, bnr.g_per_subject_g)
+        self.assertEqual(0, bnr.nutrient_g_per_subject_g)
 
     @fx.use_test_nutrients
     def test_raises_exception_if_nutrient_mass_is_not_defined(self):
@@ -54,7 +54,7 @@ class TestGPerSubjectG(TestCase):
 
         # Assert the exception is raised when we try to access;
         with self.assertRaises(model.nutrients.exceptions.UndefinedNutrientRatioError):
-            _ = bnr.g_per_subject_g
+            _ = bnr.nutrient_g_per_subject_g
 
 
 class TestMassInNutrientPrefUnitPerSubjectG(TestCase):

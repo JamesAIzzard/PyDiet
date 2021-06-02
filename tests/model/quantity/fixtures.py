@@ -88,6 +88,25 @@ def get_qty_data_src(quantity_data: 'model.quantity.QuantityData') -> Callable[[
     return lambda: quantity_data
 
 
+def get_qty_ratio_data(
+        subject_qty_g: Optional[float] = None,
+        subject_qty_unit: str = 'g',
+        host_qty_g: Optional[float] = None,
+        host_qty_unit: str = 'g'
+):
+    """Returns a QuantityRatioData instance, with defaults for unspecified values."""
+    return model.quantity.QuantityRatioData(
+        subject_qty_data=model.quantity.QuantityData(
+            quantity_in_g=subject_qty_g,
+            pref_unit=subject_qty_unit
+        ),
+        host_qty_data=model.quantity.QuantityData(
+            quantity_in_g=host_qty_g,
+            pref_unit=host_qty_unit
+        )
+    )
+
+
 def get_extended_units_data(g_per_ml: Optional[float] = None, piece_mass_g: Optional[float] = None):
     """Configures and returns an extended units data instance. Essentially, this
     just provides some defaults for the data class.

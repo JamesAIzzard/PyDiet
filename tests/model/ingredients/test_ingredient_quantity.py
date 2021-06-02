@@ -1,4 +1,4 @@
-"""Tests for the IngredientQuantity class."""
+"""Tests for the ReadableIngredientQuantity class."""
 from unittest import TestCase, mock
 
 import model
@@ -35,7 +35,7 @@ class TestIngredient(TestCase):
         # Create a mock ingredient;
         i = mock.Mock()
 
-        # Create an IngredientQuantity, passing the mock ingredient in;
+        # Create an ReadableIngredientQuantity, passing the mock ingredient in;
         iq = model.ingredients.ReadonlyIngredientQuantity(
             ingredient=i,
             quantity_data_src=qfx.get_qty_data_src(
@@ -51,8 +51,8 @@ class TestReqQty(TestCase):
     """Tests the ref_qty property in the context of ingredient."""
     def test_returns_correct_ref_qty(self):
         """Checks that the method returns the correct reference quantity."""
-        # Create an IngredientQuantity, passing quantity data in;
-        # Create an IngredientQuantity, passing the mock ingredient in;
+        # Create an ReadableIngredientQuantity, passing quantity data in;
+        # Create an ReadableIngredientQuantity, passing the mock ingredient in;
         iq = model.ingredients.ReadonlyIngredientQuantity(
             ingredient=mock.Mock(),
             quantity_data_src=qfx.get_qty_data_src(
@@ -68,7 +68,7 @@ class TestReqQty(TestCase):
 
 
 class TestGetNutrientMass(TestCase):
-    """Tests the get_nutrient_mass property on the IngredientQuantity class."""
+    """Tests the get_nutrient_mass property on the ReadableIngredientQuantity class."""
 
     @pfx.use_test_database
     def test_returns_the_correct_nutrient_mass(self):
@@ -90,7 +90,7 @@ class TestGetNutrientMass(TestCase):
 
 
 class TestNumCalories(TestCase):
-    """Tests the num_calories property on the IngredientQuantity class."""
+    """Tests the num_calories property on the ReadableIngredientQuantity class."""
 
     @pfx.use_test_database
     def test_returns_the_correct_number_of_calories(self):
