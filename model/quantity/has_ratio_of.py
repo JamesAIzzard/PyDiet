@@ -10,13 +10,13 @@ class HasRatioOf(persistence.YieldsPersistableData, abc.ABC):
 
     @property
     @abc.abstractmethod
-    def numerator(self) -> 'model.quantity.HasQuantityOf':
+    def numerator(self) -> 'model.quantity.HasReadableQuantityOf':
         """Returns the numerator."""
         raise NotImplementedError
 
     @property
     @abc.abstractmethod
-    def denominator(self) -> 'model.quantity.HasQuantityOf':
+    def denominator(self) -> 'model.quantity.HasReadableQuantityOf':
         """Returns the denominator"""
         raise NotImplementedError
 

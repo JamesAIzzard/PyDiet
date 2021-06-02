@@ -102,7 +102,7 @@ class ReadonlyNutrientRatio(NutrientRatio):
     def subject_ref_quantity(self) -> 'model.quantity.HasReadonlyQuantityOf':
         """Returns the subject quantity associated with the nutrient ratio."""
         return model.quantity.HasReadonlyQuantityOf(
-            subject=self._subject,
+            qty_subject=self._subject,
             quantity_data_src=lambda: self._nutrient_ratio_data_src()['subject_ref_qty_data']
         )
 
@@ -124,7 +124,7 @@ class SettableNutrientRatio(NutrientRatio):
             nutrient_name=model.nutrients.get_nutrient_primary_name(nutrient_name),
 
         )
-        self._subject_ref_qty = model.quantity.HasSettableQuantityOf(subject=subject, )
+        self._subject_ref_qty = model.quantity.HasSettableQuantityOf(qty_subject=subject)
 
         # If we got data, then load it;
         if nutrient_ratio_data is not None:
@@ -143,7 +143,7 @@ class SettableNutrientRatio(NutrientRatio):
     def subject_ref_quantity(self) -> 'model.quantity.HasReadonlyQuantityOf':
         """Returns the subject quantity associated with the nutrient ratio."""
         return model.quantity.HasReadonlyQuantityOf(
-            subject=self._subject_ref_qty.subject,
+            qty_subject=self._subject_ref_qty.subject,
             quantity_data_src=lambda: self._subject_ref_qty.persistable_data
         )
 

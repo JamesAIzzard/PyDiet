@@ -8,18 +8,18 @@ import persistence
 
 class IngredientQuantity(
     model.nutrients.HasReadableNutrientMasses,
-    model.quantity.HasQuantityOf,
+    model.quantity.HasReadableQuantityOf,
     abc.ABC
 ):
     """Abstract base class for readonly and writable ingredient quantity classes."""
 
     def __init__(self, ingredient: 'model.ingredients.ReadonlyIngredient', **kwargs):
-        super().__init__(subject=ingredient, **kwargs)
+        super().__init__(qty_subject=ingredient, **kwargs)
 
     @property
     def ingredient(self) -> 'model.ingredients.ReadonlyIngredient':
         """Returns the ingredient instance associated with the ingredient amount."""
-        return self._subject
+        return self._qty_subject
 
 
 class ReadonlyIngredientQuantity(IngredientQuantity, model.quantity.HasReadonlyQuantityOf):

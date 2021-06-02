@@ -19,7 +19,7 @@ from .main import (
     convert_density_unit
 )
 from .has_quantity_of import (
-    HasQuantityOf,
+    HasReadableQuantityOf,
     HasReadonlyQuantityOf,
     HasSettableQuantityOf
 )

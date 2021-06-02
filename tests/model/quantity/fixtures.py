@@ -4,11 +4,11 @@ from typing import Callable, Optional, Any
 import model
 
 
-class HasQuantityOfTestable(model.quantity.HasQuantityOf):
+class HasReadableQuantityOfTestable(model.quantity.HasReadableQuantityOf):
     """Minimal implementation of BaseQuantityOf for testing."""
 
-    def __init__(self, subject: Any, quantity_data: 'model.quantity.QuantityData'):
-        super().__init__(subject=subject)
+    def __init__(self, qty_subject: Any, quantity_data: 'model.quantity.QuantityData'):
+        super().__init__(qty_subject=qty_subject)
 
         self._quantity_data = quantity_data
 

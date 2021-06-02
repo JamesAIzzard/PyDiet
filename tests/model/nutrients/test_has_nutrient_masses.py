@@ -13,7 +13,7 @@ class TestNumCalories(TestCase):
         """Checks that the method returns the correct number of calories."""
         # Create a test instance with a full set of calorie nutrients defined;
         hnm = fx.HasReadableNutrientMassesTestable(
-            subject=fx.HasReadableNutrientRatiosTestable(
+            qty_subject=fx.HasReadableNutrientRatiosTestable(
                 nutrient_ratios_data={
                     "tirbur": fx.get_nutrient_ratio_data(nutrient_mass_g=10, subject_qty_g=100),
                     "regatur": fx.get_nutrient_ratio_data(nutrient_mass_g=10, subject_qty_g=100),
@@ -31,7 +31,7 @@ class TestNumCalories(TestCase):
         """Checks we get an exception if one of the calorie nutrients are missing."""
         # Create a test instance with one of the calorie nutrients missing;
         hnm = fx.HasReadableNutrientMassesTestable(
-            subject=fx.HasReadableNutrientRatiosTestable(
+            qty_subject=fx.HasReadableNutrientRatiosTestable(
                 nutrient_ratios_data={
                     "tirbur": fx.get_nutrient_ratio_data(nutrient_mass_g=10, subject_qty_g=100),
                     "regatur": fx.get_nutrient_ratio_data(nutrient_mass_g=10, subject_qty_g=100),
@@ -54,7 +54,7 @@ class TestGetNutrientMassG(TestCase):
         """Checks the method returns the correct nutrient mass."""
         # Create a test instance, with a specified nutrient ratio;
         hnm = fx.HasReadableNutrientMassesTestable(
-            subject=fx.HasReadableNutrientRatiosTestable(
+            qty_subject=fx.HasReadableNutrientRatiosTestable(
                 nutrient_ratios_data={
                     "protein": fx.get_nutrient_ratio_data(nutrient_mass_g=12, subject_qty_g=100)
                 }
@@ -69,7 +69,7 @@ class TestGetNutrientMassG(TestCase):
         """Checks we get an exception if we try to access a nutrient mass which is undefined."""
         # Create a test instance;
         hnm = fx.HasReadableNutrientMassesTestable(
-            subject=fx.HasReadableNutrientRatiosTestable(
+            qty_subject=fx.HasReadableNutrientRatiosTestable(
                 nutrient_ratios_data={}
             ),
             quantity_data=qfx.get_qty_data(qty_in_g=50)

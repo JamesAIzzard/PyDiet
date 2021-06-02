@@ -35,7 +35,7 @@ class HasReadableCostPerQuantity(persistence.YieldsPersistableData, abc.ABC):
             leverage its unit manipulation methods elsewhere.
         """
         return model.quantity.HasReadonlyQuantityOf(
-            subject=self,
+            qty_subject=self,
             quantity_data_src=lambda: model.quantity.QuantityData(
                 quantity_in_g=self.cost_per_qty_data['quantity_in_g'],
                 pref_unit=self.cost_per_qty_data['pref_unit']
@@ -91,7 +91,7 @@ class HasSettableCostPerQuantity(HasReadableCostPerQuantity, persistence.CanLoad
         # Create vars to store the data locally now;
         # Create a subject quantity instance;
         self._cost_ref_qty = model.quantity.HasSettableQuantityOf(
-            subject=self,
+            qty_subject=self,
             quantity_data=model.quantity.QuantityData(
                 quantity_in_g=None,
                 pref_unit='g'

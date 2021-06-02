@@ -4,11 +4,11 @@ import abc
 import model
 
 
-class NutrientMass(model.quantity.HasQuantityOf, abc.ABC):
+class NutrientMass(model.quantity.HasReadableQuantityOf, abc.ABC):
     """Base class for readonly and writable nutrient masses."""
     def __init__(self, nutrient_name: str, **kwargs):
         super().__init__(
-            subject=model.nutrients.GLOBAL_NUTRIENTS[
+            qty_subject=model.nutrients.GLOBAL_NUTRIENTS[
                 model.nutrients.get_nutrient_primary_name(nutrient_name)
             ],
             **kwargs
@@ -17,7 +17,7 @@ class NutrientMass(model.quantity.HasQuantityOf, abc.ABC):
     @property
     def nutrient(self) -> 'model.nutrients.Nutrient':
         """Returns the nutrient associated with this nutrient mass."""
-        return self._subject
+        return self._qty_subject
 
 
 class ReadonlyNutrientMass(NutrientMass, model.quantity.HasReadonlyQuantityOf):
@@ -28,15 +28,15 @@ class SettableNutrientMass(NutrientMass, model.quantity.HasSettableQuantityOf):
     """Models a settable nutrient mass."""
 
 
-class HasReadableNutrientMasses(model.quantity.HasQuantityOf, abc.ABC):
+class HasReadableNutrientMasses(model.quantity.HasReadableQuantityOf, abc.ABC):
     """Models functionality for all classes which have readable nutrient masses."""
 
-    def __init__(self, subject: 'model.nutrients.HasReadableNutrientRatios', **kwargs):
+    def __init__(self, qty_subject: 'model.nutrients.HasReadableNutrientRatios', **kwargs):
         """Constructor.
         Notes:
             All subjects must have nutrient ratios.
         """
-        super().__init__(subject=subject, **kwargs)
+        super().__init__(qty_subject=qty_subject, **kwargs)
 
     @property
     def nutrient_ratios_data(self) -> 'model.nutrients.NutrientRatiosData':

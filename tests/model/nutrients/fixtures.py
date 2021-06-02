@@ -37,7 +37,7 @@ class BaseNutrientRatioTestable(model.nutrients.NutrientRatio):
             ))
         )
         self._subject_ref_qty = model.quantity.HasReadonlyQuantityOf(
-            subject=subject,
+            qty_subject=subject,
             quantity_data_src=qfx.get_qty_data_src(qfx.get_qty_data(
                 qty_in_g=nutrient_ratio_data['subject_ref_qty_data']['quantity_in_g'],
                 pref_unit=nutrient_ratio_data['subject_ref_qty_data']['pref_unit']
