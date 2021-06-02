@@ -17,7 +17,7 @@ class TestSubjectQuantity(TestCase):
             cost_per_g=0.025
         )
         self.assertEqual(sc.cost_ref_subject_quantity.quantity_in_g, 120)
-        self.assertEqual(sc.cost_ref_subject_quantity.pref_unit, 'kg')
+        self.assertEqual(sc.cost_ref_subject_quantity.qty_pref_unit, 'kg')
 
 
 class TestCostPerG(TestCase):

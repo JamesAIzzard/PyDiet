@@ -26,9 +26,9 @@ class TestNutrientRatios(TestCase):
 
         # Check some of the values
         self.assertEqual(20, hnr.nutrient_ratios["foo"].nutrient_mass.quantity_in_g)
-        self.assertEqual('kg', hnr.nutrient_ratios["foo"].subject_ref_quantity.pref_unit)
+        self.assertEqual('kg', hnr.nutrient_ratios["foo"].subject_ref_quantity.qty_pref_unit)
         self.assertEqual(30, hnr.nutrient_ratios["bar"].nutrient_mass.quantity_in_g)
-        self.assertEqual('lb', hnr.nutrient_ratios["bar"].nutrient_mass.pref_unit)
+        self.assertEqual('lb', hnr.nutrient_ratios["bar"].nutrient_mass.qty_pref_unit)
 
 
 class TestGetNutrientRatio(TestCase):

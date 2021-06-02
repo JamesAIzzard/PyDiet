@@ -11,7 +11,7 @@ class TestNumeratorGPerDenominatorG(TestCase):
     def test_correct_value_is_returned(self):
         """Checks that we get the correct value back."""
         # Create a test instance with numerator and denominator quantities defined;
-        bro = qfx.IsRatioBaseTestable(
+        bro = qfx.HasReadableRatioOfTestable(
             numerator=model.quantity.HasReadonlyQuantityOf(
                 qty_subject=mock.Mock(),
                 quantity_data_src=qfx.get_qty_data_src(qfx.get_qty_data(qty_in_g=10))
@@ -33,7 +33,7 @@ class TestNumeratorMassInPrefUnitPerGOfDenominator(TestCase):
         """Checks that the property returns the correct value."""
         # OK, lets simulate a ratio with 10mg of x for every 40g of y.
         # Create a testable instance to represent this scenario;
-        bro = qfx.IsRatioBaseTestable(
+        bro = qfx.HasReadableRatioOfTestable(
             numerator=model.quantity.HasReadonlyQuantityOf(
                 qty_subject=mock.Mock(),
                 quantity_data_src=qfx.get_qty_data_src(qfx.get_qty_data(qty_in_g=0.01, pref_unit='mg'))
@@ -54,7 +54,7 @@ class TestNumeratorMassInPrefUnitPerRefQtyOfDenominator(TestCase):
     def test_correct_value_is_returned(self):
         """Checks that the property returns the correct value."""
         # Create a test instance with 10mg of x per 40g of y
-        bro = qfx.IsRatioBaseTestable(
+        bro = qfx.HasReadableRatioOfTestable(
             numerator=model.quantity.HasReadonlyQuantityOf(
                 qty_subject=mock.Mock(),
                 quantity_data_src=qfx.get_qty_data_src(qfx.get_qty_data(qty_in_g=0.01, pref_unit='mg'))
@@ -75,7 +75,7 @@ class TestRatioIsDefined(TestCase):
     def test_returns_true_if_ratio_is_defined(self):
         """Checks that the property returns True if the ratio is defined."""
         # Create a fully defined test instance;
-        bro = qfx.IsRatioBaseTestable(
+        bro = qfx.HasReadableRatioOfTestable(
             numerator=model.quantity.HasReadonlyQuantityOf(
                 qty_subject=mock.Mock(),
                 quantity_data_src=qfx.get_qty_data_src(qfx.get_qty_data(qty_in_g=0.01, pref_unit='mg'))
@@ -92,7 +92,7 @@ class TestRatioIsDefined(TestCase):
     def test_returns_false_if_ratio_is_undefined(self):
         """Checks that the property returns False if the ratio is undefined."""
         # Create a partially undefined test instance;
-        bro = qfx.IsRatioBaseTestable(
+        bro = qfx.HasReadableRatioOfTestable(
             numerator=model.quantity.HasReadonlyQuantityOf(
                 qty_subject=mock.Mock(),
                 quantity_data_src=qfx.get_qty_data_src(qfx.get_qty_data(qty_in_g=None, pref_unit='mg'))
@@ -117,7 +117,7 @@ class TestPersistableData(TestCase):
         denominator_data = qfx.get_qty_data(qty_in_g=200, pref_unit="kg")
 
         # Create a test instance, passing in the test data;
-        bro = qfx.IsRatioBaseTestable(
+        bro = qfx.HasReadableRatioOfTestable(
             numerator=model.quantity.HasReadonlyQuantityOf(
                 qty_subject=mock.Mock(),
                 quantity_data_src=qfx.get_qty_data_src(numerator_data)

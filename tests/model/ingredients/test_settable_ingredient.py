@@ -153,7 +153,7 @@ class TestSetCost(TestCase):
         # Assert the cost has been set;
         self.assertTrue(si.cost_is_defined)
         self.assertEqual(12.5, si.cost_of_ref_qty)
-        self.assertEqual("kg", si.cost_ref_subject_quantity.pref_unit)
+        self.assertEqual("kg", si.cost_ref_subject_quantity.qty_pref_unit)
         self.assertEqual(3.5, si.cost_ref_subject_quantity.ref_qty)
 
     def test_exception_if_cost_value_invalid(self):

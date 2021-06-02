@@ -61,7 +61,7 @@ class HasReadableCostPerQuantity(persistence.YieldsPersistableData, abc.ABC):
             piece_mass_g = self.piece_mass_g if self.piece_mass_is_defined else None
         g_per_pref_unit = model.quantity.convert_qty_unit(
             qty=1,
-            start_unit=self.cost_ref_subject_quantity.pref_unit,
+            start_unit=self.cost_ref_subject_quantity.qty_pref_unit,
             end_unit='g',
             g_per_ml=g_per_ml,
             piece_mass_g=piece_mass_g

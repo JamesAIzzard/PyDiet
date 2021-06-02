@@ -4,7 +4,7 @@ import abc
 import model
 
 
-class NutrientMass(model.quantity.HasReadableQuantityOf, abc.ABC):
+class ReadableNutrientMass(model.quantity.HasReadableQuantityOf, abc.ABC):
     """Base class for readonly and writable nutrient masses."""
     def __init__(self, nutrient_name: str, **kwargs):
         super().__init__(
@@ -20,11 +20,11 @@ class NutrientMass(model.quantity.HasReadableQuantityOf, abc.ABC):
         return self._qty_subject
 
 
-class ReadonlyNutrientMass(NutrientMass, model.quantity.HasReadonlyQuantityOf):
+class ReadonlyNutrientMass(ReadableNutrientMass, model.quantity.HasReadonlyQuantityOf):
     """Models a mass of a nutrient."""
 
 
-class SettableNutrientMass(NutrientMass, model.quantity.HasSettableQuantityOf):
+class SettableNutrientMass(ReadableNutrientMass, model.quantity.HasSettableQuantityOf):
     """Models a settable nutrient mass."""
 
 
@@ -41,13 +41,13 @@ class HasReadableNutrientMasses(model.quantity.HasReadableQuantityOf, abc.ABC):
     @property
     def nutrient_ratios_data(self) -> 'model.nutrients.NutrientRatiosData':
         """Returns the nutrient ratio's data from the subject ingredient."""
-        return self.subject.nutrient_ratios_data
+        return self.qty_subject.nutrient_ratios_data
 
     @property
     def num_calories(self) -> float:
         """Returns the number of calories associated with the instance."""
-        return self.subject.calories_per_g * self.quantity_in_g
+        return self.qty_subject.calories_per_g * self.quantity_in_g
 
     def get_nutrient_mass_g(self, nutrient_name: str) -> float:
         """Returns the mass of the named nutrient."""
-        return self.subject.get_nutrient_ratio(nutrient_name=nutrient_name).g_per_subject_g * self.quantity_in_g
+        return self.qty_subject.get_nutrient_ratio(nutrient_name=nutrient_name).g_per_subject_g * self.quantity_in_g

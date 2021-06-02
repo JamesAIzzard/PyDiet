@@ -90,12 +90,12 @@ class TestGetSettableNutrientRatio(TestCase):
 
         # Check we get the isntance we asked for;
         self.assertEqual(12, hsnr._get_settable_nutrient_ratio(nutrient_name="regatur").nutrient_mass.quantity_in_g)
-        self.assertEqual("mg", hsnr._get_settable_nutrient_ratio(nutrient_name="regatur").nutrient_mass.pref_unit)
+        self.assertEqual("mg", hsnr._get_settable_nutrient_ratio(nutrient_name="regatur").nutrient_mass.qty_pref_unit)
         self.assertEqual(
             100, hsnr._get_settable_nutrient_ratio(nutrient_name="regatur").subject_ref_quantity.quantity_in_g
         )
         self.assertEqual(
-            "kg", hsnr._get_settable_nutrient_ratio(nutrient_name="regatur").subject_ref_quantity.pref_unit
+            "kg", hsnr._get_settable_nutrient_ratio(nutrient_name="regatur").subject_ref_quantity.qty_pref_unit
         )
 
     @fx.use_test_nutrients
@@ -145,11 +145,11 @@ class TestSetNutrientRatio(TestCase):
 
         # Now verify that all the data is as it should be;
         tb = hsnr.get_nutrient_ratio("tirbur")
-        self.assertTrue(tb.subject_ref_quantity.subject is hsnr)
+        self.assertTrue(tb.subject_ref_quantity.qty_subject is hsnr)
         self.assertAlmostEqual(2e-6, tb.nutrient_mass.quantity_in_g, delta=0.01)
-        self.assertEqual("ug", tb.nutrient_mass.pref_unit)
+        self.assertEqual("ug", tb.nutrient_mass.qty_pref_unit)
         self.assertAlmostEqual(226.796, tb.subject_ref_quantity.quantity_in_g, delta=0.01)
-        self.assertEqual("lb", tb.subject_ref_quantity.pref_unit)
+        self.assertEqual("lb", tb.subject_ref_quantity.qty_pref_unit)
 
     @fx.use_test_nutrients
     def test_sets_nutrient_ratio_which_was_previously_set_correctly(self):
@@ -174,11 +174,11 @@ class TestSetNutrientRatio(TestCase):
 
         # Now verify that all the data is as it should be;
         tb = hsnr.get_nutrient_ratio("regatur")
-        self.assertTrue(tb.subject_ref_quantity.subject is hsnr)
+        self.assertTrue(tb.subject_ref_quantity.qty_subject is hsnr)
         self.assertAlmostEqual(20, tb.nutrient_mass.quantity_in_g, delta=0.01)
-        self.assertEqual("g", tb.nutrient_mass.pref_unit)
+        self.assertEqual("g", tb.nutrient_mass.qty_pref_unit)
         self.assertAlmostEqual(100, tb.subject_ref_quantity.quantity_in_g, delta=0.01)
-        self.assertEqual("g", tb.subject_ref_quantity.pref_unit)
+        self.assertEqual("g", tb.subject_ref_quantity.qty_pref_unit)
 
     @fx.use_test_nutrients
     def test_sets_nutrient_ratio_using_subject_volume_when_density_is_defined(self):
@@ -199,11 +199,11 @@ class TestSetNutrientRatio(TestCase):
 
         # Now verify that all the data is as it should be;
         tb = hsnr.get_nutrient_ratio("tirbur")
-        self.assertTrue(tb.subject_ref_quantity.subject is hsnr)
+        self.assertTrue(tb.subject_ref_quantity.qty_subject is hsnr)
         self.assertAlmostEqual(2e-6, tb.nutrient_mass.quantity_in_g, delta=0.01)
-        self.assertEqual("ug", tb.nutrient_mass.pref_unit)
+        self.assertEqual("ug", tb.nutrient_mass.qty_pref_unit)
         self.assertAlmostEqual(550, tb.subject_ref_quantity.quantity_in_g, delta=0.01)
-        self.assertEqual("l", tb.subject_ref_quantity.pref_unit)
+        self.assertEqual("l", tb.subject_ref_quantity.qty_pref_unit)
 
     @fx.use_test_nutrients
     def test_raises_exception_if_unsupported_extended_units_are_used(self):
@@ -392,8 +392,8 @@ class TestLoadData(TestCase):
         self.assertEqual({"cufmagif", "tirbur", "docbe"}, set(hsnr.nutrient_ratios.keys()))
         self.assertEqual(12, hsnr.nutrient_ratios["cufmagif"].nutrient_mass.quantity_in_g)
         self.assertEqual(100, hsnr.nutrient_ratios["tirbur"].subject_ref_quantity.quantity_in_g)
-        self.assertEqual('ug', hsnr.nutrient_ratios["tirbur"].nutrient_mass.pref_unit)
-        self.assertEqual('pc', hsnr.nutrient_ratios["docbe"].subject_ref_quantity.pref_unit)
+        self.assertEqual('ug', hsnr.nutrient_ratios["tirbur"].nutrient_mass.qty_pref_unit)
+        self.assertEqual('pc', hsnr.nutrient_ratios["docbe"].subject_ref_quantity.qty_pref_unit)
 
     @fx.use_test_nutrients
     def test_exception_if_data_contains_family_mass_error(self):

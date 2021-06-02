@@ -37,6 +37,6 @@ class TestConstructor(TestCase):
 
         # Check the instance has the correct data;
         self.assertEqual(20, nr.nutrient_mass.quantity_in_g)
-        self.assertEqual("mg", nr.nutrient_mass.pref_unit)
+        self.assertEqual("mg", nr.nutrient_mass.qty_pref_unit)
         self.assertEqual(100, nr.subject_ref_quantity.quantity_in_g)
-        self.assertEqual("g", nr.subject_ref_quantity.pref_unit)
+        self.assertEqual("g", nr.subject_ref_quantity.qty_pref_unit)

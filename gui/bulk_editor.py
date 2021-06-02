@@ -71,13 +71,13 @@ class RefQtyEditorController(gui.HasSubject, gui.SupportsValidity, gui.SupportsD
 
         self.ref_qty_value = self.subject.ref_qty
         gui.configure_qty_units(self.view.ref_qty_unit_dropdown, self.subject)
-        self.pref_unit = self.subject.pref_unit
+        self.pref_unit = self.subject.qty_pref_unit
 
     def process_view_changes(self, *args, **kwargs) -> None:
         gui.validate_nonzero_qty_entry(self.view.ref_qty_value_entry)
         if self.is_defined and self.is_valid:
             self.subject.ref_qty = self.ref_qty_value
-            self.subject.pref_unit = self.pref_unit
+            self.subject.qty_pref_unit = self.pref_unit
             # Emit event to indicate ref qty was changed.
             self.view.event_generate("<<Ref-Qty-Changed>>")
 
@@ -315,9 +315,9 @@ class PieceMassEditorController(gui.HasSubject, gui.SupportsValidity, gui.Suppor
     def update_view(self) -> None:
         if self.subject.piece_mass_is_defined:
             self.num_pieces = 1
-            if model.quantity.units_are_masses(self.subject.pref_unit):
+            if model.quantity.units_are_masses(self.subject.qty_pref_unit):
                 self.pieces_mass = self.subject.piece_mass_in_pref_units
-                self.piece_mass_units = self.subject.pref_unit
+                self.piece_mass_units = self.subject.qty_pref_unit
             else:
                 self.pieces_mass = self.subject.piece_mass_g
                 self.piece_mass_units = 'g'

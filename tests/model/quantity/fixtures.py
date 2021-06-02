@@ -18,7 +18,7 @@ class HasReadableQuantityOfTestable(model.quantity.HasReadableQuantityOf):
         return self._quantity_data['quantity_in_g']
 
     @property
-    def _unvalidated_pref_unit(self) -> str:
+    def _unvalidated_qty_pref_unit(self) -> str:
         """Returns the raw pref unit from the local storage."""
         return self._quantity_data['pref_unit']
 
@@ -40,7 +40,7 @@ class HasReadableExtendedUnitsTestable(model.quantity.HasReadableExtendedUnits):
         return self._piece_mass_g_
 
 
-class IsRatioBaseTestable(model.quantity.HasRatioOf):
+class HasReadableRatioOfTestable(model.quantity.HasReadableRatioOf):
     """Minimal implementation to allow testing of IsRatioBase class."""
 
     def __init__(self,

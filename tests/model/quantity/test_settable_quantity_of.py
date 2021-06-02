@@ -24,7 +24,7 @@ class TestResetPrefUnit(TestCase):
         sqo = model.quantity.HasSettableQuantityOf(qty_subject=mock.Mock())
         sqo._quantity_data['pref_unit'] = 'L'
         self.assertEqual(sqo._quantity_data['pref_unit'], 'L')
-        sqo._reset_pref_unit()
+        sqo._reset_qty_pref_unit()
         self.assertEqual(sqo._quantity_data['pref_unit'], 'g')
 
 
@@ -34,13 +34,13 @@ class TestSanitisePrefUnit(TestCase):
             qty_subject=fx.HasReadableExtendedUnitsTestable(g_per_ml=1.2),
         )
         sqo._quantity_data['pref_unit'] = 'l'
-        sqo._sanitise_pref_unit()
+        sqo._sanitise_qty_pref_unit()
         self.assertEqual(sqo._quantity_data['pref_unit'], 'l')
 
     def test_unknown_unit_is_reset(self):
         sqo = model.quantity.HasSettableQuantityOf(qty_subject=mock.Mock())
         sqo._quantity_data['pref_unit'] = 'fake'
-        sqo._sanitise_pref_unit()
+        sqo._sanitise_qty_pref_unit()
         self.assertEqual(sqo._quantity_data['pref_unit'], 'g')
 
     def test_unconfigured_pc_unit_is_reset(self):
@@ -48,7 +48,7 @@ class TestSanitisePrefUnit(TestCase):
             qty_subject=fx.HasReadableExtendedUnitsTestable(piece_mass_g=None),
         )
         sqo._quantity_data['pref_unit'] = 'pc'
-        sqo._sanitise_pref_unit()
+        sqo._sanitise_qty_pref_unit()
         self.assertEqual(sqo._quantity_data['pref_unit'], 'g')
 
 
@@ -110,7 +110,7 @@ class TestLoadData(TestCase):
 
         # Check that the data is set correctly;
         self.assertEqual(150, sqo.quantity_in_g)
-        self.assertTrue('kg', sqo.pref_unit)
+        self.assertTrue('kg', sqo.qty_pref_unit)
 
     def test_loads_data_with_vol_pref_unit_correctly(self):
         """Check that we can load data correctly if the pref unit is a volume, and density is configured
@@ -125,7 +125,7 @@ class TestLoadData(TestCase):
 
         # Check the data is what it should be;
         self.assertEqual(60, sqo.quantity_in_g)
-        self.assertEqual('ml', sqo.pref_unit)
+        self.assertEqual('ml', sqo.qty_pref_unit)
 
     def test_raises_exception_if_pref_unit_extended_and_extended_not_available(self):
         sqo = model.quantity.HasSettableQuantityOf(

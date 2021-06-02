@@ -5,7 +5,7 @@ import model
 import persistence
 
 
-class HasRatioOf(persistence.YieldsPersistableData, abc.ABC):
+class HasReadableRatioOf(persistence.YieldsPersistableData, abc.ABC):
     """Base class for all RatioOf classes."""
 
     @property
@@ -31,7 +31,7 @@ class HasRatioOf(persistence.YieldsPersistableData, abc.ABC):
         return model.quantity.convert_qty_unit(
             qty=self.numerator_g_per_denominator_g,
             start_unit='g',
-            end_unit=self.numerator.pref_unit
+            end_unit=self.numerator.qty_pref_unit
         )
 
     @property

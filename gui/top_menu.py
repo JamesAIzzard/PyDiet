@@ -75,9 +75,9 @@ class TopMenuController:
 
     def _check_save(self) -> bool:
         if isinstance(self._app.current_view, gui.IngredientEditorView):
-            if self._app.ingredient_editor.subject is None:
+            if self._app.ingredient_editor.qty_subject is None:
                 return True
-            elif self._app.ingredient_editor.subject.has_unsaved_changes:
+            elif self._app.ingredient_editor.qty_subject.has_unsaved_changes:
                 response = messagebox.askyesno(title="PyDiet", message="Save changes to ingredient?")
                 if response is True:
                     return self._app.ingredient_editor._on_save_clicked(None)

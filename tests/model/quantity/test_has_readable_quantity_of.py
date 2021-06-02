@@ -20,7 +20,7 @@ class TestSubject(TestCase):
         )
 
         # Check we get the same subject back out;
-        self.assertTrue(s is bqo.subject)
+        self.assertTrue(s is bqo.qty_subject)
 
 
 class TestQuantityInG(TestCase):
@@ -56,7 +56,7 @@ class TestPrefUnit(TestCase):
         ))
 
         # Check we get kg back out;
-        self.assertEqual("kg", bqo.pref_unit)
+        self.assertEqual("kg", bqo.qty_pref_unit)
 
     def test_pref_vol_unit_returned_correctly_if_dens_configured(self):
         """Checks we get a volume pref qty back, if one is set and the subject has density configured."""
@@ -69,7 +69,7 @@ class TestPrefUnit(TestCase):
         )
 
         # Check we can get the volumetric unit back out;
-        self.assertEqual("l", bqo.pref_unit)
+        self.assertEqual("l", bqo.qty_pref_unit)
 
     def test_pref_pc_unit_returned_correctly_if_pc_mass_configured(self):
         """Checks we get a pc mass pref qty back, if one is set and the subject has pc mass configured."""
@@ -82,7 +82,7 @@ class TestPrefUnit(TestCase):
         )
 
         # Check we can get the volumetric unit back out;
-        self.assertEqual("pc", bqo.pref_unit)
+        self.assertEqual("pc", bqo.qty_pref_unit)
 
     def test_pref_unit_case_corrected(self):
         """Checks the case will be corrected if the pref unit is supplied in incorrect case."""
@@ -95,7 +95,7 @@ class TestPrefUnit(TestCase):
         )
 
         # Check we can get the unit back out, with the case corrected;
-        self.assertEqual("l", bqo.pref_unit)
+        self.assertEqual("l", bqo.qty_pref_unit)
 
     def test_exception_if_unit_not_recognised(self):
         """Checks we get an exception if we try and access a pref unit which is not recognised."""
@@ -109,7 +109,7 @@ class TestPrefUnit(TestCase):
 
         # Check we get an exception if we try to access it;
         with self.assertRaises(model.quantity.exceptions.UnknownUnitError):
-            _ = bqo.pref_unit
+            _ = bqo.qty_pref_unit
 
     def test_exception_if_extended_units_used_and_subject_does_not_support_them(self):
         """Checks we get an exception if an extended unit is used with a subject that does not support it."""
@@ -123,7 +123,7 @@ class TestPrefUnit(TestCase):
 
         # Check we get an exception if we try to access it;
         with self.assertRaises(model.quantity.exceptions.UnsupportedExtendedUnitsError):
-            _ = bqo.pref_unit
+            _ = bqo.qty_pref_unit
 
     def test_exception_if_pref_unit_volume_and_density_not_configured_on_subject(self):
         """Checks we get an exception if pref unit is a volume, and the subject supports extended units
@@ -138,7 +138,7 @@ class TestPrefUnit(TestCase):
 
         # Check we get an exception when we access the property;
         with self.assertRaises(model.quantity.exceptions.UndefinedDensityError):
-            _ = bqo.pref_unit
+            _ = bqo.qty_pref_unit
 
     def test_exception_if_pref_unit_pc_and_piece_mass_not_configured_on_subject(self):
         """Checks we get an exception if pref unit is a pc mass, and the subject supports extended units
@@ -153,7 +153,7 @@ class TestPrefUnit(TestCase):
 
         # Check we get an exception when we access the property;
         with self.assertRaises(model.quantity.exceptions.UndefinedPcMassError):
-            _ = bqo.pref_unit
+            _ = bqo.qty_pref_unit
 
 
 class TestRefQty(TestCase):

@@ -29,7 +29,7 @@ class NutrientRatio(persistence.YieldsPersistableData, abc.ABC):
         # Catch an undefined nutrient mass first off;
         if not nutrient_mass.quantity_is_defined:
             raise model.nutrients.exceptions.UndefinedNutrientRatioError(
-                subject=self.subject_ref_quantity.subject,
+                subject=self.subject_ref_quantity.qty_subject,
                 nutrient_name=self.nutrient_mass.nutrient.primary_name
             )
 
@@ -42,7 +42,7 @@ class NutrientRatio(persistence.YieldsPersistableData, abc.ABC):
         return model.quantity.convert_qty_unit(
             qty=self.g_per_subject_g,
             start_unit='g',
-            end_unit=self.nutrient_mass.pref_unit
+            end_unit=self.nutrient_mass.qty_pref_unit
         )
 
     @property
@@ -143,7 +143,7 @@ class SettableNutrientRatio(NutrientRatio):
     def subject_ref_quantity(self) -> 'model.quantity.HasReadonlyQuantityOf':
         """Returns the subject quantity associated with the nutrient ratio."""
         return model.quantity.HasReadonlyQuantityOf(
-            qty_subject=self._subject_ref_qty.subject,
+            qty_subject=self._subject_ref_qty.qty_subject,
             quantity_data_src=lambda: self._subject_ref_qty.persistable_data
         )
 
@@ -194,9 +194,9 @@ class SettableNutrientRatio(NutrientRatio):
         """Zeroes the nutrient ratio."""
         self.set_ratio(
             nutrient_mass=0,
-            nutrient_mass_unit=self.nutrient_mass.pref_unit,
+            nutrient_mass_unit=self.nutrient_mass.qty_pref_unit,
             subject_qty=self._subject_ref_qty.ref_qty,
-            subject_qty_unit=self._subject_ref_qty.pref_unit
+            subject_qty_unit=self._subject_ref_qty.qty_pref_unit
         )
 
     def load_data(self, nutrient_ratio_data: 'model.nutrients.NutrientRatioData') -> None:

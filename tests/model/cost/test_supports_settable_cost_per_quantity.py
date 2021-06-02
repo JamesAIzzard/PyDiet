@@ -37,7 +37,7 @@ class TestSetCost(TestCase):
             unit='kg'
         )
         self.assertEqual(sc.cost_per_g, 6.25 / 1000)
-        self.assertEqual(sc.cost_ref_subject_quantity.pref_unit, 'kg')
+        self.assertEqual(sc.cost_ref_subject_quantity.qty_pref_unit, 'kg')
         self.assertEqual(sc.cost_ref_subject_quantity.ref_qty, 2)
 
     def test_unsets_correctly(self):
@@ -74,7 +74,7 @@ class TestLoadData(TestCase):
         self.assertTrue(sc.cost_is_defined)
         self.assertEqual(0.02, sc.cost_per_g)
         self.assertEqual(200, sc.cost_ref_subject_quantity.quantity_in_g)
-        self.assertEqual('lb', sc.cost_ref_subject_quantity.pref_unit)
+        self.assertEqual('lb', sc.cost_ref_subject_quantity.qty_pref_unit)
 
     def test_no_exception_if_data_not_present(self):
         """Checks the load method does not fail if there is no cost data in the data dict."""

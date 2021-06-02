@@ -35,9 +35,9 @@ class TestConstructor(TestCase):
 
         # Check the values on the instance are correct;
         self.assertEqual(0.012, snr.nutrient_mass.quantity_in_g)
-        self.assertEqual("mg", snr.nutrient_mass.pref_unit)
+        self.assertEqual("mg", snr.nutrient_mass.qty_pref_unit)
         self.assertEqual(120, snr.subject_ref_quantity.quantity_in_g)
-        self.assertEqual("kg", snr.subject_ref_quantity.pref_unit)
+        self.assertEqual("kg", snr.subject_ref_quantity.qty_pref_unit)
 
 
 class TestSetRatio(TestCase):
@@ -65,9 +65,9 @@ class TestSetRatio(TestCase):
 
         # Check the correct values were set;
         self.assertEqual(0.012, snr.nutrient_mass.quantity_in_g)
-        self.assertEqual("mg", snr.nutrient_mass.pref_unit)
+        self.assertEqual("mg", snr.nutrient_mass.qty_pref_unit)
         self.assertEqual(100, snr.subject_ref_quantity.quantity_in_g)
-        self.assertEqual("kg", snr.subject_ref_quantity.pref_unit)
+        self.assertEqual("kg", snr.subject_ref_quantity.qty_pref_unit)
 
     @fx.use_test_nutrients
     def test_subject_qty_can_be_volume_if_configured(self):
@@ -91,9 +91,9 @@ class TestSetRatio(TestCase):
 
         # Now check that the correct values were set;
         self.assertEqual(0.012, snr.nutrient_mass.quantity_in_g)
-        self.assertEqual("mg", snr.nutrient_mass.pref_unit)
+        self.assertEqual("mg", snr.nutrient_mass.qty_pref_unit)
         self.assertEqual(750, snr.subject_ref_quantity.quantity_in_g)
-        self.assertEqual("l", snr.subject_ref_quantity.pref_unit)
+        self.assertEqual("l", snr.subject_ref_quantity.qty_pref_unit)
 
     @fx.use_test_nutrients
     def test_exception_if_subject_qty_is_volume_and_not_configured(self):
