@@ -13,7 +13,7 @@ from .main import (
 )
 from .nutrient import Nutrient
 from .nutrient_ratios import (
-    ReadableNutrientRatio,
+    NutrientRatioBase,
     ReadonlyNutrientRatio,
     SettableNutrientRatio,
     HasReadableNutrientRatios,

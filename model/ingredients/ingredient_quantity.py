@@ -8,7 +8,7 @@ import persistence
 
 class ReadableIngredientQuantity(
     model.nutrients.HasReadableNutrientMasses,
-    model.quantity.HasReadableQuantityOf,
+    model.quantity.IsBaseQuantityOf,
     abc.ABC
 ):
     """Abstract base class for readonly and writable ingredient quantity classes."""

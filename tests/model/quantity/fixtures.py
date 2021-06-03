@@ -4,7 +4,7 @@ from typing import Callable, Optional, Any
 import model
 
 
-class HasReadableQuantityOfTestable(model.quantity.HasReadableQuantityOf):
+class IsBaseQuantityOfTestable(model.quantity.IsBaseQuantityOf):
     """Minimal implementation of BaseQuantityOf for testing."""
 
     def __init__(self, qty_subject: Any, quantity_data: 'model.quantity.QuantityData'):
@@ -40,7 +40,7 @@ class HasReadableExtendedUnitsTestable(model.quantity.HasReadableExtendedUnits):
         return self._piece_mass_g_
 
 
-class HasRatioOfTestable(model.quantity.HasRatioOf):
+class IsQuantityRatioBaseTestable(model.quantity.IsQuantityRatioBase):
     """Minimal implementation to allow testing of IsRatioBase class."""
 
     def __init__(
@@ -59,12 +59,12 @@ class HasRatioOfTestable(model.quantity.HasRatioOf):
         self._denominator_ = denominator
 
     @property
-    def _numerator(self) -> Any:
+    def ratio_subject_qty(self) -> Any:
         """Returns the numerator."""
         return self._numerator_
 
     @property
-    def _denominator(self) -> Any:
+    def ratio_host_qty(self) -> Any:
         """Returns the denominator."""
         return self._denominator_
 

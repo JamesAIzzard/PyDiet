@@ -6,18 +6,13 @@ import model
 import persistence
 
 
-class HasReadableQuantityOf(persistence.YieldsPersistableData, abc.ABC):
+class IsBaseQuantityOf(persistence.YieldsPersistableData, abc.ABC):
     """Abstract base class to readonly and writable quantities of substances."""
     def __init__(self, qty_subject: Any, **kwargs):
         super().__init__(**kwargs)
 
         # Subject is *always* stored locally on all subclasses, so stash here;
         self._qty_subject = qty_subject
-
-    @property
-    def qty_subject(self) -> Any:
-        """Returns the subject whos quantity is being described."""
-        return self._qty_subject
 
     @property
     @abc.abstractmethod
@@ -33,6 +28,12 @@ class HasReadableQuantityOf(persistence.YieldsPersistableData, abc.ABC):
             raise model.quantity.exceptions.UndefinedQuantityError()
         else:
             return _qty_in_g
+
+    @property
+    def qty_subject(self) -> Any:
+        """Returns the subject whos quantity is being described."""
+        return self._qty_subject
+
 
     @property
     @abc.abstractmethod
@@ -90,7 +91,7 @@ class HasReadableQuantityOf(persistence.YieldsPersistableData, abc.ABC):
         )
 
 
-class HasReadonlyQuantityOf(HasReadableQuantityOf):
+class HasReadonlyQuantityOf(IsBaseQuantityOf):
     """Implements functionality associated with a readonly quantity of substance.
 
     Notes:
@@ -119,7 +120,7 @@ class HasReadonlyQuantityOf(HasReadableQuantityOf):
         return self._quantity_data_src()['pref_unit']
 
 
-class HasSettableQuantityOf(HasReadableQuantityOf, persistence.CanLoadData):
+class HasSettableQuantityOf(IsBaseQuantityOf, persistence.CanLoadData):
     """Implements functionality associated with a settable quantity of substance."""
 
     def __init__(self, quantity_data: Optional['model.quantity.QuantityData'] = None, **kwargs):

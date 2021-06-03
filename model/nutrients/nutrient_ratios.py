@@ -6,8 +6,8 @@ import model
 import persistence
 
 
-class ReadableNutrientRatio(
-    model.quantity.HasRatioOf,
+class NutrientRatioBase(
+    model.quantity.IsQuantityRatioBase,
     persistence.YieldsPersistableData,
     abc.ABC
 ):
@@ -25,12 +25,12 @@ class ReadableNutrientRatio(
         raise NotImplementedError
 
     @property
-    def _numerator(self) -> 'model.quantity.HasReadableQuantityOf':
+    def ratio_subject_qty(self) -> 'model.quantity.IsBaseQuantityOf':
         """Returns the ratio numerator."""
         return self.nutrient_mass
 
     @property
-    def _denominator(self) -> 'model.quantity.HasReadableQuantityOf':
+    def ratio_host_qty(self) -> 'model.quantity.IsBaseQuantityOf':
         """Returns the ratio denominator."""
         return self.subject_ref_quantity
 
@@ -38,7 +38,7 @@ class ReadableNutrientRatio(
     def nutrient_g_per_subject_g(self) -> float:
         """Returns the grams of the nutrient per gram of subject."""
         try:
-            return self.g_per_subject_g
+            return self.subject_g_per_host_g
         except model.quantity.exceptions.UndefinedQuantityError:
             raise model.nutrients.exceptions.UndefinedNutrientRatioError(
                 subject=self,
@@ -49,7 +49,7 @@ class ReadableNutrientRatio(
     def mass_in_nutrient_pref_unit_per_subject_g(self) -> float:
         """Returns the mass of the nutrient in its pref units, per gram of subject."""
         try:
-            return self._numerator_mass_in_pref_unit_per_g_of_denominator
+            return self.subject_qty_in_pref_unit_per_g_of_host
         except model.quantity.exceptions.UndefinedQuantityError:
             raise model.nutrients.exceptions.UndefinedNutrientRatioError(
                 subject=self,
@@ -61,7 +61,7 @@ class ReadableNutrientRatio(
         """Returns the mass of the nutrient in its preferred unit, which is present in
         the reference quantity/unit of the subject."""
         try:
-            return self._numerator_mass_in_pref_unit_per_ref_qty_of_denominator
+            return self.subject_qty_in_pref_unit_per_ref_qty_of_denominator
         except model.quantity.exceptions.UndefinedQuantityError:
             raise model.nutrients.exceptions.UndefinedNutrientRatioError(
                 subject=self,
@@ -77,7 +77,7 @@ class ReadableNutrientRatio(
         )
 
 
-class ReadonlyNutrientRatio(ReadableNutrientRatio):
+class ReadonlyNutrientRatio(NutrientRatioBase):
     """Models a readonly nutrient ratio.
     Notes:
         This is the non-writeable version of nutrient ratio, so it extends the base by accepting a data
@@ -114,7 +114,7 @@ class ReadonlyNutrientRatio(ReadableNutrientRatio):
         )
 
 
-class SettableNutrientRatio(ReadableNutrientRatio):
+class SettableNutrientRatio(NutrientRatioBase):
     """Models a writable nutrient ratio.
     Notes:
         Careful where you return these! Nutrient ratios shouldn't be set without mutually validating

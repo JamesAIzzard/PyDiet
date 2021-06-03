@@ -19,4 +19,4 @@ class TestGPerSubjectG(TestCase):
         )
 
         # Assert that we get the right ratio back;
-        self.assertEqual(0.1, irb.g_per_subject_g)
+        self.assertEqual(0.1, irb.subject_g_per_host_g)

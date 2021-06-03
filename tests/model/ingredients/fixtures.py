@@ -96,7 +96,7 @@ class IngredientRatioBaseTestable(model.ingredients.IngredientRatioBase):
         )
 
     @property
-    def subject_ref_qty(self) -> 'model.quantity.HasReadableQuantityOf':
+    def subject_ref_qty(self) -> 'model.quantity.IsBaseQuantityOf':
         """Returns the subject ref qty instance."""
         return model.quantity.HasReadonlyQuantityOf(
             qty_subject=self._host,
