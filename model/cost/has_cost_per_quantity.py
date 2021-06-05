@@ -27,14 +27,14 @@ class HasReadableCostPerQuantity(persistence.YieldsPersistableData, abc.ABC):
             return True
 
     @property
-    def cost_ref_subject_quantity(self) -> 'model.quantity.HasReadonlyQuantityOf':
+    def cost_ref_subject_quantity(self) -> 'model.quantity.IsReadonlyQuantityOf':
         """Returns the subject quantity against which the cost is defined.
         Notes:
             Since the cost data is readonly here, we just generate a quantity
             object from the information in cost data. This allows us to
             leverage its unit manipulation methods elsewhere.
         """
-        return model.quantity.HasReadonlyQuantityOf(
+        return model.quantity.IsReadonlyQuantityOf(
             qty_subject=self,
             quantity_data_src=lambda: model.quantity.QuantityData(
                 quantity_in_g=self.cost_per_qty_data['quantity_in_g'],
@@ -90,7 +90,7 @@ class HasSettableCostPerQuantity(HasReadableCostPerQuantity, persistence.CanLoad
 
         # Create vars to store the data locally now;
         # Create a subject quantity instance;
-        self._cost_ref_qty = model.quantity.HasSettableQuantityOf(
+        self._cost_ref_qty = model.quantity.IsSettableQuantityOf(
             qty_subject=self,
             quantity_data=model.quantity.QuantityData(
                 quantity_in_g=None,
@@ -113,7 +113,7 @@ class HasSettableCostPerQuantity(HasReadableCostPerQuantity, persistence.CanLoad
         return data
 
     @property
-    def cost_ref_subject_quantity(self) -> 'model.quantity.HasSettableQuantityOf':
+    def cost_ref_subject_quantity(self) -> 'model.quantity.IsSettableQuantityOf':
         """Returns the subject quantity instance."""
         # Override to return the local instance, now we have one;
         return self._cost_ref_qty

@@ -6,48 +6,33 @@ import model
 import persistence
 
 
-class NutrientRatioBase(
-    model.quantity.IsQuantityRatioBase,
-    persistence.YieldsPersistableData,
-    abc.ABC
-):
-    """Abstract base class for readonly and writable nutrient ratios."""
+class NutrientRatioBase(model.quantity.IsQuantityRatioOfBase, abc.ABC):
+    """Extends isQuantityRatioBase to """
+    def __init__(self, nutrient_quantity: 'model.nutrients.NutrientMassBase', **kwargs):
+        super().__init__(subject_qty=nutrient_quantity, **kwargs)
 
     @property
-    @abc.abstractmethod
-    def nutrient_mass(self) -> 'model.nutrients.ReadonlyNutrientMass':
-        """Returns the nutrient mass associated with this nutrient ratio."""
-
-    @property
-    @abc.abstractmethod
-    def subject_ref_quantity(self) -> 'model.quantity.HasReadonlyQuantityOf':
-        """Returns the reference subject quantity associated with this nutrient ratio."""
-        raise NotImplementedError
-
-    @property
-    def ratio_subject_qty(self) -> 'model.quantity.IsBaseQuantityOf':
-        """Returns the ratio numerator."""
-        return self.nutrient_mass
-
-    @property
-    def ratio_host_qty(self) -> 'model.quantity.IsBaseQuantityOf':
-        """Returns the ratio denominator."""
-        return self.subject_ref_quantity
-
-    @property
-    def nutrient_g_per_subject_g(self) -> float:
-        """Returns the grams of the nutrient per gram of subject."""
+    def subject_g_per_subject_g(self) -> float:
+        """Returns the grams of the nutrient per gram of host substance.
+        Note:
+            This converts any exceptions into from general undefined qty errors to undefined
+            nutrient errors.
+        """
         try:
             return self.subject_g_per_host_g
         except model.quantity.exceptions.UndefinedQuantityError:
             raise model.nutrients.exceptions.UndefinedNutrientRatioError(
                 subject=self,
-                nutrient_name=self.nutrient_mass.nutrient.primary_name
+                nutrient_name=self.ratio_subject_qty.nutrient.primary_name
             )
 
     @property
-    def mass_in_nutrient_pref_unit_per_subject_g(self) -> float:
-        """Returns the mass of the nutrient in its pref units, per gram of subject."""
+    def subject_qty_in_pref_unit_per_g_of_host(self) -> float:
+        """Returns the mass of the nutrient in its pref units, per gram of host substance.
+        Note:
+            This converts any exceptions into from general undefined qty errors to undefined
+            nutrient errors.
+        """
         try:
             return self.subject_qty_in_pref_unit_per_g_of_host
         except model.quantity.exceptions.UndefinedQuantityError:
@@ -59,25 +44,21 @@ class NutrientRatioBase(
     @property
     def mass_in_nutrient_pref_unit_per_subject_ref_qty(self) -> float:
         """Returns the mass of the nutrient in its preferred unit, which is present in
-        the reference quantity/unit of the subject."""
+        the reference quantity/unit of the host substance.
+        Note:
+            This converts any exceptions into from general undefined qty errors to undefined
+            nutrient errors.
+        """
         try:
-            return self.subject_qty_in_pref_unit_per_ref_qty_of_denominator
+            return self.subject_qty_in_pref_unit_per_ref_qty_of_host
         except model.quantity.exceptions.UndefinedQuantityError:
             raise model.nutrients.exceptions.UndefinedNutrientRatioError(
                 subject=self,
                 nutrient_name=self.nutrient_mass.nutrient.primary_name
             )
 
-    @property
-    def persistable_data(self) -> 'model.nutrients.NutrientRatioData':
-        """Returns the persistable data for the nutrient ratio."""
-        return model.nutrients.NutrientRatioData(
-            nutrient_mass_data=self.nutrient_mass.persistable_data,
-            subject_ref_qty_data=self.subject_ref_quantity.persistable_data
-        )
 
-
-class ReadonlyNutrientRatio(NutrientRatioBase):
+class ReadonlyNutrientRatio(model.quantity.IsReadonlyQuantityRatioOf, NutrientRatioBase):
     """Models a readonly nutrient ratio.
     Notes:
         This is the non-writeable version of nutrient ratio, so it extends the base by accepting a data
@@ -97,6 +78,14 @@ class ReadonlyNutrientRatio(NutrientRatioBase):
         self._nutrient_ratio_data_src = nutrient_ratio_data_src
 
     @property
+    def ratio_subject_qty(self) -> 'model.nutrients.ReadonlyNutrientMass':
+        pass
+
+    @property
+    def ratio_host_qty(self) -> 'model.quantity.IsQuantityOfBase':
+        pass
+
+    @property
     def nutrient_mass(self) -> 'model.nutrients.ReadonlyNutrientMass':
         """Returns the nutrient associated with the nutrient ratio."""
         # Init the nutrient mass instance and return it;
@@ -106,9 +95,9 @@ class ReadonlyNutrientRatio(NutrientRatioBase):
         )
 
     @property
-    def subject_ref_quantity(self) -> 'model.quantity.HasReadonlyQuantityOf':
+    def subject_ref_quantity(self) -> 'model.quantity.IsReadonlyQuantityOf':
         """Returns the subject quantity associated with the nutrient ratio."""
-        return model.quantity.HasReadonlyQuantityOf(
+        return model.quantity.IsReadonlyQuantityOf(
             qty_subject=self._subject,
             quantity_data_src=lambda: self._nutrient_ratio_data_src()['subject_ref_qty_data']
         )
@@ -131,7 +120,7 @@ class SettableNutrientRatio(NutrientRatioBase):
             nutrient_name=model.nutrients.get_nutrient_primary_name(nutrient_name),
 
         )
-        self._subject_ref_qty = model.quantity.HasSettableQuantityOf(qty_subject=subject)
+        self._subject_ref_qty = model.quantity.IsSettableQuantityOf(qty_subject=subject)
 
         # If we got data, then load it;
         if nutrient_ratio_data is not None:
@@ -147,9 +136,9 @@ class SettableNutrientRatio(NutrientRatioBase):
         )
 
     @property
-    def subject_ref_quantity(self) -> 'model.quantity.HasReadonlyQuantityOf':
+    def subject_ref_quantity(self) -> 'model.quantity.IsReadonlyQuantityOf':
         """Returns the subject quantity associated with the nutrient ratio."""
-        return model.quantity.HasReadonlyQuantityOf(
+        return model.quantity.IsReadonlyQuantityOf(
             qty_subject=self._subject_ref_qty.qty_subject,
             quantity_data_src=lambda: self._subject_ref_qty.persistable_data
         )

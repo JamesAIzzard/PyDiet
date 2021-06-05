@@ -25,34 +25,15 @@ GLOBAL_NUTRIENTS = model.nutrients.build_global_nutrient_list(test_configs)
 class BaseNutrientRatioTestable(model.nutrients.NutrientRatioBase):
     """A minimal implementation of BaseNutrientRatio to allow its testing."""
 
-    def __init__(self, subject: Any,
-                 nutrient_name: str,
-                 nutrient_ratio_data: 'model.nutrients.NutrientRatioData'):
-        # Store nutrient mass and subject ref qty locally for testing;
-        self._nutrient_mass = model.nutrients.ReadonlyNutrientMass(
-            nutrient_name=nutrient_name,
-            quantity_data_src=qfx.get_qty_data_src(qfx.get_qty_data(
-                qty_in_g=nutrient_ratio_data['nutrient_mass_data']['quantity_in_g'],
-                pref_unit=nutrient_ratio_data['nutrient_mass_data']['pref_unit']
-            ))
-        )
-        self._subject_ref_qty = model.quantity.HasReadonlyQuantityOf(
-            qty_subject=subject,
-            quantity_data_src=qfx.get_qty_data_src(qfx.get_qty_data(
-                qty_in_g=nutrient_ratio_data['subject_ref_qty_data']['quantity_in_g'],
-                pref_unit=nutrient_ratio_data['subject_ref_qty_data']['pref_unit']
-            ))
-        )
+    def __init__(
+            self,
+            subject: 'model.nutrients.ReadonlyNutrientMass',
+            host: Any
+    ):
+        self._subject = subject
+        self._host = host
 
-    @property
-    def nutrient_mass(self) -> 'model.nutrients.ReadonlyNutrientMass':
-        """Return the locally stored instance."""
-        return self._nutrient_mass
 
-    @property
-    def subject_ref_quantity(self) -> 'model.quantity.HasReadonlyQuantityOf':
-        """Return the locally stored ref quantity."""
-        return self._subject_ref_qty
 
 
 class HasReadableNutrientRatiosTestable(model.nutrients.HasReadableNutrientRatios):
@@ -104,7 +85,7 @@ class HasSettableNutrientRatiosAndExtUnitsTestable(
         return self._piece_mass_g_
 
 
-class HasReadableNutrientMassesTestable(model.nutrients.HasReadableNutrientMasses, model.quantity.HasSettableQuantityOf):
+class HasReadableNutrientMassesTestable(model.nutrients.HasReadableNutrientMasses, model.quantity.IsSettableQuantityOf):
     """Minimal implementation for testing HasNutrientMasses."""
 
 

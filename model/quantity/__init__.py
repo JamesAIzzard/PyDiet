@@ -1,7 +1,6 @@
 """Initialisation for quantity module."""
 from . import validation, exceptions
 from .data_types import QuantityData, QuantityRatioData, ExtendedUnitsData
-from .is_quantity_ratio import IsQuantityRatioBase
 from .configs import (
     MASS_UNITS,
     VOL_UNITS,
@@ -16,10 +15,15 @@ from .main import (
     convert_qty_unit,
     convert_density_unit
 )
-from .has_quantity_of import (
-    IsBaseQuantityOf,
-    HasReadonlyQuantityOf,
-    HasSettableQuantityOf
+from .is_quantity_of import (
+    IsQuantityOfBase,
+    IsReadonlyQuantityOf,
+    IsSettableQuantityOf
+)
+from .is_quantity_ratio import (
+    IsQuantityRatioOfBase,
+    IsReadonlyQuantityRatioOf,
+    IsSettableQuantityRatioOf
 )
 from .has_extended_units import (
     HasReadableExtendedUnits,

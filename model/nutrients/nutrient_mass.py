@@ -4,7 +4,7 @@ import abc
 import model
 
 
-class ReadableNutrientMass(model.quantity.IsBaseQuantityOf, abc.ABC):
+class NutrientMassBase(model.quantity.IsQuantityOfBase, abc.ABC):
     """Base class for readonly and writable nutrient masses."""
     def __init__(self, nutrient_name: str, **kwargs):
         super().__init__(
@@ -20,15 +20,15 @@ class ReadableNutrientMass(model.quantity.IsBaseQuantityOf, abc.ABC):
         return self._qty_subject
 
 
-class ReadonlyNutrientMass(ReadableNutrientMass, model.quantity.HasReadonlyQuantityOf):
+class ReadonlyNutrientMass(NutrientMassBase, model.quantity.IsReadonlyQuantityOf):
     """Models a mass of a nutrient."""
 
 
-class SettableNutrientMass(ReadableNutrientMass, model.quantity.HasSettableQuantityOf):
+class SettableNutrientMass(NutrientMassBase, model.quantity.IsSettableQuantityOf):
     """Models a settable nutrient mass."""
 
 
-class HasReadableNutrientMasses(model.quantity.IsBaseQuantityOf, abc.ABC):
+class HasReadableNutrientMasses(model.quantity.IsQuantityOfBase, abc.ABC):
     """Models functionality for all classes which have readable nutrient masses."""
 
     def __init__(self, **kwargs):

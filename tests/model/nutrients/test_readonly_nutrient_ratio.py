@@ -1,4 +1,4 @@
-"""Tests for ReadableNutrientRatio class."""
+"""Tests for ReadonlyNutrientRatio class."""
 from unittest import TestCase, mock
 
 import model

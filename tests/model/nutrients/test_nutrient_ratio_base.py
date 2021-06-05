@@ -1,25 +1,32 @@
-"""Tests for the BaseNutrientRatio class."""
+"""Tests for the NutrientRatioBase class."""
 from unittest import TestCase, mock
 
 import model
-from tests.model.nutrients import fixtures as fx
+from tests.model.nutrients import fixtures as nfx
+from tests.model.quantity import fixtures as qfx
 
 
-class TestGPerSubjectG(TestCase):
-    """Tests the g_per_subject_g property."""
+class TestSubjectGPerHostG(TestCase):
+    """Tests the subject_g_per_host_g property."""
 
     @fx.use_test_nutrients
-    def test_g_per_subject_g_is_correct_when_non_zero(self):
+    def test_value_is_correct_when_non_zero(self):
         """Check a non-zero nutrient mass yields the correct ratio."""
         # Create a test instance with non-zero mass data;
-        bnr = fx.BaseNutrientRatioTestable(
-            subject=mock.Mock(),
-            nutrient_name="tirbur",
-            nutrient_ratio_data=fx.get_nutrient_ratio_data(
-                nutrient_mass_g=12,
-                nutrient_mass_unit="mg",
-                subject_qty_g=120,
-                subject_qty_unit="lb"
+        bnr = nfx.BaseNutrientRatioTestable(
+            subject=model.quantity.IsReadonlyQuantityOf(
+                subject=mock.Mock(),
+                quantity_data_src=qfx.get_qty_data_src(quantity_data=qfx.get_qty_ratio_data(
+                    subject_qty_g=10,
+                    subject_qty_unit='mg'
+                ))
+            ),
+            host=model.quantity.IsReadonlyQuantityOf(
+                subject=mock.Mock(),
+                quantity_data_src=qfx.get_qty_data_src(quantity_data=qfx.get_qty_ratio_data(
+                    subject_qty_g=10,
+                    subject_qty_unit='mg'
+                ))
             )
         )
 

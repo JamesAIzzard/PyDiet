@@ -6,7 +6,7 @@ import persistence
 
 
 class IngredientRatioBase(
-    model.quantity.IsQuantityRatioBase,
+    model.quantity.IsQuantityRatioOfBase,
     persistence.YieldsPersistableData,
     abc.ABC
 ):
@@ -20,17 +20,17 @@ class IngredientRatioBase(
 
     @property
     @abc.abstractmethod
-    def subject_ref_qty(self) -> 'model.quantity.IsBaseQuantityOf':
+    def subject_ref_qty(self) -> 'model.quantity.IsQuantityOfBase':
         """Returns the subject reference quantity."""
         raise NotImplementedError
 
     @property
-    def ratio_subject_qty(self) -> 'model.quantity.IsBaseQuantityOf':
+    def ratio_subject_qty(self) -> 'model.quantity.IsQuantityOfBase':
         """Returns the ratio numerator."""
         return self.ingredient_qty
 
     @property
-    def ratio_host_qty(self) -> 'model.quantity.IsBaseQuantityOf':
+    def ratio_host_qty(self) -> 'model.quantity.IsQuantityOfBase':
         """Returns the ratio denominator."""
         return self.subject_ref_qty
 

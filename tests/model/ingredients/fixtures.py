@@ -96,9 +96,9 @@ class IngredientRatioBaseTestable(model.ingredients.IngredientRatioBase):
         )
 
     @property
-    def subject_ref_qty(self) -> 'model.quantity.IsBaseQuantityOf':
+    def subject_ref_qty(self) -> 'model.quantity.IsQuantityOfBase':
         """Returns the subject ref qty instance."""
-        return model.quantity.HasReadonlyQuantityOf(
+        return model.quantity.IsReadonlyQuantityOf(
             qty_subject=self._host,
             quantity_data_src=qfx.get_qty_data_src(quantity_data=qfx.get_qty_data(
                 qty_in_g=self._ratio_data['host_qty_data']['quantity_in_g'],

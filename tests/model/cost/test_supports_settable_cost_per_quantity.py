@@ -25,7 +25,7 @@ class TestConstructor(TestCase):
 class TestSubjectQuantity(TestCase):
     def test_subject_quantity_is_settable(self):
         sc = model.cost.HasSettableCostPerQuantity()
-        self.assertTrue(isinstance(sc.cost_ref_subject_quantity, model.quantity.HasSettableQuantityOf))
+        self.assertTrue(isinstance(sc.cost_ref_subject_quantity, model.quantity.IsSettableQuantityOf))
 
 
 class TestSetCost(TestCase):

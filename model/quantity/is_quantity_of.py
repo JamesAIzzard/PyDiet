@@ -1,4 +1,4 @@
-"""Defines functionality associated with quantities of substances."""
+"""Implements functionality associated with classes modelling a quantity of a substance."""
 import abc
 from typing import Optional, Any, Callable
 
@@ -6,8 +6,8 @@ import model
 import persistence
 
 
-class IsBaseQuantityOf(persistence.YieldsPersistableData, abc.ABC):
-    """Abstract base class to readonly and writable quantities of substances."""
+class IsQuantityOfBase(persistence.YieldsPersistableData, abc.ABC):
+    """Base class implementing functionality to model a quantity of substance."""
     def __init__(self, qty_subject: Any, **kwargs):
         super().__init__(**kwargs)
 
@@ -34,7 +34,6 @@ class IsBaseQuantityOf(persistence.YieldsPersistableData, abc.ABC):
         """Returns the subject whos quantity is being described."""
         return self._qty_subject
 
-
     @property
     @abc.abstractmethod
     def _unvalidated_qty_pref_unit(self) -> str:
@@ -43,7 +42,11 @@ class IsBaseQuantityOf(persistence.YieldsPersistableData, abc.ABC):
 
     @property
     def qty_pref_unit(self) -> str:
-        """Returns the unit used to define the subject quantity."""
+        """Returns the unit used to define the subject quantity.
+        Example:
+            If the qty_in_g is 100, and the pref unit is kg, this property would
+            return 0.1, because 100g expressed in into kg is 0.1.
+        """
         # Return the validated unit
         return model.quantity.validation.validate_pref_unit(
             unit=self._unvalidated_qty_pref_unit,
@@ -52,7 +55,9 @@ class IsBaseQuantityOf(persistence.YieldsPersistableData, abc.ABC):
 
     @property
     def ref_qty(self) -> float:
-        """Returns the reference quantity used to define the subject quantity."""
+        """Returns the reference quantity used to define the subject quantity.
+
+        """
         # Configure the extended unit variables to match the subject;
         g_per_ml = None
         piece_mass_g = None
@@ -91,7 +96,7 @@ class IsBaseQuantityOf(persistence.YieldsPersistableData, abc.ABC):
         )
 
 
-class HasReadonlyQuantityOf(IsBaseQuantityOf):
+class IsReadonlyQuantityOf(IsQuantityOfBase):
     """Implements functionality associated with a readonly quantity of substance.
 
     Notes:
@@ -120,7 +125,7 @@ class HasReadonlyQuantityOf(IsBaseQuantityOf):
         return self._quantity_data_src()['pref_unit']
 
 
-class HasSettableQuantityOf(IsBaseQuantityOf, persistence.CanLoadData):
+class IsSettableQuantityOf(IsQuantityOfBase, persistence.CanLoadData):
     """Implements functionality associated with a settable quantity of substance."""
 
     def __init__(self, quantity_data: Optional['model.quantity.QuantityData'] = None, **kwargs):

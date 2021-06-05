@@ -32,6 +32,28 @@ class UndefinedQuantityError(BaseQuantityError):
         super().__init__(**kwargs)
 
 
+class InvalidQtyError(BaseQuantityError, ValueError):
+    """The qty is not valid."""
+
+    def __init__(self, quantity: Any, **kwargs):
+        super().__init__(**kwargs)
+        self.quantity = quantity
+
+
+class ZeroQtyError(BaseQuantityError, ValueError):
+    """Indicates the qty value is zero and cannot be zero."""
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+
+class SubjectQtyExceedsHostQtyError(BaseQuantityError):
+    """Indicates the subject quantity is exceeding the host quantity on a quantity ratio."""
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+
 class UnitError(BaseQuantityError):
     """Indicates a general unit error."""
 
@@ -74,17 +96,3 @@ class UndefinedPcMassError(UnitNotConfiguredError):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-
-class InvalidQtyError(BaseQuantityError, ValueError):
-    """The qty is not valid."""
-
-    def __init__(self, quantity: Any, **kwargs):
-        super().__init__(**kwargs)
-        self.quantity = quantity
-
-
-class ZeroQtyError(BaseQuantityError, ValueError):
-    """Indicates the qty value is zero and cannot be zero."""
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)

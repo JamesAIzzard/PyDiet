@@ -1,8 +1,10 @@
-"""Tests for ReadableIngredientRatio"""
+"""Tests for IngredientRatioBase"""
 from unittest import TestCase, mock
 
+import model.quantity.is_quantity_ratio
 from tests.model.ingredients import fixtures as ifx
 from tests.model.quantity import fixtures as qfx
+
 
 class TestGPerSubjectG(TestCase):
     """Tests the ingredient_g_per_subject_g property."""
@@ -10,7 +12,7 @@ class TestGPerSubjectG(TestCase):
         """Checks we get the correct value back from the property."""
         # Create a test instance with quantities specified;
         irb = ifx.IngredientRatioBaseTestable(
-            host=mock.Mock(),
+            host=model.quantity.
             subject=mock.Mock(),
             ratio_data=qfx.get_qty_ratio_data(
                 subject_qty_g=10,
