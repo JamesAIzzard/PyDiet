@@ -1,8 +1,9 @@
-"""Defines functionality related to nutrient ratios."""
+"""Defines functionality related to readable nutrient ratios."""
 from unittest import TestCase
 
 import model
 from tests.model.nutrients import fixtures as fx
+from tests.model.quantity import fixtures as qfx
 
 
 class TestNutrientRatios(TestCase):
@@ -13,8 +14,8 @@ class TestNutrientRatios(TestCase):
         """Checks that we get the correct dict of readonly nutrient ratios."""
         # Create a test instance;
         hnr = fx.HasReadableNutrientRatiosTestable(nutrient_ratios_data={
-            "foo": fx.get_nutrient_ratio_data(nutrient_mass_g=20, subject_qty_g=1, subject_qty_unit='kg'),
-            "bar": fx.get_nutrient_ratio_data(nutrient_mass_g=30, nutrient_mass_unit='lb', subject_qty_g=140)
+            "foo": qfx.get_qty_ratio_data(subject_qty_g=20, host_qty_g=1, host_qty_unit='kg'),
+            "bar": qfx.get_qty_ratio_data(subject_qty_g=30, subject_qty_unit='lb', host_qty_g=140)
         })
 
         # Check we get the right number of nutrient ratios returned;
@@ -26,7 +27,7 @@ class TestNutrientRatios(TestCase):
 
         # Check some of the values
         self.assertEqual(20, hnr.nutrient_ratios["foo"].nutrient_mass.quantity_in_g)
-        self.assertEqual('kg', hnr.nutrient_ratios["foo"].subject_ref_quantity.qty_pref_unit)
+        self.assertEqual('kg', hnr.nutrient_ratios["foo"].ratio_host_qty.qty_pref_unit)
         self.assertEqual(30, hnr.nutrient_ratios["bar"].nutrient_mass.quantity_in_g)
         self.assertEqual('lb', hnr.nutrient_ratios["bar"].nutrient_mass.qty_pref_unit)
 
@@ -39,8 +40,8 @@ class TestGetNutrientRatio(TestCase):
         """Check that we can get the correct nutrient ratio instance by name."""
         # Create a test instance;
         hnr = fx.HasReadableNutrientRatiosTestable(nutrient_ratios_data={
-            "tirbur": fx.get_nutrient_ratio_data(nutrient_mass_g=10, subject_qty_g=100),
-            "foo": fx.get_nutrient_ratio_data(nutrient_mass_g=20, subject_qty_g=90)
+            "tirbur": qfx.get_qty_ratio_data(subject_qty_g=10, host_qty_g=100),
+            "foo": qfx.get_qty_ratio_data(subject_qty_g=20, host_qty_g=90)
         })
 
         # Check we get an instance of the correct type;
@@ -49,15 +50,15 @@ class TestGetNutrientRatio(TestCase):
 
         # Check some of the details;
         self.assertEqual(20, foo.nutrient_mass.quantity_in_g)
-        self.assertEqual(90, foo.subject_ref_quantity.quantity_in_g)
+        self.assertEqual(90, foo.ratio_host_qty.quantity_in_g)
 
     @fx.use_test_nutrients
     def test_raises_exception_if_nutrient_ratio_unset(self):
         """Check that we get an exception if the nutrient ratio is unset;"""
         # Create a test instance;
         hnr = fx.HasReadableNutrientRatiosTestable(nutrient_ratios_data={
-            "tirbur": fx.get_nutrient_ratio_data(nutrient_mass_g=10, subject_qty_g=100),
-            "foo": fx.get_nutrient_ratio_data(nutrient_mass_g=20, subject_qty_g=90)
+            "tirbur": qfx.get_qty_ratio_data(subject_qty_g=10, host_qty_g=100),
+            "foo": qfx.get_qty_ratio_data(subject_qty_g=20, host_qty_g=90)
         })
 
         # Try to access one that isn't there, and assert we get an exception;
@@ -72,12 +73,12 @@ class TestCaloriesPerG(TestCase):
         """Checks the method returns the correct number of calories per gram."""
         # Create a test instance with some nutrient ratios with associated calories;
         hnr = fx.HasReadableNutrientRatiosTestable(nutrient_ratios_data={
-            "tirbur": fx.get_nutrient_ratio_data(nutrient_mass_g=10, subject_qty_g=100),
-            "regatur": fx.get_nutrient_ratio_data(nutrient_mass_g=10, subject_qty_g=100),
-            "foo": fx.get_nutrient_ratio_data(nutrient_mass_g=20, subject_qty_g=100),
-            "fillydon": fx.get_nutrient_ratio_data(nutrient_mass_g=30, subject_qty_g=100),
-            "busskie": fx.get_nutrient_ratio_data(nutrient_mass_g=10, subject_qty_g=100),
-            "bingtong": fx.get_nutrient_ratio_data(nutrient_mass_g=25, subject_qty_g=100)
+            "tirbur": qfx.get_qty_ratio_data(subject_qty_g=10, host_qty_g=100),
+            "regatur": qfx.get_qty_ratio_data(subject_qty_g=10, host_qty_g=100),
+            "foo": qfx.get_qty_ratio_data(subject_qty_g=20, host_qty_g=100),
+            "fillydon": qfx.get_qty_ratio_data(subject_qty_g=30, host_qty_g=100),
+            "busskie": qfx.get_qty_ratio_data(subject_qty_g=10, host_qty_g=100),
+            "bingtong": qfx.get_qty_ratio_data(subject_qty_g=25, host_qty_g=100)
         })
 
         # Assert we get the correct number of calories per gram;
@@ -88,10 +89,10 @@ class TestCaloriesPerG(TestCase):
         """Checks we get an exception if one of the nutrient calories is undefined."""
         # Create a test instance with some calorie nutrients undefined.
         hnr = fx.HasReadableNutrientRatiosTestable(nutrient_ratios_data={
-            "tirbur": fx.get_nutrient_ratio_data(nutrient_mass_g=10, subject_qty_g=100),
-            "regatur": fx.get_nutrient_ratio_data(nutrient_mass_g=10, subject_qty_g=100),
-            "foo": fx.get_nutrient_ratio_data(nutrient_mass_g=20, subject_qty_g=100),
-            "fillydon": fx.get_nutrient_ratio_data(nutrient_mass_g=30, subject_qty_g=100),
+            "tirbur": qfx.get_qty_ratio_data(subject_qty_g=10, host_qty_g=100),
+            "regatur": qfx.get_qty_ratio_data(subject_qty_g=10, host_qty_g=100),
+            "foo": qfx.get_qty_ratio_data(subject_qty_g=20, host_qty_g=100),
+            "fillydon": qfx.get_qty_ratio_data(subject_qty_g=30, host_qty_g=100),
         })
 
         # Assert we get an exception if we try to access the property;
@@ -107,8 +108,8 @@ class TestNutrientRatioIsDefined(TestCase):
         """Check that we get True if the nutrient ratio is defined."""
         # Create a test instance;
         hnr = fx.HasReadableNutrientRatiosTestable(nutrient_ratios_data={
-            "tirbur": fx.get_nutrient_ratio_data(nutrient_mass_g=10, subject_qty_g=100),
-            "foo": fx.get_nutrient_ratio_data(nutrient_mass_g=20, subject_qty_g=90)
+            "tirbur": qfx.get_qty_ratio_data(subject_qty_g=10, host_qty_g=100),
+            "foo": qfx.get_qty_ratio_data(subject_qty_g=20, host_qty_g=90)
         })
 
         # Check we get a True;
@@ -119,8 +120,8 @@ class TestNutrientRatioIsDefined(TestCase):
         """Check we get a False if the nutrient ratio is undefined."""
         # Create a test instance;
         hnr = fx.HasReadableNutrientRatiosTestable(nutrient_ratios_data={
-            "tirbur": fx.get_nutrient_ratio_data(nutrient_mass_g=10, subject_qty_g=100),
-            "foo": fx.get_nutrient_ratio_data(nutrient_mass_g=20, subject_qty_g=90)
+            "tirbur": qfx.get_qty_ratio_data(subject_qty_g=10, host_qty_g=100),
+            "foo": qfx.get_qty_ratio_data(subject_qty_g=20, host_qty_g=90)
         })
 
         # Check we get a False;
@@ -133,9 +134,9 @@ class TestUndefinedMandatoryNutrientRatioNames(TestCase):
     def test_correctly_returns_undefined_mandatory_ratio_names(self):
         # Create a test instance;
         hnr = fx.HasReadableNutrientRatiosTestable(nutrient_ratios_data={
-            "cufmagif": fx.get_nutrient_ratio_data(nutrient_mass_g=10, subject_qty_g=100),
-            "foo": fx.get_nutrient_ratio_data(nutrient_mass_g=20, subject_qty_g=90),
-            "foobar": fx.get_nutrient_ratio_data(nutrient_mass_g=10, subject_qty_g=100)
+            "cufmagif": qfx.get_qty_ratio_data(subject_qty_g=10, host_qty_g=100),
+            "foo": qfx.get_qty_ratio_data(subject_qty_g=20, host_qty_g=90),
+            "foobar": qfx.get_qty_ratio_data(subject_qty_g=10, host_qty_g=100)
         })
 
         # Check we get the correct names back;
@@ -151,9 +152,9 @@ class TestDefinedOptionalNutrientRatioNames(TestCase):
         """Check that we do get the defined optional nutrient names back."""
         # Create a test instnace;
         hnr = fx.HasReadableNutrientRatiosTestable(nutrient_ratios_data={
-            "cufmagif": fx.get_nutrient_ratio_data(nutrient_mass_g=10, subject_qty_g=100),
-            "foo": fx.get_nutrient_ratio_data(nutrient_mass_g=20, subject_qty_g=90),
-            "foobar": fx.get_nutrient_ratio_data(nutrient_mass_g=10, subject_qty_g=100)
+            "cufmagif": qfx.get_qty_ratio_data(subject_qty_g=10, host_qty_g=100),
+            "foo": qfx.get_qty_ratio_data(subject_qty_g=20, host_qty_g=90),
+            "foobar": qfx.get_qty_ratio_data(subject_qty_g=10, host_qty_g=100)
         })
 
         # Check the correct names are returned;
@@ -161,24 +162,6 @@ class TestDefinedOptionalNutrientRatioNames(TestCase):
             {"foo", "foobar"},
             set(hnr.defined_optional_nutrient_ratio_names)
         )
-
-
-class TestGetNutrientMassInPrefUnitPerSubjectRefQuantity(TestCase):
-    """Tests for the get_nutrient_mass_in_pref_unit_per_subject_ref_qty method."""
-    @fx.use_test_nutrients
-    def test_gets_correct_value(self):
-        """Check we get the correct value back."""
-
-        # Create a test instance, with some test data;
-        hnr = fx.HasReadableNutrientRatiosTestable({
-            "tirbur": fx.get_nutrient_ratio_data(nutrient_mass_g=0.02, nutrient_mass_unit="mg",
-                                                 subject_qty_g=150, subject_qty_unit="kg"),
-            "foo": fx.get_nutrient_ratio_data(nutrient_mass_g=20, subject_qty_g=90),
-            "foobar": fx.get_nutrient_ratio_data(nutrient_mass_g=10, subject_qty_g=100)
-        })
-
-        # Check we get 20mg per 0.15kg
-        self.assertEqual(20, hnr.get_nutrient_mass_in_pref_unit_per_subject_ref_qty("tirbur"))
 
 
 class TestValidateNutrientRatio(TestCase):
@@ -192,9 +175,9 @@ class TestValidateNutrientRatio(TestCase):
     def test_no_exception_if_no_error(self):
         """Test we get no exception if there is no error."""
         hnr = fx.HasReadableNutrientRatiosTestable(nutrient_ratios_data={
-            "cufmagif": fx.get_nutrient_ratio_data(nutrient_mass_g=0.3, subject_qty_g=1),
-            "foo": fx.get_nutrient_ratio_data(nutrient_mass_g=0.4, subject_qty_g=1),
-            "foobar": fx.get_nutrient_ratio_data(nutrient_mass_g=0.5, subject_qty_g=1)
+            "cufmagif": qfx.get_qty_ratio_data(subject_qty_g=0.3, host_qty_g=1),
+            "foo": qfx.get_qty_ratio_data(subject_qty_g=0.4, host_qty_g=1),
+            "foobar": qfx.get_qty_ratio_data(subject_qty_g=0.5, host_qty_g=1)
         })
 
         # Check we get no error if we call the validation function.
@@ -204,10 +187,10 @@ class TestValidateNutrientRatio(TestCase):
     def test_raises_exception_if_error(self):
         """Checks that we do get an exception if there is an error."""
         hnr = fx.HasReadableNutrientRatiosTestable(nutrient_ratios_data={
-            "cufmagif": fx.get_nutrient_ratio_data(nutrient_mass_g=0.3, subject_qty_g=1),
-            "bar": fx.get_nutrient_ratio_data(nutrient_mass_g=0.3, subject_qty_g=1),
-            "foobar": fx.get_nutrient_ratio_data(nutrient_mass_g=0.3, subject_qty_g=1),
-            "docbe": fx.get_nutrient_ratio_data(nutrient_mass_g=0.3, subject_qty_g=1),
+            "cufmagif": qfx.get_qty_ratio_data(subject_qty_g=0.3, host_qty_g=1),
+            "bar": qfx.get_qty_ratio_data(subject_qty_g=0.3, host_qty_g=1),
+            "foobar": qfx.get_qty_ratio_data(subject_qty_g=0.3, host_qty_g=1),
+            "docbe": qfx.get_qty_ratio_data(subject_qty_g=0.3, host_qty_g=1),
         })
 
         # Now check we get an exception, because cufmagif is a grandchid of docbe, along with bar,
@@ -222,23 +205,23 @@ class TestPersistableData(TestCase):
         """Checks that the persistable data dictionary is returned with the correct contents."""
         # Create some test data;
         data = {
-            "cufmagif": fx.get_nutrient_ratio_data(
-                nutrient_mass_g=12,
-                nutrient_mass_unit="mg",
-                subject_qty_g=200,
-                subject_qty_unit="kg"
+            "cufmagif": qfx.get_qty_ratio_data(
+                subject_qty_g=12,
+                subject_qty_unit="mg",
+                host_qty_g=200,
+                host_qty_unit="kg"
             ),
-            "tirbur": fx.get_nutrient_ratio_data(
-                nutrient_mass_g=13,
-                nutrient_mass_unit="ug",
-                subject_qty_g=300,
-                subject_qty_unit="L"
+            "tirbur": qfx.get_qty_ratio_data(
+                subject_qty_g=13,
+                subject_qty_unit="ug",
+                host_qty_g=300,
+                host_qty_unit="L"
             ),
-            "docbe": fx.get_nutrient_ratio_data(
-                nutrient_mass_g=14,
-                nutrient_mass_unit="g",
-                subject_qty_g=400,
-                subject_qty_unit="pc"
+            "docbe": qfx.get_qty_ratio_data(
+                subject_qty_g=14,
+                subject_qty_unit="g",
+                host_qty_g=400,
+                host_qty_unit="pc"
             )
         }
 

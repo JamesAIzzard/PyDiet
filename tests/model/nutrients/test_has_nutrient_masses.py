@@ -2,42 +2,43 @@
 from unittest import TestCase
 
 import model.nutrients
-from tests.model.nutrients import fixtures as fx
+from tests.model.nutrients import fixtures as nfx
 from tests.model.quantity import fixtures as qfx
 
 
 class TestNumCalories(TestCase):
     """Tests the num_calories property."""
-    @fx.use_test_nutrients
+    @nfx.use_test_nutrients
     def test_correct_num_calories_is_returned(self):
         """Checks that the method returns the correct number of calories."""
         # Create a test instance with a full set of calorie nutrients defined;
-        hnm = fx.HasReadableNutrientMassesTestable(
-            qty_subject=fx.HasReadableNutrientRatiosTestable(
+        hrnm = nfx.HasReadableNutrientMassesTestable(
+            qty_subject=nfx.HasReadableNutrientRatiosTestable(
                 nutrient_ratios_data={
-                    "tirbur": fx.get_nutrient_ratio_data(nutrient_mass_g=10, subject_qty_g=100),
-                    "regatur": fx.get_nutrient_ratio_data(nutrient_mass_g=10, subject_qty_g=100),
-                    "bazing": fx.get_nutrient_ratio_data(nutrient_mass_g=20, subject_qty_g=100),
-                    "fillydon": fx.get_nutrient_ratio_data(nutrient_mass_g=30, subject_qty_g=100),
-                    "busskie": fx.get_nutrient_ratio_data(nutrient_mass_g=10, subject_qty_g=100),
-                    "bingtong": fx.get_nutrient_ratio_data(nutrient_mass_g=25, subject_qty_g=100)
+                    "tirbur": qfx.get_qty_ratio_data(subject_qty_g=10, host_qty_g=100),
+                    "regatur": qfx.get_qty_ratio_data(subject_qty_g=10, host_qty_g=100),
+                    "bazing": qfx.get_qty_ratio_data(subject_qty_g=20, host_qty_g=100),
+                    "fillydon": qfx.get_qty_ratio_data(subject_qty_g=30, host_qty_g=100),
+                    "busskie": qfx.get_qty_ratio_data(subject_qty_g=10, host_qty_g=100),
+                    "bingtong": qfx.get_qty_ratio_data(subject_qty_g=25, host_qty_g=100)
                 }
             ),
             quantity_data=qfx.get_qty_data(qty_in_g=90)
         )
+        raise NotImplementedError
 
-    @fx.use_test_nutrients
+    @nfx.use_test_nutrients
     def test_raises_exception_if_calorie_nutrient_missing(self):
         """Checks we get an exception if one of the calorie nutrients are missing."""
         # Create a test instance with one of the calorie nutrients missing;
-        hnm = fx.HasReadableNutrientMassesTestable(
-            qty_subject=fx.HasReadableNutrientRatiosTestable(
+        hnm = nfx.HasReadableNutrientMassesTestable(
+            qty_subject=nfx.HasReadableNutrientRatiosTestable(
                 nutrient_ratios_data={
-                    "tirbur": fx.get_nutrient_ratio_data(nutrient_mass_g=10, subject_qty_g=100),
-                    "regatur": fx.get_nutrient_ratio_data(nutrient_mass_g=10, subject_qty_g=100),
-                    "bazing": fx.get_nutrient_ratio_data(nutrient_mass_g=20, subject_qty_g=100),
-                    "fillydon": fx.get_nutrient_ratio_data(nutrient_mass_g=30, subject_qty_g=100),
-                    "bingtong": fx.get_nutrient_ratio_data(nutrient_mass_g=25, subject_qty_g=100)
+                    "tirbur": qfx.get_qty_ratio_data(subject_qty_g=10, host_qty_g=100),
+                    "regatur": qfx.get_qty_ratio_data(subject_qty_g=10, host_qty_g=100),
+                    "bazing": qfx.get_qty_ratio_data(subject_qty_g=20, host_qty_g=100),
+                    "fillydon": qfx.get_qty_ratio_data(subject_qty_g=30, host_qty_g=100),
+                    "bingtong": qfx.get_qty_ratio_data(subject_qty_g=25, host_qty_g=100)
                 }
             ),
             quantity_data=qfx.get_qty_data(qty_in_g=90)
@@ -53,10 +54,10 @@ class TestGetNutrientMassG(TestCase):
     def test_correct_mass_is_returned(self):
         """Checks the method returns the correct nutrient mass."""
         # Create a test instance, with a specified nutrient ratio;
-        hnm = fx.HasReadableNutrientMassesTestable(
-            qty_subject=fx.HasReadableNutrientRatiosTestable(
+        hnm = nfx.HasReadableNutrientMassesTestable(
+            qty_subject=nfx.HasReadableNutrientRatiosTestable(
                 nutrient_ratios_data={
-                    "protein": fx.get_nutrient_ratio_data(nutrient_mass_g=12, subject_qty_g=100)
+                    "protein": qfx.get_qty_ratio_data(subject_qty_g=12, host_qty_g=100)
                 }
             ),
             quantity_data=qfx.get_qty_data(qty_in_g=50)
@@ -68,8 +69,8 @@ class TestGetNutrientMassG(TestCase):
     def test_raises_exception_if_nutrient_mass_undefined(self):
         """Checks we get an exception if we try to access a nutrient mass which is undefined."""
         # Create a test instance;
-        hnm = fx.HasReadableNutrientMassesTestable(
-            qty_subject=fx.HasReadableNutrientRatiosTestable(
+        hnm = nfx.HasReadableNutrientMassesTestable(
+            qty_subject=nfx.HasReadableNutrientRatiosTestable(
                 nutrient_ratios_data={}
             ),
             quantity_data=qfx.get_qty_data(qty_in_g=50)

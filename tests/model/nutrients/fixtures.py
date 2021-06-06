@@ -1,10 +1,10 @@
 """Tests for the HasNutrientRatios base class."""
-from typing import Dict, List, Callable, Optional, Any
+from typing import Dict, List, Optional, Any
 from unittest import mock
 
 import model
 # Import test configs to allow us to build the test globals;
-from tests.model.nutrients import test_configs
+from . import test_configs
 from tests.model.quantity import fixtures as qfx
 
 # Validate the test flag configs;
@@ -22,18 +22,28 @@ PRIMARY_AND_ALIAS_NUTRIENT_NAMES = model.nutrients.build_primary_and_alias_nutri
 GLOBAL_NUTRIENTS = model.nutrients.build_global_nutrient_list(test_configs)
 
 
-class BaseNutrientRatioTestable(model.nutrients.NutrientRatioBase):
+class NutrientRatioBaseTestable(model.nutrients.NutrientRatioBase):
     """A minimal implementation of BaseNutrientRatio to allow its testing."""
 
     def __init__(
             self,
-            subject: 'model.nutrients.ReadonlyNutrientMass',
-            host: Any
+            nutrient_name:str,
+            ratio_host: Any,
+            quantity_ratio_data: 'model.quantity.QuantityRatioData',
     ):
-        self._subject = subject
-        self._host = host
+        """
+        Args:
+            nutrient_name (str):
+            ratio_host (Any):
+            quantity_ratio_data (model.quantity.QuantityRatioData):
+        """
+        super().__init__(nutrient_name=nutrient_name, ratio_host=ratio_host)
+        self._quantity_ratio_data = quantity_ratio_data
 
-
+    @property
+    def quantity_ratio_data(self) -> 'model.quantity.QuantityRatioData':
+        """Returns quantity ratio data."""
+        return self._quantity_ratio_data
 
 
 class HasReadableNutrientRatiosTestable(model.nutrients.HasReadableNutrientRatios):
@@ -102,28 +112,3 @@ def use_test_nutrients(func):
         return func(*args, **kwargs)
 
     return wrapper
-
-
-def get_nutrient_ratio_data(
-        nutrient_mass_g: Optional[float] = None,
-        nutrient_mass_unit: str = 'g',
-        subject_qty_g: Optional[float] = None,
-        subject_qty_unit: str = 'g',
-) -> 'model.nutrients.NutrientRatioData':
-    """Helper function to create nutrient ratio data. Provides default values when values not specified."""
-    return model.nutrients.NutrientRatioData(
-        nutrient_mass_data=model.nutrients.NutrientMassData(
-            quantity_in_g=nutrient_mass_g,
-            pref_unit=nutrient_mass_unit
-        ),
-        subject_ref_qty_data=model.quantity.QuantityData(
-            quantity_in_g=subject_qty_g,
-            pref_unit=subject_qty_unit
-        )
-    )
-
-
-def get_nutrient_ratio_data_src(nutrient_ratio_data: 'model.nutrients.NutrientRatioData') \
-        -> Callable[[None], 'model.nutrients.NutrientRatioData']:
-    """Returns a nutrient ratio data source callable."""
-    return lambda: nutrient_ratio_data

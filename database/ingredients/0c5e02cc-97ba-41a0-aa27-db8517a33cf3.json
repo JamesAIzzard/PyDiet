@@ -16,83 +16,83 @@
   "name": "Cucumber",
   "nutrient_ratios_data": {
     "alcohol": {
-      "nutrient_mass_data": {
-        "pref_unit": "g",
-        "quantity_in_g": 0.0
-      },
-      "subject_ref_qty_data": {
+      "host_qty_data": {
         "pref_unit": "g",
         "quantity_in_g": 100
+      },
+      "subject_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 0.0
       }
     },
     "carbohydrate": {
-      "nutrient_mass_data": {
-        "pref_unit": "g",
-        "quantity_in_g": 3.6333333333333337
-      },
-      "subject_ref_qty_data": {
+      "host_qty_data": {
         "pref_unit": "g",
         "quantity_in_g": 100
+      },
+      "subject_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 3.6333333333333337
       }
     },
     "fat": {
-      "nutrient_mass_data": {
-        "pref_unit": "g",
-        "quantity_in_g": 0.1
-      },
-      "subject_ref_qty_data": {
+      "host_qty_data": {
         "pref_unit": "g",
         "quantity_in_g": 100
+      },
+      "subject_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 0.1
       }
     },
     "monounsaturated_fat": {
-      "nutrient_mass_data": {
-        "pref_unit": "g",
-        "quantity_in_g": 0.0
-      },
-      "subject_ref_qty_data": {
+      "host_qty_data": {
         "pref_unit": "g",
         "quantity_in_g": 100
+      },
+      "subject_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 0.0
       }
     },
     "polyunsaturated_fat": {
-      "nutrient_mass_data": {
-        "pref_unit": "g",
-        "quantity_in_g": 0.03333333333333334
-      },
-      "subject_ref_qty_data": {
+      "host_qty_data": {
         "pref_unit": "g",
         "quantity_in_g": 100
+      },
+      "subject_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 0.03333333333333334
       }
     },
     "protein": {
-      "nutrient_mass_data": {
-        "pref_unit": "g",
-        "quantity_in_g": 0.6666666666666667
-      },
-      "subject_ref_qty_data": {
+      "host_qty_data": {
         "pref_unit": "g",
         "quantity_in_g": 100
+      },
+      "subject_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 0.6666666666666667
       }
     },
     "saturated_fat": {
-      "nutrient_mass_data": {
-        "pref_unit": "g",
-        "quantity_in_g": 0.03333333333333334
-      },
-      "subject_ref_qty_data": {
+      "host_qty_data": {
         "pref_unit": "g",
         "quantity_in_g": 100
+      },
+      "subject_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 0.03333333333333334
       }
     },
     "sodium": {
-      "nutrient_mass_data": {
-        "pref_unit": "mg",
-        "quantity_in_g": 0.002
-      },
-      "subject_ref_qty_data": {
+      "host_qty_data": {
         "pref_unit": "g",
         "quantity_in_g": 100
+      },
+      "subject_qty_data": {
+        "pref_unit": "mg",
+        "quantity_in_g": 0.002
       }
     }
   }

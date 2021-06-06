@@ -4,6 +4,7 @@ from typing import Dict, Optional, List
 from unittest import mock
 
 import model
+from tests.model.quantity import fixtures as qfx
 from tests.model.nutrients import fixtures as nfx
 # Import test configs to allow us to build the global test flag list;
 from . import test_configs
@@ -42,6 +43,7 @@ class HasReadableFlagsTestable(model.flags.HasReadableFlags):
 
     @property
     def flag_dofs(self) -> 'model.flags.FlagDOFData':
+        """Returns flag dofs."""
         return self._flag_dofs_
 
     @property
@@ -78,70 +80,70 @@ def assert_nutrient_conflicts_equal(expected: 'model.flags.NRConflicts', actual:
 # The following is a selection of nutrient ratio data dicts to represent a range of flag-nutrient conflict scenarios.
 FLAG_NR_SCENARIOS = {
     "foo_free_no_conflicts": {
-        "foo": nfx.get_nutrient_ratio_data(nutrient_mass_g=0, subject_qty_g=100),
-        "foobing": nfx.get_nutrient_ratio_data(nutrient_mass_g=0.9, subject_qty_g=100),
-        "foobar": nfx.get_nutrient_ratio_data(nutrient_mass_g=0, subject_qty_g=100),
-        "bazing": nfx.get_nutrient_ratio_data(nutrient_mass_g=0.4, subject_qty_g=100)
+        "foo": qfx.get_qty_ratio_data(subject_qty_g=0, host_qty_g=100),
+        "foobing": qfx.get_qty_ratio_data(subject_qty_g=0.9, host_qty_g=100),
+        "foobar": qfx.get_qty_ratio_data(subject_qty_g=0, host_qty_g=100),
+        "bazing": qfx.get_qty_ratio_data(subject_qty_g=0.4, host_qty_g=100)
     },
     "foo_free_single_conflict": {
-        "foo": nfx.get_nutrient_ratio_data(nutrient_mass_g=0, subject_qty_g=100),
-        "foobing": nfx.get_nutrient_ratio_data(nutrient_mass_g=0, subject_qty_g=100),
-        "foobar": nfx.get_nutrient_ratio_data(nutrient_mass_g=0, subject_qty_g=100),
-        "bazing": nfx.get_nutrient_ratio_data(nutrient_mass_g=0.4, subject_qty_g=100)
+        "foo": qfx.get_qty_ratio_data(subject_qty_g=0, host_qty_g=100),
+        "foobing": qfx.get_qty_ratio_data(subject_qty_g=0, host_qty_g=100),
+        "foobar": qfx.get_qty_ratio_data(subject_qty_g=0, host_qty_g=100),
+        "bazing": qfx.get_qty_ratio_data(subject_qty_g=0.4, host_qty_g=100)
     },
     "foo_free_multiple_conflicts": {
-        "foo": nfx.get_nutrient_ratio_data(nutrient_mass_g=0.2, subject_qty_g=100),
-        "foobing": nfx.get_nutrient_ratio_data(nutrient_mass_g=0.9, subject_qty_g=100),
-        "foobar": nfx.get_nutrient_ratio_data(nutrient_mass_g=0.1, subject_qty_g=100),
-        "bazing": nfx.get_nutrient_ratio_data(nutrient_mass_g=0.4, subject_qty_g=100),
+        "foo": qfx.get_qty_ratio_data(subject_qty_g=0.2, host_qty_g=100),
+        "foobing": qfx.get_qty_ratio_data(subject_qty_g=0.9, host_qty_g=100),
+        "foobar": qfx.get_qty_ratio_data(subject_qty_g=0.1, host_qty_g=100),
+        "bazing": qfx.get_qty_ratio_data(subject_qty_g=0.4, host_qty_g=100),
     },
     "foo_free_single_undefined": {
-        "foo": nfx.get_nutrient_ratio_data(nutrient_mass_g=0, subject_qty_g=100),
-        "foobing": nfx.get_nutrient_ratio_data(nutrient_mass_g=0.9, subject_qty_g=100),
-        "bazing": nfx.get_nutrient_ratio_data(nutrient_mass_g=0.4, subject_qty_g=100),
+        "foo": qfx.get_qty_ratio_data(subject_qty_g=0, host_qty_g=100),
+        "foobing": qfx.get_qty_ratio_data(subject_qty_g=0.9, host_qty_g=100),
+        "bazing": qfx.get_qty_ratio_data(subject_qty_g=0.4, host_qty_g=100),
     },
     "foo_free_multiple_undefined": {
-        "foo": nfx.get_nutrient_ratio_data(nutrient_mass_g=0, subject_qty_g=100),
-        "bazing": nfx.get_nutrient_ratio_data(nutrient_mass_g=0.4, subject_qty_g=100),
+        "foo": qfx.get_qty_ratio_data(subject_qty_g=0, host_qty_g=100),
+        "bazing": qfx.get_qty_ratio_data(subject_qty_g=0.4, host_qty_g=100),
     },
     "pongaterian_no_conflicts": {
-        "foo": nfx.get_nutrient_ratio_data(nutrient_mass_g=0, subject_qty_g=100),
-        "foobing": nfx.get_nutrient_ratio_data(nutrient_mass_g=0, subject_qty_g=100),
-        "bazing": nfx.get_nutrient_ratio_data(nutrient_mass_g=0.2, subject_qty_g=100),
-        "tirbur": nfx.get_nutrient_ratio_data(nutrient_mass_g=0.3, subject_qty_g=100),
+        "foo": qfx.get_qty_ratio_data(subject_qty_g=0, host_qty_g=100),
+        "foobing": qfx.get_qty_ratio_data(subject_qty_g=0, host_qty_g=100),
+        "bazing": qfx.get_qty_ratio_data(subject_qty_g=0.2, host_qty_g=100),
+        "tirbur": qfx.get_qty_ratio_data(subject_qty_g=0.3, host_qty_g=100),
     },
     "pongaterian_single_conflict": {
-        "foo": nfx.get_nutrient_ratio_data(nutrient_mass_g=0.1, subject_qty_g=100),
-        "foobing": nfx.get_nutrient_ratio_data(nutrient_mass_g=0, subject_qty_g=100),
-        "bazing": nfx.get_nutrient_ratio_data(nutrient_mass_g=0.2, subject_qty_g=100),
-        "tirbur": nfx.get_nutrient_ratio_data(nutrient_mass_g=0.3, subject_qty_g=100),
+        "foo": qfx.get_qty_ratio_data(subject_qty_g=0.1, host_qty_g=100),
+        "foobing": qfx.get_qty_ratio_data(subject_qty_g=0, host_qty_g=100),
+        "bazing": qfx.get_qty_ratio_data(subject_qty_g=0.2, host_qty_g=100),
+        "tirbur": qfx.get_qty_ratio_data(subject_qty_g=0.3, host_qty_g=100),
     },
     "pongaterian_multiple_conflicts": {
-        "foo": nfx.get_nutrient_ratio_data(nutrient_mass_g=0, subject_qty_g=100),
-        "foobing": nfx.get_nutrient_ratio_data(nutrient_mass_g=0.2, subject_qty_g=100),
-        "bazing": nfx.get_nutrient_ratio_data(nutrient_mass_g=0, subject_qty_g=100),
-        "tirbur": nfx.get_nutrient_ratio_data(nutrient_mass_g=0.3, subject_qty_g=100),
+        "foo": qfx.get_qty_ratio_data(subject_qty_g=0, host_qty_g=100),
+        "foobing": qfx.get_qty_ratio_data(subject_qty_g=0.2, host_qty_g=100),
+        "bazing": qfx.get_qty_ratio_data(subject_qty_g=0, host_qty_g=100),
+        "tirbur": qfx.get_qty_ratio_data(subject_qty_g=0.3, host_qty_g=100),
     },
     "pongaterian_multiple_undefined": {
-        "foo": nfx.get_nutrient_ratio_data(nutrient_mass_g=0, subject_qty_g=100),
+        "foo": qfx.get_qty_ratio_data(subject_qty_g=0, host_qty_g=100),
     },
     "pongaterian_single_undefined": {
-        "foo": nfx.get_nutrient_ratio_data(nutrient_mass_g=0, subject_qty_g=100),
-        "foobing": nfx.get_nutrient_ratio_data(nutrient_mass_g=0, subject_qty_g=100),
-        "tirbur": nfx.get_nutrient_ratio_data(nutrient_mass_g=0.3, subject_qty_g=100),
+        "foo": qfx.get_qty_ratio_data(subject_qty_g=0, host_qty_g=100),
+        "foobing": qfx.get_qty_ratio_data(subject_qty_g=0, host_qty_g=100),
+        "tirbur": qfx.get_qty_ratio_data(subject_qty_g=0.3, host_qty_g=100),
     },
     "tirbur_free_no_conflicts": {
-        "tirbur": nfx.get_nutrient_ratio_data(nutrient_mass_g=0, subject_qty_g=100),
-        "foobing": nfx.get_nutrient_ratio_data(nutrient_mass_g=0, subject_qty_g=100),
+        "tirbur": qfx.get_qty_ratio_data(subject_qty_g=0, host_qty_g=100),
+        "foobing": qfx.get_qty_ratio_data(subject_qty_g=0, host_qty_g=100),
     },
     "tirbur_free_single_conflict": {
-        "tirbur": nfx.get_nutrient_ratio_data(nutrient_mass_g=0.2, subject_qty_g=100),
-        "foobing": nfx.get_nutrient_ratio_data(nutrient_mass_g=0, subject_qty_g=100),
+        "tirbur": qfx.get_qty_ratio_data(subject_qty_g=0.2, host_qty_g=100),
+        "foobing": qfx.get_qty_ratio_data(subject_qty_g=0, host_qty_g=100),
     },
     "bar_free_no_conflicts": {
-        "bar": nfx.get_nutrient_ratio_data(nutrient_mass_g=0, subject_qty_g=100),
-        "foobing": nfx.get_nutrient_ratio_data(nutrient_mass_g=0, subject_qty_g=100),
-        "foobar": nfx.get_nutrient_ratio_data(nutrient_mass_g=0.2, subject_qty_g=100),
-        "bazing": nfx.get_nutrient_ratio_data(nutrient_mass_g=0, subject_qty_g=100),
+        "bar": qfx.get_qty_ratio_data(subject_qty_g=0, host_qty_g=100),
+        "foobing": qfx.get_qty_ratio_data(subject_qty_g=0, host_qty_g=100),
+        "foobar": qfx.get_qty_ratio_data(subject_qty_g=0.2, host_qty_g=100),
+        "bazing": qfx.get_qty_ratio_data(subject_qty_g=0, host_qty_g=100),
     }
 }

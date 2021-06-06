@@ -16,83 +16,83 @@
   "name": "Green Beans",
   "nutrient_ratios_data": {
     "alcohol": {
-      "nutrient_mass_data": {
-        "pref_unit": "g",
-        "quantity_in_g": 0.0
-      },
-      "subject_ref_qty_data": {
+      "host_qty_data": {
         "pref_unit": "g",
         "quantity_in_g": 100
+      },
+      "subject_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 0.0
       }
     },
     "carbohydrate": {
-      "nutrient_mass_data": {
-        "pref_unit": "g",
-        "quantity_in_g": 7.920000000000001
-      },
-      "subject_ref_qty_data": {
+      "host_qty_data": {
         "pref_unit": "g",
         "quantity_in_g": 100
+      },
+      "subject_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 7.920000000000001
       }
     },
     "fat": {
-      "nutrient_mass_data": {
-        "pref_unit": "g",
-        "quantity_in_g": 0.24
-      },
-      "subject_ref_qty_data": {
+      "host_qty_data": {
         "pref_unit": "g",
         "quantity_in_g": 100
+      },
+      "subject_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 0.24
       }
     },
     "monounsaturated_fat": {
-      "nutrient_mass_data": {
-        "pref_unit": "g",
-        "quantity_in_g": 0.0
-      },
-      "subject_ref_qty_data": {
+      "host_qty_data": {
         "pref_unit": "g",
         "quantity_in_g": 100
+      },
+      "subject_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 0.0
       }
     },
     "polyunsaturated_fat": {
-      "nutrient_mass_data": {
-        "pref_unit": "g",
-        "quantity_in_g": 0.16
-      },
-      "subject_ref_qty_data": {
+      "host_qty_data": {
         "pref_unit": "g",
         "quantity_in_g": 100
+      },
+      "subject_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 0.16
       }
     },
     "protein": {
-      "nutrient_mass_data": {
-        "pref_unit": "g",
-        "quantity_in_g": 1.92
-      },
-      "subject_ref_qty_data": {
+      "host_qty_data": {
         "pref_unit": "g",
         "quantity_in_g": 100
+      },
+      "subject_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 1.92
       }
     },
     "saturated_fat": {
-      "nutrient_mass_data": {
-        "pref_unit": "g",
-        "quantity_in_g": 0.08
-      },
-      "subject_ref_qty_data": {
+      "host_qty_data": {
         "pref_unit": "g",
         "quantity_in_g": 100
+      },
+      "subject_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 0.08
       }
     },
     "sodium": {
-      "nutrient_mass_data": {
-        "pref_unit": "mg",
-        "quantity_in_g": 0.0010400000000000001
-      },
-      "subject_ref_qty_data": {
+      "host_qty_data": {
         "pref_unit": "g",
         "quantity_in_g": 100
+      },
+      "subject_qty_data": {
+        "pref_unit": "mg",
+        "quantity_in_g": 0.0010400000000000001
       }
     }
   }

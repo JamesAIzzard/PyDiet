@@ -16,83 +16,83 @@
   "name": "Egg Yolk",
   "nutrient_ratios_data": {
     "alcohol": {
-      "nutrient_mass_data": {
-        "pref_unit": "g",
-        "quantity_in_g": 0.0
-      },
-      "subject_ref_qty_data": {
+      "host_qty_data": {
         "pref_unit": "g",
         "quantity_in_g": 100
+      },
+      "subject_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 0.0
       }
     },
     "carbohydrate": {
-      "nutrient_mass_data": {
-        "pref_unit": "g",
-        "quantity_in_g": 3.5294117647058822
-      },
-      "subject_ref_qty_data": {
+      "host_qty_data": {
         "pref_unit": "g",
         "quantity_in_g": 100
+      },
+      "subject_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 3.5294117647058822
       }
     },
     "fat": {
-      "nutrient_mass_data": {
-        "pref_unit": "g",
-        "quantity_in_g": 26.47058823529412
-      },
-      "subject_ref_qty_data": {
+      "host_qty_data": {
         "pref_unit": "g",
         "quantity_in_g": 100
+      },
+      "subject_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 26.47058823529412
       }
     },
     "monounsaturated_fat": {
-      "nutrient_mass_data": {
-        "pref_unit": "g",
-        "quantity_in_g": 11.76470588235294
-      },
-      "subject_ref_qty_data": {
+      "host_qty_data": {
         "pref_unit": "g",
         "quantity_in_g": 100
+      },
+      "subject_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 11.76470588235294
       }
     },
     "polyunsaturated_fat": {
-      "nutrient_mass_data": {
-        "pref_unit": "g",
-        "quantity_in_g": 4.117647058823529
-      },
-      "subject_ref_qty_data": {
+      "host_qty_data": {
         "pref_unit": "g",
         "quantity_in_g": 100
+      },
+      "subject_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 4.117647058823529
       }
     },
     "protein": {
-      "nutrient_mass_data": {
-        "pref_unit": "g",
-        "quantity_in_g": 15.882352941176473
-      },
-      "subject_ref_qty_data": {
+      "host_qty_data": {
         "pref_unit": "g",
         "quantity_in_g": 100
+      },
+      "subject_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 15.882352941176473
       }
     },
     "saturated_fat": {
-      "nutrient_mass_data": {
-        "pref_unit": "g",
-        "quantity_in_g": 9.411764705882353
-      },
-      "subject_ref_qty_data": {
+      "host_qty_data": {
         "pref_unit": "g",
         "quantity_in_g": 100
+      },
+      "subject_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 9.411764705882353
       }
     },
     "sodium": {
-      "nutrient_mass_data": {
-        "pref_unit": "mg",
-        "quantity_in_g": 0.04823529411764706
-      },
-      "subject_ref_qty_data": {
+      "host_qty_data": {
         "pref_unit": "g",
         "quantity_in_g": 100
+      },
+      "subject_qty_data": {
+        "pref_unit": "mg",
+        "quantity_in_g": 0.04823529411764706
       }
     }
   }

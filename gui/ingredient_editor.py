@@ -309,7 +309,7 @@ class IngredientEditorController(gui.HasSubject):
             self.nutrient_flag_status.show_conflict(
                 f"The nutrients in the {err.nutrient_group_name} group exceed its mass."
             )
-        except model.nutrients.exceptions.NutrientQtyExceedsSubjectQtyError as err:
+        except model.nutrients.exceptions.NutrientMassExceedsSubjectQtyError as err:
             self.nutrient_flag_status.show_conflict(
                 f"The mass of {err.nutrient_name} exceeds its stated ingredient mass."
             )

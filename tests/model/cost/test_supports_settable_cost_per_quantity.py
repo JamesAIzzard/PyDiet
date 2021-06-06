@@ -6,20 +6,27 @@ from tests.model.cost import fixtures as fx
 
 
 class TestConstructor(TestCase):
+    """Tests for the constructor."""
+
     def test_correct_instance(self):
+        """Checks we can create a simple instance."""
+        # Check a simple instance is created OK.
         self.assertTrue(model.cost.HasSettableCostPerQuantity(), model.cost.HasSettableCostPerQuantity)
 
     def test_loads_data(self):
-        sc = model.cost.HasSettableCostPerQuantity(cost_per_qty_data=model.cost.CostPerQtyData(
+        """Check any data we pass in gets loaded."""
+        # Create some test data;
+        data = model.cost.CostPerQtyData(
             pref_unit='kg',
             quantity_in_g=1200,
             cost_per_g=0.25
-        ))
-        self.assertEqual(sc.cost_per_qty_data, model.cost.CostPerQtyData(
-            pref_unit='kg',
-            quantity_in_g=1200,
-            cost_per_g=0.25
-        ))
+        )
+
+        # Create a test instance, passing in data;
+        sc = model.cost.HasSettableCostPerQuantity(cost_per_qty_data=data)
+
+        # Check the correct data shows up;
+        self.assertEqual(data, sc.cost_per_qty_data)
 
 
 class TestSubjectQuantity(TestCase):

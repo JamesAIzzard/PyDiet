@@ -88,7 +88,6 @@ class HasSettableCostPerQuantity(HasReadableCostPerQuantity, persistence.CanLoad
     def __init__(self, cost_per_qty_data: Optional['model.cost.CostPerQtyData'] = None, **kwargs):
         super().__init__(**kwargs)
 
-        # Create vars to store the data locally now;
         # Create a subject quantity instance;
         self._cost_ref_qty = model.quantity.IsSettableQuantityOf(
             qty_subject=self,
@@ -97,6 +96,7 @@ class HasSettableCostPerQuantity(HasReadableCostPerQuantity, persistence.CanLoad
                 pref_unit='g'
             )
         )
+
         # Create somewhere to put the cost per gram value;
         self._cost_per_g_: Optional[float] = None
 
@@ -154,8 +154,8 @@ class HasSettableCostPerQuantity(HasReadableCostPerQuantity, persistence.CanLoad
         # Set the value;
         self._cost_per_g_ = cost_per_g
         self.cost_ref_subject_quantity.set_quantity(
-            quantity=qty,
-            unit=unit
+            quantity_value=qty,
+            quantity_unit=unit
         )
 
     def load_data(self, data: Dict[str, Any]) -> None:

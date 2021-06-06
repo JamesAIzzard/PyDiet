@@ -16,83 +16,83 @@
   "name": "Rice (Wholegrain)",
   "nutrient_ratios_data": {
     "alcohol": {
-      "nutrient_mass_data": {
-        "pref_unit": "g",
-        "quantity_in_g": 0.0
-      },
-      "subject_ref_qty_data": {
+      "host_qty_data": {
         "pref_unit": "g",
         "quantity_in_g": 100
+      },
+      "subject_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 0.0
       }
     },
     "carbohydrate": {
-      "nutrient_mass_data": {
-        "pref_unit": "g",
-        "quantity_in_g": 23.0
-      },
-      "subject_ref_qty_data": {
+      "host_qty_data": {
         "pref_unit": "g",
         "quantity_in_g": 100
+      },
+      "subject_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 23.0
       }
     },
     "fat": {
-      "nutrient_mass_data": {
-        "pref_unit": "g",
-        "quantity_in_g": 0.9000000000000001
-      },
-      "subject_ref_qty_data": {
+      "host_qty_data": {
         "pref_unit": "g",
         "quantity_in_g": 100
+      },
+      "subject_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 0.9000000000000001
       }
     },
     "monounsaturated_fat": {
-      "nutrient_mass_data": {
-        "pref_unit": "g",
-        "quantity_in_g": 0.3
-      },
-      "subject_ref_qty_data": {
+      "host_qty_data": {
         "pref_unit": "g",
         "quantity_in_g": 100
+      },
+      "subject_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 0.3
       }
     },
     "polyunsaturated_fat": {
-      "nutrient_mass_data": {
-        "pref_unit": "g",
-        "quantity_in_g": 0.3
-      },
-      "subject_ref_qty_data": {
+      "host_qty_data": {
         "pref_unit": "g",
         "quantity_in_g": 100
+      },
+      "subject_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 0.3
       }
     },
     "protein": {
-      "nutrient_mass_data": {
-        "pref_unit": "g",
-        "quantity_in_g": 2.6
-      },
-      "subject_ref_qty_data": {
+      "host_qty_data": {
         "pref_unit": "g",
         "quantity_in_g": 100
+      },
+      "subject_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 2.6
       }
     },
     "saturated_fat": {
-      "nutrient_mass_data": {
-        "pref_unit": "g",
-        "quantity_in_g": 0.2
-      },
-      "subject_ref_qty_data": {
+      "host_qty_data": {
         "pref_unit": "g",
         "quantity_in_g": 100
+      },
+      "subject_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 0.2
       }
     },
     "sodium": {
-      "nutrient_mass_data": {
-        "pref_unit": "mg",
-        "quantity_in_g": 0.005
-      },
-      "subject_ref_qty_data": {
+      "host_qty_data": {
         "pref_unit": "g",
         "quantity_in_g": 100
+      },
+      "subject_qty_data": {
+        "pref_unit": "mg",
+        "quantity_in_g": 0.005
       }
     }
   }

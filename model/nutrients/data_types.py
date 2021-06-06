@@ -5,4 +5,4 @@ import model
 
 
 NutrientMassData = model.quantity.QuantityData
-NutrientRatiosData = Dict[str, 'model.quantity.RatioData']
+NutrientRatiosData = Dict[str, model.quantity.QuantityRatioData]

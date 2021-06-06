@@ -16,83 +16,83 @@
   "name": "Beef Mince",
   "nutrient_ratios_data": {
     "alcohol": {
-      "nutrient_mass_data": {
-        "pref_unit": "g",
-        "quantity_in_g": 0.0
-      },
-      "subject_ref_qty_data": {
+      "host_qty_data": {
         "pref_unit": "g",
         "quantity_in_g": 100
+      },
+      "subject_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 0.0
       }
     },
     "carbohydrate": {
-      "nutrient_mass_data": {
-        "pref_unit": "g",
-        "quantity_in_g": 0.0
-      },
-      "subject_ref_qty_data": {
+      "host_qty_data": {
         "pref_unit": "g",
         "quantity_in_g": 100
+      },
+      "subject_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 0.0
       }
     },
     "fat": {
-      "nutrient_mass_data": {
-        "pref_unit": "g",
-        "quantity_in_g": 30.0
-      },
-      "subject_ref_qty_data": {
+      "host_qty_data": {
         "pref_unit": "g",
         "quantity_in_g": 100
+      },
+      "subject_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 30.0
       }
     },
     "monounsaturated_fat": {
-      "nutrient_mass_data": {
-        "pref_unit": "g",
-        "quantity_in_g": 13.200000000000001
-      },
-      "subject_ref_qty_data": {
+      "host_qty_data": {
         "pref_unit": "g",
         "quantity_in_g": 100
+      },
+      "subject_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 13.200000000000001
       }
     },
     "polyunsaturated_fat": {
-      "nutrient_mass_data": {
-        "pref_unit": "g",
-        "quantity_in_g": 0.7
-      },
-      "subject_ref_qty_data": {
+      "host_qty_data": {
         "pref_unit": "g",
         "quantity_in_g": 100
+      },
+      "subject_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 0.7
       }
     },
     "protein": {
-      "nutrient_mass_data": {
-        "pref_unit": "g",
-        "quantity_in_g": 14.3
-      },
-      "subject_ref_qty_data": {
+      "host_qty_data": {
         "pref_unit": "g",
         "quantity_in_g": 100
+      },
+      "subject_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 14.3
       }
     },
     "saturated_fat": {
-      "nutrient_mass_data": {
-        "pref_unit": "g",
-        "quantity_in_g": 11.3
-      },
-      "subject_ref_qty_data": {
+      "host_qty_data": {
         "pref_unit": "g",
         "quantity_in_g": 100
+      },
+      "subject_qty_data": {
+        "pref_unit": "g",
+        "quantity_in_g": 11.3
       }
     },
     "sodium": {
-      "nutrient_mass_data": {
-        "pref_unit": "mg",
-        "quantity_in_g": 0.067
-      },
-      "subject_ref_qty_data": {
+      "host_qty_data": {
         "pref_unit": "g",
         "quantity_in_g": 100
+      },
+      "subject_qty_data": {
+        "pref_unit": "mg",
+        "quantity_in_g": 0.067
       }
     }
   }

@@ -43,8 +43,8 @@ class TestSetQuantity(TestCase):
 
         # Set the quantity;
         siq.set_quantity(
-            quantity=0.1,
-            unit="kg"
+            quantity_value=0.1,
+            quantity_unit="kg"
         )
 
         # Assert that the quantity has been set;
@@ -69,8 +69,8 @@ class TestSetQuantity(TestCase):
 
         # Set the quantity;
         siq.set_quantity(
-            quantity=1.2,
-            unit="L"
+            quantity_value=1.2,
+            quantity_unit="L"
         )
 
         # Assert that the quantity has been set;
@@ -90,7 +90,7 @@ class TestSetQuantity(TestCase):
 
         # Assert we get an exception if we try to use extended units;
         with self.assertRaises(model.quantity.exceptions.UndefinedDensityError):
-            siq.set_quantity(quantity=1.2, unit="L")
+            siq.set_quantity(quantity_value=1.2, quantity_unit="L")
 
 
 class TestNumCalories(TestCase):
@@ -111,7 +111,7 @@ class TestNumCalories(TestCase):
         num_cals = siq.num_calories
 
         # Double the quantity;
-        siq.set_quantity(quantity=300, unit='g')
+        siq.set_quantity(quantity_value=300, quantity_unit='g')
 
         # Assert the number of calories has doubled;
         self.assertEqual(num_cals * 2, siq.num_calories)

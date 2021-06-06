@@ -6,7 +6,7 @@ import model
 import persistence
 
 
-class ReadableIngredientQuantity(
+class IngredientQuantityBase(
     model.nutrients.HasReadableNutrientMasses,
     model.quantity.IsQuantityOfBase,
     abc.ABC
@@ -22,11 +22,11 @@ class ReadableIngredientQuantity(
         return self._qty_subject
 
 
-class ReadonlyIngredientQuantity(ReadableIngredientQuantity, model.quantity.IsReadonlyQuantityOf):
+class ReadonlyIngredientQuantity(IngredientQuantityBase, model.quantity.IsReadonlyQuantityOf):
     """Models a readonly quantity of an ingredient."""
 
 
-class SettableIngredientQuantity(ReadableIngredientQuantity, model.quantity.IsSettableQuantityOf):
+class SettableIngredientQuantity(IngredientQuantityBase, model.quantity.IsSettableQuantityOf):
     """Models a settable quantity of an ingredient."""
 
 

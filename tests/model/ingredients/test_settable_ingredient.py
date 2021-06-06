@@ -305,10 +305,10 @@ class TestSetNutrientRatio(TestCase):
         # Set the nutrient ratio;
         si.set_nutrient_ratio(
             nutrient_name="tirbur",
-            nutrient_mass=20,
+            nutrient_mass_value=20,
             nutrient_mass_unit="mg",
-            subject_qty=120,
-            subject_qty_unit='g'
+            host_qty_value=120,
+            host_qty_unit='g'
         )
 
         # Check the nutrient ratio is defined now;

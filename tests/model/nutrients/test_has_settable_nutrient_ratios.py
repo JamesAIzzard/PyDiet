@@ -2,7 +2,8 @@
 from unittest import TestCase, mock
 
 import model
-from tests.model.nutrients import fixtures as fx
+from tests.model.nutrients import fixtures as nfx
+from tests.model.quantity import fixtures as qfx
 
 
 class TestConstructor(TestCase):
@@ -33,14 +34,14 @@ class TestConstructor(TestCase):
 class TestNutrientRatios(TestCase):
     """Test the nutrient_ratios property."""
 
-    @fx.use_test_nutrients
+    @nfx.use_test_nutrients
     def test_returns_correct_keys(self):
         """Checks that we have a key in the dict for each nutrient ratio which is defined
         on the instance."""
         # Create a test instance with some nr data;
         hsnr = model.nutrients.HasSettableNutrientRatios(nutrient_ratios_data={
-            "regatur": fx.get_nutrient_ratio_data(nutrient_mass_g=12, subject_qty_g=100),
-            "fillydon": fx.get_nutrient_ratio_data(nutrient_mass_g=12, subject_qty_g=100)
+            "regatur": qfx.get_qty_ratio_data(subject_qty_g=12, host_qty_g=100),
+            "fillydon": qfx.get_qty_ratio_data(subject_qty_g=12, host_qty_g=100)
         })
 
         # Check the right keys show up in the dictionary;
@@ -49,14 +50,14 @@ class TestNutrientRatios(TestCase):
             set(hsnr.nutrient_ratios.keys())
         )
 
-    @fx.use_test_nutrients
+    @nfx.use_test_nutrients
     def test_returns_readonly_nutrient_ratios(self):
         """Checks that we are not returning writable versions which could be given out and modified
         out of context of the subject."""
         # Create a test instance with some nr data;
         hsnr = model.nutrients.HasSettableNutrientRatios(nutrient_ratios_data={
-            "regatur": fx.get_nutrient_ratio_data(nutrient_mass_g=12, subject_qty_g=100),
-            "fillydon": fx.get_nutrient_ratio_data(nutrient_mass_g=12, subject_qty_g=100)
+            "regatur": qfx.get_qty_ratio_data(subject_qty_g=12, host_qty_g=100),
+            "fillydon": qfx.get_qty_ratio_data(subject_qty_g=12, host_qty_g=100)
         })
 
         # Check the instances are the right type;
@@ -69,22 +70,22 @@ class TestGetSettableNutrientRatio(TestCase):
     """This is the internal method which provides lookup functionality to return SettableNutrientRatio
     instances to be used internally."""
 
-    @fx.use_test_nutrients
+    @nfx.use_test_nutrients
     def test_returns_correct_data(self):
         """Check that we get the nutrient ratio corresponding to the nutrient we asked for."""
         # Create a test instance with some nr data;
         hsnr = model.nutrients.HasSettableNutrientRatios(nutrient_ratios_data={
-            "regatur": fx.get_nutrient_ratio_data(
-                nutrient_mass_g=12,
-                nutrient_mass_unit="mg",
-                subject_qty_g=100,
-                subject_qty_unit="kg"
+            "regatur": qfx.get_qty_ratio_data(
+                subject_qty_g=12,
+                subject_qty_unit="mg",
+                host_qty_g=100,
+                host_qty_unit="kg"
             ),
-            "fillydon": fx.get_nutrient_ratio_data(
-                nutrient_mass_g=14,
-                nutrient_mass_unit="g",
-                subject_qty_g=120,
-                subject_qty_unit="g"
+            "fillydon": qfx.get_qty_ratio_data(
+                subject_qty_g=14,
+                subject_qty_unit="g",
+                host_qty_g=120,
+                host_qty_unit="g"
             )
         })
 
@@ -92,19 +93,19 @@ class TestGetSettableNutrientRatio(TestCase):
         self.assertEqual(12, hsnr._get_settable_nutrient_ratio(nutrient_name="regatur").nutrient_mass.quantity_in_g)
         self.assertEqual("mg", hsnr._get_settable_nutrient_ratio(nutrient_name="regatur").nutrient_mass.qty_pref_unit)
         self.assertEqual(
-            100, hsnr._get_settable_nutrient_ratio(nutrient_name="regatur").subject_ref_quantity.quantity_in_g
+            100, hsnr._get_settable_nutrient_ratio(nutrient_name="regatur").ratio_host_qty.quantity_in_g
         )
         self.assertEqual(
-            "kg", hsnr._get_settable_nutrient_ratio(nutrient_name="regatur").subject_ref_quantity.qty_pref_unit
+            "kg", hsnr._get_settable_nutrient_ratio(nutrient_name="regatur").ratio_host_qty.qty_pref_unit
         )
 
-    @fx.use_test_nutrients
+    @nfx.use_test_nutrients
     def test_returns_writeable_instance(self):
         """Check that the instance we get back is actually a writable version."""
         # Create a test instance with some nr data;
         hsnr = model.nutrients.HasSettableNutrientRatios(nutrient_ratios_data={
-            "regatur": fx.get_nutrient_ratio_data(nutrient_mass_g=12, subject_qty_g=100),
-            "fillydon": fx.get_nutrient_ratio_data(nutrient_mass_g=12, subject_qty_g=100)
+            "regatur": qfx.get_qty_ratio_data(subject_qty_g=12, host_qty_g=100),
+            "fillydon": qfx.get_qty_ratio_data(subject_qty_g=12, host_qty_g=100)
         })
 
         # Check we get the correct type of instance back;
@@ -113,7 +114,7 @@ class TestGetSettableNutrientRatio(TestCase):
             model.nutrients.SettableNutrientRatio
         ))
 
-    @fx.use_test_nutrients
+    @nfx.use_test_nutrients
     def test_raises_exception_if_nutrient_ratio_no_defined(self):
         """Check that we get an UndefinedNutrientRatioError if the nutrient ratio we ask for isnt defined."""
         hsnr = model.nutrients.HasSettableNutrientRatios()
@@ -125,7 +126,7 @@ class TestSetNutrientRatio(TestCase):
     """This is the public method responsible for setting a nutrient ratio on the instance. Therefore,
     the method is responsible for validating the new values within the context of the existing values."""
 
-    @fx.use_test_nutrients
+    @nfx.use_test_nutrients
     def test_sets_nutrient_ratio_which_was_previously_unset_correctly(self):
         """Check that we can set a nutrient ratio which was previously unset, without errors."""
         # Create the instance;
@@ -137,27 +138,27 @@ class TestSetNutrientRatio(TestCase):
         # Set the ratio;
         hsnr.set_nutrient_ratio(
             nutrient_name="tirbur",
-            nutrient_mass=20,
+            nutrient_mass_value=20,
             nutrient_mass_unit="ug",
-            subject_qty=0.5,
-            subject_qty_unit="lb"
+            host_qty_value=0.5,
+            host_qty_unit="lb"
         )
 
         # Now verify that all the data is as it should be;
         tb = hsnr.get_nutrient_ratio("tirbur")
-        self.assertTrue(tb.subject_ref_quantity.qty_subject is hsnr)
+        self.assertTrue(tb.ratio_host_qty.qty_subject is hsnr)
         self.assertAlmostEqual(2e-6, tb.nutrient_mass.quantity_in_g, delta=0.01)
         self.assertEqual("ug", tb.nutrient_mass.qty_pref_unit)
-        self.assertAlmostEqual(226.796, tb.subject_ref_quantity.quantity_in_g, delta=0.01)
-        self.assertEqual("lb", tb.subject_ref_quantity.qty_pref_unit)
+        self.assertAlmostEqual(226.796, tb.ratio_host_qty.quantity_in_g, delta=0.01)
+        self.assertEqual("lb", tb.ratio_host_qty.qty_pref_unit)
 
-    @fx.use_test_nutrients
+    @nfx.use_test_nutrients
     def test_sets_nutrient_ratio_which_was_previously_set_correctly(self):
         """Check that we can set a nutrient ratio which was previously set, without errors."""
         # Create a test instance with some nr data;
         hsnr = model.nutrients.HasSettableNutrientRatios(nutrient_ratios_data={
-            "regatur": fx.get_nutrient_ratio_data(nutrient_mass_g=12, subject_qty_g=100),
-            "fillydon": fx.get_nutrient_ratio_data(nutrient_mass_g=12, subject_qty_g=100)
+            "regatur": qfx.get_qty_ratio_data(subject_qty_g=12, host_qty_g=100),
+            "fillydon": qfx.get_qty_ratio_data(subject_qty_g=12, host_qty_g=100)
         })
 
         # Assert the nutrient is set already;
@@ -166,46 +167,46 @@ class TestSetNutrientRatio(TestCase):
         # Set the ratio;
         hsnr.set_nutrient_ratio(
             nutrient_name="regatur",
-            nutrient_mass=20,
+            nutrient_mass_value=20,
             nutrient_mass_unit="g",
-            subject_qty=100,
-            subject_qty_unit="g"
+            host_qty_value=100,
+            host_qty_unit="g"
         )
 
         # Now verify that all the data is as it should be;
         tb = hsnr.get_nutrient_ratio("regatur")
-        self.assertTrue(tb.subject_ref_quantity.qty_subject is hsnr)
+        self.assertTrue(tb.ratio_host_qty.qty_subject is hsnr)
         self.assertAlmostEqual(20, tb.nutrient_mass.quantity_in_g, delta=0.01)
         self.assertEqual("g", tb.nutrient_mass.qty_pref_unit)
-        self.assertAlmostEqual(100, tb.subject_ref_quantity.quantity_in_g, delta=0.01)
-        self.assertEqual("g", tb.subject_ref_quantity.qty_pref_unit)
+        self.assertAlmostEqual(100, tb.ratio_host_qty.quantity_in_g, delta=0.01)
+        self.assertEqual("g", tb.ratio_host_qty.qty_pref_unit)
 
-    @fx.use_test_nutrients
+    @nfx.use_test_nutrients
     def test_sets_nutrient_ratio_using_subject_volume_when_density_is_defined(self):
         """Check that we can set a nutrient ratio using a volume unit provided when the
         subject density is defined. Strictly, this functionality mostly belongs to the
         quantity classes, but it is useful to do a integrated test here. """
         # Create the instance;
-        hsnr = fx.HasSettableNutrientRatiosAndExtUnitsTestable(g_per_ml=1.1)
+        hsnr = nfx.HasSettableNutrientRatiosAndExtUnitsTestable(g_per_ml=1.1)
 
         # Set the ratio;
         hsnr.set_nutrient_ratio(
             nutrient_name="tirbur",
-            nutrient_mass=20,
+            nutrient_mass_value=20,
             nutrient_mass_unit="ug",
-            subject_qty=0.5,
-            subject_qty_unit="l"
+            host_qty_value=0.5,
+            host_qty_unit="l"
         )
 
         # Now verify that all the data is as it should be;
         tb = hsnr.get_nutrient_ratio("tirbur")
-        self.assertTrue(tb.subject_ref_quantity.qty_subject is hsnr)
+        self.assertTrue(tb.ratio_host_qty.qty_subject is hsnr)
         self.assertAlmostEqual(2e-6, tb.nutrient_mass.quantity_in_g, delta=0.01)
         self.assertEqual("ug", tb.nutrient_mass.qty_pref_unit)
-        self.assertAlmostEqual(550, tb.subject_ref_quantity.quantity_in_g, delta=0.01)
-        self.assertEqual("l", tb.subject_ref_quantity.qty_pref_unit)
+        self.assertAlmostEqual(550, tb.ratio_host_qty.quantity_in_g, delta=0.01)
+        self.assertEqual("l", tb.ratio_host_qty.qty_pref_unit)
 
-    @fx.use_test_nutrients
+    @nfx.use_test_nutrients
     def test_raises_exception_if_unsupported_extended_units_are_used(self):
         """Check that we get an unsupported units exception if we try and use extended units on
         a class that doesn't support them. Again, this overlaps with validation done in the
@@ -218,29 +219,29 @@ class TestSetNutrientRatio(TestCase):
         with self.assertRaises(model.quantity.exceptions.UnsupportedExtendedUnitsError):
             hsnr.set_nutrient_ratio(
                 nutrient_name="tirbur",
-                nutrient_mass=20,
+                nutrient_mass_value=20,
                 nutrient_mass_unit="ug",
-                subject_qty=0.5,
-                subject_qty_unit="l"
+                host_qty_value=0.5,
+                host_qty_unit="l"
             )
 
-    @fx.use_test_nutrients
+    @nfx.use_test_nutrients
     def test_sets_nutrient_ratio_using_subject_volume_when_density_is_defined(self):
         """Check that using extended units on the subject, when the subject does support them
         but they are undefined, raises the right exception. Integrated version of functionality
         also tested on the quantity module."""
 
         # Create the instance;
-        hsnr = fx.HasSettableNutrientRatiosAndExtUnitsTestable(g_per_ml=None)
+        hsnr = nfx.HasSettableNutrientRatiosAndExtUnitsTestable(g_per_ml=None)
 
         # Check we get the right exception when we try to set the ratio;
         with self.assertRaises(model.quantity.exceptions.UndefinedDensityError):
             hsnr.set_nutrient_ratio(
                 nutrient_name="tirbur",
-                nutrient_mass=20,
+                nutrient_mass_value=20,
                 nutrient_mass_unit="ug",
-                subject_qty=0.5,
-                subject_qty_unit="l"
+                host_qty_value=0.5,
+                host_qty_unit="l"
             )
 
     def test_raises_exception_if_nutrient_name_not_recognised(self):
@@ -253,13 +254,13 @@ class TestSetNutrientRatio(TestCase):
         with self.assertRaises(model.nutrients.exceptions.NutrientNameNotRecognisedError):
             hsnr.set_nutrient_ratio(
                 nutrient_name="fake",
-                nutrient_mass=20,
+                nutrient_mass_value=20,
                 nutrient_mass_unit="ug",
-                subject_qty=0.5,
-                subject_qty_unit="l"
+                host_qty_value=0.5,
+                host_qty_unit="l"
             )
 
-    @fx.use_test_nutrients
+    @nfx.use_test_nutrients
     def test_raises_exception_if_nutrient_qty_exceeds_subject_qty(self):
         """Checks that we get an exception if we try to set the nutrient quantity greater than
         the subject quantity."""
@@ -267,16 +268,16 @@ class TestSetNutrientRatio(TestCase):
         hsnr = model.nutrients.HasSettableNutrientRatios()
 
         # Check we get the right exception when we try to set the ratio;
-        with self.assertRaises(model.nutrients.exceptions.NutrientQtyExceedsSubjectQtyError):
+        with self.assertRaises(model.nutrients.exceptions.NutrientMassExceedsSubjectQtyError):
             hsnr.set_nutrient_ratio(
                 nutrient_name="tirbur",
-                nutrient_mass=10000,  # 10g
+                nutrient_mass_value=10000,  # 10g
                 nutrient_mass_unit="mg",
-                subject_qty=9,
-                subject_qty_unit="g"
+                host_qty_value=9,
+                host_qty_unit="g"
             )
 
-    @fx.use_test_nutrients
+    @nfx.use_test_nutrients
     def test_raises_exception_if_nutrient_qty_is_not_mass(self):
         """Checks we get an exception if the nutrient quantity is not a mass. This is an integrated test,
         primarily relying on validation done in the NutrientMass class."""
@@ -287,13 +288,13 @@ class TestSetNutrientRatio(TestCase):
         with self.assertRaises(model.quantity.exceptions.UnsupportedExtendedUnitsError):
             hsnr.set_nutrient_ratio(
                 nutrient_name="tirbur",
-                nutrient_mass=10,
+                nutrient_mass_value=10,
                 nutrient_mass_unit="ml",
-                subject_qty=100,
-                subject_qty_unit="g"
+                host_qty_value=100,
+                host_qty_unit="g"
             )
 
-    @fx.use_test_nutrients
+    @nfx.use_test_nutrients
     def test_raises_exception_if_nutrient_is_set_for_zero_subject_quantity(self):
         """This checks that we get a zero qty error if we try and set a nutrient ratio against
         a zero subject quantity, which obviously doesn't make sense."""
@@ -302,24 +303,24 @@ class TestSetNutrientRatio(TestCase):
         hsnr = model.nutrients.HasSettableNutrientRatios()
 
         # Check we get the right exception when we try to set the ratio;
-        with self.assertRaises(model.quantity.exceptions.ZeroQtyError):
+        with self.assertRaises(model.quantity.exceptions.ZeroQuantityRatioHostError):
             hsnr.set_nutrient_ratio(
                 nutrient_name="tirbur",
-                nutrient_mass=10,
-                nutrient_mass_unit="ml",
-                subject_qty=0,
-                subject_qty_unit="g"
+                nutrient_mass_value=10,
+                nutrient_mass_unit="mg",
+                host_qty_value=0,
+                host_qty_unit="g"
             )
 
 
 class TestUndefineNutrientRatio(TestCase):
-    @fx.use_test_nutrients
+    @nfx.use_test_nutrients
     def test_nutrient_ratio_is_undefined(self):
         """Checks that the named nutrient ratio is undefined correctly."""
         # Create a test instance with some nr data;
         hsnr = model.nutrients.HasSettableNutrientRatios(nutrient_ratios_data={
-            "regatur": fx.get_nutrient_ratio_data(nutrient_mass_g=12, subject_qty_g=100),
-            "fillydon": fx.get_nutrient_ratio_data(nutrient_mass_g=12, subject_qty_g=100)
+            "regatur": qfx.get_qty_ratio_data(subject_qty_g=12, host_qty_g=100),
+            "fillydon": qfx.get_qty_ratio_data(subject_qty_g=12, host_qty_g=100)
         })
 
         # Assert that the nutrient is defined;
@@ -333,13 +334,13 @@ class TestUndefineNutrientRatio(TestCase):
 
 
 class TestZeroNutrientRatio(TestCase):
-    @fx.use_test_nutrients
+    @nfx.use_test_nutrients
     def test_nutrient_ratio_is_zeroed(self):
         """Checks that the named nutrient ratio is zeroed correctly."""
         # Create a test instance with some nr data;
         hsnr = model.nutrients.HasSettableNutrientRatios(nutrient_ratios_data={
-            "regatur": fx.get_nutrient_ratio_data(nutrient_mass_g=12, subject_qty_g=100),
-            "fillydon": fx.get_nutrient_ratio_data(nutrient_mass_g=12, subject_qty_g=100)
+            "regatur": qfx.get_qty_ratio_data(subject_qty_g=12, host_qty_g=100),
+            "fillydon": qfx.get_qty_ratio_data(subject_qty_g=12, host_qty_g=100)
         })
 
         # Assert that the nutrient is defined;
@@ -353,33 +354,33 @@ class TestZeroNutrientRatio(TestCase):
 
 
 class TestLoadData(TestCase):
-    @fx.use_test_nutrients
+    @nfx.use_test_nutrients
     def test_data_is_loaded_correctly(self):
         """Checks the data is loaded correctly."""
         # Create some test data;
         data = {
-            "cufmagif": fx.get_nutrient_ratio_data(
-                nutrient_mass_g=12,
-                nutrient_mass_unit="mg",
-                subject_qty_g=100,
-                subject_qty_unit="kg"
+            "cufmagif": qfx.get_qty_ratio_data(
+                subject_qty_g=12,
+                subject_qty_unit="mg",
+                host_qty_g=100,
+                host_qty_unit="kg"
             ),
-            "tirbur": fx.get_nutrient_ratio_data(
-                nutrient_mass_g=13,
-                nutrient_mass_unit="ug",
-                subject_qty_g=100,
-                subject_qty_unit="L"
+            "tirbur": qfx.get_qty_ratio_data(
+                subject_qty_g=13,
+                subject_qty_unit="ug",
+                host_qty_g=100,
+                host_qty_unit="L"
             ),
-            "docbe": fx.get_nutrient_ratio_data(
-                nutrient_mass_g=26,
-                nutrient_mass_unit="g",
-                subject_qty_g=100,
-                subject_qty_unit="pc"
+            "docbe": qfx.get_qty_ratio_data(
+                subject_qty_g=26,
+                subject_qty_unit="g",
+                host_qty_g=100,
+                host_qty_unit="pc"
             )
         }
 
         # First we can create an instance without any data;
-        hsnr = fx.HasSettableNutrientRatiosAndExtUnitsTestable(g_per_ml=1.2, piece_mass_g=120)
+        hsnr = nfx.HasSettableNutrientRatiosAndExtUnitsTestable(g_per_ml=1.2, piece_mass_g=120)
 
         # Assert that we have no data;
         self.assertTrue(len(hsnr.persistable_data['nutrient_ratios_data']) == 0)
@@ -391,36 +392,36 @@ class TestLoadData(TestCase):
         self.assertEqual(3, len(hsnr.nutrient_ratios))
         self.assertEqual({"cufmagif", "tirbur", "docbe"}, set(hsnr.nutrient_ratios.keys()))
         self.assertEqual(12, hsnr.nutrient_ratios["cufmagif"].nutrient_mass.quantity_in_g)
-        self.assertEqual(100, hsnr.nutrient_ratios["tirbur"].subject_ref_quantity.quantity_in_g)
+        self.assertEqual(100, hsnr.nutrient_ratios["tirbur"].ratio_host_qty.quantity_in_g)
         self.assertEqual('ug', hsnr.nutrient_ratios["tirbur"].nutrient_mass.qty_pref_unit)
-        self.assertEqual('pc', hsnr.nutrient_ratios["docbe"].subject_ref_quantity.qty_pref_unit)
+        self.assertEqual('pc', hsnr.nutrient_ratios["docbe"].ratio_host_qty.qty_pref_unit)
 
-    @fx.use_test_nutrients
+    @nfx.use_test_nutrients
     def test_exception_if_data_contains_family_mass_error(self):
         """This checks we get an exception if we load data that contains family mass errors. This duplicates
         some tested functionality on the validation method, but it is useful to do as an integration test."""
         # Create an emtpy test instance;
-        hsnr = fx.HasSettableNutrientRatiosAndExtUnitsTestable(g_per_ml=1.2, piece_mass_g=120)
+        hsnr = nfx.HasSettableNutrientRatiosAndExtUnitsTestable(g_per_ml=1.2, piece_mass_g=120)
 
         # Create some test data with an family mass error;
         data = {
-            "cufmagif": fx.get_nutrient_ratio_data(
-                nutrient_mass_g=12,
-                nutrient_mass_unit="mg",
-                subject_qty_g=100,
-                subject_qty_unit="kg"
+            "cufmagif": qfx.get_qty_ratio_data(
+                subject_qty_g=12,
+                subject_qty_unit="mg",
+                host_qty_g=100,
+                host_qty_unit="kg"
             ),
-            "tirbur": fx.get_nutrient_ratio_data(
-                nutrient_mass_g=13,
-                nutrient_mass_unit="ug",
-                subject_qty_g=100,
-                subject_qty_unit="L"
+            "tirbur": qfx.get_qty_ratio_data(
+                subject_qty_g=13,
+                subject_qty_unit="ug",
+                host_qty_g=100,
+                host_qty_unit="L"
             ),
-            "docbe": fx.get_nutrient_ratio_data(
-                nutrient_mass_g=24,
-                nutrient_mass_unit="g",
-                subject_qty_g=100,
-                subject_qty_unit="pc"
+            "docbe": qfx.get_qty_ratio_data(
+                subject_qty_g=24,
+                subject_qty_unit="g",
+                host_qty_g=100,
+                host_qty_unit="pc"
             )
         }
 
@@ -428,7 +429,7 @@ class TestLoadData(TestCase):
         with self.assertRaises(model.nutrients.exceptions.ChildNutrientExceedsParentMassError):
             hsnr.load_data(data={'nutrient_ratios_data': data})
 
-    @fx.use_test_nutrients
+    @nfx.use_test_nutrients
     def test_exception_if_data_uses_unsupported_unit(self):
         """This checks we get an exception if we try to load data that uses units that are not supported."""
         # Create an instance that doesn't support ext units;
@@ -436,11 +437,11 @@ class TestLoadData(TestCase):
 
         # Create some test data that uses ext units;
         data = {
-            "cufmagif": fx.get_nutrient_ratio_data(
-                nutrient_mass_g=12,
-                nutrient_mass_unit="mg",
-                subject_qty_g=100,
-                subject_qty_unit="L"
+            "cufmagif": qfx.get_qty_ratio_data(
+                subject_qty_g=12,
+                subject_qty_unit="mg",
+                host_qty_g=100,
+                host_qty_unit="L"
             ),
         }
 
@@ -448,19 +449,19 @@ class TestLoadData(TestCase):
         with self.assertRaises(model.quantity.exceptions.UnsupportedExtendedUnitsError):
             hsnr.load_data(data={'nutrient_ratios_data': data})
 
-    @fx.use_test_nutrients
+    @nfx.use_test_nutrients
     def test_exception_if_data_uses_unconfigured_unit(self):
         """This checks we get an exception if we try to load data that uses units that are not configured."""
         # First we can create an instance without any data;
-        hsnr = fx.HasSettableNutrientRatiosAndExtUnitsTestable(piece_mass_g=None)
+        hsnr = nfx.HasSettableNutrientRatiosAndExtUnitsTestable(piece_mass_g=None)
 
         # Create some test data that uses ext units;
         data = {
-            "cufmagif": fx.get_nutrient_ratio_data(
-                nutrient_mass_g=12,
-                nutrient_mass_unit="mg",
-                subject_qty_g=100,
-                subject_qty_unit="pc"
+            "cufmagif": qfx.get_qty_ratio_data(
+                subject_qty_g=12,
+                subject_qty_unit="mg",
+                host_qty_g=100,
+                host_qty_unit="pc"
             ),
         }
 

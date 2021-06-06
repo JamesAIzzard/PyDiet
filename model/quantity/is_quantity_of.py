@@ -1,6 +1,6 @@
 """Implements functionality associated with classes modelling a quantity of a substance."""
 import abc
-from typing import Optional, Any, Callable
+from typing import Optional, Dict, Any, Callable
 
 import model
 import persistence
@@ -21,6 +21,12 @@ class IsQuantityOfBase(persistence.YieldsPersistableData, abc.ABC):
         raise NotImplementedError
 
     @property
+    @abc.abstractmethod
+    def _unvalidated_qty_pref_unit(self) -> str:
+        """Reterns the preferred unit for referencing the object's quantity."""
+        raise NotImplementedError
+
+    @property
     def quantity_in_g(self) -> float:
         """Returns the object's quantity in grams."""
         _qty_in_g = self._quantity_in_g
@@ -35,29 +41,25 @@ class IsQuantityOfBase(persistence.YieldsPersistableData, abc.ABC):
         return self._qty_subject
 
     @property
-    @abc.abstractmethod
-    def _unvalidated_qty_pref_unit(self) -> str:
-        """Reterns the preferred unit for referencing the object's quantity."""
-        raise NotImplementedError
-
-    @property
     def qty_pref_unit(self) -> str:
         """Returns the unit used to define the subject quantity.
         Example:
             If the qty_in_g is 100, and the pref unit is kg, this property would
             return 0.1, because 100g expressed in into kg is 0.1.
         """
-        # Return the validated unit
-        return model.quantity.validation.validate_pref_unit(
-            unit=self._unvalidated_qty_pref_unit,
-            subject=self.qty_subject
-        )
+        # Check the instance is valid before returning data;
+        self.validate_quantity_and_unit()
+        # Return
+        return self._unvalidated_qty_pref_unit
 
     @property
     def ref_qty(self) -> float:
         """Returns the reference quantity used to define the subject quantity.
 
         """
+        # Check the instance is valid before returning data;
+        self.validate_quantity_and_unit()
+
         # Configure the extended unit variables to match the subject;
         g_per_ml = None
         piece_mass_g = None
@@ -80,14 +82,22 @@ class IsQuantityOfBase(persistence.YieldsPersistableData, abc.ABC):
         """Returns True/False to indicate if the quantity is defined."""
         return self._quantity_in_g is not None
 
+    def validate_quantity_and_unit(self) -> None:
+        """Runs validation on the quantity of instance."""
+
+        # Check the quantity value is viable if set;
+        if self.quantity_is_defined:
+            _ = model.quantity.validation.validate_quantity(self._quantity_in_g)
+
+        # Check the unit is supported;
+        _ = model.quantity.validation.validate_pref_unit(
+            unit=self._unvalidated_qty_pref_unit,
+            subject=self.qty_subject
+        )
+
     @property
     def persistable_data(self) -> 'model.quantity.QuantityData':
         """Returns the quantity data in the persistable format."""
-        # Validate the unit before returning the data;
-        _ = model.quantity.validation.validate_pref_unit(
-            unit=self.qty_pref_unit,
-            subject=self.qty_subject
-        )
 
         # Construct the data object and return it;
         return model.quantity.QuantityData(
@@ -167,50 +177,65 @@ class IsSettableQuantityOf(IsQuantityOfBase, persistence.CanLoadData):
         ):
             self._reset_qty_pref_unit()
 
-    def set_quantity(self, quantity: Optional[float], unit: str) -> None:
+    def set_quantity(self, quantity_value: Optional[float] = None, quantity_unit: Optional[str] = None) -> None:
         """Sets the quantity in arbitrary units."""
 
-        # If quantity is None, just set it right away and break out;
-        if quantity is None:
-            self._quantity_data['quantity_in_g'] = None
-            self._quantity_data['pref_unit'] = 'g'
-            return
+        # If the unit was not specified, just use the existing one;
+        if quantity_unit is None:
+            quantity_unit = self.qty_pref_unit
 
-        # Otherwise, validate it;
+        # Catch use of extended units when unsupported by subject;
+        if model.quantity.unit_is_extended(quantity_unit) and not isinstance(
+                self.qty_subject, model.quantity.HasReadableExtendedUnits
+        ):
+            raise model.quantity.exceptions.UnsupportedExtendedUnitsError(
+                subject=self.qty_subject
+            )
+
+        # Validate the unit to correct any case issues;
+        quantity_unit = model.quantity.validation.validate_qty_unit(quantity_unit)
+
+        # If the qty value was set, we need to convert it to grams;
+        if quantity_value is not None:
+            g_per_ml = None
+            piece_mass_g = None
+            if isinstance(self.qty_subject, model.quantity.HasReadableExtendedUnits):
+                g_per_ml = self.qty_subject.g_per_ml if self.qty_subject.density_is_defined else None
+                piece_mass_g = self.qty_subject.piece_mass_g if self.qty_subject.piece_mass_is_defined else None
+
+            qty_in_g = model.quantity.convert_qty_unit(
+                qty=quantity_value,
+                start_unit=quantity_unit,
+                end_unit='g',
+                g_per_ml=g_per_ml,
+                piece_mass_g=piece_mass_g
+            )
+        # Otherwise, just set it to None;
         else:
-            quantity = model.quantity.validation.validate_quantity(quantity)
+            qty_in_g = None
 
-        # Check the unit is OK;
-        unit = model.quantity.validation.validate_pref_unit(
-            unit=unit,
-            subject=self.qty_subject
-        )
-
-        # Calculate the qty in grams;
-        g_per_ml = None
-        piece_mass_g = None
-        if isinstance(self.qty_subject, model.quantity.HasReadableExtendedUnits):
-            g_per_ml = self.qty_subject.g_per_ml if self.qty_subject.density_is_defined else None
-            piece_mass_g = self.qty_subject.piece_mass_g if self.qty_subject.piece_mass_is_defined else None
-
-        qty_in_g = model.quantity.convert_qty_unit(
-            qty=quantity,
-            start_unit=unit,
-            end_unit='g',
-            g_per_ml=g_per_ml,
-            piece_mass_g=piece_mass_g
-        )
+        # Take a backup of the data, in case validation fails;
+        backup_data = self.persistable_data
 
         # OK, go ahead and set;
         self._quantity_data['quantity_in_g'] = qty_in_g
-        self._quantity_data['pref_unit'] = unit
+        self._quantity_data['pref_unit'] = quantity_unit
+
+        # OK, run any validation;
+        try:
+            self.validate_quantity_and_unit()
+        # Ahh, OK, something broke, reset the original value and pass the exception on;
+        except Exception as err:
+            self.load_data({"quantity_data": backup_data})
+            raise err
 
     def unset_quantity(self) -> None:
         """Unsets the quantity."""
-        self._quantity_data['quantity_in_g'] = None
+        self.set_quantity(quantity_value=None)
 
-    def load_data(self, quantity_data: 'model.quantity.QuantityData') -> None:
+    def load_data(self, quantity_data: Dict[str, Any]) -> None:
         """Load the any available data into the instance."""
+
         # If the pref unit is defined, make sure it is available on this subject;
         if quantity_data['pref_unit'] is not None:
             quantity_data['pref_unit'] = model.quantity.validation.validate_pref_unit(

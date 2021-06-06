@@ -13,7 +13,7 @@ class TestConstructor(TestCase):
     def test_can_construct_instance(self):
         """Checks that we can construct an instance."""
         # Create a simple test instance;
-        snr = model.nutrients.SettableNutrientRatio(nutrient_name="tirbur", subject=mock.Mock())
+        snr = model.nutrients.SettableNutrientRatio(nutrient_name="tirbur", ratio_host=mock.Mock())
 
         # Assert the instance was created successfully;
         self.assertTrue(isinstance(snr, model.nutrients.SettableNutrientRatio))
@@ -24,24 +24,24 @@ class TestConstructor(TestCase):
         # Create an instance, passing the data in;
         snr = model.nutrients.SettableNutrientRatio(
             nutrient_name="tirbur",
-            subject=mock.Mock(),
-            nutrient_ratio_data=fx.get_nutrient_ratio_data(
-                nutrient_mass_g=0.012,
-                nutrient_mass_unit="mg",
-                subject_qty_g=120,
-                subject_qty_unit="kg"
+            ratio_host=mock.Mock(),
+            qty_ratio_data=qfx.get_qty_ratio_data(
+                subject_qty_g=0.012,
+                subject_qty_unit="mg",
+                host_qty_g=120,
+                host_qty_unit="kg"
             )
         )
 
         # Check the values on the instance are correct;
         self.assertEqual(0.012, snr.nutrient_mass.quantity_in_g)
         self.assertEqual("mg", snr.nutrient_mass.qty_pref_unit)
-        self.assertEqual(120, snr.subject_ref_quantity.quantity_in_g)
-        self.assertEqual("kg", snr.subject_ref_quantity.qty_pref_unit)
+        self.assertEqual(120, snr.ratio_host_qty.quantity_in_g)
+        self.assertEqual("kg", snr.ratio_host_qty.qty_pref_unit)
 
 
 class TestSetRatio(TestCase):
-    """Tests the set_ratio method."""
+    """Tests the set_quantity_ratio method."""
 
     @fx.use_test_nutrients
     def test_valid_data_is_set_correctly(self):
@@ -49,25 +49,25 @@ class TestSetRatio(TestCase):
         # Create a test instance;
         snr = model.nutrients.SettableNutrientRatio(
             nutrient_name="tirbur",
-            subject=mock.Mock()
+            ratio_host=mock.Mock()
         )
 
         # Assert that the nutrient ratio is undefined to start with;
         self.assertFalse(snr.ratio_is_defined)
 
         # Set a the nutrient ratio with valid data;
-        snr.set_ratio(
-            nutrient_mass=12,
-            nutrient_mass_unit="mg",
-            subject_qty=0.1,
-            subject_qty_unit="kg"
+        snr.set_quantity_ratio(
+            subject_quantity_value=12,
+            subject_quantity_unit="mg",
+            host_quantity_value=0.1,
+            host_quantity_unit="kg"
         )
 
         # Check the correct values were set;
         self.assertEqual(0.012, snr.nutrient_mass.quantity_in_g)
         self.assertEqual("mg", snr.nutrient_mass.qty_pref_unit)
-        self.assertEqual(100, snr.subject_ref_quantity.quantity_in_g)
-        self.assertEqual("kg", snr.subject_ref_quantity.qty_pref_unit)
+        self.assertEqual(100, snr.ratio_host_qty.quantity_in_g)
+        self.assertEqual("kg", snr.ratio_host_qty.qty_pref_unit)
 
     @fx.use_test_nutrients
     def test_subject_qty_can_be_volume_if_configured(self):
@@ -75,25 +75,25 @@ class TestSetRatio(TestCase):
         # Create a test instance that supports extended units;
         snr = model.nutrients.SettableNutrientRatio(
             nutrient_name="tirbur",
-            subject=qfx.HasReadableExtendedUnitsTestable(g_per_ml=1.5)
+            ratio_host=qfx.HasReadableExtendedUnitsTestable(g_per_ml=1.5)
         )
 
         # Assert that the nutrient ratio is undefined to start with;
         self.assertFalse(snr.ratio_is_defined)
 
         # Now set the ratio, using volumetric units for the subject qty;
-        snr.set_ratio(
-            nutrient_mass=12,
-            nutrient_mass_unit="mg",
-            subject_qty=0.5,
-            subject_qty_unit="L"
+        snr.set_quantity_ratio(
+            subject_quantity_value=12,
+            subject_quantity_unit="mg",
+            host_quantity_value=0.5,
+            host_quantity_unit="L"
         )
 
         # Now check that the correct values were set;
         self.assertEqual(0.012, snr.nutrient_mass.quantity_in_g)
         self.assertEqual("mg", snr.nutrient_mass.qty_pref_unit)
-        self.assertEqual(750, snr.subject_ref_quantity.quantity_in_g)
-        self.assertEqual("l", snr.subject_ref_quantity.qty_pref_unit)
+        self.assertEqual(750, snr.ratio_host_qty.quantity_in_g)
+        self.assertEqual("l", snr.ratio_host_qty.qty_pref_unit)
 
     @fx.use_test_nutrients
     def test_exception_if_subject_qty_is_volume_and_not_configured(self):
@@ -102,16 +102,16 @@ class TestSetRatio(TestCase):
         # Create a test instance, with a subject that supports extended units, but does not have them configured;
         snr = model.nutrients.SettableNutrientRatio(
             nutrient_name="tirbur",
-            subject=qfx.HasReadableExtendedUnitsTestable(g_per_ml=None)
+            ratio_host=qfx.HasReadableExtendedUnitsTestable(g_per_ml=None)
         )
 
         # Assert we get an exception if we try to use volumetric units;
         with self.assertRaises(model.quantity.exceptions.UndefinedDensityError):
-            snr.set_ratio(
-                nutrient_mass=12,
-                nutrient_mass_unit="mg",
-                subject_qty=0.5,
-                subject_qty_unit="L"
+            snr.set_quantity_ratio(
+                subject_quantity_value=12,
+                subject_quantity_unit="mg",
+                host_quantity_value=0.5,
+                host_quantity_unit="L"
             )
 
     @fx.use_test_nutrients
@@ -121,16 +121,16 @@ class TestSetRatio(TestCase):
         # Create a test instance, with a subject that does not support extended units;
         snr = model.nutrients.SettableNutrientRatio(
             nutrient_name="tirbur",
-            subject=mock.Mock()
+            ratio_host=mock.Mock()
         )
 
         # Assert we get an exception if we try to use volumetric units;
         with self.assertRaises(model.quantity.exceptions.UnsupportedExtendedUnitsError):
-            snr.set_ratio(
-                nutrient_mass=12,
-                nutrient_mass_unit="mg",
-                subject_qty=0.5,
-                subject_qty_unit="L"
+            snr.set_quantity_ratio(
+                subject_quantity_value=12,
+                subject_quantity_unit="mg",
+                host_quantity_value=0.5,
+                host_quantity_unit="L"
             )
 
     @fx.use_test_nutrients
@@ -139,16 +139,16 @@ class TestSetRatio(TestCase):
         # Create a test instance with a subject that has an extended unit defined;
         snr = model.nutrients.SettableNutrientRatio(
             nutrient_name="tirbur",
-            subject=qfx.HasReadableExtendedUnitsTestable(g_per_ml=1.1)
+            ratio_host=qfx.HasReadableExtendedUnitsTestable(g_per_ml=1.1)
         )
 
         # Check that, even with ext unit defined on subject, the mass still has to be a mass;
         with self.assertRaises(model.quantity.exceptions.UnsupportedExtendedUnitsError):
-            snr.set_ratio(
-                nutrient_mass=12,
-                nutrient_mass_unit="L",
-                subject_qty=0.5,
-                subject_qty_unit="L"
+            snr.set_quantity_ratio(
+                subject_quantity_value=12,
+                subject_quantity_unit="L",
+                host_quantity_value=0.5,
+                host_quantity_unit="L"
             )
 
     @fx.use_test_nutrients
@@ -158,16 +158,16 @@ class TestSetRatio(TestCase):
         # Create the instance;
         snr = model.nutrients.SettableNutrientRatio(
             nutrient_name="tirbur",
-            subject=mock.Mock()
+            ratio_host=mock.Mock()
         )
 
         # Set with zero subject qty, and check we get an error;
         with self.assertRaises(model.quantity.exceptions.ZeroQtyError):
-            snr.set_ratio(
-                nutrient_mass=0,
-                nutrient_mass_unit="g",
-                subject_qty=0,
-                subject_qty_unit="g"
+            snr.set_quantity_ratio(
+                subject_quantity_value=0,
+                subject_quantity_unit="g",
+                host_quantity_value=0,
+                host_quantity_unit="g"
             )
 
 
@@ -180,12 +180,12 @@ class TestUndefine(TestCase):
         # Create a nutrient ratio instance, passing in some data;
         snr = model.nutrients.SettableNutrientRatio(
             nutrient_name="tirbur",
-            subject=mock.Mock(),
-            nutrient_ratio_data=fx.get_nutrient_ratio_data(
-                nutrient_mass_g=0.012,
-                nutrient_mass_unit="mg",
-                subject_qty_g=120,
-                subject_qty_unit="kg"
+            ratio_host=mock.Mock(),
+            qty_ratio_data=qfx.get_qty_ratio_data(
+                subject_qty_g=0.012,
+                subject_qty_unit="mg",
+                host_qty_g=120,
+                host_qty_unit="kg"
             )
         )
 
@@ -193,7 +193,7 @@ class TestUndefine(TestCase):
         self.assertTrue(snr.ratio_is_defined)
 
         # Undefine it;
-        snr.undefine()
+        snr.unset_quantity_ratio()
 
         # Assert that the ratio has been undefined;
         self.assertFalse(snr.ratio_is_defined)
@@ -209,12 +209,12 @@ class TestZero(TestCase):
         # Create a nutrient ratio instance, passing in some data;
         snr = model.nutrients.SettableNutrientRatio(
             nutrient_name="tirbur",
-            subject=mock.Mock(),
-            nutrient_ratio_data=fx.get_nutrient_ratio_data(
-                nutrient_mass_g=0.012,
-                nutrient_mass_unit="mg",
-                subject_qty_g=120,
-                subject_qty_unit="kg"
+            ratio_host=mock.Mock(),
+            qty_ratio_data=qfx.get_qty_ratio_data(
+                subject_qty_g=0.012,
+                subject_qty_unit="mg",
+                host_qty_g=120,
+                host_qty_unit="kg"
             )
         )
 
@@ -222,7 +222,7 @@ class TestZero(TestCase):
         self.assertEqual(0.012, snr.nutrient_mass.quantity_in_g)
 
         # Call the zero() method;
-        snr.zero()
+        snr.zero_quantity_ratio()
 
         # Assert that the instance is now zero;
         self.assertEqual(0, snr.nutrient_mass.quantity_in_g)
@@ -236,15 +236,15 @@ class TestLoadData(TestCase):
     def test_load_data(self):
         """Checks that data is loaded correctly;"""
         # Create some test data;
-        data = fx.get_nutrient_ratio_data(
-            nutrient_mass_g=0.012,
-            nutrient_mass_unit="mg",
-            subject_qty_g=120,
-            subject_qty_unit="kg"
+        data = qfx.get_qty_ratio_data(
+            subject_qty_g=0.012,
+            subject_qty_unit="mg",
+            host_qty_g=120,
+            host_qty_unit="kg"
         )
 
         # Create an empty instance;
-        snr = model.nutrients.SettableNutrientRatio(nutrient_name="tirbur", subject=mock.Mock())
+        snr = model.nutrients.SettableNutrientRatio(nutrient_name="tirbur", ratio_host=mock.Mock())
 
         # Assert the instance is undefined;
         self.assertFalse(snr.ratio_is_defined)

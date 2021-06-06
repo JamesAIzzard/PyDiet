@@ -1,204 +1,89 @@
 """Module defining nutrient ratio functionality."""
 import abc
-from typing import Dict, List, Any, Optional, Callable
+from typing import Dict, List, Any, Optional
 
 import model
 import persistence
 
 
-class NutrientRatioBase(model.quantity.IsQuantityRatioOfBase, abc.ABC):
-    """Extends isQuantityRatioBase to """
-    def __init__(self, nutrient_quantity: 'model.nutrients.NutrientMassBase', **kwargs):
-        super().__init__(subject_qty=nutrient_quantity, **kwargs)
+class NutrientRatioBase(model.quantity.IsQuantityRatioBase, abc.ABC):
+    """Extends IsQuantityRatioBase to only allow mass quantities on the subject (nutrient)."""
+
+    def __init__(self, nutrient_name: str, **kwargs):
+
+        # Grab the nutrient instance;
+        nutrient_name = model.nutrients.get_nutrient_primary_name(nutrient_name)
+        nutrient = model.nutrients.GLOBAL_NUTRIENTS[nutrient_name]
+
+        super().__init__(ratio_subject=nutrient, **kwargs)
 
     @property
-    def subject_g_per_subject_g(self) -> float:
+    def nutrient_mass(self) -> 'model.nutrients.ReadonlyNutrientMass':
+        """Alias for ratio_subject_qty, specifically returning NutrientMassBase type."""
+        return model.nutrients.ReadonlyNutrientMass(
+            nutrient_name=self._ratio_subject.primary_name,
+            quantity_data_src=lambda: self.quantity_ratio_data['subject_qty_data']
+        )
+
+    @property
+    def subject_g_per_host_g(self) -> float:
         """Returns the grams of the nutrient per gram of host substance.
-        Note:
-            This converts any exceptions into from general undefined qty errors to undefined
-            nutrient errors.
+        Extends superclass method to covert UndefinedQuantityRatioError into UndefinedNutrientRatioError.
         """
         try:
-            return self.subject_g_per_host_g
-        except model.quantity.exceptions.UndefinedQuantityError:
+            return super().subject_g_per_host_g
+        except model.quantity.exceptions.UndefinedQuantityRatioError:
             raise model.nutrients.exceptions.UndefinedNutrientRatioError(
                 subject=self,
-                nutrient_name=self.ratio_subject_qty.nutrient.primary_name
+                nutrient_name=self.nutrient_mass.qty_subject.primary_name
             )
 
     @property
     def subject_qty_in_pref_unit_per_g_of_host(self) -> float:
         """Returns the mass of the nutrient in its pref units, per gram of host substance.
-        Note:
-            This converts any exceptions into from general undefined qty errors to undefined
-            nutrient errors.
+        Extends superclass method to covert UndefinedQuantityRatioError into UndefinedNutrientRatioError.
         """
         try:
-            return self.subject_qty_in_pref_unit_per_g_of_host
-        except model.quantity.exceptions.UndefinedQuantityError:
+            return super().subject_qty_in_pref_unit_per_g_of_host
+        except model.quantity.exceptions.UndefinedQuantityRatioError:
             raise model.nutrients.exceptions.UndefinedNutrientRatioError(
                 subject=self,
                 nutrient_name=self.nutrient_mass.nutrient.primary_name
             )
 
     @property
-    def mass_in_nutrient_pref_unit_per_subject_ref_qty(self) -> float:
+    def subject_qty_in_pref_unit_per_ref_qty_of_host(self) -> float:
         """Returns the mass of the nutrient in its preferred unit, which is present in
         the reference quantity/unit of the host substance.
-        Note:
-            This converts any exceptions into from general undefined qty errors to undefined
-            nutrient errors.
+        Extends superclass method to covert UndefinedQuantityRatioError into UndefinedNutrientRatioError.
         """
         try:
-            return self.subject_qty_in_pref_unit_per_ref_qty_of_host
-        except model.quantity.exceptions.UndefinedQuantityError:
+            return super().subject_qty_in_pref_unit_per_ref_qty_of_host
+        except model.quantity.exceptions.UndefinedQuantityRatioError:
             raise model.nutrients.exceptions.UndefinedNutrientRatioError(
                 subject=self,
                 nutrient_name=self.nutrient_mass.nutrient.primary_name
             )
 
-
-class ReadonlyNutrientRatio(model.quantity.IsReadonlyQuantityRatioOf, NutrientRatioBase):
-    """Models a readonly nutrient ratio.
-    Notes:
-        This is the non-writeable version of nutrient ratio, so it extends the base by accepting a data
-        sournce and then uses it to create the NutrientMass and subject ref qty instances required.
-    """
-
-    def __init__(self, subject: Any,
-                 nutrient_name: str,
-                 nutrient_ratio_data_src: Callable[[], 'model.nutrients.NutrientRatioData']):
-        super().__init__()
-
-        # Stash the nutrient name and the reference to the subject;
-        self._nutrient_name = model.nutrients.get_nutrient_primary_name(nutrient_name)
-        self._subject = subject
-
-        # Stash the data source callable;
-        self._nutrient_ratio_data_src = nutrient_ratio_data_src
-
-    @property
-    def ratio_subject_qty(self) -> 'model.nutrients.ReadonlyNutrientMass':
-        pass
-
-    @property
-    def ratio_host_qty(self) -> 'model.quantity.IsQuantityOfBase':
-        pass
-
-    @property
-    def nutrient_mass(self) -> 'model.nutrients.ReadonlyNutrientMass':
-        """Returns the nutrient associated with the nutrient ratio."""
-        # Init the nutrient mass instance and return it;
-        return model.nutrients.ReadonlyNutrientMass(
-            nutrient_name=self._nutrient_name,
-            quantity_data_src=lambda: self._nutrient_ratio_data_src()['nutrient_mass_data']
-        )
-
-    @property
-    def subject_ref_quantity(self) -> 'model.quantity.IsReadonlyQuantityOf':
-        """Returns the subject quantity associated with the nutrient ratio."""
-        return model.quantity.IsReadonlyQuantityOf(
-            qty_subject=self._subject,
-            quantity_data_src=lambda: self._nutrient_ratio_data_src()['subject_ref_qty_data']
-        )
-
-
-class SettableNutrientRatio(NutrientRatioBase):
-    """Models a writable nutrient ratio.
-    Notes:
-        Careful where you return these! Nutrient ratios shouldn't be set without mutually validating
-        all nutrients on the subject.
-    """
-
-    def __init__(self, subject: Any,
-                 nutrient_name: str,
-                 nutrient_ratio_data: Optional['model.nutrients.NutrientRatioData'] = None):
-        super().__init__()
-
-        # Now we are storing the data locally so create local component nutrient mass and subject quantity instances;
-        self._nutrient_mass = model.nutrients.SettableNutrientMass(
-            nutrient_name=model.nutrients.get_nutrient_primary_name(nutrient_name),
-
-        )
-        self._subject_ref_qty = model.quantity.IsSettableQuantityOf(qty_subject=subject)
-
-        # If we got data, then load it;
-        if nutrient_ratio_data is not None:
-            self.load_data(nutrient_ratio_data)
-
-    @property
-    def nutrient_mass(self) -> 'model.nutrients.ReadonlyNutrientMass':
-        """Returns the nutrient associated with the nutrient ratio."""
-        # Init the nutrient mass instance and return it;
-        return model.nutrients.ReadonlyNutrientMass(
-            nutrient_name=self._nutrient_mass.nutrient.primary_name,
-            quantity_data_src=lambda: self._nutrient_mass.persistable_data
-        )
-
-    @property
-    def subject_ref_quantity(self) -> 'model.quantity.IsReadonlyQuantityOf':
-        """Returns the subject quantity associated with the nutrient ratio."""
-        return model.quantity.IsReadonlyQuantityOf(
-            qty_subject=self._subject_ref_qty.qty_subject,
-            quantity_data_src=lambda: self._subject_ref_qty.persistable_data
-        )
-
-    def set_ratio(self, nutrient_mass: Optional[float],
-                  nutrient_mass_unit: str,
-                  subject_qty: Optional[float],
-                  subject_qty_unit: str
-                  ) -> None:
-        """Sets the nutrient ratio in arbitrary units."""
-
-        # Dissallow zero subject qty, this obviously breaks the universe.
-        if subject_qty is not None:
-            subject_qty = model.quantity.validation.validate_nonzero_quantity(subject_qty)
-
-        # Take a backup in case we get an exception during setting;
-        backup_data = self.persistable_data
+    def validate_quantity_ratio(self) -> None:
+        """Extends the parent validate nutrient quantity ratio to make exceptions more specific."""
         try:
-            self._nutrient_mass.set_quantity(
-                quantity=nutrient_mass,
-                unit=nutrient_mass_unit
-            )
-            self._subject_ref_qty.set_quantity(
-                quantity=subject_qty,
-                unit=subject_qty_unit
-            )
-        except model.quantity.exceptions.BaseQuantityError as err:
-            self.load_data(backup_data)
-            raise err
-
-        # Check the nutrient qty doesn't exceed the subject qty;
-        if self._nutrient_mass.quantity_in_g > self._subject_ref_qty.quantity_in_g:
-            self.load_data(backup_data)
-            raise model.nutrients.exceptions.NutrientQtyExceedsSubjectQtyError(
-                subject=self,
-                nutrient_name=self._nutrient_mass.nutrient.primary_name,
-                nutrient_mass=nutrient_mass,
-                nutrient_mass_units=nutrient_mass_unit,
-                subject_qty=subject_qty,
-                subject_qty_units=subject_qty_unit
+            super().validate_quantity_ratio()
+        except model.quantity.exceptions.SubjectQtyExceedsHostQtyError:
+            raise model.nutrients.exceptions.NutrientMassExceedsSubjectQtyError(
+                nutrient_mass_value=self.nutrient_mass.ref_qty,
+                nutrient_mass_units=self.nutrient_mass.qty_pref_unit,
+                host_qty_value=self.ratio_host_qty.ref_qty,
+                host_qty_units=self.ratio_host_qty.qty_pref_unit
             )
 
-    def undefine(self) -> None:
-        """Resets g_per_subject_g to None and pref_unit to 'g'."""
-        self._nutrient_mass.unset_quantity()
-        self._subject_ref_qty.unset_quantity()
 
-    def zero(self) -> None:
-        """Zeroes the nutrient ratio."""
-        self.set_ratio(
-            nutrient_mass=0,
-            nutrient_mass_unit=self.nutrient_mass.qty_pref_unit,
-            subject_qty=self._subject_ref_qty.ref_qty,
-            subject_qty_unit=self._subject_ref_qty.qty_pref_unit
-        )
+class ReadonlyNutrientRatio(NutrientRatioBase, model.quantity.IsReadonlyQuantityRatio):
+    """Models a readonly nutrient ratio."""
 
-    def load_data(self, nutrient_ratio_data: 'model.nutrients.NutrientRatioData') -> None:
-        """Loads the nutrient ratio data into the instance."""
-        self._nutrient_mass.load_data(nutrient_ratio_data['nutrient_mass_data'])
-        self._subject_ref_qty.load_data(nutrient_ratio_data['subject_ref_qty_data'])
+
+class SettableNutrientRatio(NutrientRatioBase, model.quantity.IsSettableQuantityRatio):
+    """Models a settable nutrient ratio."""
 
 
 class HasReadableNutrientRatios(persistence.YieldsPersistableData, abc.ABC):
@@ -252,9 +137,9 @@ class HasReadableNutrientRatios(persistence.YieldsPersistableData, abc.ABC):
 
             # Instantiate and return it;
             return ReadonlyNutrientRatio(
-                subject=self,
                 nutrient_name=nutrient_name,
-                nutrient_ratio_data_src=lambda: self.nutrient_ratios_data[nutrient_name]
+                ratio_host=self,
+                qty_ratio_data_src=lambda: self.nutrient_ratios_data[nutrient_name]
             )
 
         # Otherwise, return an error to indicate it isn't defined;
@@ -271,7 +156,7 @@ class HasReadableNutrientRatios(persistence.YieldsPersistableData, abc.ABC):
         total_cals_per_g = 0
         for nutrient_name, cals_per_g in model.nutrients.configs.CALORIE_NUTRIENTS.items():
             try:
-                total_cals_per_g += self.get_nutrient_ratio(nutrient_name).nutrient_g_per_subject_g * cals_per_g
+                total_cals_per_g += self.get_nutrient_ratio(nutrient_name).subject_g_per_host_g * cals_per_g
             except model.nutrients.exceptions.UndefinedNutrientRatioError:
                 raise model.nutrients.exceptions.UndefinedCalorieNutrientRatioError(
                     subject=self,
@@ -297,11 +182,6 @@ class HasReadableNutrientRatios(persistence.YieldsPersistableData, abc.ABC):
         """Returns a list of optional nutrient names which are defined."""
         return list(set(model.nutrients.OPTIONAL_NUTRIENT_NAMES).intersection(set(self.nutrient_ratios_data.keys())))
 
-    def get_nutrient_mass_in_pref_unit_per_subject_ref_qty(self, nutrient_name: str) -> float:
-        """Returns the mass of a nutrient in its preferred unit, per reference mass of the subject."""
-        nutrient_ratio = self.get_nutrient_ratio(nutrient_name)
-        return nutrient_ratio.mass_in_nutrient_pref_unit_per_subject_ref_qty
-
     def validate_nutrient_ratio(self, nutrient_name: str) -> None:
         """Checks the named nutrient ratio against other defined nutrient ratios in its family.
         Notes
@@ -317,7 +197,7 @@ class HasReadableNutrientRatios(persistence.YieldsPersistableData, abc.ABC):
         def get_nutrient_mass_g(nutr_name: str) -> float:
             """Accessor function for the nutrient mass, which raises the correct type of exception."""
             try:
-                return self.get_nutrient_ratio(nutr_name).nutrient_g_per_subject_g
+                return self.get_nutrient_ratio(nutr_name).subject_g_per_host_g
             except model.nutrients.exceptions.UndefinedNutrientRatioError:
                 raise model.nutrients.exceptions.UndefinedNutrientMassError(
                     subject=self,
@@ -355,7 +235,7 @@ class HasSettableNutrientRatios(HasReadableNutrientRatios, persistence.CanLoadDa
         concrete implementations of its methods to get data into and out of the instance.
     """
 
-    def __init__(self, nutrient_ratios_data: Optional[Dict[str, 'model.nutrients.NutrientRatioData']] = None, **kwargs):
+    def __init__(self, nutrient_ratios_data: Optional[Dict[str, 'model.quantity.QuantityRatioData']] = None, **kwargs):
         super().__init__(**kwargs)
 
         # Now we are storing the data locally, so create somewhere to store it.
@@ -396,45 +276,50 @@ class HasSettableNutrientRatios(HasReadableNutrientRatios, persistence.CanLoadDa
             )
 
     def set_nutrient_ratio(self, nutrient_name: str,
-                           nutrient_mass: Optional[float],
+                           nutrient_mass_value: Optional[float],
                            nutrient_mass_unit: str,
-                           subject_qty: Optional[float],
-                           subject_qty_unit: str) -> None:
+                           host_qty_value: Optional[float],
+                           host_qty_unit: str) -> None:
         """Sets the data on the named nutrient ratio, and runs family validation."""
 
         # Make sure we are dealing with the nutrient's primary name;
         nutrient_name = model.nutrients.get_nutrient_primary_name(nutrient_name)
 
         # We can't break anything if we are unsetting the nutrient, so just go ahead and do it and skip the rest;
-        if nutrient_mass is None:
-            self.undefine_nutrient_ratio(nutrient_name)
-
-        # Take a backup, in case the change breaks something;
-        # Since this converts our SettableNutrientRatio into a ReadableNutrientRatio, we get a whole new instance,
-        # so its OK to use it as a backup - its independent of the version we are about to mess with;
-        try:
-            backup_nutrient_ratio = self.get_nutrient_ratio(nutrient_name)
-        except model.nutrients.exceptions.UndefinedNutrientRatioError:
-            # Ahh OK, this one wasn't defined yet, just set the backup to None;
-            backup_nutrient_ratio = None
+        if nutrient_mass_value is None:
+            nr = self._get_settable_nutrient_ratio(nutrient_name)
+            nr.unset_quantity_ratio()
 
         # Grab the settable nutrient ratio instance;
         try:
             master_nutrient_ratio = self._get_settable_nutrient_ratio(nutrient_name)
         except model.nutrients.exceptions.UndefinedNutrientRatioError:
             # OK, we don't have this one yet. Create it;
-            self._nutrient_ratios[nutrient_name] = model.nutrients.SettableNutrientRatio(
-                subject=self,
-                nutrient_name=nutrient_name
+            self._nutrient_ratios[nutrient_name] = SettableNutrientRatio(
+                nutrient_name=nutrient_name,
+                ratio_host=self,
+                qty_ratio_data=model.quantity.QuantityRatioData(
+                    subject_qty_data=model.quantity.QuantityData(
+                        quantity_in_g=None,
+                        pref_unit='g'
+                    ),
+                    host_qty_data=model.quantity.QuantityData(
+                        quantity_in_g=None,
+                        pref_unit='g'
+                    )
+                )
             )
             master_nutrient_ratio = self._get_settable_nutrient_ratio(nutrient_name)
 
+        # Take a backup of the data;
+        backup_data = master_nutrient_ratio.persistable_data
+
         # Now ahead and make the change;
-        master_nutrient_ratio.set_ratio(
-            nutrient_mass=nutrient_mass,
-            nutrient_mass_unit=nutrient_mass_unit,
-            subject_qty=subject_qty,
-            subject_qty_unit=subject_qty_unit
+        master_nutrient_ratio.set_quantity_ratio(
+            subject_quantity_value=nutrient_mass_value,
+            subject_quantity_unit=nutrient_mass_unit,
+            host_quantity_value=host_qty_value,
+            host_quantity_unit=host_qty_unit
         )
 
         # Final step is to run the validation;
@@ -444,12 +329,7 @@ class HasSettableNutrientRatios(HasReadableNutrientRatios, persistence.CanLoadDa
         except (
                 model.nutrients.exceptions.ChildNutrientExceedsParentMassError
         ) as err:
-            # If the value was set previously, and we have a backup, then put it back;
-            if backup_nutrient_ratio is not None:
-                master_nutrient_ratio.load_data(backup_nutrient_ratio.persistable_data)
-            # Otherwise just put it back to its previously unset state;
-            else:
-                self.undefine_nutrient_ratio(nutrient_name)
+            master_nutrient_ratio.load_data(backup_data)
             # Pass the exception on;
             raise err
 
@@ -465,10 +345,10 @@ class HasSettableNutrientRatios(HasReadableNutrientRatios, persistence.CanLoadDa
         """Sets the named nutrient ratio to zero."""
         self.set_nutrient_ratio(
             nutrient_name=nutrient_name,
-            nutrient_mass=0,
+            nutrient_mass_value=0,
             nutrient_mass_unit='g',
-            subject_qty=100,
-            subject_qty_unit='g'
+            host_qty_value=100,
+            host_qty_unit='g'
         )
 
     def load_data(self, data: Dict[str, Any]) -> None:
@@ -480,17 +360,17 @@ class HasSettableNutrientRatios(HasReadableNutrientRatios, persistence.CanLoadDa
             return
 
         # Unpack the nutrient ratios data into SettableNutrientRatio instances;
-        for nutrient_name, nutrient_ratio_data in data['nutrient_ratios_data'].items():
+        for nutrient_name, quantity_ratio_data in data['nutrient_ratios_data'].items():
 
             # Don't unpack it if it is not defined (to tolerate legacy data);
-            if model.nutrients.nutrient_ratio_data_is_defined(nutrient_ratio_data) is False:
+            if model.quantity.quantity_ratio_data_is_defined(quantity_ratio_data) is False:
                 continue
 
             # It is defined, go ahead;
             self._nutrient_ratios[nutrient_name] = SettableNutrientRatio(
-                subject=self,
+                ratio_host=self,
                 nutrient_name=nutrient_name,
-                nutrient_ratio_data=nutrient_ratio_data
+                qty_ratio_data=quantity_ratio_data,
             )
 
             # Run validation now this nr has been added;

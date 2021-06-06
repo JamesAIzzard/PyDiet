@@ -14,7 +14,7 @@ class TestGetPathIntoDB(TestCase):
     def test_correct_path_is_returned(self):
         """Checks the correct path is returned."""
         # Create a test instance;
-        ib = fx.IngredientTestable(fx.get_ingredient_data())
+        ib = fx.IngredientBaseTestable(fx.get_ingredient_data())
 
         # Assert correct path is returned;
         self.assertEqual(
@@ -30,7 +30,7 @@ class TestMissingMandatoryAttrs(TestCase):
     def test_list_empty_if_ingredient_completely_defined(self):
         """Checks we don't get any missing attributes if the data is fully defined;"""
         # Create a test instance with fully defined data;
-        i = fx.IngredientTestable(ingredient_data=fx.get_ingredient_data(
+        i = fx.IngredientBaseTestable(ingredient_data=fx.get_ingredient_data(
             for_unique_name=fx.get_ingredient_name_with(characteristic="typical_fully_defined_data")
         ))
 
@@ -41,7 +41,7 @@ class TestMissingMandatoryAttrs(TestCase):
     def test_cost_listed_if_cost_undefined(self):
         """Checks we don't get any missing attributes if the data is fully defined;"""
         # Create a test instance with an undefined cost;
-        i = fx.IngredientTestable(ingredient_data=fx.get_ingredient_data(
+        i = fx.IngredientBaseTestable(ingredient_data=fx.get_ingredient_data(
             for_unique_name=fx.get_ingredient_name_with(characteristic="cost_per_g_undefined")
         ))
 
@@ -52,7 +52,7 @@ class TestMissingMandatoryAttrs(TestCase):
     def test_mandatory_nutrient_ratios_listed_when_undefined(self):
         """Checks we get the mandatory attributes listed if any are undefined."""
         # Create an instance with some mandatory nutrient ratios missing;
-        i = fx.IngredientTestable(ingredient_data=fx.get_ingredient_data(
+        i = fx.IngredientBaseTestable(ingredient_data=fx.get_ingredient_data(
             for_unique_name=fx.get_ingredient_name_with(characteristic="nutrient_ratios_protein_carbs_undefined")
         ))
 

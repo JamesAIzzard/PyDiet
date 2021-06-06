@@ -1,5 +1,5 @@
-"""Tests for the ReadableIngredientQuantity class."""
-from unittest import TestCase, mock
+"""Tests for the ReadonlyIngredinetQuantity class."""
+from unittest import TestCase
 
 import model
 from tests.model.ingredients import fixtures as fx
@@ -32,10 +32,14 @@ class TestIngredient(TestCase):
 
     def test_correct_ingredient_is_returned(self):
         """Checks that the correct ingredient instance is returned."""
-        # Create a mock ingredient;
-        i = mock.Mock()
+        # Create a readonly ingredient;
+        i = model.ingredients.ReadonlyIngredient(
+            ingredient_data_src=fx.get_ingredient_data_src(
+                for_ingredient_name=fx.get_ingredient_name_with("typical_fully_defined_data")
+            )
+        )
 
-        # Create an ReadableIngredientQuantity, passing the mock ingredient in;
+        # Create an ReadableIngredientQuantity, passing the ingredient in;
         iq = model.ingredients.ReadonlyIngredientQuantity(
             ingredient=i,
             quantity_data_src=qfx.get_qty_data_src(
@@ -47,14 +51,19 @@ class TestIngredient(TestCase):
         self.assertTrue(i is iq.ingredient)
 
 
-class TestReqQty(TestCase):
+class TestRefQty(TestCase):
     """Tests the ref_qty property in the context of ingredient."""
+
     def test_returns_correct_ref_qty(self):
         """Checks that the method returns the correct reference quantity."""
         # Create an ReadableIngredientQuantity, passing quantity data in;
         # Create an ReadableIngredientQuantity, passing the mock ingredient in;
         iq = model.ingredients.ReadonlyIngredientQuantity(
-            ingredient=mock.Mock(),
+            ingredient=model.ingredients.ReadonlyIngredient(
+                ingredient_data_src=fx.get_ingredient_data_src(
+                    for_ingredient_name=fx.get_ingredient_name_with("typical_fully_defined_data")
+                )
+            ),
             quantity_data_src=qfx.get_qty_data_src(
                 quantity_data=qfx.get_qty_data(
                     qty_in_g=120,

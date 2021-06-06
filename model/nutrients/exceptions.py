@@ -68,19 +68,19 @@ class NutrientRatioNotSettableError(NamedNutrientError):
         super().__init__(**kwargs)
 
 
-class NutrientQtyExceedsSubjectQtyError(NamedNutrientError):
+class NutrientMassExceedsSubjectQtyError(NamedNutrientError):
     """Indicates the nutrient quantity exceeds the ingredient quantity."""
 
     def __init__(self,
-                 nutrient_mass: float,
+                 nutrient_mass_value: float,
                  nutrient_mass_units: str,
-                 subject_qty: float,
-                 subject_qty_units: str, **kwargs):
+                 host_qty_value: float,
+                 host_qty_units: str, **kwargs):
         super().__init__(**kwargs)
-        self.nutrient_mass = nutrient_mass
+        self.nutrient_mass = nutrient_mass_value
         self.nutrient_mass_units = nutrient_mass_units
-        self.subject_qty = subject_qty
-        self.subject_qty_units = subject_qty_units
+        self.host_qty = host_qty_value
+        self.host_qty_units = host_qty_units
 
 
 # Nutrient Mass Exceptions

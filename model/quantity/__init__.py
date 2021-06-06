@@ -8,6 +8,7 @@ from .configs import (
     QTY_UNITS
 )
 from .main import (
+    quantity_ratio_data_is_defined,
     units_are_volumes,
     units_are_pieces,
     units_are_masses,
@@ -21,9 +22,9 @@ from .is_quantity_of import (
     IsSettableQuantityOf
 )
 from .is_quantity_ratio import (
-    IsQuantityRatioOfBase,
-    IsReadonlyQuantityRatioOf,
-    IsSettableQuantityRatioOf
+    IsQuantityRatioBase,
+    IsReadonlyQuantityRatio,
+    IsSettableQuantityRatio
 )
 from .has_extended_units import (
     HasReadableExtendedUnits,

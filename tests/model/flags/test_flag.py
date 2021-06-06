@@ -2,30 +2,47 @@
 from unittest import TestCase, mock
 
 import model
-from tests.model.nutrients import fixtures as nfx
+from tests.model.quantity import fixtures as qfx
 
 
 class TestConstructor(TestCase):
-    def test_makes_correct_instance(self):
+    """Tests the constructor."""
+    def test_can_make_instance(self):
+        """Check we can create an instance."""
+        # Create an instance;
         fg = model.flags.Flag("alcohol_free")
+
+        # Check it is the right type;
         self.assertTrue(isinstance(fg, model.flags.Flag))
 
     def test_raises_exception_if_flag_name_invalid(self):
+        # Check we get an exception if we try to create a flag with a name not in the config;
         with self.assertRaises(model.flags.exceptions.FlagNameError):
             _ = model.flags.Flag("madup")
 
 
 class TestName(TestCase):
+    """Tests the name property."""
     def test_name_is_correct(self):
+        """Check we get the correct name out of the name property."""
+        # Create a test instance with a specific name;
         fg = model.flags.Flag("alcohol_free")
+        # Check the name property gives us the same name back;
         self.assertEqual(fg.name, "alcohol_free")
 
 
 class TestDirectAlias(TestCase):
+    """Tests the direct alias property."""
     def test_direct_alias_is_correct(self):
+        """Check we get the correct result out of the direct alias property."""
+        # Create a flag we know is a direct alias;
         af = model.flags.Flag("alcohol_free")
+        # Assert the property returns True;
         self.assertTrue(af.direct_alias)
+
+        # Create a flag we know is not a direct alias;
         nf = model.flags.Flag("nut_free")
+        # Assert the property returns False;
         self.assertFalse(nf.direct_alias)
 
 
@@ -53,11 +70,11 @@ class TestNutrientRatioMatchesRelation(TestCase):
         """Check the method returns True if the nutrient ratio matches the relation."""
         # Create a test nutrient ratio which matches a flag;
         nr = model.nutrients.ReadonlyNutrientRatio(
-            subject=mock.Mock(),
             nutrient_name="alcohol",
-            nutrient_ratio_data_src=nfx.get_nutrient_ratio_data_src(nfx.get_nutrient_ratio_data(
-                nutrient_mass_g=0,
-                subject_qty_g=100
+            ratio_host=mock.Mock(),
+            qty_ratio_data_src=qfx.get_qty_ratio_data_src(qfx.get_qty_ratio_data(
+                subject_qty_g=0,
+                host_qty_g=100
             ))
         )
 
@@ -71,11 +88,11 @@ class TestNutrientRatioMatchesRelation(TestCase):
         """Check the method returns False if the nutrient ratio opposes the relation."""
         # Create a test nutrient ratio which opposes a flag;
         nr = model.nutrients.ReadonlyNutrientRatio(
-            subject=mock.Mock(),
+            ratio_host=mock.Mock(),
             nutrient_name="alcohol",
-            nutrient_ratio_data_src=nfx.get_nutrient_ratio_data_src(nfx.get_nutrient_ratio_data(
-                nutrient_mass_g=10,
-                subject_qty_g=100
+            qty_ratio_data_src=qfx.get_qty_ratio_data_src(qfx.get_qty_ratio_data(
+                subject_qty_g=10,
+                host_qty_g=100
             ))
         )
 

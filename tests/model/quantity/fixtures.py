@@ -40,10 +40,7 @@ class HasReadableExtendedUnitsTestable(model.quantity.HasReadableExtendedUnits):
         return self._piece_mass_g_
 
 
-def get_qty_data(
-        qty_in_g: Optional[float] = None,
-        pref_unit: str = 'g'
-) -> 'model.quantity.QuantityData':
+def get_qty_data(qty_in_g: Optional[float] = None, pref_unit: str = 'g') -> 'model.quantity.QuantityData':
     """Creates and returns a quantity data instance, with default values for any
     non specified values."""
     return model.quantity.QuantityData(
@@ -76,6 +73,11 @@ def get_qty_ratio_data(
             pref_unit=host_qty_unit
         )
     )
+
+
+def get_qty_ratio_data_src(qty_ratio_data: 'model.quantity.QuantityRatioData'):
+    """Returns a data source which returns the quantity data submitted."""
+    return lambda: qty_ratio_data
 
 
 def get_extended_units_data(g_per_ml: Optional[float] = None, piece_mass_g: Optional[float] = None):

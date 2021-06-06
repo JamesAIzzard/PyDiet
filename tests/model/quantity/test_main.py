@@ -4,6 +4,64 @@ from unittest import TestCase
 import model
 
 
+class TestQuantityRatioDataIsDefined(TestCase):
+    def test_returns_true_if_both_masses_defined(self):
+        """Check that we get a True result if BOTH nutrient mass and subject mass are defined."""
+        qr_data = model.quantity.QuantityRatioData(
+            subject_qty_data=model.quantity.QuantityData(
+                quantity_in_g=12,
+                pref_unit='g'
+            ),
+            host_qty_data=model.quantity.QuantityData(
+                quantity_in_g=100,
+                pref_unit='g'
+            )
+        )
+        self.assertTrue(model.quantity.quantity_ratio_data_is_defined(qr_data))
+
+    def test_returns_false_if_nutrient_mass_undefined(self):
+        """Checks that an undefined nutrient mass causes a False return."""
+        qr_data = model.quantity.QuantityRatioData(
+            subject_qty_data=model.quantity.QuantityData(
+                quantity_in_g=None,
+                pref_unit='g'
+            ),
+            host_qty_data=model.quantity.QuantityData(
+                quantity_in_g=100,
+                pref_unit='g'
+            )
+        )
+        self.assertFalse(model.quantity.quantity_ratio_data_is_defined(qr_data))
+
+    def test_returns_false_if_subject_qty_undefined(self):
+        """Checks that an undefined subject qty causes a False return."""
+        qr_data = model.quantity.QuantityRatioData(
+            subject_qty_data=model.quantity.QuantityData(
+                quantity_in_g=12,
+                pref_unit='g'
+            ),
+            host_qty_data=model.quantity.QuantityData(
+                quantity_in_g=None,
+                pref_unit='g'
+            )
+        )
+        self.assertFalse(model.quantity.quantity_ratio_data_is_defined(qr_data))
+
+    def test_returns_false_if_both_qty_undefined(self):
+        """Checks that an undefined subject qty causes a False return."""
+        qr_data = model.quantity.QuantityRatioData(
+            subject_qty_data=model.quantity.QuantityData(
+                quantity_in_g=None,
+                pref_unit='g'
+            ),
+            host_qty_data=model.quantity.QuantityData(
+                quantity_in_g=None,
+                pref_unit='g'
+            )
+        )
+        self.assertFalse(model.quantity.quantity_ratio_data_is_defined(qr_data))
+
+
 class TestUnitsAreMasses(TestCase):
     def test_returns_true_if_all_units_are_masses(self):
         self.assertTrue(model.quantity.units_are_masses("kg", "g", "mg"))
@@ -142,6 +200,7 @@ class TestConvertPcAndVol(TestCase):
 class TestConvertQtyUnit(TestCase):
 
     def setUp(self) -> None:
+        """Set up method."""
         self.g_per_ml = 1.2
         self.piece_mass_g = 100
 

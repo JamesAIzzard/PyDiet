@@ -3,6 +3,26 @@ from typing import Optional
 import model.quantity
 
 
+def quantity_ratio_data_is_defined(qr_data: 'model.quantity.QuantityRatioData') -> bool:
+    """Returns True/False to indicate if quantity ratio data is defined."""
+    return qr_data['subject_qty_data']['quantity_in_g'] is not None and qr_data['host_qty_data'][
+        'quantity_in_g'] is not None
+
+
+def undefine_qty_ratio(quantity_ratio: 'model.quantity.IsQuantityRatioOf') -> None:
+    """Undefines the quantity ratio provided."""
+    for qi in [quantity_ratio.ratio_host_qty, quantity_ratio.ratio_subject_qty]:
+        assert (isinstance(qi, model.quantity.IsSettableQuantityOf))
+        qi.unset_quantity()
+
+
+def zero_qty_ratio(quantity_ratio: 'model.quantity.IsQuantityRatioOf') -> None:
+    """Zeroes the quantity ratio provided."""
+    for qi in [quantity_ratio.ratio_host_qty, quantity_ratio.ratio_subject_qty]:
+        assert (isinstance(qi, model.quantity.IsSettableQuantityOf))
+        qi.set_quantity(quantity_value=0)
+
+
 def units_are_masses(*units: str) -> bool:
     """Returns True/False to indicate if EVERY parameter is a mass unit."""
     for unit in units:

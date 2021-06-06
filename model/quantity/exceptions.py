@@ -47,8 +47,22 @@ class ZeroQtyError(BaseQuantityError, ValueError):
         super().__init__(**kwargs)
 
 
+class UndefinedQuantityRatioError(BaseQuantityError):
+    """Indicates the quantity ratio is undefined."""
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+
 class SubjectQtyExceedsHostQtyError(BaseQuantityError):
     """Indicates the subject quantity is exceeding the host quantity on a quantity ratio."""
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+
+class ZeroQuantityRatioHostError(ZeroQtyError):
+    """Indicates the host quantity is zero, causing a divide-by zero situation."""
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

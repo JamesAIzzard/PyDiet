@@ -176,10 +176,10 @@ class Test_NutrientRatiosData(TestCase):
         self.assertTrue("protein" in i.nutrient_ratios_data.keys())
 
         # Check the data is correct;
-        self.assertEqual(18.82, i.nutrient_ratios_data['protein']['nutrient_mass_data']['quantity_in_g'])
-        self.assertEqual("g", i.nutrient_ratios_data['protein']['nutrient_mass_data']['pref_unit'])
-        self.assertEqual(100, i.nutrient_ratios_data['protein']['subject_ref_qty_data']['quantity_in_g'])
-        self.assertEqual("g", i.nutrient_ratios_data['protein']['subject_ref_qty_data']['pref_unit'])
+        self.assertEqual(18.82, i.nutrient_ratios_data['protein']['subject_qty_data']['quantity_in_g'])
+        self.assertEqual("g", i.nutrient_ratios_data['protein']['subject_qty_data']['pref_unit'])
+        self.assertEqual(100, i.nutrient_ratios_data['protein']['host_qty_data']['quantity_in_g'])
+        self.assertEqual("g", i.nutrient_ratios_data['protein']['host_qty_data']['pref_unit'])
 
     @pfx.use_test_database
     def test_excludes_undefined_nutrients(self):

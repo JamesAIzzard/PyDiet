@@ -6,7 +6,7 @@ import model
 import persistence
 
 
-class ReadableIngredient(
+class IngredientBase(
     model.HasMandatoryAttributes,
     model.HasReadableName,
     model.cost.HasReadableCostPerQuantity,
@@ -45,7 +45,7 @@ class ReadableIngredient(
         return f"{persistence.configs.path_into_db}/ingredients"
 
 
-class ReadonlyIngredient(ReadableIngredient):
+class ReadonlyIngredient(IngredientBase):
     """Models an ingredient with readonly attributes."""
 
     def __init__(self, ingredient_data_src: Callable[[], 'model.ingredients.IngredientData'], **kwargs):
@@ -96,7 +96,7 @@ class ReadonlyIngredient(ReadableIngredient):
 
 
 class SettableIngredient(
-    ReadableIngredient,
+    IngredientBase,
     model.HasSettableName,
     model.cost.HasSettableCostPerQuantity,
     model.quantity.HasSettableExtendedUnits,

@@ -45,12 +45,6 @@ def get_calories_per_g(nutrient_name: str) -> float:
     return model.nutrients.GLOBAL_NUTRIENTS[nutrient_name].calories_per_g
 
 
-def nutrient_ratio_data_is_defined(nr_data: 'model.nutrients.NutrientRatioData') -> bool:
-    """Returns True/False to indicate if nutrient ratio data is defined."""
-    return nr_data['nutrient_mass_data']['quantity_in_g'] is not None and nr_data['subject_ref_qty_data'][
-        'quantity_in_g'] is not None
-
-
 def get_n_closest_nutrient_names(search_term: str, num_results: int = 5) -> List[str]:
     """Returns a list of n nutrient names matching the search term most closely."""
     scores = {}
