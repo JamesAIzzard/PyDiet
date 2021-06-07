@@ -14,6 +14,10 @@ class IngredientQuantityBase(
     """Abstract base class for readonly and writable ingredient quantity classes."""
 
     def __init__(self, ingredient: 'model.ingredients.ReadonlyIngredient', **kwargs):
+
+        if not isinstance(ingredient, model.ingredients.ReadonlyIngredient):
+            raise TypeError("Ingredient arg must be a ReadonlyIngredient instance.")
+
         super().__init__(qty_subject=ingredient, **kwargs)
 
     @property

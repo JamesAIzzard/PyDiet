@@ -2,7 +2,7 @@
 from unittest import TestCase
 
 import model
-from tests.model.ingredients import fixtures as fx
+from tests.model.ingredients import fixtures as ifx
 from tests.model.quantity import fixtures as qfx
 
 
@@ -13,8 +13,8 @@ class TestConstructor(TestCase):
         # Create a simple instance;
         siq = model.ingredients.SettableIngredientQuantity(
             ingredient=model.ingredients.ReadonlyIngredient(
-                ingredient_data_src=fx.get_ingredient_data_src(
-                    for_ingredient_name=fx.get_ingredient_name_with("typical_fully_defined_data")
+                ingredient_data_src=ifx.get_ingredient_data_src(
+                    for_ingredient_name=ifx.get_ingredient_name_with("typical_fully_defined_data")
                 )
             ),
             quantity_data=qfx.get_qty_data()
@@ -22,6 +22,20 @@ class TestConstructor(TestCase):
 
         # Assert it was created;
         self.assertTrue(isinstance(siq, model.ingredients.SettableIngredientQuantity))
+
+    def test_exception_if_ingredient_is_writable(self):
+        """Check that we can't instantiate with a writeable ingredient."""
+        # Check we get a TypeError
+        with self.assertRaises(TypeError):
+            # noinspection PyTypeChecker
+            _ = model.ingredients.SettableIngredientQuantity(
+                ingredient=model.ingredients.SettableIngredient(
+                    ingredient_data=ifx.get_ingredient_data(for_unique_name=ifx.get_ingredient_name_with(
+                        "typical_fully_defined_data"
+                    ))
+                ),
+                quantity_data=qfx.get_qty_data()
+            )
 
 
 class TestSetQuantity(TestCase):
@@ -31,8 +45,8 @@ class TestSetQuantity(TestCase):
         # Create a simple instance;
         siq = model.ingredients.SettableIngredientQuantity(
             ingredient=model.ingredients.ReadonlyIngredient(
-                ingredient_data_src=fx.get_ingredient_data_src(
-                    for_ingredient_name=fx.get_ingredient_name_with("typical_fully_defined_data")
+                ingredient_data_src=ifx.get_ingredient_data_src(
+                    for_ingredient_name=ifx.get_ingredient_name_with("typical_fully_defined_data")
                 )
             ),
             quantity_data=qfx.get_qty_data()
@@ -57,8 +71,8 @@ class TestSetQuantity(TestCase):
         # Create a test instance with extended units configured;
         siq = model.ingredients.SettableIngredientQuantity(
             ingredient=model.ingredients.ReadonlyIngredient(
-                ingredient_data_src=fx.get_ingredient_data_src(
-                    for_ingredient_name=fx.get_ingredient_name_with("density_defined")
+                ingredient_data_src=ifx.get_ingredient_data_src(
+                    for_ingredient_name=ifx.get_ingredient_name_with("density_defined")
                 )
             ),
             quantity_data=qfx.get_qty_data()
@@ -81,8 +95,8 @@ class TestSetQuantity(TestCase):
         # Create a test instance without extended units.
         siq = model.ingredients.SettableIngredientQuantity(
             ingredient=model.ingredients.ReadonlyIngredient(
-                ingredient_data_src=fx.get_ingredient_data_src(
-                    for_ingredient_name=fx.get_ingredient_name_with("density_undefined")
+                ingredient_data_src=ifx.get_ingredient_data_src(
+                    for_ingredient_name=ifx.get_ingredient_name_with("density_undefined")
                 )
             ),
             quantity_data=qfx.get_qty_data()
@@ -100,8 +114,8 @@ class TestNumCalories(TestCase):
         # Create a test instance of defined quantity;
         siq = model.ingredients.SettableIngredientQuantity(
             ingredient=model.ingredients.ReadonlyIngredient(
-                ingredient_data_src=fx.get_ingredient_data_src(
-                    for_ingredient_name=fx.get_ingredient_name_with("typical_fully_defined_data")
+                ingredient_data_src=ifx.get_ingredient_data_src(
+                    for_ingredient_name=ifx.get_ingredient_name_with("typical_fully_defined_data")
                 )
             ),
             quantity_data=qfx.get_qty_data(qty_in_g=150)
@@ -124,8 +138,8 @@ class TestIngredient(TestCase):
         # Create a test instance;
         siq = model.ingredients.SettableIngredientQuantity(
             ingredient=model.ingredients.ReadonlyIngredient(
-                ingredient_data_src=fx.get_ingredient_data_src(
-                    for_ingredient_name=fx.get_ingredient_name_with("typical_fully_defined_data")
+                ingredient_data_src=ifx.get_ingredient_data_src(
+                    for_ingredient_name=ifx.get_ingredient_name_with("typical_fully_defined_data")
                 )
             ),
             quantity_data=qfx.get_qty_data(qty_in_g=150)

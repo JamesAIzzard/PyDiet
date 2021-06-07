@@ -2,7 +2,7 @@
 from unittest import TestCase
 
 import model
-from tests.model.ingredients import fixtures as fx
+from tests.model.ingredients import fixtures as ifx
 from tests.model.quantity import fixtures as qfx
 from tests.persistence import fixtures as pfx
 
@@ -15,8 +15,8 @@ class TestConstructor(TestCase):
         self.assertTrue(isinstance(
             model.ingredients.ReadonlyIngredientQuantity(
                 ingredient=model.ingredients.ReadonlyIngredient(
-                    ingredient_data_src=fx.get_ingredient_data_src(
-                        for_ingredient_name=fx.get_ingredient_name_with("typical_fully_defined_data")
+                    ingredient_data_src=ifx.get_ingredient_data_src(
+                        for_ingredient_name=ifx.get_ingredient_name_with("typical_fully_defined_data")
                     )
                 ),
                 quantity_data_src=qfx.get_qty_data_src(
@@ -26,6 +26,20 @@ class TestConstructor(TestCase):
             model.ingredients.ReadonlyIngredientQuantity
         ))
 
+    def test_exception_if_ingredient_is_writable(self):
+        """Checks that we can't instantiate with a writable ingredient."""
+        # Check we get a TypeError
+        with self.assertRaises(TypeError):
+            # noinspection PyTypeChecker
+            _ = model.ingredients.SettableIngredientQuantity(
+                ingredient=model.ingredients.SettableIngredient(
+                    ingredient_data=ifx.get_ingredient_data(for_unique_name=ifx.get_ingredient_name_with(
+                        "typical_fully_defined_data"
+                    ))
+                ),
+                quantity_data_src=qfx.get_qty_data_src(quantity_data=qfx.get_qty_data())
+            )
+
 
 class TestIngredient(TestCase):
     """Tests the ingredient property."""
@@ -34,8 +48,8 @@ class TestIngredient(TestCase):
         """Checks that the correct ingredient instance is returned."""
         # Create a readonly ingredient;
         i = model.ingredients.ReadonlyIngredient(
-            ingredient_data_src=fx.get_ingredient_data_src(
-                for_ingredient_name=fx.get_ingredient_name_with("typical_fully_defined_data")
+            ingredient_data_src=ifx.get_ingredient_data_src(
+                for_ingredient_name=ifx.get_ingredient_name_with("typical_fully_defined_data")
             )
         )
 
@@ -60,8 +74,8 @@ class TestRefQty(TestCase):
         # Create an ReadableIngredientQuantity, passing the mock ingredient in;
         iq = model.ingredients.ReadonlyIngredientQuantity(
             ingredient=model.ingredients.ReadonlyIngredient(
-                ingredient_data_src=fx.get_ingredient_data_src(
-                    for_ingredient_name=fx.get_ingredient_name_with("typical_fully_defined_data")
+                ingredient_data_src=ifx.get_ingredient_data_src(
+                    for_ingredient_name=ifx.get_ingredient_name_with("typical_fully_defined_data")
                 )
             ),
             quantity_data_src=qfx.get_qty_data_src(
@@ -85,8 +99,8 @@ class TestGetNutrientMass(TestCase):
         # Create a test instance with a known ratio of a nutrient;
         iq = model.ingredients.ReadonlyIngredientQuantity(
             ingredient=model.ingredients.ReadonlyIngredient(
-                ingredient_data_src=fx.get_ingredient_data_src(
-                    for_ingredient_name=fx.get_ingredient_name_with("14_grams_of_protein_per_100_g")
+                ingredient_data_src=ifx.get_ingredient_data_src(
+                    for_ingredient_name=ifx.get_ingredient_name_with("14_grams_of_protein_per_100_g")
                 )
             ),
             quantity_data_src=qfx.get_qty_data_src(qfx.get_qty_data(
@@ -107,8 +121,8 @@ class TestNumCalories(TestCase):
         # Create a test instance of an ingrediet with defined qty;
         iq = model.ingredients.ReadonlyIngredientQuantity(
             ingredient=model.ingredients.ReadonlyIngredient(
-                ingredient_data_src=fx.get_ingredient_data_src(
-                    for_ingredient_name=fx.get_ingredient_name_with("7.2_calories_per_g")
+                ingredient_data_src=ifx.get_ingredient_data_src(
+                    for_ingredient_name=ifx.get_ingredient_name_with("7.2_calories_per_g")
                 )
             ),
             quantity_data_src=qfx.get_qty_data_src(qfx.get_qty_data(
