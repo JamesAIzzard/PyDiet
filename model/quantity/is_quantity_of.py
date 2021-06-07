@@ -124,6 +124,9 @@ class IsReadonlyQuantityOf(IsQuantityOfBase):
         # Stash the data source callable;
         self._quantity_data_src = quantity_data_src
 
+        # Validate the src;
+        self.validate_quantity_and_unit()
+
     @property
     def _quantity_in_g(self) -> Optional[float]:
         """Returns the raw quantity in grams from the source function."""
