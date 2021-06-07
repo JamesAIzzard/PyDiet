@@ -23,6 +23,19 @@ class IsQuantityOfBaseTestable(model.quantity.IsQuantityOfBase):
         return self._quantity_data['pref_unit']
 
 
+class IsQuantityRatioBaseTestable(model.quantity.IsQuantityRatioBase):
+    """Minimal implementation of QuantityRatioBase for testing."""
+
+    def __init__(self, quantity_ratio_data: 'model.quantity.QuantityRatioData', **kwargs):
+        self._quantity_ratio_data = quantity_ratio_data
+        super().__init__(**kwargs)
+
+    @property
+    def quantity_ratio_data(self) -> 'model.quantity.QuantityRatioData':
+        """Returns the QuantityRatioData."""
+        return self._quantity_ratio_data
+
+
 class HasReadableExtendedUnitsTestable(model.quantity.HasReadableExtendedUnits):
     """Minimal concrete implementation of the SupportsExtendedUnits base class."""
 

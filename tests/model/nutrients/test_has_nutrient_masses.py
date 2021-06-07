@@ -25,7 +25,9 @@ class TestNumCalories(TestCase):
             ),
             quantity_data=qfx.get_qty_data(qty_in_g=90)
         )
-        raise NotImplementedError
+
+        # Check we get the right number of calories back;
+        self.assertEqual(((1*30)+(2*10)+(3*10)+(4*25))*0.9, hrnm.num_calories)
 
     @nfx.use_test_nutrients
     def test_raises_exception_if_calorie_nutrient_missing(self):

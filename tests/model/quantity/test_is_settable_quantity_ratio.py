@@ -19,6 +19,21 @@ class TestConstructor(TestCase):
             model.quantity.IsSettableQuantityRatio
         ))
 
+    def test_exception_if_subject_qty_greater_than_host_qty(self):
+        """Checks that we can't construct an instance where the subject quantity is greater than
+        the host quantity."""
+        # Assert we get an exception if we try to create a quantity ratio where the
+        # subject quantity is greater than the host quantity;
+        with self.assertRaises(model.quantity.exceptions.SubjectQtyExceedsHostQtyError):
+            _ = model.quantity.IsSettableQuantityRatio(
+                ratio_subject=mock.Mock(),
+                ratio_host=mock.Mock(),
+                qty_ratio_data=qfx.get_qty_ratio_data(
+                    subject_qty_g=100,
+                    host_qty_g=20
+                )
+            )
+
 
 class TestSetQuantity(TestCase):
     """Tests the IsSettableQuantityOf.set_quantity() method in the context of the SettableQuantityRatio class."""
@@ -35,8 +50,8 @@ class TestSetQuantity(TestCase):
         # Assert we don't get an exception if we change the value of the subject quantity to
         # something lower than the host quantity.
         isqr.set_quantity_ratio(
-            subject_quantity_value=1,
-            subject_quantity_unit='0.1',
+            subject_quantity_value=0.1,
+            subject_quantity_unit='kg',
             host_quantity_value=110,
             host_quantity_unit="g"
         )
@@ -53,9 +68,10 @@ class TestSetQuantity(TestCase):
 
         # Assert we do get an exception if we change the value of the subject quantity to
         # something greater than the host quantity.
-        isqr.set_quantity_ratio(
-            subject_quantity_value=1,
-            subject_quantity_unit='kg',
-            host_quantity_value=100,
-            host_quantity_unit="mg"
-        )
+        with self.assertRaises(model.quantity.exceptions.SubjectQtyExceedsHostQtyError):
+            isqr.set_quantity_ratio(
+                subject_quantity_value=1,
+                subject_quantity_unit='kg',
+                host_quantity_value=100,
+                host_quantity_unit="mg"
+            )

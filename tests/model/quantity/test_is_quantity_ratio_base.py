@@ -14,60 +14,33 @@ class TestConstructor(TestCase):
         qrob = qfx.IsQuantityRatioBaseTestable(
             ratio_subject=mock.Mock(),
             ratio_host=mock.Mock(),
-
-            subject_qty=model.quantity.IsReadonlyQuantityOf(
-                qty_subject=mock.Mock(),
-                quantity_data_src=qfx.get_qty_data_src(qfx.get_qty_data())
-            ),
-            host_qty=model.quantity.IsReadonlyQuantityOf(
-                qty_subject=mock.Mock(),
-                quantity_data_src=qfx.get_qty_data_src(qfx.get_qty_data())
-            )
+            quantity_ratio_data=qfx.get_qty_ratio_data()
         )
 
         # Check the instance was constructed;
-        self.assertTrue(isinstance(qrob, model.quantity.IsQuantityRatioOf))
-
-    def test_exception_if_subject_qty_greater_than_host_qty(self):
-        """Checks that we can't construct an instance where the subject quantity is greater than
-        the host quantity."""
-        # Assert we get an exception if we try to create a quantity ratio where the
-        # subject quantity is greater than the host quantity;
-        with self.assertRaises(model.quantity.exceptions.SubjectQtyExceedsHostQtyError):
-            _ = model.quantity.IsQuantityRatioOf(
-                subject_qty=model.quantity.IsReadonlyQuantityOf(
-                    qty_subject=mock.Mock(),
-                    quantity_data_src=qfx.get_qty_data_src(qfx.get_qty_data(qty_in_g=100))
-                ),
-                host_qty=model.quantity.IsReadonlyQuantityOf(
-                    qty_subject=mock.Mock(),
-                    quantity_data_src=qfx.get_qty_data_src(qfx.get_qty_data(qty_in_g=20))
-                )
-            )
+        self.assertTrue(isinstance(qrob, model.quantity.IsQuantityRatioBase))
 
 
 class TestRatioSubjectQty(TestCase):
     """Tests the ratio_subject_qty property."""
 
-    def test_returns_correct_instance(self):
+    def test_returns_correct_subject_instance(self):
         """Check we get the same instance out as we sent in."""
         # Create a mock subject instance;
-        sub_qty = model.quantity.IsReadonlyQuantityOf(
-            qty_subject=mock.Mock(),
-            quantity_data_src=qfx.get_qty_data_src(qfx.get_qty_data(qty_in_g=10))
-        )
+        sub = mock.Mock()
 
         # Use it to create a ratio instance;
-        qrob = model.quantity.IsQuantityRatioOf(
-            subject_qty=sub_qty,
-            host_qty=model.quantity.IsReadonlyQuantityOf(
-                qty_subject=mock.Mock(),
-                quantity_data_src=qfx.get_qty_data_src(qfx.get_qty_data(qty_in_g=20))
+        qrob = qfx.IsQuantityRatioBaseTestable(
+            ratio_subject=sub,
+            ratio_host=mock.Mock(),
+            quantity_ratio_data=qfx.get_qty_ratio_data(
+                subject_qty_g=10,
+                host_qty_g=20
             )
         )
 
         # Assert we get the same instance back if we ask for the subject;
-        self.assertTrue(qrob.ratio_subject_qty is sub_qty)
+        self.assertTrue(qrob.ratio_subject_qty.qty_subject is sub)
 
 
 class TestRatioHostQty(TestCase):
@@ -75,23 +48,21 @@ class TestRatioHostQty(TestCase):
 
     def test_returns_correct_instance(self):
         """Check we get the same instance out as we sent in."""
-        # Create a mock subject instance;
-        host_qty = model.quantity.IsReadonlyQuantityOf(
-            qty_subject=mock.Mock(),
-            quantity_data_src=qfx.get_qty_data_src(qfx.get_qty_data(qty_in_g=10))
-        )
+        # Create a mock host instance;
+        hst = mock.Mock()
 
         # Use it to create a ratio instance;
-        qrob = model.quantity.IsQuantityRatioOf(
-            subject_qty=model.quantity.IsReadonlyQuantityOf(
-                qty_subject=mock.Mock(),
-                quantity_data_src=qfx.get_qty_data_src(qfx.get_qty_data(qty_in_g=20))
-            ),
-            host_qty=host_qty
+        qrob = qfx.IsQuantityRatioBaseTestable(
+            ratio_subject=mock.Mock(),
+            ratio_host=hst,
+            quantity_ratio_data=qfx.get_qty_ratio_data(
+                subject_qty_g=10,
+                host_qty_g=20
+            )
         )
 
         # Assert we get the same instance back if we ask for the subject;
-        self.assertTrue(qrob.ratio_host_qty is host_qty)
+        self.assertTrue(qrob.ratio_host_qty.qty_subject is hst)
 
 
 class TestSubjectGPerHostG(TestCase):
@@ -100,14 +71,12 @@ class TestSubjectGPerHostG(TestCase):
     def test_correct_value_is_returned(self):
         """Checks that we get the correct value back."""
         # Create a test instance with numerator and denominator quantities defined;
-        qrob = model.quantity.IsQuantityRatioOf(
-            subject_qty=model.quantity.IsReadonlyQuantityOf(
-                qty_subject=mock.Mock(),
-                quantity_data_src=qfx.get_qty_data_src(qfx.get_qty_data(qty_in_g=10))
-            ),
-            host_qty=model.quantity.IsReadonlyQuantityOf(
-                qty_subject=mock.Mock(),
-                quantity_data_src=qfx.get_qty_data_src(qfx.get_qty_data(qty_in_g=20))
+        qrob = qfx.IsQuantityRatioBaseTestable(
+            ratio_subject=mock.Mock(),
+            ratio_host=mock.Mock(),
+            quantity_ratio_data=qfx.get_qty_ratio_data(
+                subject_qty_g=10,
+                host_qty_g=20
             )
         )
 
@@ -122,19 +91,19 @@ class TestSubjectQtyInPrefUnitPerGOfHost(TestCase):
         """Checks that the property returns the correct value."""
         # OK, lets simulate a ratio with 10mg of x for every 40g of y.
         # Create a testable instance to represent this scenario;
-        qrob = model.quantity.IsQuantityRatioOf(
-            subject_qty=model.quantity.IsReadonlyQuantityOf(
-                qty_subject=mock.Mock(),
-                quantity_data_src=qfx.get_qty_data_src(qfx.get_qty_data(qty_in_g=0.01, pref_unit='mg'))
-            ),
-            host_qty=model.quantity.IsReadonlyQuantityOf(
-                qty_subject=mock.Mock(),
-                quantity_data_src=qfx.get_qty_data_src(qfx.get_qty_data(qty_in_g=40, pref_unit='g'))
+        qrob = qfx.IsQuantityRatioBaseTestable(
+            ratio_subject=mock.Mock(),
+            ratio_host=mock.Mock(),
+            quantity_ratio_data=qfx.get_qty_ratio_data(
+                subject_qty_g=0.1,
+                subject_qty_unit="mg",
+                host_qty_g=40,
+                host_qty_unit='g'
             )
         )
 
         # Assert we get the correct ratio;
-        self.assertEqual(0.25, qrob.subject_qty_in_pref_unit_per_g_of_host)
+        self.assertEqual(2.5, qrob.subject_qty_in_pref_unit_per_g_of_host)
 
 
 class TestSubjectQtyInPrefUnitPerRefQtyOfHost(TestCase):
@@ -143,19 +112,19 @@ class TestSubjectQtyInPrefUnitPerRefQtyOfHost(TestCase):
     def test_correct_value_is_returned(self):
         """Checks that the property returns the correct value."""
         # Create a test instance with 10mg of x per 40g of y
-        qrob = model.quantity.IsQuantityRatioOf(
-            subject_qty=model.quantity.IsReadonlyQuantityOf(
-                qty_subject=mock.Mock(),
-                quantity_data_src=qfx.get_qty_data_src(qfx.get_qty_data(qty_in_g=0.02, pref_unit='mg'))
-            ),
-            host_qty=model.quantity.IsReadonlyQuantityOf(
-                qty_subject=mock.Mock(),
-                quantity_data_src=qfx.get_qty_data_src(qfx.get_qty_data(qty_in_g=40, pref_unit='g'))
+        qrob = qfx.IsQuantityRatioBaseTestable(
+            ratio_subject=mock.Mock(),
+            ratio_host=mock.Mock(),
+            quantity_ratio_data=qfx.get_qty_ratio_data(
+                subject_qty_g=0.2,
+                subject_qty_unit="mg",
+                host_qty_g=40,
+                host_qty_unit='g'
             )
         )
 
         # Assert we get the correct ratio;
-        self.assertEqual(20, qrob.subject_qty_in_pref_unit_per_ref_qty_of_host)
+        self.assertEqual(200, qrob.subject_qty_in_pref_unit_per_ref_qty_of_host)
 
 
 class TestRatioIsDefined(TestCase):
@@ -164,14 +133,14 @@ class TestRatioIsDefined(TestCase):
     def test_returns_true_if_ratio_is_defined(self):
         """Checks that the property returns True if the ratio is defined."""
         # Create a fully defined test instance;
-        qrob = model.quantity.IsQuantityRatioOf(
-            subject_qty=model.quantity.IsReadonlyQuantityOf(
-                qty_subject=mock.Mock(),
-                quantity_data_src=qfx.get_qty_data_src(qfx.get_qty_data(qty_in_g=0.03, pref_unit='mg'))
-            ),
-            host_qty=model.quantity.IsReadonlyQuantityOf(
-                qty_subject=mock.Mock(),
-                quantity_data_src=qfx.get_qty_data_src(qfx.get_qty_data(qty_in_g=40, pref_unit='g'))
+        qrob = qfx.IsQuantityRatioBaseTestable(
+            ratio_subject=mock.Mock(),
+            ratio_host=mock.Mock(),
+            quantity_ratio_data=qfx.get_qty_ratio_data(
+                subject_qty_g=0.3,
+                subject_qty_unit="mg",
+                host_qty_g=40,
+                host_qty_unit='g'
             )
         )
 
@@ -181,14 +150,14 @@ class TestRatioIsDefined(TestCase):
     def test_returns_false_if_ratio_is_undefined(self):
         """Checks that the property returns False if the ratio is undefined."""
         # Create a partially undefined test instance;
-        qrob = model.quantity.IsQuantityRatioOf(
-            subject_qty=model.quantity.IsReadonlyQuantityOf(
-                qty_subject=mock.Mock(),
-                quantity_data_src=qfx.get_qty_data_src(qfx.get_qty_data(qty_in_g=None, pref_unit='mg'))
-            ),
-            host_qty=model.quantity.IsReadonlyQuantityOf(
-                qty_subject=mock.Mock(),
-                quantity_data_src=qfx.get_qty_data_src(qfx.get_qty_data(qty_in_g=40, pref_unit='g'))
+        qrob = qfx.IsQuantityRatioBaseTestable(
+            ratio_subject=mock.Mock(),
+            ratio_host=mock.Mock(),
+            quantity_ratio_data=qfx.get_qty_ratio_data(
+                subject_qty_g=None,
+                subject_qty_unit="mg",
+                host_qty_g=40,
+                host_qty_unit='g'
             )
         )
 

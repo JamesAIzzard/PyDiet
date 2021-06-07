@@ -125,6 +125,9 @@ class IsReadonlyQuantityRatio(IsQuantityRatioBase):
         # Stash the data src;
         self._qty_ratio_data_src = qty_ratio_data_src
 
+        # Validate the data;
+        self.validate_quantity_ratio()
+
     @property
     def quantity_ratio_data(self) -> 'model.quantity.QuantityRatioData':
         """Returns the qty ratio data."""
@@ -210,5 +213,18 @@ class IsSettableQuantityRatio(IsQuantityRatioBase, persistence.CanLoadData):
 
     def load_data(self, quantity_ratio_data: 'model.quantity.QuantityRatioData') -> None:
         """Loads data into the instance."""
+
+        # Take a backup of the previous data;
+        backup_data = self.persistable_data
+
+        # Load the data;
         self._ratio_subject_qty.load_data(quantity_data=quantity_ratio_data['subject_qty_data'])
         self._ratio_host_qty.load_data(quantity_data=quantity_ratio_data['host_qty_data'])
+
+        # Validate the data;
+        try:
+            self.validate_quantity_ratio()
+        except Exception as err:
+            # Something went wrong, put the original data back and pass the exception on.
+            self.load_data(backup_data)
+            raise err

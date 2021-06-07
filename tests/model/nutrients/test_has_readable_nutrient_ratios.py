@@ -14,7 +14,7 @@ class TestNutrientRatios(TestCase):
         """Checks that we get the correct dict of readonly nutrient ratios."""
         # Create a test instance;
         hnr = fx.HasReadableNutrientRatiosTestable(nutrient_ratios_data={
-            "foo": qfx.get_qty_ratio_data(subject_qty_g=20, host_qty_g=1, host_qty_unit='kg'),
+            "foo": qfx.get_qty_ratio_data(subject_qty_g=20, host_qty_g=22, host_qty_unit='kg'),
             "bar": qfx.get_qty_ratio_data(subject_qty_g=30, subject_qty_unit='lb', host_qty_g=140)
         })
 

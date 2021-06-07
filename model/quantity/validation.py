@@ -11,7 +11,7 @@ def validate_quantity(qty: float) -> float:
     """
     try:
         qty = float(qty)
-    except ValueError:
+    except (ValueError, TypeError):
         raise model.quantity.exceptions.InvalidQtyError(quantity=qty)
     if qty < 0:
         raise model.quantity.exceptions.InvalidQtyError(quantity=qty)

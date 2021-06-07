@@ -50,7 +50,7 @@ class IsQuantityOfBase(persistence.YieldsPersistableData, abc.ABC):
         # Check the instance is valid before returning data;
         self.validate_quantity_and_unit()
         # Return
-        return self._unvalidated_qty_pref_unit
+        return model.quantity.validation.validate_qty_unit(self._unvalidated_qty_pref_unit)
 
     @property
     def ref_qty(self) -> float:
@@ -195,6 +195,10 @@ class IsSettableQuantityOf(IsQuantityOfBase, persistence.CanLoadData):
         # Validate the unit to correct any case issues;
         quantity_unit = model.quantity.validation.validate_qty_unit(quantity_unit)
 
+        # Validate the quantity value if not None;
+        if quantity_value is not None:
+            quantity_value = model.quantity.validation.validate_quantity(quantity_value)
+
         # If the qty value was set, we need to convert it to grams;
         if quantity_value is not None:
             g_per_ml = None
@@ -226,14 +230,14 @@ class IsSettableQuantityOf(IsQuantityOfBase, persistence.CanLoadData):
             self.validate_quantity_and_unit()
         # Ahh, OK, something broke, reset the original value and pass the exception on;
         except Exception as err:
-            self.load_data({"quantity_data": backup_data})
+            self.load_data(backup_data)
             raise err
 
     def unset_quantity(self) -> None:
         """Unsets the quantity."""
         self.set_quantity(quantity_value=None)
 
-    def load_data(self, quantity_data: Dict[str, Any]) -> None:
+    def load_data(self, quantity_data: 'model.quantity.QuantityData') -> None:
         """Load the any available data into the instance."""
 
         # If the pref unit is defined, make sure it is available on this subject;
