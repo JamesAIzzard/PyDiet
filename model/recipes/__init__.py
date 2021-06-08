@@ -1,2 +1,2 @@
 from . import exceptions
-from .recipe import Recipe
+from .recipe import RecipeBase

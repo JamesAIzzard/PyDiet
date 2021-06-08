@@ -48,9 +48,20 @@ class HasReadableIngredientQuantities(persistence.YieldsPersistableData, abc.ABC
         raise NotImplementedError
 
     @property
-    def ingredient_names(self) -> List[str]:
+    def ingredient_unique_names(self) -> List[str]:
         """Returns a list of all the ingredients names associated with the instance."""
-        return list(self.ingredient_quantities.keys())
+        # Create a list to compile the unique names;
+        unique_names = []
+
+        # Work through the quantities list, and populate the unique names using the df names;
+        for df_name in self.ingredient_quantities.keys():
+            unique_names.append(persistence.get_unique_value_from_datafile_name(
+                cls=model.ingredients.IngredientBase,
+                datafile_name=df_name
+            ))
+
+        # Convert list-set to eliminate dupiclates, and return;
+        return list(set(unique_names))
 
     @property
     def persistable_data(self) -> Dict[str, Any]:
@@ -58,7 +69,9 @@ class HasReadableIngredientQuantities(persistence.YieldsPersistableData, abc.ABC
         # Collect the persistable data from the superclass.
         data = super().persistable_data
 
-        # Now add an ingredient_quantities data field, and cycle through the quantities, populating it;
+        # Now add an ingredient_quantities data field;
+        data['ingredient_quantities_data'] = {}
+        # Now populate the field;
         for ingredient_df_name, ingredient_quantity in self.ingredient_quantities.items():
             data['ingredient_quantities_data'][ingredient_df_name] = ingredient_quantity.persistable_data
 
@@ -66,7 +79,7 @@ class HasReadableIngredientQuantities(persistence.YieldsPersistableData, abc.ABC
         return data
 
 
-class HasSettableIngredientQuantities(persistence.CanLoadData):
+class HasSettableIngredientQuantities(HasReadableIngredientQuantities, persistence.CanLoadData):
     """Models an object on which ingredient quantities can be set."""
 
     def __init__(self, ingredient_quantities_data: Optional[Dict[str, 'model.quantity.QuantityData']] = None, **kwargs):

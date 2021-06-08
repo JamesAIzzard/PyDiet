@@ -1,5 +1,5 @@
 """Fixtures for ingredient module testing."""
-from typing import Optional, Any
+from typing import Dict, Optional, Any
 
 import model
 import persistence
@@ -89,6 +89,39 @@ class IngredientRatioBaseTestable(model.ingredients.IngredientRatioBase):
         return self._quantity_ratio_data
 
 
+class HasReadableIngredientQuantitiesTestable(model.ingredients.HasReadableIngredientQuantities):
+    """Minimal implementation to test the HasIngredientQuantities class."""
+
+    def __init__(self, ingredient_quantities_data: 'model.ingredients.IngredientQuantitiesData', **kwargs):
+        super().__init__(**kwargs)
+
+        # Stash the ingredient quantities data;
+        self._ingredient_quantities_data = ingredient_quantities_data
+
+    @property
+    def ingredient_quantities(self) -> Dict[str, 'model.ingredients.ReadonlyIngredientQuantity']:
+        """Returns the ingredient quantities data."""
+        # Somewhere to compile the riq instances;
+        iqs = {}
+
+        # Create func to access data from iq line;
+        def get_qty_data_src(idf_name):
+            """Accessor for quantity data from dict."""
+            return lambda: self._ingredient_quantities_data[idf_name]
+
+        # Cycle through the data, and compile;
+        for df_name, q_data in self._ingredient_quantities_data.items():
+            iqs[df_name] = model.ingredients.ReadonlyIngredientQuantity(
+                ingredient=model.ingredients.ReadonlyIngredient(
+                    ingredient_data_src=get_ingredient_data_src(for_ingredient_df_name=df_name),
+                ),
+                quantity_data_src=get_qty_data_src(df_name)
+            )
+
+        # Return the compiled list;
+        return iqs
+
+
 def get_ingredient_name_with(characteristic: str) -> str:
     """Returns an ingredient name matching the specified characteristic.
     Performs a lookup on the table above.
@@ -96,28 +129,49 @@ def get_ingredient_name_with(characteristic: str) -> str:
     return INGREDIENT_NAME_WITH[characteristic]
 
 
+def get_ingredient_df_name(unique_name: str) -> str:
+    """Returns the ingredient datafile name corresponding the the unique name provided."""
+    return persistence.get_datafile_name_for_unique_value(
+        cls=model.ingredients.IngredientBase,
+        unique_value=unique_name
+    )
+
+
 def get_ingredient_data_src(
-        for_ingredient_name: Optional[str] = None
+        for_ingredient_unique_name: Optional[str] = None,
+        for_ingredient_df_name: Optional[str] = None
 ):
     """Returns a callable that returns ingredient data.
     Args:
-        for_ingredient_name (Optional[str]): When specified, returns callable for data corresponding
+        for_ingredient_df_name: When specified, returns callable data src for ingredient specified by
+            this datafile name.
+        for_ingredient_unique_name (Optional[str]): When specified, returns callable for data corresponding
             this particular name.
     """
-    return lambda: get_ingredient_data(for_unique_name=for_ingredient_name)
+    if for_ingredient_unique_name is not None:
+        return lambda: get_ingredient_data(for_unique_name=for_ingredient_unique_name)
+    elif for_ingredient_df_name is not None:
+        return lambda: get_ingredient_data(for_df_name=for_ingredient_df_name)
 
 
 def get_ingredient_data(
-        for_unique_name: Optional[str] = None
+        for_unique_name: Optional[str] = None,
+        for_df_name: Optional[str] = None,
 ):
     """Returns ingredient data.
     Args:
+        for_df_name (Optional[str]): When specified, loads and returns data corresponding to this datafile name.
         for_unique_name (Optional[str]): When specified, loads and returns data corresponding to this particular name.
     """
     # If a unique name was specified;
     if for_unique_name is not None:
         # Fetch the data corresponding to that name;
         return persistence.load_datafile(cls=model.ingredients.ReadonlyIngredient, unique_value=for_unique_name)
+
+    # If a df name was specified;
+    if for_df_name is not None:
+        # Fetch the data corresponding to that name;
+        return persistence.load_datafile(cls=model.ingredients.IngredientBase, datafile_name=for_df_name)
 
     # If nothing was specifed;
     return model.ingredients.IngredientData(
@@ -127,6 +181,7 @@ def get_ingredient_data(
         nutrient_ratios_data={},
         extended_units_data=qfx.get_extended_units_data()
     )
+
 
 def get_ingredient_ratio_data(
         ingredient_qty_g: Optional[float] = None,

@@ -4,7 +4,7 @@ import model
 class BaseRecipeError(model.exceptions.PyDietModelError):
     """Base error for the recipe module"""
 
-    def __init__(self, subject: 'model.recipes.Recipe', **kwargs):
+    def __init__(self, subject: 'model.recipes.RecipeBase', **kwargs):
         super().__init__(**kwargs)
         self.subject = subject
 

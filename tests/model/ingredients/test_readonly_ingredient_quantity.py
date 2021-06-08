@@ -16,7 +16,7 @@ class TestConstructor(TestCase):
             model.ingredients.ReadonlyIngredientQuantity(
                 ingredient=model.ingredients.ReadonlyIngredient(
                     ingredient_data_src=ifx.get_ingredient_data_src(
-                        for_ingredient_name=ifx.get_ingredient_name_with("typical_fully_defined_data")
+                        for_ingredient_unique_name=ifx.get_ingredient_name_with("typical_fully_defined_data")
                     )
                 ),
                 quantity_data_src=qfx.get_qty_data_src(
@@ -49,7 +49,7 @@ class TestIngredient(TestCase):
         # Create a readonly ingredient;
         i = model.ingredients.ReadonlyIngredient(
             ingredient_data_src=ifx.get_ingredient_data_src(
-                for_ingredient_name=ifx.get_ingredient_name_with("typical_fully_defined_data")
+                for_ingredient_unique_name=ifx.get_ingredient_name_with("typical_fully_defined_data")
             )
         )
 
@@ -75,7 +75,7 @@ class TestRefQty(TestCase):
         iq = model.ingredients.ReadonlyIngredientQuantity(
             ingredient=model.ingredients.ReadonlyIngredient(
                 ingredient_data_src=ifx.get_ingredient_data_src(
-                    for_ingredient_name=ifx.get_ingredient_name_with("typical_fully_defined_data")
+                    for_ingredient_unique_name=ifx.get_ingredient_name_with("typical_fully_defined_data")
                 )
             ),
             quantity_data_src=qfx.get_qty_data_src(
@@ -100,7 +100,7 @@ class TestGetNutrientMass(TestCase):
         iq = model.ingredients.ReadonlyIngredientQuantity(
             ingredient=model.ingredients.ReadonlyIngredient(
                 ingredient_data_src=ifx.get_ingredient_data_src(
-                    for_ingredient_name=ifx.get_ingredient_name_with("14_grams_of_protein_per_100_g")
+                    for_ingredient_unique_name=ifx.get_ingredient_name_with("14_grams_of_protein_per_100_g")
                 )
             ),
             quantity_data_src=qfx.get_qty_data_src(qfx.get_qty_data(
@@ -122,7 +122,7 @@ class TestNumCalories(TestCase):
         iq = model.ingredients.ReadonlyIngredientQuantity(
             ingredient=model.ingredients.ReadonlyIngredient(
                 ingredient_data_src=ifx.get_ingredient_data_src(
-                    for_ingredient_name=ifx.get_ingredient_name_with("7.2_calories_per_g")
+                    for_ingredient_unique_name=ifx.get_ingredient_name_with("7.2_calories_per_g")
                 )
             ),
             quantity_data_src=qfx.get_qty_data_src(qfx.get_qty_data(

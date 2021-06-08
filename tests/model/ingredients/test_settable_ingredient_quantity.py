@@ -14,7 +14,7 @@ class TestConstructor(TestCase):
         siq = model.ingredients.SettableIngredientQuantity(
             ingredient=model.ingredients.ReadonlyIngredient(
                 ingredient_data_src=ifx.get_ingredient_data_src(
-                    for_ingredient_name=ifx.get_ingredient_name_with("typical_fully_defined_data")
+                    for_ingredient_unique_name=ifx.get_ingredient_name_with("typical_fully_defined_data")
                 )
             ),
             quantity_data=qfx.get_qty_data()
@@ -46,7 +46,7 @@ class TestSetQuantity(TestCase):
         siq = model.ingredients.SettableIngredientQuantity(
             ingredient=model.ingredients.ReadonlyIngredient(
                 ingredient_data_src=ifx.get_ingredient_data_src(
-                    for_ingredient_name=ifx.get_ingredient_name_with("typical_fully_defined_data")
+                    for_ingredient_unique_name=ifx.get_ingredient_name_with("typical_fully_defined_data")
                 )
             ),
             quantity_data=qfx.get_qty_data()
@@ -72,7 +72,7 @@ class TestSetQuantity(TestCase):
         siq = model.ingredients.SettableIngredientQuantity(
             ingredient=model.ingredients.ReadonlyIngredient(
                 ingredient_data_src=ifx.get_ingredient_data_src(
-                    for_ingredient_name=ifx.get_ingredient_name_with("density_defined")
+                    for_ingredient_unique_name=ifx.get_ingredient_name_with("density_defined")
                 )
             ),
             quantity_data=qfx.get_qty_data()
@@ -96,7 +96,7 @@ class TestSetQuantity(TestCase):
         siq = model.ingredients.SettableIngredientQuantity(
             ingredient=model.ingredients.ReadonlyIngredient(
                 ingredient_data_src=ifx.get_ingredient_data_src(
-                    for_ingredient_name=ifx.get_ingredient_name_with("density_undefined")
+                    for_ingredient_unique_name=ifx.get_ingredient_name_with("density_undefined")
                 )
             ),
             quantity_data=qfx.get_qty_data()
@@ -115,7 +115,7 @@ class TestNumCalories(TestCase):
         siq = model.ingredients.SettableIngredientQuantity(
             ingredient=model.ingredients.ReadonlyIngredient(
                 ingredient_data_src=ifx.get_ingredient_data_src(
-                    for_ingredient_name=ifx.get_ingredient_name_with("typical_fully_defined_data")
+                    for_ingredient_unique_name=ifx.get_ingredient_name_with("typical_fully_defined_data")
                 )
             ),
             quantity_data=qfx.get_qty_data(qty_in_g=150)
@@ -139,7 +139,7 @@ class TestIngredient(TestCase):
         siq = model.ingredients.SettableIngredientQuantity(
             ingredient=model.ingredients.ReadonlyIngredient(
                 ingredient_data_src=ifx.get_ingredient_data_src(
-                    for_ingredient_name=ifx.get_ingredient_name_with("typical_fully_defined_data")
+                    for_ingredient_unique_name=ifx.get_ingredient_name_with("typical_fully_defined_data")
                 )
             ),
             quantity_data=qfx.get_qty_data(qty_in_g=150)

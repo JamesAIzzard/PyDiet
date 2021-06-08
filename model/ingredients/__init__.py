@@ -6,6 +6,7 @@ from .ingredient_quantity import (
     IngredientQuantityBase,
     ReadonlyIngredientQuantity,
     SettableIngredientQuantity,
-    HasReadableIngredientQuantities
+    HasReadableIngredientQuantities,
+    HasSettableIngredientQuantities
 )
 from .ingredient_ratios import (IngredientRatioBase)
