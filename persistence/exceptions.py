@@ -1,5 +1,7 @@
-import exceptions
+"""Defines exceptions for the persistence module."""
+
 import persistence
+import exceptions
 
 
 class BasePersistenceError(exceptions.PyDietError):

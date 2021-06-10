@@ -15,8 +15,14 @@ def save_instance(subject: 'persistence.SupportsPersistence') -> None:
     """Saves the subject."""
 
     # Check the name is available;
-    if check_unique_value_available(subject.__class__, subject.unique_value, subject.datafile_name) is False:
-        raise persistence.exceptions.UniqueValueDuplicatedError
+    if check_unique_value_available(
+            cls=subject.__class__,
+            proposed_value=subject.unique_value,
+            ignore_datafile=subject.datafile_name if subject.datafile_name_is_defined else None
+    ) is False:
+        raise persistence.exceptions.UniqueValueDuplicatedError(
+            subject.unique_value
+        )
 
     # If exists already, we are updating;
     if subject.datafile_name_is_defined:
@@ -77,12 +83,12 @@ def get_saved_unique_values(cls: Type['persistence.SupportsPersistence']) -> Lis
     return list(index.values())
 
 
-def check_unique_value_available(cls: Type['persistence.SupportsPersistence'], proposed_name: str,
+def check_unique_value_available(cls: Type['persistence.SupportsPersistence'], proposed_value: str,
                                  ignore_datafile: Optional[str] = None) -> bool:
     """Checks if the proposed unique value is available for the persistable class type."""
 
     # Check proposed name was provided;
-    if proposed_name is None:
+    if proposed_value is None:
         raise persistence.exceptions.UndefinedUniqueValueError
 
     # Grab the index data;
@@ -92,7 +98,7 @@ def check_unique_value_available(cls: Type['persistence.SupportsPersistence'], p
     if ignore_datafile is not None:
         index_data.pop(ignore_datafile)
 
-    return proposed_name not in index_data.values()
+    return proposed_value not in index_data.values()
 
 
 def search_for_unique_values(
@@ -140,7 +146,11 @@ def _create_index_entry(subject: 'persistence.SupportsPersistence') -> None:
     index_data = _read_index(subject.__class__)
 
     # Check the unique field qty isn't used already, also checks name is not None;
-    if not check_unique_value_available(subject.__class__, subject.unique_value, subject.datafile_name):
+    if not check_unique_value_available(
+            cls=subject.__class__,
+            proposed_value=subject.unique_value,
+            ignore_datafile=subject.datafile_name if subject.datafile_name_is_defined else None
+    ):
         raise persistence.exceptions.UniqueValueDuplicatedError
 
     # Generate and set the UID on object and index;

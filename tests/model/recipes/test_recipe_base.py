@@ -11,7 +11,7 @@ class TestName(TestCase):
     def test_name_is_correct(self):
         """Test the name property returns the correct value."""
         # Create a named test instance;
-        rb = rfx.RecipeBaseTestable()
+        rb = rfx.RecipeBaseTestable(rfx.get_recipe_data(for_unique_name="Porridge"))
 
         # Check the name is correct;
         self.assertEqual("Porridge")

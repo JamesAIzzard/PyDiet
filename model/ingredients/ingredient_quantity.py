@@ -97,6 +97,26 @@ class HasSettableIngredientQuantities(HasReadableIngredientQuantities, persisten
         """Returns the ingredient quantities associated with the instance."""
         return self._ingredient_quantities
 
+    def add_ingredient_quantity(self, ingredient_unique_name, qty_value, qty_unit) -> None:
+        """Adds an ingredient quantity to the instance."""
+        # Fetch the ingredient instance;
+        i = model.ingredients.ReadonlyIngredient(
+            ingredient_data_src=lambda: persistence.load_datafile(
+                cls=model.ingredients.IngredientBase,
+                unique_value=ingredient_unique_name
+            )
+        )
+
+        # Create the ingredient quantity instance;
+        iq = SettableIngredientQuantity(ingredient=i)
+        iq.set_quantity(quantity_value=qty_value, quantity_unit=qty_unit)
+
+        # Add the ingredient to the dict;
+        self._ingredient_quantities[persistence.get_datafile_name_for_unique_value(
+            cls=model.ingredients.IngredientBase,
+            unique_value=ingredient_unique_name
+        )] = iq
+
     def load_data(self, data: Dict[str, Any]) -> None:
         """Loads data into the instance."""
         # Load data on the superclass;

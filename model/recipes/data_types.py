@@ -9,5 +9,5 @@ class RecipeData(TypedDict):
     name: Optional[str]
     ingredient_quantities_data: Dict[str, 'model.ingredients.IngredientQuantitiesData']
     serve_intervals: List[str]
-    instruction_src: str
+    instruction_src: Optional[str]
     tags: List[str]

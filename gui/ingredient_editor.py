@@ -116,7 +116,7 @@ class IngredientNameEntryController(gui.HasSubject, gui.SupportsValidity, gui.Su
         else:
             if persistence.check_unique_value_available(
                     cls=model.ingredients.ReadonlyIngredient,
-                    proposed_name=value,
+                    proposed_value=value,
                     ignore_datafile=self.subject.datafile_name
             ):
                 self.subject.name = value

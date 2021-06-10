@@ -49,7 +49,7 @@ class SupportsPersistence(YieldsPersistableData, abc.ABC):
         """Checks the proposed unique value for uniqueness, and returns it if it is unique."""
         if persistence.check_unique_value_available(
                 cls=self.__class__,
-                proposed_name=value,
+                proposed_value=value,
                 ignore_datafile=self._datafile_name
         ) is True:
             return value

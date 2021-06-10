@@ -121,7 +121,7 @@ class SettableIngredient(
         # OK, the name isn't None, so we need to check if it is available;
         if persistence.check_unique_value_available(
             cls=self.__class__,
-            proposed_name=name,
+            proposed_value=name,
             ignore_datafile=self.datafile_name if self.datafile_name_is_defined else None
         ):
             # It is available, go ahead and set it;
