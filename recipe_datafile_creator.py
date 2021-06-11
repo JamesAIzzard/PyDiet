@@ -19,7 +19,7 @@ sr.add_ingredient_quantity("Sultana", 15, 'g')
 sr.add_ingredient_quantity("Milk (Skimmed)", 100, 'ml')
 sr.add_serve_interval("04:00-10:00")
 sr.instruction_src = "https://www.bbcgoodfood.com/recipes/perfect-porridge"
-# sr.add_tags("main")
+sr.add_tags(["main"])
 
 if target_db == "test":
     with mock.patch('persistence.configs.path_into_db', tests.persistence.configs.path_into_db):

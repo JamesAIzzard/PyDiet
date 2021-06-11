@@ -24,7 +24,8 @@ class ReadableRecipe(
     model.HasReadableName,
     model.ingredients.HasReadableIngredientQuantities,
     model.time.HasReadableServeTimes,
-    model.instructions.HasReadableInstructionSrc
+    model.instructions.HasReadableInstructionSrc,
+    model.tags.HasReadableTags
 ):
     """Models a readable recipe."""
 
@@ -79,6 +80,11 @@ class ReadableRecipe(
         return self._recipe_data_src()['instruction_src']
 
     @property
+    def tags(self) -> List[str]:
+        """Returns the tags associated with the recipe."""
+        return self._recipe_data_src()['tags']
+
+    @property
     def unique_value(self) -> str:
         """Returns the unique name for the recipe."""
         return self._recipe_data_src()['name']
@@ -89,7 +95,8 @@ class SettableRecipe(
     model.HasSettableName,
     model.ingredients.HasSettableIngredientQuantities,
     model.time.HasSettableServeTimes,
-    model.instructions.HasSettableInstructionSrc
+    model.instructions.HasSettableInstructionSrc,
+    model.tags.HasSettableTags
 ):
     """Models a settable recipe."""
 
