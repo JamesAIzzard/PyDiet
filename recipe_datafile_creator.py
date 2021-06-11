@@ -18,7 +18,7 @@ sr.add_ingredient_quantity("Oats (Whole)", 60, 'g')
 sr.add_ingredient_quantity("Sultana", 15, 'g')
 sr.add_ingredient_quantity("Milk (Skimmed)", 100, 'ml')
 sr.add_serve_interval("04:00-10:00")
-# sr.add_instruction_src()
+sr.instruction_src = "https://www.bbcgoodfood.com/recipes/perfect-porridge"
 # sr.add_tags("main")
 
 if target_db == "test":

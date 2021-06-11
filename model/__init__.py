@@ -3,6 +3,7 @@ from . import exceptions
 from . import configs
 from .has_name import HasReadableName, HasSettableName
 from .has_mandatory_attributes import HasMandatoryAttributes
+from . import instructions
 from . import quantity
 from . import cost
 from . import nutrients

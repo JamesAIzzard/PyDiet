@@ -23,7 +23,8 @@ class ReadableRecipe(
     RecipeBase,
     model.HasReadableName,
     model.ingredients.HasReadableIngredientQuantities,
-    model.time.HasReadableServeTimes
+    model.time.HasReadableServeTimes,
+    model.instructions.HasReadableInstructionSrc
 ):
     """Models a readable recipe."""
 
@@ -47,12 +48,13 @@ class ReadableRecipe(
         iq = {}
 
         # Define an accessor func for the data src;
-        def i_data_src(df_name):
+        def get_qty_data_src(df_name):
             """Accessor function for ingredient data src."""
             return lambda: iq_data[df_name]
 
         # Cycle through the data and init the ingredient quantities;
         for i_df_name, iqo_data in iq_data.items():
+            # noinspection PyTypeChecker
             iq[i_df_name] = model.ingredients.ReadonlyIngredientQuantity(
                 ingredient=model.ingredients.ReadonlyIngredient(
                     ingredient_data_src=persistence.load_datafile(
@@ -60,7 +62,7 @@ class ReadableRecipe(
                         datafile_name=i_df_name
                     )
                 ),
-                quantity_data_src=lambda: i_data_src(i_df_name)
+                quantity_data_src=lambda: get_qty_data_src(i_df_name)
             )
 
         # Return the dict;
@@ -72,6 +74,11 @@ class ReadableRecipe(
         return self._recipe_data_src()['serve_intervals']
 
     @property
+    def instruction_src(self) -> str:
+        """Returns the instruction source for the recipe."""
+        return self._recipe_data_src()['instruction_src']
+
+    @property
     def unique_value(self) -> str:
         """Returns the unique name for the recipe."""
         return self._recipe_data_src()['name']
@@ -81,7 +88,8 @@ class SettableRecipe(
     RecipeBase,
     model.HasSettableName,
     model.ingredients.HasSettableIngredientQuantities,
-    model.time.HasSettableServeTimes
+    model.time.HasSettableServeTimes,
+    model.instructions.HasSettableInstructionSrc
 ):
     """Models a settable recipe."""
 
