@@ -7,7 +7,7 @@ import model
 class RecipeData(TypedDict):
     """Recipe data dictionary."""
     name: Optional[str]
-    ingredient_quantities_data: Dict[str, 'model.ingredients.IngredientQuantitiesData']
+    ingredient_quantities_data: model.ingredients.IngredientQuantitiesData
     serve_intervals: List[str]
     instruction_src: Optional[str]
     tags: List[str]

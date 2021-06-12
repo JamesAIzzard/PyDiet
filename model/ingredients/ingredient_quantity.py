@@ -1,6 +1,6 @@
 """Defines functionality related to ingredient quantities."""
 import abc
-from typing import Dict, List, Callable, Optional, Any
+from typing import Dict, List, Optional, Any
 
 import model
 import persistence
@@ -14,7 +14,6 @@ class IngredientQuantityBase(
     """Abstract base class for readonly and writable ingredient quantity classes."""
 
     def __init__(self, ingredient: 'model.ingredients.ReadonlyIngredient', **kwargs):
-
         if not isinstance(ingredient, model.ingredients.ReadonlyIngredient):
             raise TypeError("Ingredient arg must be a ReadonlyIngredient instance.")
 
@@ -42,10 +41,39 @@ class HasReadableIngredientQuantities(persistence.YieldsPersistableData, abc.ABC
 
     @property
     @abc.abstractmethod
-    def ingredient_quantities(self) -> Dict[str, 'model.ingredients.ReadonlyIngredientQuantity']:
-        """Returns a dictionary of all ingredient amounts assigned to the instance.
-        The dictionary key is the ingredient amount datafile name."""
+    def ingredient_quantities_data(self) -> 'model.ingredients.IngredientQuantitiesData':
+        """Returns the ingredient quantities data for the instance."""
         raise NotImplementedError
+
+    @property
+    def ingredient_quantities(self) -> Dict[str, 'model.ingredients.ReadonlyIngredientQuantity']:
+        """Returns the readonly ingredient quantities on the instance."""
+        # Cache the ingredient quantities data;
+        iq_data = self.ingredient_quantities_data
+
+        # Create dict to compile the ingredient quantites;
+        iq = {}
+
+        # Define an accessor func for the data src;
+        def get_qty_data_src(df_name):
+            """Accessor function for ingredient data src."""
+            return lambda: iq_data[df_name]
+
+        # Cycle through the data and init the ingredient quantities;
+        for i_df_name, iqo_data in iq_data.items():
+            # noinspection PyTypeChecker
+            iq[i_df_name] = model.ingredients.ReadonlyIngredientQuantity(
+                ingredient=model.ingredients.ReadonlyIngredient(
+                    ingredient_data_src=persistence.load_datafile(
+                        cls=model.ingredients.IngredientBase,
+                        datafile_name=i_df_name
+                    )
+                ),
+                quantity_data_src=get_qty_data_src(i_df_name)
+            )
+
+        # Return the dict;
+        return iq
 
     @property
     def ingredient_unique_names(self) -> List[str]:
@@ -54,7 +82,7 @@ class HasReadableIngredientQuantities(persistence.YieldsPersistableData, abc.ABC
         unique_names = []
 
         # Work through the quantities list, and populate the unique names using the df names;
-        for df_name in self.ingredient_quantities.keys():
+        for df_name in self.ingredient_quantities_data.keys():
             unique_names.append(persistence.get_unique_value_from_datafile_name(
                 cls=model.ingredients.IngredientBase,
                 datafile_name=df_name
@@ -70,10 +98,7 @@ class HasReadableIngredientQuantities(persistence.YieldsPersistableData, abc.ABC
         data = super().persistable_data
 
         # Now add an ingredient_quantities data field;
-        data['ingredient_quantities_data'] = {}
-        # Now populate the field;
-        for ingredient_df_name, ingredient_quantity in self.ingredient_quantities.items():
-            data['ingredient_quantities_data'][ingredient_df_name] = ingredient_quantity.persistable_data
+        data['ingredient_quantities_data'] = self.ingredient_quantities_data
 
         # Return the updated data dict;
         return data
@@ -86,19 +111,46 @@ class HasSettableIngredientQuantities(HasReadableIngredientQuantities, persisten
         super().__init__(**kwargs)
 
         # Init local storage for ingredient quantities;
-        self._ingredient_quantities: Dict[str, 'SettableIngredientQuantity'] = {}
+        self._ingredient_quantities_data: Dict[str, 'model.quantity.QuantityData'] = {}
 
         # If data was provided, load it;
         if ingredient_quantities_data is not None:
             self.load_data({'ingredient_quantities_data': ingredient_quantities_data})
 
     @property
-    def ingredient_quantities(self) -> Dict[str, 'model.ingredients.SettableIngredientQuantity']:
+    def ingredient_quantities_data(self) -> Dict[str, 'model.quantity.QuantityData']:
         """Returns the ingredient quantities associated with the instance."""
-        return self._ingredient_quantities
+        return self._ingredient_quantities_data
+
+    @property
+    def ingredient_quantities(self) -> Dict[str, 'model.ingredients.SettableIngredientQuantity']:
+        """Returns the readonly ingredient quantities on the instance."""
+
+        # Create dict to compile the ingredient quantites;
+        iq = {}
+
+        # Cycle through the data and init the ingredient quantities;
+        for i_df_name, iqo_data in self._ingredient_quantities_data.items():
+            # noinspection PyTypeChecker
+            iq[i_df_name] = model.ingredients.SettableIngredientQuantity(
+                ingredient=model.ingredients.ReadonlyIngredient(
+                    ingredient_data_src=persistence.load_datafile(
+                        cls=model.ingredients.IngredientBase,
+                        datafile_name=i_df_name
+                    )
+                ),
+                quantity_data=iqo_data
+            )
+
+        # Return the dict;
+        return iq
 
     def add_ingredient_quantity(self, ingredient_unique_name, qty_value, qty_unit) -> None:
-        """Adds an ingredient quantity to the instance."""
+        """Adds an ingredient quantity to the instance.
+        Notes:
+           We actually create the instance here, to ensure there are no validation issues.
+        """
+
         # Fetch the ingredient instance;
         i = model.ingredients.ReadonlyIngredient(
             ingredient_data_src=lambda: persistence.load_datafile(
@@ -112,34 +164,14 @@ class HasSettableIngredientQuantities(HasReadableIngredientQuantities, persisten
         iq.set_quantity(quantity_value=qty_value, quantity_unit=qty_unit)
 
         # Add the ingredient to the dict;
-        self._ingredient_quantities[persistence.get_datafile_name_for_unique_value(
-            cls=model.ingredients.IngredientBase,
-            unique_value=ingredient_unique_name
-        )] = iq
+        self._ingredient_quantities_data[i.datafile_name] = iq.persistable_data
 
     def load_data(self, data: Dict[str, Any]) -> None:
         """Loads data into the instance."""
         # Load data on the superclass;
         super().load_data(data)
 
-        # Create a factory funtion to return access functions for the ingredient data;
-        def get_ingredient_data_src(df_name: str) -> Callable[[], 'model.ingredients.IngredientData']:
-            """Factory function to return data access callable."""
-            return lambda: persistence.load_datafile(
-                cls=model.ingredients.IngredientData,
-                datafile_name=df_name
-            )
-
         # If there is an ingredient quantities heading in the data;
         if 'ingredient_quantities_data' in data.keys():
-            # Go ahead and populate the local dictionary;
-            for ingredient_df_name, ingredient_quantity_data in data['ingredient_quantities_data'].items():
-                self._ingredient_quantities[ingredient_df_name] = SettableIngredientQuantity(
-                    ingredient=model.ingredients.ReadonlyIngredient(
-                        ingredient_data_src=get_ingredient_data_src(df_name=ingredient_df_name)
-                    ),
-                    quantity_data=model.quantity.QuantityData(
-                        quantity_in_g=ingredient_quantity_data['quantity_in_g'],
-                        pref_unit=ingredient_quantity_data['pref_unit']
-                    )
-                )
+            # Go ahead and stash it locally;
+            self._ingredient_quantities_data = data['ingredient_quantities_data']

@@ -1,0 +1,24 @@
+{
+  "ingredient_quantities_data": {
+    "324cd4a3-464a-4052-83b7-6071325384d1": {
+      "pref_unit": "g",
+      "quantity_in_g": 15.0
+    },
+    "384cd933-b0a2-4c9e-9c64-8faf2c1f9b7e": {
+      "pref_unit": "g",
+      "quantity_in_g": 60.0
+    },
+    "7b5fd211-f8ec-42c0-9853-9cb2e65ec47e": {
+      "pref_unit": "ml",
+      "quantity_in_g": 103.0
+    }
+  },
+  "instruction_src": "https://www.bbcgoodfood.com/recipes/perfect-porridge",
+  "name": "Porridge",
+  "serve_intervals": [
+    "04:00-10:00"
+  ],
+  "tags": [
+    "main"
+  ]
+}

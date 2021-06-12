@@ -15,7 +15,7 @@ class HasReadableServeTimes(persistence.YieldsPersistableData, abc.ABC):
 
     @property
     @abc.abstractmethod
-    def serve_times_data(self) -> List[str]:
+    def serve_intervals_data(self) -> List[str]:
         """Returns the serve times data for the instance."""
         raise NotImplementedError
 
@@ -24,7 +24,7 @@ class HasReadableServeTimes(persistence.YieldsPersistableData, abc.ABC):
         """Returns the persistable data for the instance."""
         data = super().persistable_data
 
-        data["serve_intervals"] = self.serve_times_data
+        data["serve_intervals"] = self.serve_intervals_data
 
         return data
 
@@ -42,7 +42,7 @@ class HasSettableServeTimes(HasReadableServeTimes, persistence.CanLoadData):
             self.load_data({"serve_intervals": serve_times_data})
 
     @property
-    def serve_times_data(self) -> List[str]:
+    def serve_intervals_data(self) -> List[str]:
         """Returns serve times data for the instance."""
         return self._serve_times_data
 

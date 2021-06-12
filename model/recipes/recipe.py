@@ -1,6 +1,6 @@
 """Defines recipe classes."""
 import abc
-from typing import Callable, Optional, Dict, List
+from typing import Callable, Optional, Dict, List, Any
 
 import model
 import persistence
@@ -8,24 +8,33 @@ import persistence
 
 class RecipeBase(
     model.HasReadableName,
+    model.ingredients.HasReadableIngredientQuantities,
+    model.time.HasReadableServeTimes,
+    model.instructions.HasReadableInstructionSrc,
+    model.tags.HasReadableTags,
     persistence.SupportsPersistence,
     abc.ABC
 ):
     """Abstract base class for readable and writbale recipe classes."""
+
+    @property
+    def unique_value(self) -> str:
+        """Returns the unique name of the recipe."""
+        return self._name
 
     @staticmethod
     def get_path_into_db() -> str:
         """Returns the directory name in the database."""
         return f"{persistence.configs.path_into_db}/recipes"
 
+    @property
+    def persistable_data(self) -> Dict[str, Any]:
+        """Returns the persistable data for the recipe instance."""
+        return super().persistable_data
 
-class ReadableRecipe(
+
+class ReadonlyRecipe(
     RecipeBase,
-    model.HasReadableName,
-    model.ingredients.HasReadableIngredientQuantities,
-    model.time.HasReadableServeTimes,
-    model.instructions.HasReadableInstructionSrc,
-    model.tags.HasReadableTags
 ):
     """Models a readable recipe."""
 
@@ -40,37 +49,12 @@ class ReadableRecipe(
         return self._recipe_data_src()['name']
 
     @property
-    def ingredient_quantities(self) -> Dict[str, 'model.ingredients.ReadonlyIngredientQuantity']:
-        """Returns the readonly ingredient quantities on the instance."""
-        # Grab the data from the src function;
-        iq_data = self._recipe_data_src()['ingredient_quantities_data']
-
-        # Create dict to compile the ingredient quantites;
-        iq = {}
-
-        # Define an accessor func for the data src;
-        def get_qty_data_src(df_name):
-            """Accessor function for ingredient data src."""
-            return lambda: iq_data[df_name]
-
-        # Cycle through the data and init the ingredient quantities;
-        for i_df_name, iqo_data in iq_data.items():
-            # noinspection PyTypeChecker
-            iq[i_df_name] = model.ingredients.ReadonlyIngredientQuantity(
-                ingredient=model.ingredients.ReadonlyIngredient(
-                    ingredient_data_src=persistence.load_datafile(
-                        cls=model.ingredients.IngredientBase,
-                        datafile_name=i_df_name
-                    )
-                ),
-                quantity_data_src=lambda: get_qty_data_src(i_df_name)
-            )
-
-        # Return the dict;
-        return iq
+    def ingredient_quantities_data(self) -> 'model.ingredients.IngredientQuantitiesData':
+        """Returns the ingredient quantities data for the instance."""
+        return self._recipe_data_src()['ingredient_quantities_data']
 
     @property
-    def serve_times_data(self) -> List[str]:
+    def serve_intervals_data(self) -> List[str]:
         """Returns the serve times data for the instance."""
         return self._recipe_data_src()['serve_intervals']
 
@@ -84,11 +68,6 @@ class ReadableRecipe(
         """Returns the tags associated with the recipe."""
         return self._recipe_data_src()['tags']
 
-    @property
-    def unique_value(self) -> str:
-        """Returns the unique name for the recipe."""
-        return self._recipe_data_src()['name']
-
 
 class SettableRecipe(
     RecipeBase,
@@ -96,7 +75,8 @@ class SettableRecipe(
     model.ingredients.HasSettableIngredientQuantities,
     model.time.HasSettableServeTimes,
     model.instructions.HasSettableInstructionSrc,
-    model.tags.HasSettableTags
+    model.tags.HasSettableTags,
+    persistence.CanLoadData
 ):
     """Models a settable recipe."""
 
@@ -122,11 +102,11 @@ class SettableRecipe(
         ):
             # It is available, go ahead and set it;
             self._name_ = name
+
         # Otherwise, raise an exception;
         else:
             raise persistence.exceptions.UniqueValueDuplicatedError(duplicated_value=name)
 
-    @property
-    def unique_value(self) -> str:
-        """Retrurns the unique value for the settable ingredient;"""
-        return self._name
+    def load_data(self, data: 'model.recipes.RecipeData') -> None:
+        """Loads data into the isntance."""
+        super().load_data(data)

@@ -99,27 +99,9 @@ class HasReadableIngredientQuantitiesTestable(model.ingredients.HasReadableIngre
         self._ingredient_quantities_data = ingredient_quantities_data
 
     @property
-    def ingredient_quantities(self) -> Dict[str, 'model.ingredients.ReadonlyIngredientQuantity']:
-        """Returns the ingredient quantities data."""
-        # Somewhere to compile the riq instances;
-        iqs = {}
-
-        # Create func to access data from iq line;
-        def get_qty_data_src(idf_name):
-            """Accessor for quantity data from dict."""
-            return lambda: self._ingredient_quantities_data[idf_name]
-
-        # Cycle through the data, and compile;
-        for df_name, q_data in self._ingredient_quantities_data.items():
-            iqs[df_name] = model.ingredients.ReadonlyIngredientQuantity(
-                ingredient=model.ingredients.ReadonlyIngredient(
-                    ingredient_data_src=get_ingredient_data_src(for_ingredient_df_name=df_name),
-                ),
-                quantity_data_src=get_qty_data_src(df_name)
-            )
-
-        # Return the compiled list;
-        return iqs
+    def ingredient_quantities_data(self) -> 'model.ingredients.IngredientQuantitiesData':
+        """Returns the ingredient quantities data from the instance."""
+        return self._ingredient_quantities_data
 
 
 def get_ingredient_name_with(characteristic: str) -> str:
