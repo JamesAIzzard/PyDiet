@@ -3,9 +3,8 @@ from unittest import TestCase
 
 import model
 import persistence
-from tests.model.ingredients import fixtures as fx
-from tests.model.quantity import fixtures as qfx
 from tests.model.flags import fixtures as ffx
+from tests.model.ingredients import fixtures as ifx
 from tests.model.nutrients import fixtures as nfx
 from tests.persistence import fixtures as pfx
 
@@ -24,15 +23,31 @@ class TestConstructor(TestCase):
     def test_loads_data_if_provided(self):
         """Checks that the instance loads data if it is provided."""
         # Create a test instance, providing data;
-        si = model.ingredients.SettableIngredient(ingredient_data=fx.get_ingredient_data(
-            for_unique_name=fx.get_ingredient_name_with("typical_fully_defined_data")
+        si = model.ingredients.SettableIngredient(ingredient_data=ifx.get_ingredient_data(
+            for_unique_name=ifx.get_ingredient_name_with("typical_fully_defined_data")
         ))
 
         # Load the test data directly;
-        data = fx.get_ingredient_data(for_unique_name=fx.get_ingredient_name_with("typical_fully_defined_data"))
+        data = ifx.get_ingredient_data(for_unique_name=ifx.get_ingredient_name_with("typical_fully_defined_data"))
 
         # Check the test data matches the ingredient's persistable data;
         self.assertEqual(data, si.persistable_data)
+
+    @pfx.use_test_database
+    def test_datafile_name_is_populated(self):
+        """Check that the datafile name is populated on the instance."""
+        # Resolve a couple of names to use;
+        i_uq_n = ifx.get_ingredient_name_with("typical_fully_defined_data")
+        i_df_n = ifx.get_ingredient_df_name(unique_name=i_uq_n)
+
+        # Create a readonly ingredient with this name;
+        si = model.ingredients.SettableIngredient(ingredient_data=ifx.get_ingredient_data(
+            for_unique_name=i_uq_n
+        ))
+
+        # Assert the datafile name is populated on this instance;
+        self.assertTrue(si.datafile_name_is_defined)
+        self.assertEqual(i_df_n, si.datafile_name)
 
 
 class TestMissingMandatoryAttrs(TestCase):
@@ -51,8 +66,8 @@ class TestMissingMandatoryAttrs(TestCase):
     def test_cost_is_listed_when_undefined(self):
         """Checks cost is in undefined list when cost is undefined."""
         # Load the test instance;
-        si = model.ingredients.SettableIngredient(ingredient_data=fx.get_ingredient_data(
-            for_unique_name=fx.get_ingredient_name_with("cost_per_g_undefined")
+        si = model.ingredients.SettableIngredient(ingredient_data=ifx.get_ingredient_data(
+            for_unique_name=ifx.get_ingredient_name_with("cost_per_g_undefined")
         ))
 
         # Check the cost is in the undefined list;
@@ -62,8 +77,8 @@ class TestMissingMandatoryAttrs(TestCase):
     def test_defining_cost_removes_cost_from_list(self):
         """Checks we can remove cost from the missing attributes list by defining it."""
         # Load the test instance;
-        si = model.ingredients.SettableIngredient(ingredient_data=fx.get_ingredient_data(
-            for_unique_name=fx.get_ingredient_name_with("cost_per_g_undefined")
+        si = model.ingredients.SettableIngredient(ingredient_data=ifx.get_ingredient_data(
+            for_unique_name=ifx.get_ingredient_name_with("cost_per_g_undefined")
         ))
 
         # Check the cost is in the undefined list;
@@ -103,8 +118,8 @@ class TestName(TestCase):
     def test_name_can_be_set_to_none(self):
         """Checks the name can be set to None without an exception."""
         # Create a test instance, providing data;
-        si = model.ingredients.SettableIngredient(ingredient_data=fx.get_ingredient_data(
-            for_unique_name=fx.get_ingredient_name_with("typical_fully_defined_data")
+        si = model.ingredients.SettableIngredient(ingredient_data=ifx.get_ingredient_data(
+            for_unique_name=ifx.get_ingredient_name_with("typical_fully_defined_data")
         ))
 
         # Assert the name is set;
@@ -184,12 +199,12 @@ class TestSetCost(TestCase):
 
     def test_can_use_ext_units_if_configured(self):
         """Checks that we can set the cost against an extended unit if the correct units are configured."""
-        # Create a fresh test instance, with extended units configured;
-        si = model.ingredients.SettableIngredient(
-            ingredient_data={
-                'extended_units_data': qfx.get_extended_units_data(g_per_ml=1.2)
-            }
-        )
+        # Create a fresh test instance;
+        si = model.ingredients.SettableIngredient()
+
+        # Configure the density;
+        si.set_density(mass_qty=100, mass_unit='g', vol_qty=0.1, vol_unit='L')
+        self.assertTrue(si.density_is_defined)
 
         # Assert the cost is not defined;
         self.assertFalse(si.cost_is_defined)

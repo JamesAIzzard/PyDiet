@@ -54,6 +54,12 @@ class ReadonlyIngredient(IngredientBase):
         # Stash the callable;
         self._ingredient_data_src = ingredient_data_src
 
+        # Populate the datafile name from the unique name;
+        self._datafile_name = persistence.get_datafile_name_for_unique_value(
+            cls=model.ingredients.IngredientBase,
+            unique_value=self.name
+        )
+
     @property
     def _name(self) -> Optional[str]:
         """Returns the ingredient's name if defined, otherwise returns None."""
@@ -109,6 +115,12 @@ class SettableIngredient(
 
         if ingredient_data is not None:
             self.load_data(ingredient_data)
+
+            # If data was passed in, then populate the datafile name;
+            self._datafile_name = persistence.get_datafile_name_for_unique_value(
+                cls=model.ingredients.IngredientBase,
+                unique_value=self.name
+            )
 
     @model.HasSettableName.name.setter
     def name(self, name: Optional[str]) -> None:

@@ -54,7 +54,7 @@ class HasReadableIngredientQuantities(persistence.YieldsPersistableData, abc.ABC
         # Create dict to compile the ingredient quantites;
         iq = {}
 
-        # Define an accessor func for the data src;
+        # Define an accessor func for the qty data src;
         def get_qty_data_src(df_name):
             """Accessor function for ingredient data src."""
             return lambda: iq_data[df_name]
@@ -64,10 +64,9 @@ class HasReadableIngredientQuantities(persistence.YieldsPersistableData, abc.ABC
             # noinspection PyTypeChecker
             iq[i_df_name] = model.ingredients.ReadonlyIngredientQuantity(
                 ingredient=model.ingredients.ReadonlyIngredient(
-                    ingredient_data_src=persistence.load_datafile(
-                        cls=model.ingredients.IngredientBase,
-                        datafile_name=i_df_name
-                    )
+                    ingredient_data_src=model.ingredients.get_ingredient_data_src(
+                        for_df_name=i_df_name
+                    ),
                 ),
                 quantity_data_src=get_qty_data_src(i_df_name)
             )
@@ -134,11 +133,9 @@ class HasSettableIngredientQuantities(HasReadableIngredientQuantities, persisten
             # noinspection PyTypeChecker
             iq[i_df_name] = model.ingredients.SettableIngredientQuantity(
                 ingredient=model.ingredients.ReadonlyIngredient(
-                    ingredient_data_src=persistence.load_datafile(
-                        cls=model.ingredients.IngredientBase,
-                        datafile_name=i_df_name
-                    )
-                ),
+                    ingredient_data_src=model.ingredients.get_ingredient_data_src(
+                        for_df_name=i_df_name
+                    )),
                 quantity_data=iqo_data
             )
 

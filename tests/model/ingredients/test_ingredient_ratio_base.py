@@ -7,14 +7,14 @@ from tests.model.quantity import fixtures as qfx
 
 
 class TestGPerSubjectG(TestCase):
-    """Tests the ingredient_g_per_subject_g property."""
+    """Tests the g_per_subject_g property."""
     def test_correct_value_is_returned(self):
         """Checks we get the correct value back from the property."""
         # Create a test instance with quantities specified;
 
         irb = ifx.IngredientRatioBaseTestable(
             ingredient=model.ingredients.ReadonlyIngredient(
-                ingredient_data_src=ifx.get_ingredient_data(for_unique_name=ifx.get_ingredient_name_with(
+                ingredient_data_src=ifx.get_ingredient_data_src(for_unique_name=ifx.get_ingredient_name_with(
                     "typical_fully_defined_data"
                 ))
             ),

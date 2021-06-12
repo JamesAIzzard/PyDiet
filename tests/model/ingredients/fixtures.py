@@ -10,6 +10,7 @@ INGREDIENT_NAME_WITH = {
     "name_raspberry": "Raspberry",
     "typical_fully_defined_data": "Raspberry",
     "density_defined": "Lemon Juice",
+    "1.2g_per_ml": "Lemon Juice",
     "density_undefined": "Aubergine",
     "piece_mass_defined": "Aubergine",
     "piece_mass_undefined": "Lemon Juice",
@@ -120,20 +121,20 @@ def get_ingredient_df_name(unique_name: str) -> str:
 
 
 def get_ingredient_data_src(
-        for_ingredient_unique_name: Optional[str] = None,
-        for_ingredient_df_name: Optional[str] = None
+        for_unique_name: Optional[str] = None,
+        for_df_name: Optional[str] = None
 ):
     """Returns a callable that returns ingredient data.
     Args:
-        for_ingredient_df_name: When specified, returns callable data src for ingredient specified by
+        for_df_name: When specified, returns callable data src for ingredient specified by
             this datafile name.
-        for_ingredient_unique_name (Optional[str]): When specified, returns callable for data corresponding
+        for_unique_name (Optional[str]): When specified, returns callable for data corresponding
             this particular name.
     """
-    if for_ingredient_unique_name is not None:
-        return lambda: get_ingredient_data(for_unique_name=for_ingredient_unique_name)
-    elif for_ingredient_df_name is not None:
-        return lambda: get_ingredient_data(for_df_name=for_ingredient_df_name)
+    if for_unique_name is not None:
+        return lambda: get_ingredient_data(for_unique_name=for_unique_name)
+    elif for_df_name is not None:
+        return lambda: get_ingredient_data(for_df_name=for_df_name)
 
 
 def get_ingredient_data(

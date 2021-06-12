@@ -3,7 +3,7 @@ from unittest import TestCase
 
 import model
 import persistence
-from tests.model.ingredients import fixtures as fx
+from tests.model.ingredients import fixtures as ifx
 from tests.persistence import fixtures as pfx
 
 
@@ -15,13 +15,29 @@ class TestConstructor(TestCase):
         """Check we can initialise an instance."""
         # First, create the instance;
         i_name = "Honey"
-        i = model.ingredients.ReadonlyIngredient(ingredient_data_src=fx.get_ingredient_data_src(i_name))
+        i = model.ingredients.ReadonlyIngredient(ingredient_data_src=ifx.get_ingredient_data_src(i_name))
 
         # Now load the instance's data directly;
-        data = fx.get_ingredient_data(for_unique_name=i_name)
+        data = ifx.get_ingredient_data(for_unique_name=i_name)
 
         # Check that the instance data matches the data in the database;
         self.assertEqual(data, i.persistable_data)
+
+    @pfx.use_test_database
+    def test_datafile_name_is_populated(self):
+        """Check that the datafile name is populated on the instance."""
+        # Resolve a couple of names to use;
+        i_uq_n = ifx.get_ingredient_name_with("typical_fully_defined_data")
+        i_df_n = ifx.get_ingredient_df_name(unique_name=i_uq_n)
+
+        # Create a readonly ingredient with this name;
+        roi = model.ingredients.ReadonlyIngredient(ingredient_data_src=ifx.get_ingredient_data_src(
+            for_unique_name=i_uq_n
+        ))
+
+        # Assert the datafile name is populated on this instance;
+        self.assertTrue(roi.datafile_name_is_defined)
+        self.assertEqual(i_df_n, roi.datafile_name)
 
 
 # noinspection PyPep8Naming
@@ -31,13 +47,13 @@ class Test_GPerMl(TestCase):
         """Check that the property returns the correct value."""
         # Create a test instance of an ingredient with g_per_ml populated;
         i = model.ingredients.ReadonlyIngredient(
-            ingredient_data_src=fx.get_ingredient_data_src(
-                fx.get_ingredient_name_with("density_defined")
+            ingredient_data_src=ifx.get_ingredient_data_src(
+                ifx.get_ingredient_name_with("1.2g_per_ml")
             )
         )
 
         # Check the g_per_ml is correct;
-        self.assertEqual(0.9736, i._g_per_ml)
+        self.assertEqual(1.2, i._g_per_ml)
 
     @pfx.use_test_database
     def test_returns_none_if_undefined(self):
@@ -46,8 +62,8 @@ class Test_GPerMl(TestCase):
         """
         # Create a test instance of an ingredient with g_per_ml undefined;
         i = model.ingredients.ReadonlyIngredient(
-            ingredient_data_src=fx.get_ingredient_data_src(
-                fx.get_ingredient_name_with("density_undefined")
+            ingredient_data_src=ifx.get_ingredient_data_src(
+                ifx.get_ingredient_name_with("density_undefined")
             )
         )
 
@@ -64,8 +80,8 @@ class Test_PieceMassG(TestCase):
         """Check that the property returns the correct value."""
         # Create a test instance of an ingredient with piece mass populated;
         i = model.ingredients.ReadonlyIngredient(
-            ingredient_data_src=fx.get_ingredient_data_src(
-                fx.get_ingredient_name_with("piece_mass_defined")
+            ingredient_data_src=ifx.get_ingredient_data_src(
+                ifx.get_ingredient_name_with("piece_mass_defined")
             )
         )
 
@@ -79,8 +95,8 @@ class Test_PieceMassG(TestCase):
         """
         # Create a test instance of an ingredient with piece_mass undefined;
         i = model.ingredients.ReadonlyIngredient(
-            ingredient_data_src=fx.get_ingredient_data_src(
-                fx.get_ingredient_name_with("piece_mass_undefined")
+            ingredient_data_src=ifx.get_ingredient_data_src(
+                ifx.get_ingredient_name_with("piece_mass_undefined")
             )
         )
 
@@ -97,8 +113,8 @@ class Test_CostPerQtyData(TestCase):
         """Checks we get the correct data back."""
         # Create the test instance;
         i = model.ingredients.ReadonlyIngredient(
-            ingredient_data_src=fx.get_ingredient_data_src(
-                fx.get_ingredient_name_with("cost_per_g_defined")
+            ingredient_data_src=ifx.get_ingredient_data_src(
+                ifx.get_ingredient_name_with("cost_per_g_defined")
             )
         )
 
@@ -112,8 +128,8 @@ class Test_CostPerQtyData(TestCase):
         """Checks we get the correct data back."""
         # Create the test instance;
         i = model.ingredients.ReadonlyIngredient(
-            ingredient_data_src=fx.get_ingredient_data_src(
-                fx.get_ingredient_name_with("cost_per_g_undefined")
+            ingredient_data_src=ifx.get_ingredient_data_src(
+                ifx.get_ingredient_name_with("cost_per_g_undefined")
             )
         )
 
@@ -132,8 +148,8 @@ class Test_FlagDOFs(TestCase):
         """Checks we get the correct data back."""
         # Create the test instance;
         i = model.ingredients.ReadonlyIngredient(
-            ingredient_data_src=fx.get_ingredient_data_src(
-                fx.get_ingredient_name_with("flag_dofs_all_defined")
+            ingredient_data_src=ifx.get_ingredient_data_src(
+                ifx.get_ingredient_name_with("flag_dofs_all_defined")
             )
         )
 
@@ -147,8 +163,8 @@ class Test_FlagDOFs(TestCase):
         """Checks we get the correct data back."""
         # Create the test instance;
         i = model.ingredients.ReadonlyIngredient(
-            ingredient_data_src=fx.get_ingredient_data_src(
-                fx.get_ingredient_name_with("flag_dofs_two_undefined")
+            ingredient_data_src=ifx.get_ingredient_data_src(
+                ifx.get_ingredient_name_with("flag_dofs_two_undefined")
             )
         )
 
@@ -167,8 +183,8 @@ class Test_NutrientRatiosData(TestCase):
         """Checks we get the correct data back for defined nutrient ratios."""
         # Create the test instance;
         i = model.ingredients.ReadonlyIngredient(
-            ingredient_data_src=fx.get_ingredient_data_src(
-                fx.get_ingredient_name_with("nutrient_ratios_protein_defined")
+            ingredient_data_src=ifx.get_ingredient_data_src(
+                ifx.get_ingredient_name_with("nutrient_ratios_protein_defined")
             )
         )
 
@@ -186,8 +202,8 @@ class Test_NutrientRatiosData(TestCase):
         """Checks undefined nutrients do not show up in the nutrient data dict."""
         # Create the test instance;
         i = model.ingredients.ReadonlyIngredient(
-            ingredient_data_src=fx.get_ingredient_data_src(
-                fx.get_ingredient_name_with("nutrient_ratios_iron_undefined")
+            ingredient_data_src=ifx.get_ingredient_data_src(
+                ifx.get_ingredient_name_with("nutrient_ratios_iron_undefined")
             )
         )
 
@@ -199,8 +215,8 @@ class Test_NutrientRatiosData(TestCase):
         """Checks that the correct number of nutrients show up in the data dict."""
         # Create the test instance;
         i = model.ingredients.ReadonlyIngredient(
-            ingredient_data_src=fx.get_ingredient_data_src(
-                fx.get_ingredient_name_with("nutrient_ratios_8_ratios_defined")
+            ingredient_data_src=ifx.get_ingredient_data_src(
+                ifx.get_ingredient_name_with("nutrient_ratios_8_ratios_defined")
             )
         )
 
@@ -216,8 +232,8 @@ class TestGetPathIntoDB(TestCase):
         """Check that the property returns the correct path."""
         # Create a test instance;
         i = model.ingredients.ReadonlyIngredient(
-            ingredient_data_src=fx.get_ingredient_data_src(
-                fx.get_ingredient_name_with("typical_fully_defined_data")
+            ingredient_data_src=ifx.get_ingredient_data_src(
+                ifx.get_ingredient_name_with("typical_fully_defined_data")
             )
         )
 
@@ -232,8 +248,8 @@ class TestUniqueValue(TestCase):
         """Check that the property returns the unique value correctly."""
         # Create a test instance;
         i = model.ingredients.ReadonlyIngredient(
-            ingredient_data_src=fx.get_ingredient_data_src(
-                fx.get_ingredient_name_with("name_raspberry")
+            ingredient_data_src=ifx.get_ingredient_data_src(
+                ifx.get_ingredient_name_with("name_raspberry")
             )
         )
 
@@ -248,13 +264,13 @@ class TestPersistableData(TestCase):
         """Checks that the correct persistable data is returned."""
         # First, create the instance;
         i = model.ingredients.ReadonlyIngredient(
-            ingredient_data_src=fx.get_ingredient_data_src(
-                fx.get_ingredient_name_with("typical_fully_defined_data")
+            ingredient_data_src=ifx.get_ingredient_data_src(
+                ifx.get_ingredient_name_with("typical_fully_defined_data")
             )
         )
 
         # Now load the instance's data directly;
-        data = fx.get_ingredient_data(for_unique_name=fx.get_ingredient_name_with("typical_fully_defined_data"))
+        data = ifx.get_ingredient_data(for_unique_name=ifx.get_ingredient_name_with("typical_fully_defined_data"))
 
         # Check that the instance data matches the data in the database;
         self.assertEqual(data, i.persistable_data)

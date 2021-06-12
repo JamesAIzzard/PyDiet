@@ -27,7 +27,9 @@ class HasReadableName(persistence.YieldsPersistableData):
         """
         if self._name is None:
             raise model.exceptions.UndefinedNameError(subject=self)
-        return self._name
+
+        # Return name, with leading and trailing whitespace stripped;
+        return self._name.strip()
 
     @property
     def name_is_defined(self) -> bool:
@@ -51,7 +53,7 @@ class HasSettableName(HasReadableName, persistence.CanLoadData):
     def __init__(self, name: Optional[str] = None, **kwargs):
         super().__init__(**kwargs)
 
-        self._name_ = name
+        self._name_ = name.strip() if name is not None else None
 
     @property
     def _name(self) -> Optional[str]:
