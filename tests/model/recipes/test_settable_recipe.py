@@ -88,3 +88,30 @@ class TestName(TestCase):
         # Assert we get an exception if we set the name to something already taken;
         with self.assertRaises(persistence.exceptions.UniqueValueDuplicatedError):
             sr.name = "Porridge"
+
+
+class TestLoadData(TestCase):
+    """Tests for the load_data method."""
+
+    def test_loads_data_correctly(self):
+        """Checks that the method loads data correctly."""
+        # Grab some test data;
+        data = rfx.get_recipe_data(for_unique_name="Porridge")
+
+        # Create an empty instance;
+        sr = model.recipes.SettableRecipe()
+
+        # Assert the data is empty;
+        self.assertEqual(
+            rfx.get_recipe_data(),
+            sr.persistable_data
+        )
+
+        # Now load the data;
+        sr.load_data(data=data)
+
+        # Now assert the data is populated;
+        self.assertEqual(
+            data,
+            sr.persistable_data
+        )

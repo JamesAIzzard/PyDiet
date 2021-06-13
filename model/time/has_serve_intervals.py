@@ -4,10 +4,11 @@ For example, a recipe has a serve time, indicating when during the day it is typ
 import abc
 from typing import List, Dict, Optional, Any
 
+import model
 import persistence
 
 
-class HasReadableServeTimes(persistence.YieldsPersistableData, abc.ABC):
+class HasReadableServeIntervals(persistence.YieldsPersistableData, abc.ABC):
     """Abstract base class to implement functionality to support readable serve times."""
 
     def __init__(self, **kwargs):
@@ -19,6 +20,21 @@ class HasReadableServeTimes(persistence.YieldsPersistableData, abc.ABC):
         """Returns the serve times data for the instance."""
         raise NotImplementedError
 
+    def can_be_served_at(self, time: str) -> bool:
+        """Returns True/False to indicate if the instance can be served at the specified time."""
+        # Cycle through all the intervals, and immediately return True if we
+        # have an interval on the instance that matches the time.
+        for serve_interval in self.serve_intervals_data:
+            if model.time.time_is_in_interval(
+                    time=time,
+                    time_interval=serve_interval
+            ):
+                return True
+
+        # Ahh, OK, we didn't find anything, so no, we can't serve this instance at the
+        # proposed time.
+        return False
+
     @property
     def persistable_data(self) -> Dict[str, Any]:
         """Returns the persistable data for the instance."""
@@ -29,7 +45,7 @@ class HasReadableServeTimes(persistence.YieldsPersistableData, abc.ABC):
         return data
 
 
-class HasSettableServeTimes(HasReadableServeTimes, persistence.CanLoadData):
+class HasSettableServeIntervals(HasReadableServeIntervals, persistence.CanLoadData):
     """Class to implement functionality associated with settable serve times."""
 
     def __init__(self, serve_times_data: Optional[List[str]] = None, **kwargs):

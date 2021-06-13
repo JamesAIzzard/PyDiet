@@ -9,7 +9,7 @@ import persistence
 class RecipeBase(
     model.HasReadableName,
     model.ingredients.HasReadableIngredientQuantities,
-    model.time.HasReadableServeTimes,
+    model.time.HasReadableServeIntervals,
     model.instructions.HasReadableInstructionSrc,
     model.tags.HasReadableTags,
     persistence.SupportsPersistence,
@@ -79,7 +79,7 @@ class SettableRecipe(
     RecipeBase,
     model.HasSettableName,
     model.ingredients.HasSettableIngredientQuantities,
-    model.time.HasSettableServeTimes,
+    model.time.HasSettableServeIntervals,
     model.instructions.HasSettableInstructionSrc,
     model.tags.HasSettableTags,
     persistence.CanLoadData

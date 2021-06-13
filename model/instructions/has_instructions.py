@@ -35,7 +35,7 @@ class HasSettableInstructionSrc(HasReadableInstructionSrc, persistence.CanLoadDa
         super().__init__(**kwargs)
 
         # Create local stash for instruction source;
-        self._instruction_src: str = ""
+        self._instruction_src: Optional[str] = None
 
         if instruction_src_data is not None:
             self.load_data({'instruction_src': instruction_src_data})

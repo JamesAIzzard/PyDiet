@@ -1,16 +1,12 @@
-from typing import Any, Union
+from typing import Any
 
 import exceptions
-import model
 
 
 class BaseTimeError(exceptions.PyDietError):
     """Base error for the time module."""
 
-    def __init__(self, subject: Union[
-        'model.time.SupportsServeTimes',
-        'model.time.SupportsSettingServeTimes'
-    ], **kwargs):
+    def __init__(self, subject: Any = None, **kwargs):
         super().__init__(**kwargs)
         self.subject = subject
 

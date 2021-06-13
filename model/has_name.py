@@ -2,8 +2,8 @@
 import abc
 from typing import Optional, Dict, Any
 
-import persistence
 import model
+import persistence
 
 
 class HasReadableName(persistence.YieldsPersistableData):
@@ -43,7 +43,7 @@ class HasReadableName(persistence.YieldsPersistableData):
     def persistable_data(self) -> Dict[str, Any]:
         """Returns instance's persistable data."""
         data = super().persistable_data
-        data['name'] = self.name
+        data['name'] = self._name  # Use the raw method - we don't want an exception if name is None.
         return data
 
 

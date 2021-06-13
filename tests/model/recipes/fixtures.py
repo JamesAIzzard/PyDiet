@@ -45,8 +45,18 @@ class RecipeBaseTestable(model.recipes.RecipeBase):
 
 def get_recipe_data(for_unique_name: Optional[str] = None) -> 'model.recipes.RecipeData':
     """Grabs the recipe data for the recipe specified."""
+    # If the unique name was specified, load and return the data for it;
     if for_unique_name is not None:
         return persistence.load_datafile(
             cls=model.recipes.RecipeBase,
             unique_value=for_unique_name
         )
+
+    # OK, no special case, so just return empty data with defaults;
+    return model.recipes.RecipeData(
+        name=None,
+        ingredient_quantities_data={},
+        serve_intervals=[],
+        instruction_src=None,
+        tags=[]
+    )
