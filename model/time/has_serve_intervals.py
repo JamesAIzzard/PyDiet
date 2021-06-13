@@ -64,6 +64,10 @@ class HasSettableServeIntervals(HasReadableServeIntervals, persistence.CanLoadDa
 
     def add_serve_interval(self, serve_interval: str):
         """Adds a serve interval to the instance."""
+        # First, validate the interval;
+        serve_interval = model.time.validation.validate_time_interval(serve_interval)
+
+        # All OK, so append it to the list;
         self._serve_times_data.append(serve_interval)
 
     def load_data(self, data: Dict[str, Any]) -> None:
@@ -72,5 +76,9 @@ class HasSettableServeIntervals(HasReadableServeIntervals, persistence.CanLoadDa
 
         if "serve_intervals" not in data.keys():
             return
+
+        # Validate the data;
+        for interval in data['serve_intervals']:
+            model.time.validation.validate_time_interval(interval)
 
         self._serve_times_data = data['serve_intervals']
