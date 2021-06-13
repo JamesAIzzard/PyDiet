@@ -92,6 +92,12 @@ class SettableRecipe(
         if recipe_data is not None:
             super().load_data(recipe_data)
 
+            # Populate the datafile name;
+            self._datafile_name = persistence.get_datafile_name_for_unique_value(
+                cls=model.recipes.RecipeBase,
+                unique_value=self.name
+            )
+
     @model.HasReadableName.name.setter
     def name(self, name: Optional[str]) -> None:
         """Sets the name if unique to the recipe class, otherwise raises an exception."""
