@@ -132,3 +132,53 @@ class TestServeIntervalsData(TestCase):
             ["04:00-10:00"],
             sr.serve_intervals_data
         )
+
+    @pfx.use_test_database
+    def test_multiple_serve_intervals_returned_correctly(self):
+        """Checks the method returns the correct serve intervals."""
+        # Create a test instance;
+        sr = model.recipes.ReadonlyRecipe(recipe_data_src=model.recipes.get_recipe_data_src(
+            for_unique_name="Banana Milkshake"
+        ))
+
+        # Assert the correct intervals are returned;
+        self.assertEqual(
+            {"04:00-10:00", "12:00-13:00", "16:00-18:00"},
+            set(sr.serve_intervals_data)
+        )
+
+
+class TestInstructionSrc(TestCase):
+    """Tests the instruction_src property."""
+
+    @pfx.use_test_database
+    def test_correct_src_is_returned(self):
+        """Check the correct source is returned."""
+        # Create a test instance;
+        sr = model.recipes.ReadonlyRecipe(recipe_data_src=model.recipes.get_recipe_data_src(
+            for_unique_name="Banana Milkshake"
+        ))
+
+        # Assert the correct data source is required;
+        self.assertEqual(
+            "https://www.bbcgoodfood.com/recipes/banana-milkshake",
+            sr.instruction_src
+        )
+
+
+class TestTags(TestCase):
+    """Tests the tags property."""
+
+    @pfx.use_test_database
+    def test_correct_tags_are_returned(self):
+        """Checks that the correct tags are returned."""
+        # Create a test instance;
+        sr = model.recipes.ReadonlyRecipe(recipe_data_src=model.recipes.get_recipe_data_src(
+            for_unique_name="Banana Milkshake"
+        ))
+
+        # Assert the correct tags are returned;
+        self.assertEqual(
+            {"drink", "sweet"},
+            set(sr.tags)
+        )

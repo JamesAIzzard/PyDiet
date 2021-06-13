@@ -1,0 +1,27 @@
+{
+  "ingredient_quantities_data": {
+    "1198a703-ae23-4303-9b21-dd8ef9d16548": {
+      "pref_unit": "g",
+      "quantity_in_g": 25.0
+    },
+    "7b5fd211-f8ec-42c0-9853-9cb2e65ec47e": {
+      "pref_unit": "pint",
+      "quantity_in_g": 487.396
+    },
+    "ef48e0c5-c5f0-45ac-9e3e-dcca5162a548": {
+      "pref_unit": "g",
+      "quantity_in_g": 150.0
+    }
+  },
+  "instruction_src": "https://www.bbcgoodfood.com/recipes/banana-milkshake",
+  "name": "Banana Milkshake",
+  "serve_intervals": [
+    "04:00-10:00",
+    "12:00-13:00",
+    "16:00-18:00"
+  ],
+  "tags": [
+    "drink",
+    "sweet"
+  ]
+}

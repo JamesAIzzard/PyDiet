@@ -8,7 +8,7 @@ import model
 class BaseTagError(exceptions.PyDietError):
     """Base exception for all tag module exceptions."""
 
-    def __init__(self, subject: Optional['model.tags.HasReadableTags'], **kwargs):
+    def __init__(self, subject: Optional['model.tags.HasReadableTags']=None, **kwargs):
         super().__init__(**kwargs)
         self._subject = subject
 
