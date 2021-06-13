@@ -1,11 +1,11 @@
-"""Validation functions for the time module."""
+"""Validation functions for the time_str module."""
 from datetime import datetime
 
 import model
 
 
 def validate_time_interval(time_interval: str) -> str:
-    """Validates time interval strings of the form HH:MM-HH:MM."""
+    """Validates time_str interval strings of the form HH:MM-HH:MM."""
 
     # Split the string into two parts about the hyphen;
     start_and_end_time = time_interval.split('-')
@@ -14,7 +14,7 @@ def validate_time_interval(time_interval: str) -> str:
     if not len(start_and_end_time) == 2:
         raise model.time.exceptions.TimeIntervalValueError(time_interval=time_interval)
 
-    # Format the time into double digit 24hr format;
+    # Format the time_str into double digit 24hr format;
     for n, t in enumerate(start_and_end_time):
         start_and_end_time[n] = validate_time(t)
 
@@ -27,8 +27,8 @@ def validate_time_interval(time_interval: str) -> str:
 
 
 def validate_time(time: str) -> str:
-    """Validates time string of the form HH:MM."""
-    # Try format the time into double digit 24hr format;
+    """Validates time_str string of the form HH:MM."""
+    # Try format the time_str into double digit 24hr format;
     try:
         d = datetime.strptime(time, "%H:%M")
         return d.strftime("%H:%M")

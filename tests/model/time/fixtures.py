@@ -1,4 +1,4 @@
-"""Test fixtures for the time module."""
+"""Test fixtures for the time_str module."""
 from typing import List
 
 import model

@@ -240,7 +240,7 @@ class HasSettableNutrientRatios(HasReadableNutrientRatios, persistence.CanLoadDa
 
         # Now we are storing the data locally, so create somewhere to store it.
         # Since nutrient ratios are complex classes, we initialise them, instead of just storing
-        # persistable data. This means we don't have to re-initailise them every time we want to do
+        # persistable data. This means we don't have to re-initailise them every time_str we want to do
         # utilise functionality from the ReadableNutrientRatio class.
         self._nutrient_ratios: Dict[str, 'SettableNutrientRatio'] = {}
 

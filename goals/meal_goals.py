@@ -32,14 +32,14 @@ class MealGoals(
 
     @property
     def time(self) -> Optional[str]:
-        """Returns the serve time for the MealGoals instance."""
+        """Returns the serve time_str for the MealGoals instance."""
         if self._time is None:
             raise goals.exceptions.UndefinedMealTimeError(subject=self)
         return self._time
 
     @time.setter
     def time(self, time: Optional[str]) -> None:
-        """Sets the time on the MealGoals instance."""
+        """Sets the time_str on the MealGoals instance."""
         if time is None:
             self._time = None
         else:
@@ -76,15 +76,15 @@ class MealGoals(
         data = super().persistable_data
 
         # Now add in the data from this class;
-        data['time'] = self._time
+        data['time_str'] = self._time
 
         # Return the data;
         return data
 
     def load_data(self, data: 'MealGoalsData') -> None:
         super().load_data(data)
-        # Load the meal time in;
-        self.time = data["time"]
+        # Load the meal time_str in;
+        self.time = data["time_str"]
 
 
 class PersistableMealGoals(MealGoals, persistence.SupportsPersistence, model.HasSettableName):

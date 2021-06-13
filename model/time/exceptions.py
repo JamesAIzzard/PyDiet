@@ -4,7 +4,7 @@ import exceptions
 
 
 class BaseTimeError(exceptions.PyDietError):
-    """Base error for the time module."""
+    """Base error for the time_str module."""
 
     def __init__(self, subject: Any = None, **kwargs):
         super().__init__(**kwargs)
@@ -12,7 +12,7 @@ class BaseTimeError(exceptions.PyDietError):
 
 
 class TimeValueError(BaseTimeError):
-    """Indicates the time string cannot be parsed as a valid time."""
+    """Indicates the time_str string cannot be parsed as a valid time_str."""
 
     def __init__(self, time_value: Any, **kwargs):
         super().__init__(**kwargs)
@@ -20,7 +20,7 @@ class TimeValueError(BaseTimeError):
 
 
 class TimeIntervalValueError(BaseTimeError):
-    """Indicates the time interval cannot be interpreted in a valid way."""
+    """Indicates the time_str interval cannot be interpreted in a valid way."""
 
     def __init__(self, time_interval: Any, **kwargs):
         super().__init__(**kwargs)

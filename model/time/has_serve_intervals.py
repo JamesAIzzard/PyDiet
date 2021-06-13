@@ -1,5 +1,5 @@
 """Module to implement functionality associated with objects which support serve times.
-For example, a recipe has a serve time, indicating when during the day it is typically consumed.
+For example, a recipe has a serve time_str, indicating when during the day it is typically consumed.
 """
 import abc
 from typing import List, Dict, Optional, Any
@@ -21,18 +21,18 @@ class HasReadableServeIntervals(persistence.YieldsPersistableData, abc.ABC):
         raise NotImplementedError
 
     def can_be_served_at(self, time: str) -> bool:
-        """Returns True/False to indicate if the instance can be served at the specified time."""
+        """Returns True/False to indicate if the instance can be served at the specified time_str."""
         # Cycle through all the intervals, and immediately return True if we
-        # have an interval on the instance that matches the time.
+        # have an interval on the instance that matches the time_str.
         for serve_interval in self.serve_intervals_data:
             if model.time.time_is_in_interval(
-                    time=time,
-                    time_interval=serve_interval
+                    time_str=time,
+                    time_interval_str=serve_interval
             ):
                 return True
 
         # Ahh, OK, we didn't find anything, so no, we can't serve this instance at the
-        # proposed time.
+        # proposed time_str.
         return False
 
     @property
