@@ -21,6 +21,11 @@ class HasReadableInstructionSrc(persistence.YieldsPersistableData, abc.ABC):
         raise NotImplementedError
 
     @property
+    def instruction_src_defined(self) -> bool:
+        """Returns True/False to indicate if the instruction source is defined."""
+        return self.instruction_src is not None
+
+    @property
     def persistable_data(self) -> Dict[str, Any]:
         """Returns the persistable data for the instance."""
         data = super().persistable_data
