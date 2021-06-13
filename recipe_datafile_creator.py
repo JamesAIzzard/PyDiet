@@ -6,8 +6,8 @@ import persistence
 import tests
 
 # Configure the target database;
-target_db = "real"
-# target_db = "test"
+# target_db = "real"
+target_db = "test"
 
 # Create new recipe instance;
 sr = model.recipes.SettableRecipe()

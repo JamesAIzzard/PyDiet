@@ -135,7 +135,9 @@ def get_unique_value_from_datafile_name(cls: Type['persistence.SupportsPersisten
     for df_name, u_name in index.items():
         if datafile_name == df_name:
             return u_name
-    raise persistence.exceptions.DatafileNotFoundError
+    raise persistence.exceptions.DatafileNotFoundError(
+        missing_datafile_name=datafile_name
+    )
 
 
 def _create_index_entry(subject: 'persistence.SupportsPersistence') -> None:

@@ -41,7 +41,13 @@ class ReadonlyRecipe(
     def __init__(self, recipe_data_src: Callable[[], 'model.recipes.RecipeData'], **kwargs):
         super().__init__(**kwargs)
 
+        # Stash the data src function;
         self._recipe_data_src = recipe_data_src
+
+        # Populate the datafile name;
+        self._datafile_name = model.recipes.get_datafile_name_for_unique_value(
+            unique_value=self._recipe_data_src()['name']
+        )
 
     @property
     def _name(self) -> Optional[str]:
