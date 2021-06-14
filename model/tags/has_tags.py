@@ -20,6 +20,9 @@ class HasReadableTags(persistence.YieldsPersistableData, abc.ABC):
 
     def has_tag(self, tag: str) -> bool:
         """Returns True/False to indicate if the instance has the specified tag."""
+        # Validate the tag first;
+        tag = model.tags.validation.validate_tag(tag)
+        # All OK, check if tag is present & return.
         return tag in self.tags
 
     @property
@@ -53,14 +56,14 @@ class HasSettableTags(HasReadableTags, persistence.CanLoadData):
             if tag not in self._tags:
                 self._tags.append(tag)
 
-    def remove_tag(self, tag: str) -> None:
-        """Removes a tag from the instance."""
-        if tag in self._tags:
-            self._tags.remove(tag)
-
     def load_data(self, data: Dict[str, Any]) -> None:
         """Loads data onto the instance."""
         super().load_data(data)
 
+        # If we got some data;
         if "tags" in data.keys():
-            self.add_tags(data['tags'])
+            # Validate it;
+            tags = model.tags.validation.validate_tags(data['tags'])
+
+            # Place it on the instance;
+            self._tags = tags
