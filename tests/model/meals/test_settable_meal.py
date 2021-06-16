@@ -61,9 +61,18 @@ class TestAddRecipe(TestCase):
 class TestTotalMealMass(TestCase):
     """Checks the total_meal_mass property."""
 
+    @pfx.use_test_database
     def test_correct_value_is_returned(self):
         """Check we get the correct total meal mass back."""
+        # Create a test instance, passing this data in;
+        sm = model.meals.SettableMeal(meal_data={
+            model.recipes.get_datafile_name_for_unique_value("Porridge"): qfx.get_qty_data(500),
+            model.recipes.get_datafile_name_for_unique_value("Banana Milkshake"): qfx.get_qty_data(300),
+            model.recipes.get_datafile_name_for_unique_value("Avocado and Prawns"): qfx.get_qty_data(200)
+        })
 
+        # Check the quantity is correct;
+        self.assertEqual(1000, sm.total_meal_mass_g)
 
 # class TestRecipeRatios(TestCase):
 #     """Tests for the recipes property."""

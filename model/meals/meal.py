@@ -21,9 +21,17 @@ class SettableMeal(persistence.YieldsPersistableData, persistence.CanLoadData):
         self._meal_data[model.recipes.get_datafile_name_for_unique_value(recipe_unique_name)] = recipe_qty_data
 
     @property
-    def total_meal_mass(self) -> float:
+    def total_meal_mass_g(self) -> float:
         """Returns the sum of all recipe quantities on this meal."""
-        raise NotImplementedError
+        # Create somewhere to put the rolling total;
+        total_meal_mass: float = 0
+
+        # Roll up the total qty;
+        for qty_data in self._meal_data.values():
+            total_meal_mass += qty_data['quantity_in_g']
+
+        # Return the result;
+        return total_meal_mass
 
     @property
     def recipes(self) -> List['model.recipes.ReadonlyRecipe']:
