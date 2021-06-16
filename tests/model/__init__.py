@@ -5,3 +5,4 @@ from . import ingredients
 from . import quantity
 from . import nutrients
 from . import recipes
+from . import meals

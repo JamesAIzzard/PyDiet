@@ -13,15 +13,14 @@ target_db = "test"
 sr = model.recipes.SettableRecipe()
 
 # Set the parameters;
-sr.name = "Banana Milkshake"
-sr.add_ingredient_quantity("Banana", 150, 'g')
-sr.add_ingredient_quantity("Milk (Skimmed)", 1, 'pint')
-sr.add_ingredient_quantity("Honey", 25, 'g')
-sr.add_serve_interval("04:00-10:00")
+sr.name = "Avocado and Prawns"
+sr.add_ingredient_quantity("Avocado", 150, 'g')
+sr.add_ingredient_quantity("Prawns", 100, 'g')
+sr.add_ingredient_quantity("Hollandaise Sauce", 25, 'g')
 sr.add_serve_interval("12:00-13:00")
 sr.add_serve_interval("16:00-18:00")
-sr.instruction_src = "https://www.bbcgoodfood.com/recipes/banana-milkshake"
-sr.add_tags(["drink", "sweet"])
+sr.instruction_src = "https://www.bbcgoodfood.com/recipes/prawn-avocado-platter-lime-chilli-dressing"
+sr.add_tags(["main"])
 
 if target_db == "test":
     with mock.patch('persistence.configs.path_into_db', tests.persistence.configs.path_into_db):

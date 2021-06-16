@@ -3,7 +3,7 @@
     <module name="PyDiet" />
     <option name="INTERPRETER_OPTIONS" value="" />
     <option name="PARENT_ENVS" value="true" />
-    <option name="SDK_HOME" value="C:\Users\james.izzard\AppData\Local\Programs\Python\Python38-32\python.exe" />
+    <option name="SDK_HOME" value="C:\Users\James.Izzard\AppData\Local\Programs\Python\Python39\python.exe" />
     <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
     <option name="IS_MODULE_SDK" value="false" />
     <option name="ADD_CONTENT_ROOTS" value="true" />

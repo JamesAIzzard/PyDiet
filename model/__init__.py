@@ -12,3 +12,4 @@ from . import time
 from . import tags
 from . import ingredients
 from . import recipes
+from . import meals

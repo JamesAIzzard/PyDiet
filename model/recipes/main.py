@@ -1,5 +1,5 @@
 """Defines utility functions for recipe module."""
-from typing import Callable
+from typing import Callable, Optional
 
 import model
 import persistence
@@ -21,8 +21,13 @@ def get_datafile_name_for_unique_value(unique_value: str) -> str:
     )
 
 
-def get_recipe_data_src(for_unique_name: str) -> Callable[[], 'model.recipes.RecipeData']:
+def get_recipe_data_src(
+        for_unique_name: Optional[str] = None,
+        for_df_name: Optional[str] = None
+) -> Callable[[], 'model.recipes.RecipeData']:
     """Returns a source function for the data associated with the recipe indicated."""
+    if for_unique_name is None:
+        for_unique_name = get_unique_name_for_datafile_name(for_df_name)
     return lambda: persistence.load_datafile(
         cls=model.recipes.RecipeBase,
         unique_value=for_unique_name

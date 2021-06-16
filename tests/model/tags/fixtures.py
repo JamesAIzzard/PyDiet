@@ -3,7 +3,6 @@ from typing import List
 
 import model
 
-
 class HasReadableTagsTestable(model.tags.HasReadableTags):
     """Minimal implementation to allow testing of the HasReadableTags class."""
 

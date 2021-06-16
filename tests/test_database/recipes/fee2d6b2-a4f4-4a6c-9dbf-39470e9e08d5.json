@@ -1,0 +1,25 @@
+{
+  "ingredient_quantities_data": {
+    "3fc67f98-d450-4b02-bc6e-b77ce681641e": {
+      "pref_unit": "g",
+      "quantity_in_g": 25.0
+    },
+    "5e9ce0c2-a33c-428d-a22e-aee4a29437a7": {
+      "pref_unit": "g",
+      "quantity_in_g": 100.0
+    },
+    "60c2d77b-4863-477e-be78-6d7642bc76a0": {
+      "pref_unit": "g",
+      "quantity_in_g": 150.0
+    }
+  },
+  "instruction_src": "https://www.bbcgoodfood.com/recipes/prawn-avocado-platter-lime-chilli-dressing",
+  "name": "Avocado and Prawns",
+  "serve_intervals": [
+    "12:00-13:00",
+    "16:00-18:00"
+  ],
+  "tags": [
+    "main"
+  ]
+}

@@ -1,6 +1,6 @@
 """Implements functionality associated with classes modelling a quantity of a substance."""
 import abc
-from typing import Optional, Dict, Any, Callable
+from typing import Optional, Any, Callable
 
 import model
 import persistence
