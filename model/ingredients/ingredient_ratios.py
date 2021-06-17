@@ -19,4 +19,3 @@ class ReadonlyIngredientRatio(IngredientRatioBase, model.quantity.IsReadonlyQuan
 
 class SettableIngredientRatio(IngredientRatioBase, model.quantity.IsSettableQuantityRatio):
     """Models a settable ingredient ratio."""
-    pass

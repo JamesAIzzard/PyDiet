@@ -54,7 +54,20 @@ class SettableMeal(persistence.YieldsPersistableData, persistence.CanLoadData):
     @property
     def recipe_quantities(self) -> Dict[str, 'model.recipes.SettableRecipeQuantity']:
         """Returns the recipe quantities associated with this meal."""
-        raise NotImplementedError
+        # Create somewhere to compile the quantities;
+        _recipe_quantities = {}
+
+        # Cycle through the meal data and populate the quantities;
+        for recipe_df_name, recipe_qty_data in self._meal_data.items():
+            _recipe_quantities[recipe_df_name] = model.recipes.SettableRecipeQuantity(
+                recipe=model.recipes.ReadonlyRecipe(
+                    recipe_data_src=model.recipes.get_recipe_data_src(for_df_name=recipe_df_name)
+                ),
+                quantity_data=recipe_qty_data
+            )
+
+        # Return the data;
+        return _recipe_quantities
 
     @property
     def recipe_ratios(self) -> Dict[str, 'model.recipes.SettableRecipeRatio']:
@@ -66,22 +79,22 @@ class SettableMeal(persistence.YieldsPersistableData, persistence.CanLoadData):
         _recipe_quantities = self.recipe_quantities
 
         # Cache the sum of all recipes masses on the instance;
-        total_meal_mass = self.total_meal_mass
+        total_meal_mass_g = self.total_meal_mass_g
 
         # Cycle through the data, compiling the ratios;
-        for recipe_df_name, recipe_qty_data in self._meal_data:
+        for recipe_df_name, recipe_qty_data in self._meal_data.items():
             _recipe_ratios[recipe_df_name] = model.recipes.SettableRecipeRatio(
                 recipe=model.recipes.ReadonlyRecipe(recipe_data_src=model.recipes.get_recipe_data_src(
-
+                    for_df_name=recipe_df_name
                 )),
-                host=self,
+                ratio_host=self,
                 qty_ratio_data=model.quantity.QuantityRatioData(
                     subject_qty_data=model.quantity.QuantityData(
-                        quantity_in_g=_recipe_quantities[recipe_df_name]['quantity_in_g'],
-                        pref_unit=_recipe_quantities[recipe_df_name]['pref_unit']
+                        quantity_in_g=_recipe_quantities[recipe_df_name].quantity_in_g,
+                        pref_unit=_recipe_quantities[recipe_df_name].qty_pref_unit
                     ),
                     host_qty_data=model.quantity.QuantityData(
-                        quantity_in_g=total_meal_mass,
+                        quantity_in_g=total_meal_mass_g,
                         pref_unit='g'
                     )
                 )

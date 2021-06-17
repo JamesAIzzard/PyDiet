@@ -74,36 +74,82 @@ class TestTotalMealMass(TestCase):
         # Check the quantity is correct;
         self.assertEqual(1000, sm.total_meal_mass_g)
 
-# class TestRecipeRatios(TestCase):
-#     """Tests for the recipes property."""
-#
-#     @pfx.use_test_database
-#     def test_returns_correct_recipe_ratios(self):
-#         """Checks that the property returns the correct recipe ratios."""
-#
-#         # Create a test instance;
-#         mb = model.meals.SettableMeal(meal_data={
-#             rfx.DF_NAMES["Porridge"]: qfx.get_qty_data(500),
-#             rfx.DF_NAMES["Banana Milkshake"]: qfx.get_qty_data(300),
-#             rfx.DF_NAMES["Avocado and Prawns"]: qfx.get_qty_data(200)
-#         })
-#
-#         # Check we get the correct recipe ratio instances back;
-#         recipe_ratios = mb.recipe_ratios
-#
-#         # Check we get the correct number of recipe ratios back;
-#         self.assertEqual(3, len(recipe_ratios))
-#
-#         # Check we get the correct recipe names back;
-#         self.assertTrue(rfx.DF_NAMES["Porridge"] in recipe_ratios.keys())
-#         self.assertTrue(rfx.DF_NAMES["Banana Milkshake"] in recipe_ratios.keys())
-#         self.assertTrue(rfx.DF_NAMES["Avocado and Prawns"] in recipe_ratios.keys())
-#
-#         # Check the recipes have the correct ratios;
-#         self.assertEqual(0.5, recipe_ratios[rfx.DF_NAMES["Porridge"]].subject_g_per_host_g)
-#         self.assertEqual(0.3, recipe_ratios[rfx.DF_NAMES["Banana Milkshake"]].subject_g_per_host_g)
-#         self.assertEqual(0.2, recipe_ratios[rfx.DF_NAMES["Avocado and Prawns"]].subject_g_per_host_g)
-#
-#         # Check they are the correct type;
-#         for rr in recipe_ratios.values():
-#             self.assertTrue(isinstance(rr, model.recipes.SettableRecipeRatio))
+
+class TestRecipeQuantities(TestCase):
+    """Tests for the recipe_quantities property."""
+
+    @pfx.use_test_database
+    def test_returns_correct_quantities(self):
+        """Checks we get the correct quantities back."""
+        # Grab datafile names for some recipes, we'll need them;
+        p_dfn = model.recipes.get_datafile_name_for_unique_value("Porridge")
+        bm_dfn = model.recipes.get_datafile_name_for_unique_value("Banana Milkshake")
+        aap_dfn = model.recipes.get_datafile_name_for_unique_value("Avocado and Prawns")
+
+        # Create a test instance;
+        mb = model.meals.SettableMeal(meal_data={
+            p_dfn: qfx.get_qty_data(500),
+            bm_dfn: qfx.get_qty_data(300),
+            aap_dfn: qfx.get_qty_data(200)
+        })
+
+        recipe_quantities = mb.recipe_quantities
+
+        # Check we get the correct number of quantities back;
+        self.assertEqual(3, len(recipe_quantities))
+
+        # Check we get the correct recipe names back;
+        self.assertTrue(p_dfn in recipe_quantities.keys())
+        self.assertTrue(bm_dfn in recipe_quantities.keys())
+        self.assertTrue(aap_dfn in recipe_quantities.keys())
+
+        # Check the recipes have the correct ratios;
+        self.assertEqual(500, recipe_quantities[p_dfn].quantity_in_g)
+        self.assertEqual(300, recipe_quantities[bm_dfn].quantity_in_g)
+        self.assertEqual(200, recipe_quantities[aap_dfn].quantity_in_g)
+
+        # Check they are the correct type;
+        for rr in recipe_quantities.values():
+            self.assertTrue(isinstance(rr, model.recipes.SettableRecipeQuantity))
+
+
+class TestRecipeRatios(TestCase):
+    """Tests for the recipes property."""
+
+    @pfx.use_test_database
+    def test_returns_correct_recipe_ratios(self):
+        """Checks that the property returns the correct recipe ratios."""
+
+        # Grab datafile names for some recipes, we'll need them;
+        p_dfn = model.recipes.get_datafile_name_for_unique_value("Porridge")
+        bm_dfn = model.recipes.get_datafile_name_for_unique_value("Banana Milkshake")
+        aap_dfn = model.recipes.get_datafile_name_for_unique_value("Avocado and Prawns")
+
+        # Create a test instance;
+        mb = model.meals.SettableMeal(meal_data={
+            p_dfn: qfx.get_qty_data(500),
+            bm_dfn: qfx.get_qty_data(300),
+            aap_dfn: qfx.get_qty_data(200)
+        })
+
+        # Check we get the correct recipe ratio instances back;
+        recipe_ratios = mb.recipe_ratios
+
+        # Check we get the correct number of recipe ratios back;
+        self.assertEqual(3, len(recipe_ratios))
+
+        # Check we get the correct recipe names back;
+        self.assertTrue(p_dfn in recipe_ratios.keys())
+        self.assertTrue(bm_dfn in recipe_ratios.keys())
+        self.assertTrue(aap_dfn in recipe_ratios.keys())
+
+        # Check the recipes have the correct ratios;
+        self.assertEqual(0.5, recipe_ratios[p_dfn].subject_g_per_host_g)
+        self.assertEqual(0.3, recipe_ratios[bm_dfn].subject_g_per_host_g)
+        self.assertEqual(0.2, recipe_ratios[aap_dfn].subject_g_per_host_g)
+
+        # Check they are the correct type;
+        for rr in recipe_ratios.values():
+            self.assertTrue(isinstance(rr, model.recipes.SettableRecipeRatio))
+
+

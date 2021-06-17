@@ -26,8 +26,15 @@ def get_recipe_data_src(
         for_df_name: Optional[str] = None
 ) -> Callable[[], 'model.recipes.RecipeData']:
     """Returns a source function for the data associated with the recipe indicated."""
+    # Raise exception if both args are None;
+    if for_unique_name is None and for_df_name is None:
+        raise ValueError("Either datafile name or unique name must be specified.")
+
+    # Convert the unique name into a df name;
     if for_unique_name is None:
         for_unique_name = get_unique_name_for_datafile_name(for_df_name)
+
+    # Return the src function based on the df name;
     return lambda: persistence.load_datafile(
         cls=model.recipes.RecipeBase,
         unique_value=for_unique_name
