@@ -150,6 +150,12 @@ class TestRecipeRatios(TestCase):
 
         # Check they are the correct type;
         for rr in recipe_ratios.values():
-            self.assertTrue(isinstance(rr, model.recipes.SettableRecipeRatio))
+            self.assertTrue(isinstance(rr, model.recipes.ReadonlyRecipeRatio))
+
+    @pfx.use_test_database
+    def test_cant_set_ratio_directly(self):
+        """Check that we can't set the ratio directly (we want to use the setter
+        method on the meal instance)."""
+
 
 

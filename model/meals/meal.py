@@ -1,5 +1,5 @@
 """Defines meal classes."""
-from typing import List, Dict, Optional, Any
+from typing import List, Dict, Callable, Optional, Any
 
 import model
 import persistence
@@ -70,7 +70,7 @@ class SettableMeal(persistence.YieldsPersistableData, persistence.CanLoadData):
         return _recipe_quantities
 
     @property
-    def recipe_ratios(self) -> Dict[str, 'model.recipes.SettableRecipeRatio']:
+    def recipe_ratios(self) -> Dict[str, 'model.recipes.ReadonlyRecipeRatio']:
         """Returns the recipe ratios associated with this meal."""
         # Somewhere to compile the ratios;
         _recipe_ratios = {}
@@ -81,23 +81,26 @@ class SettableMeal(persistence.YieldsPersistableData, persistence.CanLoadData):
         # Cache the sum of all recipes masses on the instance;
         total_meal_mass_g = self.total_meal_mass_g
 
+        # Define a factory function to create accessors for the src data on this instnace;
+        def get_qty_ratio_data_src(rdf: str) -> Callable[[], 'model.quantity.QuantityRatioData']:
+            """Returns an accessor function for the quantity data associated with the
+            specified recipe df name."""
+            return lambda: model.quantity.QuantityRatioData(
+                subject_qty_data=self._meal_data[rdf],
+                host_qty_data=model.quantity.QuantityData(
+                    quantity_in_g=total_meal_mass_g,
+                    pref_unit='g'
+                )
+            )
+
         # Cycle through the data, compiling the ratios;
         for recipe_df_name, recipe_qty_data in self._meal_data.items():
-            _recipe_ratios[recipe_df_name] = model.recipes.SettableRecipeRatio(
+            _recipe_ratios[recipe_df_name] = model.recipes.ReadonlyRecipeRatio(
                 recipe=model.recipes.ReadonlyRecipe(recipe_data_src=model.recipes.get_recipe_data_src(
                     for_df_name=recipe_df_name
                 )),
                 ratio_host=self,
-                qty_ratio_data=model.quantity.QuantityRatioData(
-                    subject_qty_data=model.quantity.QuantityData(
-                        quantity_in_g=_recipe_quantities[recipe_df_name].quantity_in_g,
-                        pref_unit=_recipe_quantities[recipe_df_name].qty_pref_unit
-                    ),
-                    host_qty_data=model.quantity.QuantityData(
-                        quantity_in_g=total_meal_mass_g,
-                        pref_unit='g'
-                    )
-                )
+                qty_ratio_data_src=get_qty_ratio_data_src(recipe_df_name)
             )
 
         return _recipe_ratios
