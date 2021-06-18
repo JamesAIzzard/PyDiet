@@ -16,6 +16,12 @@ class RecipeQuantityBase(model.quantity.IsQuantityOfBase, abc.ABC):
         # Pass the call on;
         super().__init__(qty_subject=recipe, **kwargs)
 
+    @property
+    def recipe(self) -> 'model.recipes.ReadonlyRecipe':
+        """Returns the recipe instance.
+        Alias for qty_subject."""
+        return self.qty_subject
+
 
 class ReadonlyRecipeQuantity(RecipeQuantityBase, model.quantity.IsReadonlyQuantityOf):
     """Models a readonly recipe quantity."""

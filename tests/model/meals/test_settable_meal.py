@@ -2,7 +2,6 @@
 from unittest import TestCase
 
 import model.meals
-from tests.model.recipes import fixtures as rfx
 from tests.model.quantity import fixtures as qfx
 from tests.persistence import fixtures as pfx
 
@@ -110,7 +109,7 @@ class TestRecipeQuantities(TestCase):
 
         # Check they are the correct type;
         for rr in recipe_quantities.values():
-            self.assertTrue(isinstance(rr, model.recipes.SettableRecipeQuantity))
+            self.assertTrue(isinstance(rr, model.recipes.ReadonlyRecipeQuantity))
 
 
 class TestRecipeRatios(TestCase):
@@ -152,10 +151,55 @@ class TestRecipeRatios(TestCase):
         for rr in recipe_ratios.values():
             self.assertTrue(isinstance(rr, model.recipes.ReadonlyRecipeRatio))
 
+
+class TestGetRecipeQuantity(TestCase):
+    """Tests for the `get_recipe_quantity` method."""
+
     @pfx.use_test_database
-    def test_cant_set_ratio_directly(self):
-        """Check that we can't set the ratio directly (we want to use the setter
-        method on the meal instance)."""
+    def test_gets_correct_recipe_quantity(self):
+        """Checks we can get the recipe quantity correctly."""
+        # Create a test instance, passing this data in;
+        sm = model.meals.SettableMeal(meal_data={
+            model.recipes.get_datafile_name_for_unique_value("Porridge"): qfx.get_qty_data(500),
+            model.recipes.get_datafile_name_for_unique_value("Banana Milkshake"): qfx.get_qty_data(300),
+            model.recipes.get_datafile_name_for_unique_value("Avocado and Prawns"): qfx.get_qty_data(200)
+        })
+
+        # Grab the recipe quantity;
+        rq = sm.get_recipe_quantity(unique_name="Porridge")
+
+        # Check we get a recipe quantity of the right type;
+        self.assertTrue(isinstance(rq, model.recipes.ReadonlyRecipeQuantity))
+
+        # Check it has the right name;
+        self.assertEqual("Porridge", rq.recipe.name)
+
+        # Check it has the correct quantity;
+        self.assertEqual(500, rq.quantity_in_g)
 
 
+class TestSetRecipeQuantity(TestCase):
+    """Tests for the `set_recipe_quantity` method."""
 
+    @pfx.use_test_database
+    def test_can_set_recipe_quantity(self):
+        """Checks we can set the recipe quantity."""
+        # Create a test instance, passing this data in;
+        sm = model.meals.SettableMeal(meal_data={
+            model.recipes.get_datafile_name_for_unique_value("Porridge"): qfx.get_qty_data(500),
+            model.recipes.get_datafile_name_for_unique_value("Banana Milkshake"): qfx.get_qty_data(300),
+            model.recipes.get_datafile_name_for_unique_value("Avocado and Prawns"): qfx.get_qty_data(200)
+        })
+
+        # Check the state of one of the recipe quantities, to confirm it is what we set it to be
+        # in the constructor;
+        self.assertEqual(500, sm.get_recipe_quantity(unique_name="Porridge").quantity_in_g)
+
+        # Go ahead and change it;
+        sm.set_recipe_quantity(unique_name="Porridge", quantity=0.6, unit="kg")
+
+        # Now check it was changed;
+        self.assertEqual(
+            600,
+            sm.get_recipe_quantity(unique_name="Porridge").quantity_in_g
+        )

@@ -51,20 +51,67 @@ class SettableMeal(persistence.YieldsPersistableData, persistence.CanLoadData):
         # All done, return the list;
         return recipes
 
+    def get_recipe_quantity(self,
+                            unique_name: Optional[str] = None,
+                            df_name: Optional[str] = None
+                            ) -> 'model.recipes.ReadonlyRecipeQuantity':
+        """Returns the recipe quantity corresponding to the unique name provided."""
+
+        # Raise and exception if we got no params;
+        if unique_name is None and df_name is None:
+            raise ValueError('Either recipe unique name or datafile name must be specified.')
+
+        # Grab both names;
+        if df_name is None:
+            df_name = model.recipes.get_datafile_name_for_unique_value(unique_name)
+        elif unique_name is None:
+            unique_name = model.recipes.get_unique_name_for_datafile_name(df_name)
+
+        # Create and return the recipe quantity instance;
+        return model.recipes.ReadonlyRecipeQuantity(
+            recipe=model.recipes.ReadonlyRecipe(recipe_data_src=model.recipes.get_recipe_data_src(
+                for_unique_name=unique_name
+            )),
+            quantity_data_src=lambda: self._meal_data[df_name]
+        )
+
+    def set_recipe_quantity(self,
+                            quantity: float,
+                            unit: str,
+                            unique_name: Optional[str] = None,
+                            df_name: Optional[str] = None,
+                            ) -> None:
+        """Sets a recipe quantity in arbitrary units."""
+        # Figure out the parameters;
+        if unique_name is None and df_name is None:
+            raise ValueError("Unique name or df name must be specified")
+        elif df_name is None:
+            df_name = model.recipes.get_datafile_name_for_unique_value(unique_name)
+
+        # Validate the qty and unit;
+        quantity = model.quantity.validation.validate_quantity(quantity)
+        unit = model.quantity.validation.validate_mass_unit(unit)
+
+        qty_in_g = model.quantity.convert_qty_unit(
+            qty=quantity,
+            start_unit=unit,
+            end_unit='g',
+        )
+
+        self._meal_data[df_name] = model.quantity.QuantityData(
+            quantity_in_g=qty_in_g,
+            pref_unit=unit
+        )
+
     @property
-    def recipe_quantities(self) -> Dict[str, 'model.recipes.SettableRecipeQuantity']:
+    def recipe_quantities(self) -> Dict[str, 'model.recipes.ReadonlyRecipeQuantity']:
         """Returns the recipe quantities associated with this meal."""
         # Create somewhere to compile the quantities;
         _recipe_quantities = {}
 
         # Cycle through the meal data and populate the quantities;
         for recipe_df_name, recipe_qty_data in self._meal_data.items():
-            _recipe_quantities[recipe_df_name] = model.recipes.SettableRecipeQuantity(
-                recipe=model.recipes.ReadonlyRecipe(
-                    recipe_data_src=model.recipes.get_recipe_data_src(for_df_name=recipe_df_name)
-                ),
-                quantity_data=recipe_qty_data
-            )
+            _recipe_quantities[recipe_df_name] = self.get_recipe_quantity(df_name=recipe_df_name)
 
         # Return the data;
         return _recipe_quantities
