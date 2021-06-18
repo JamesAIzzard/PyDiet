@@ -30,11 +30,37 @@ class TestConstructor(TestCase):
         self.assertEqual(data, sm.persistable_data)
 
 
+class TestRecipeNames(TestCase):
+    """Tests the recipe_names property."""
+
+    @pfx.use_test_database
+    def test_empty_list_returned_when_no_recipes_assigned(self):
+        """Checks we get an empty list when there are no recipes assigned."""
+        # Create an empty test instance;
+        sm = model.meals.SettableMeal()
+
+        # Assert there are no names in the list;
+        self.assertEqual([], sm.recipe_names)
+
+    @pfx.use_test_database
+    def test_correct_names_returned_when_recipes_assigned(self):
+        """Checks that we get the correct names back if there are recipes assigned."""
+        # Create a test instance, passing some recipes in;
+        sm = model.meals.SettableMeal(meal_data={
+            model.recipes.get_datafile_name_for_unique_value("Porridge"): qfx.get_qty_data(500),
+            model.recipes.get_datafile_name_for_unique_value("Banana Milkshake"): qfx.get_qty_data(300),
+            model.recipes.get_datafile_name_for_unique_value("Avocado and Prawns"): qfx.get_qty_data(200)
+        })
+
+        # Assert the correct names are in the recipes list;
+        self.assertEqual({"Porridge", "Banana Milkshake", "Avocado and Prawns"}, set(sm.recipe_names))
+
+
 class TestAddRecipe(TestCase):
     """Tests the add_recipe method."""
 
     @pfx.use_test_database
-    def test_can_add_recipe(self) -> None:
+    def test_can_add_recipe_with_qty_data(self) -> None:
         """Checks we can add a recipe to the meal."""
         # Create an empty meal instance;
         sm = model.meals.SettableMeal()
@@ -55,6 +81,25 @@ class TestAddRecipe(TestCase):
         # Assert the recipe is now on the instance;
         self.assertEqual(2, len(sm.recipes))
         self.assertTrue(sm.recipes[1].name == "Banana Milkshake")
+
+    @pfx.use_test_database
+    def test_can_add_empty_recipe(self):
+        """Checks we can add a recipe without specifying its quantity."""
+        # Create test instance;
+        sm = model.meals.SettableMeal()
+
+        # Assert there are no recipes;
+        self.assertEqual(0, len(sm.recipes))
+
+        # Add a recipe without specifying quantity data;
+        sm.add_recipe(recipe_unique_name="Porridge")
+
+        # Check it was added;
+        self.assertEqual(1, len(sm.recipes))
+        self.assertTrue("Porridge" in sm.recipe_names)
+
+        # Check its quantity is undefined;
+        self.assertFalse(sm.get_recipe_quantity(unique_name="Porridge").quantity_is_defined)
 
 
 class TestTotalMealMass(TestCase):

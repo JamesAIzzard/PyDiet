@@ -16,8 +16,18 @@ class SettableMeal(persistence.YieldsPersistableData, persistence.CanLoadData):
         if meal_data is not None:
             self.load_data(meal_data)
 
-    def add_recipe(self, recipe_unique_name: str, recipe_qty_data: 'model.quantity.QuantityData') -> None:
+    def add_recipe(self,
+                   recipe_unique_name: str,
+                   recipe_qty_data: Optional['model.quantity.QuantityData'] = None
+                   ) -> None:
         """Adds a recipe to the meal instance."""
+        # Set default for quantity data if none was passed in;
+        if recipe_qty_data is None:
+            recipe_qty_data = model.quantity.QuantityData(
+                quantity_in_g=None,
+                pref_unit='g'
+            )
+        # Add the data to the dict;
         self._meal_data[model.recipes.get_datafile_name_for_unique_value(recipe_unique_name)] = recipe_qty_data
 
     @property
@@ -32,6 +42,14 @@ class SettableMeal(persistence.YieldsPersistableData, persistence.CanLoadData):
 
         # Return the result;
         return total_meal_mass
+
+    @property
+    def recipe_names(self) -> List[str]:
+        """Returns the list of unique recipe names assigned to this instance."""
+        recipe_names = []
+        for rdf_name in self._meal_data.keys():
+            recipe_names.append(model.recipes.get_unique_name_for_datafile_name(rdf_name))
+        return recipe_names
 
     @property
     def recipes(self) -> List['model.recipes.ReadonlyRecipe']:
