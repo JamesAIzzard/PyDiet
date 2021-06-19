@@ -3,6 +3,7 @@ from .main import (
     save_instance,
     load_instance,
     load_datafile,
+    read_index,
     delete_instances,
     check_unique_value_available,
     count_saved_instances,

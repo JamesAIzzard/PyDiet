@@ -5,7 +5,11 @@ import model
 import persistence
 
 
-class SettableMeal(persistence.YieldsPersistableData, persistence.CanLoadData):
+class SettableMeal(
+    model.nutrients.HasReadableNutrientRatios,
+    persistence.YieldsPersistableData,
+    persistence.CanLoadData
+):
     """Models a collection of recipes (combined to form a meal)."""
 
     def __init__(self, meal_data: Optional['model.meals.MealData'] = None):
@@ -15,6 +19,52 @@ class SettableMeal(persistence.YieldsPersistableData, persistence.CanLoadData):
 
         if meal_data is not None:
             self.load_data(meal_data)
+
+    @property
+    def nutrient_ratios_data(self) -> 'model.nutrients.NutrientRatiosData':
+        """Returns the nutrient ratios data for the instance."""
+
+        # Create vars to store useful things;
+        defined_nutrient_sets = []
+        recipes = []
+
+        # Cycle through each recipe;
+        for rdf_name in self._meal_data.keys():
+            # Load it;
+            r = model.recipes.SettableRecipe(
+                recipe_data=persistence.load_datafile(
+                    cls=model.recipes.RecipeBase,
+                    unique_value=model.recipes.get_unique_name_for_datafile_name(rdf_name)
+                )
+            )
+            recipes.append(r)
+            # Add its defined nutrients to the set list;
+            defined_nutrient_sets.append(set(r.defined_nutrient_ratio_names))
+
+        # Grab the intersection of defined nutrient sets;
+        common_nutrients = set.intersection(*defined_nutrient_sets)
+
+        # Create somewhere to put the nutrient ratios;
+        nutrient_ratios = {}
+
+        # For each common nutrient, average across each ingredient;
+        for nutrient_name in common_nutrients:
+            nut_total = 0
+            for r in recipes:
+                nut_total += r.get_nutrient_ratio(nutrient_name).subject_g_per_host_g
+            nutrient_ratios[nutrient_name] = model.quantity.QuantityRatioData(
+                subject_qty_data=model.quantity.QuantityData(
+                    quantity_in_g=nut_total / len(recipes),
+                    pref_unit='g'
+                ),
+                host_qty_data=model.quantity.QuantityData(
+                    quantity_in_g=1,
+                    pref_unit='g'
+                )
+            )
+
+        # Return
+        return nutrient_ratios
 
     def add_recipe(self,
                    recipe_unique_name: str,

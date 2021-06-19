@@ -10,7 +10,7 @@ INGREDIENT_NAME_WITH = {
     "name_raspberry": "Raspberry",
     "typical_fully_defined_data": "Raspberry",
     "density_defined": "Lemon Juice",
-    "1.2g_per_ml": "Lemon Juice",
+    "1.2g_per_ml": "Olive Oil",
     "density_undefined": "Aubergine",
     "piece_mass_defined": "Aubergine",
     "piece_mass_undefined": "Lemon Juice",

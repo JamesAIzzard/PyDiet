@@ -208,6 +208,7 @@ class TestAddIngredientQuantity(TestCase):
     @pfx.use_test_database
     def test_no_exception_if_adding_with_vol_unit_when_density_configured(self):
         """Check we can add a volume of an ingredient with density configured."""
+
         # Create an empty test instance;
         hsiq = model.ingredients.HasSettableIngredientQuantities()
 

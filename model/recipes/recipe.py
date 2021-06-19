@@ -22,6 +22,89 @@ class RecipeBase(
         """Returns the unique name of the recipe."""
         return self._name
 
+    @property
+    def defined_nutrient_ratio_names(self) -> List[str]:
+        """Returns a list of all of the nutrient names corresponding to nutrient ratios defined
+        on the instance."""
+        return list(self.nutrient_ratios_data.keys())
+
+    def get_nutrient_ratio(self, nutrient_name: str) -> 'model.nutrients.ReadonlyNutrientRatio':
+        """Returns a ReadableNutrientRatio by name."""
+
+        # Convert to the primary name, in case we were given an alias;
+        nutrient_name = model.nutrients.get_nutrient_primary_name(nutrient_name)
+
+        # If the nutrient is defined (i.e if it is in the dictionary);
+        if nutrient_name in self.nutrient_ratios_data.keys():
+
+            # Instantiate and return it;
+            return model.nutrients.ReadonlyNutrientRatio(
+                nutrient_name=nutrient_name,
+                ratio_host=self,
+                qty_ratio_data_src=lambda: self.nutrient_ratios_data[nutrient_name]
+            )
+
+        # Otherwise, return an error to indicate it isn't defined;
+        else:
+            raise model.nutrients.exceptions.UndefinedNutrientRatioError(
+                subject=self,
+                nutrient_name=nutrient_name
+            )
+
+    @property
+    def nutrient_ratios_data(self) -> 'model.nutrients.NutrientRatiosData':
+        """Returns the nutrient ratios data for the instance."""
+        # First, find the common set of nutrients that are defined across all ingredients.
+        defined_nutrient_sets = []
+
+        # Create a list to cache the ingredients;
+        ingredients = []
+
+        # Cycle through each ingredient;
+        for idf_name in self.ingredient_quantities_data.keys():
+            # Load it;
+            i = model.ingredients.ReadonlyIngredient(
+                ingredient_data_src=model.ingredients.get_ingredient_data_src(for_df_name=idf_name)
+            )
+            ingredients.append(i)
+            # Add its defined nutrients to the set list;
+            defined_nutrient_sets.append(
+                set(i.defined_optional_nutrient_ratio_names + model.nutrients.configs.MANDATORY_NUTRIENT_NAMES))
+
+        # Grab the intersection of defined nutrient sets;
+        common_nutrients = set.intersection(*defined_nutrient_sets)
+
+        # Create somewhere to put the nutrient ratios;
+        nutrient_ratios = {}
+
+        # For each common nutrient, average across each ingredient;
+        for nutrient_name in common_nutrients:
+            nut_total = 0
+            for i in ingredients:
+                nut_total += i.nutrient_ratios_data[nutrient_name]['subject_qty_data']['quantity_in_g'] / \
+                             i.nutrient_ratios_data[nutrient_name]['host_qty_data']['quantity_in_g']
+            nutrient_ratios[nutrient_name] = model.quantity.QuantityRatioData(
+                subject_qty_data=model.quantity.QuantityData(
+                    quantity_in_g=nut_total / len(ingredients),
+                    pref_unit='g'
+                ),
+                host_qty_data=model.quantity.QuantityData(
+                    quantity_in_g=1,
+                    pref_unit='g'
+                )
+            )
+
+        # Return
+        return nutrient_ratios
+
+    @property
+    def typical_serving_size_g(self) -> float:
+        """Returns the typical serving size associated with this recipe."""
+        total_mass = 0
+        for ingredient_qty_data in self.ingredient_quantities_data.values():
+            total_mass += ingredient_qty_data['quantity_in_g']
+        return total_mass
+
     @staticmethod
     def get_path_into_db() -> str:
         """Returns the directory name in the database."""

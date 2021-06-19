@@ -2,6 +2,7 @@
 from unittest import mock
 
 import tests
+import persistence
 
 
 def use_test_database(func):
@@ -10,6 +11,7 @@ def use_test_database(func):
     @mock.patch('persistence.configs.path_into_db', tests.persistence.configs.path_into_db)
     def wrapper(*args, **kwargs):
         """Wrapper function to return"""
+        persistence.main.reset_cache()
         return func(*args, **kwargs)
 
     return wrapper

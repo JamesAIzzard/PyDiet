@@ -110,6 +110,12 @@ class HasReadableNutrientRatios(persistence.YieldsPersistableData, abc.ABC):
         raise NotImplementedError
 
     @property
+    def defined_nutrient_ratio_names(self) -> List[str]:
+        """Returns a list of all of the nutrient names corresponding to nutrient ratios defined
+        on the instance."""
+        return list(self.nutrient_ratios_data.keys())
+
+    @property
     def nutrient_ratios(self) -> Dict[str, 'ReadonlyNutrientRatio']:
         """Returns a list of nutrient ratios associated with the instance.
         Notes

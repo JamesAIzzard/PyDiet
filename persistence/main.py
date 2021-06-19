@@ -10,6 +10,13 @@ import persistence
 
 T = TypeVar('T')
 
+_df_cache = {}  # Place to cache datafiles in RAM to speed up testing.
+
+
+def reset_cache():
+    """Resets the datafile cache, useful for testing."""
+    _df_cache = {}
+
 
 def save_instance(subject: 'persistence.SupportsPersistence') -> None:
     """Saves the subject."""
@@ -51,8 +58,11 @@ def load_datafile(cls: Any, unique_value: Optional[str] = None, datafile_name: O
     if unique_value is not None:
         datafile_name = get_datafile_name_for_unique_value(cls, unique_value)
 
+    if datafile_name not in _df_cache.keys():
+        _df_cache[datafile_name] = _read_datafile(f"{cls.get_path_into_db()}/{datafile_name}.json")
+
     # Load and return;
-    return _read_datafile(f"{cls.get_path_into_db()}/{datafile_name}.json")
+    return _df_cache[datafile_name]
 
 
 def delete_instances(cls: Type['persistence.SupportsPersistence'], name: Optional[str] = None,
@@ -72,14 +82,14 @@ def delete_instances(cls: Type['persistence.SupportsPersistence'], name: Optiona
 
 def count_saved_instances(cls: Type['persistence.SupportsPersistence']) -> int:
     """Counts the number of saved instances of the class in the database (by counting entries in the index)."""
-    index_data = _read_index(cls)
+    index_data = read_index(cls)
     return len(index_data)
 
 
 def get_saved_unique_values(cls: Type['persistence.SupportsPersistence']) -> List[str]:
     """Returns a list of all persisted unique values. For example: If the class
     is Ingredient, this would return all saved ingredient names."""
-    index = _read_index(cls)
+    index = read_index(cls)
     return list(index.values())
 
 
@@ -92,7 +102,7 @@ def check_unique_value_available(cls: Type['persistence.SupportsPersistence'], p
         raise persistence.exceptions.UndefinedUniqueValueError
 
     # Grab the index data;
-    index_data = _read_index(cls)
+    index_data = read_index(cls)
 
     # If we are ignoring a datafile, remove it from the index data;
     if ignore_datafile is not None:
@@ -122,16 +132,16 @@ def search_for_unique_values(
 
 def get_datafile_name_for_unique_value(cls: Type['persistence.SupportsPersistence'], unique_value: str) -> str:
     """Returns the datafile name associated with the unique name."""
-    index = _read_index(cls)
+    index = read_index(cls)
     for df_name, u_name in index.items():
-        if u_name == unique_value:
+        if u_name.strip() == unique_value.strip():
             return df_name
     raise persistence.exceptions.UniqueValueNotFoundError(missing_unique_value=unique_value)
 
 
 def get_unique_value_from_datafile_name(cls: Type['persistence.SupportsPersistence'], datafile_name: str) -> str:
     """Returns the unique value associated with the datafile name."""
-    index = _read_index(cls)
+    index = read_index(cls)
     for df_name, u_name in index.items():
         if datafile_name == df_name:
             return u_name
@@ -145,7 +155,7 @@ def _create_index_entry(subject: 'persistence.SupportsPersistence') -> None:
     Raises:
          NameDuplicatedError: To indicate the unique qty is not unique in the index.
     """
-    index_data = _read_index(subject.__class__)
+    index_data = read_index(subject.__class__)
 
     # Check the unique field qty isn't used already, also checks name is not None;
     if not check_unique_value_available(
@@ -180,7 +190,7 @@ def _read_datafile(filepath: str) -> Dict[str, Any]:
         return json.loads(raw_data)
 
 
-def _read_index(cls: Type['persistence.SupportsPersistence']) -> Dict[str, str]:
+def read_index(cls: Type['persistence.SupportsPersistence']) -> Dict[str, str]:
     """Returns the index corresponding to the _subject."""
     with open(cls.get_index_filepath(), 'r') as fh:
         raw_data = fh.read()
@@ -210,7 +220,7 @@ def _update_unique_value(subject: 'persistence.SupportsPersistence') -> None:
         raise persistence.exceptions.UniqueValueDuplicatedError
 
     # Do the update;
-    index_data = _read_index(subject.__class__)
+    index_data = read_index(subject.__class__)
     index_data[subject.datafile_name] = subject.unique_value
     with open(subject.__class__.get_index_filepath(), 'w') as fh:
         json.dump(index_data, fh, indent=2, sort_keys=True)
@@ -218,7 +228,7 @@ def _update_unique_value(subject: 'persistence.SupportsPersistence') -> None:
 
 def _delete_index_entry(cls: Type['persistence.SupportsPersistence'], datafile_name: str) -> None:
     """Deletes the subject's entry from its index."""
-    index_data = _read_index(cls)
+    index_data = read_index(cls)
     del index_data[datafile_name]
     with open(cls.get_index_filepath(), 'w') as fh:
         json.dump(index_data, fh, indent=2, sort_keys=True)

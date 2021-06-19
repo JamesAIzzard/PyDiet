@@ -182,3 +182,60 @@ class TestTags(TestCase):
             {"drink", "sweet"},
             set(sr.tags)
         )
+
+
+class TestTypicalServingSizeG(TestCase):
+    """Tests the typical_serving_size_property."""
+
+    @pfx.use_test_database
+    def test_correct_value_is_returned(self):
+        """Checks the property returns the correct data."""
+        # Create a test instance;
+        sr = model.recipes.ReadonlyRecipe(recipe_data_src=model.recipes.get_recipe_data_src(
+            for_unique_name="Banana Milkshake"
+        ))
+
+        # Check we get the correct value;
+        self.assertEqual(662.396, sr.typical_serving_size_g)
+
+
+class TestNutrientRatiosData(TestCase):
+    """Tests the nutrient_ratios property."""
+
+    @pfx.use_test_database
+    def test_correct_ratio_data_is_returned(self):
+        """Checks the correct ratios are returned."""
+        # Create a test instance of a known recipe;
+        sr = model.recipes.ReadonlyRecipe(recipe_data_src=model.recipes.get_recipe_data_src(
+            for_unique_name="Banana Milkshake"
+        ))
+
+        # Check we get the correct value;
+        self.assertEqual(
+            {'alcohol': {'host_qty_data': {'pref_unit': 'g', 'quantity_in_g': 1},
+                         'subject_qty_data': {'pref_unit': 'g', 'quantity_in_g': 0.0}},
+             'carbohydrate': {'host_qty_data': {'pref_unit': 'g', 'quantity_in_g': 1},
+                              'subject_qty_data': {'pref_unit': 'g',
+                                                   'quantity_in_g': 0.3476598639455783}},
+             'fat': {'host_qty_data': {'pref_unit': 'g', 'quantity_in_g': 1},
+                     'subject_qty_data': {'pref_unit': 'g',
+                                          'quantity_in_g': 0.0012721088435374151}},
+             'monounsaturated_fat': {'host_qty_data': {'pref_unit': 'g',
+                                                       'quantity_in_g': 1},
+                                     'subject_qty_data': {'pref_unit': 'g',
+                                                          'quantity_in_g': 0.00013605442176870748}},
+             'polyunsaturated_fat': {'host_qty_data': {'pref_unit': 'g',
+                                                       'quantity_in_g': 1},
+                                     'subject_qty_data': {'pref_unit': 'g',
+                                                          'quantity_in_g': 0.0003333333333333333}},
+             'protein': {'host_qty_data': {'pref_unit': 'g', 'quantity_in_g': 1},
+                         'subject_qty_data': {'pref_unit': 'g',
+                                              'quantity_in_g': 0.016625850340136056}},
+             'saturated_fat': {'host_qty_data': {'pref_unit': 'g', 'quantity_in_g': 1},
+                               'subject_qty_data': {'pref_unit': 'g',
+                                                    'quantity_in_g': 0.0004693877551020409}},
+             'sodium': {'host_qty_data': {'pref_unit': 'g', 'quantity_in_g': 1},
+                        'subject_qty_data': {'pref_unit': 'g',
+                                             'quantity_in_g': 0.00024346938775510204}}},
+            sr.nutrient_ratios_data
+        )
