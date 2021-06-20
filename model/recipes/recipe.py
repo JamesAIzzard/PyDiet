@@ -30,7 +30,6 @@ class RecipeBase(
 
     def get_nutrient_ratio(self, nutrient_name: str) -> 'model.nutrients.ReadonlyNutrientRatio':
         """Returns a ReadableNutrientRatio by name."""
-
         # Convert to the primary name, in case we were given an alias;
         nutrient_name = model.nutrients.get_nutrient_primary_name(nutrient_name)
 
@@ -58,18 +57,18 @@ class RecipeBase(
         defined_nutrient_sets = []
 
         # Create a list to cache the ingredients;
-        ingredients = []
+        ingredient_datafiles = []
 
         # Cycle through each ingredient;
         for idf_name in self.ingredient_quantities_data.keys():
-            # Load it;
-            i = model.ingredients.ReadonlyIngredient(
-                ingredient_data_src=model.ingredients.get_ingredient_data_src(for_df_name=idf_name)
-            )
-            ingredients.append(i)
+            # Grab the datafile;
+            idf = persistence.load_datafile(cls=model.ingredients.IngredientBase, datafile_name=idf_name)
+
+            # Append it;
+            ingredient_datafiles.append(idf)
+
             # Add its defined nutrients to the set list;
-            defined_nutrient_sets.append(
-                set(i.defined_optional_nutrient_ratio_names + model.nutrients.configs.MANDATORY_NUTRIENT_NAMES))
+            defined_nutrient_sets.append(set(idf['nutrient_ratios_data'].keys()))
 
         # Grab the intersection of defined nutrient sets;
         common_nutrients = set.intersection(*defined_nutrient_sets)
@@ -80,12 +79,12 @@ class RecipeBase(
         # For each common nutrient, average across each ingredient;
         for nutrient_name in common_nutrients:
             nut_total = 0
-            for i in ingredients:
-                nut_total += i.nutrient_ratios_data[nutrient_name]['subject_qty_data']['quantity_in_g'] / \
-                             i.nutrient_ratios_data[nutrient_name]['host_qty_data']['quantity_in_g']
+            for idf in ingredient_datafiles:
+                nut_total += idf['nutrient_ratios_data'][nutrient_name]['subject_qty_data']['quantity_in_g'] / \
+                             idf['nutrient_ratios_data'][nutrient_name]['host_qty_data']['quantity_in_g']
             nutrient_ratios[nutrient_name] = model.quantity.QuantityRatioData(
                 subject_qty_data=model.quantity.QuantityData(
-                    quantity_in_g=nut_total / len(ingredients),
+                    quantity_in_g=nut_total / len(ingredient_datafiles),
                     pref_unit='g'
                 ),
                 host_qty_data=model.quantity.QuantityData(
