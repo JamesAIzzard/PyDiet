@@ -18,7 +18,7 @@ class TestGetPathIntoDB(TestCase):
 
         # Assert correct path is returned;
         self.assertEqual(
-            f"{persistence.configs.path_into_db}/ingredients",
+            f"{persistence.configs.PATH_INTO_DB}/ingredients",
             ib.get_path_into_db()
         )
 

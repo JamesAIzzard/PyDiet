@@ -8,6 +8,7 @@ from .configs import (
     QTY_UNITS
 )
 from .main import (
+    get_ratio_from_qty_ratio_data,
     quantity_ratio_data_is_defined,
     units_are_volumes,
     units_are_pieces,

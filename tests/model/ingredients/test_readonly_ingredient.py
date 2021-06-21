@@ -238,7 +238,7 @@ class TestGetPathIntoDB(TestCase):
         )
 
         # Check the db path is correct;
-        self.assertEqual(f"{persistence.configs.path_into_db}/ingredients", i.get_path_into_db())
+        self.assertEqual(f"{persistence.configs.PATH_INTO_DB}/ingredients", i.get_path_into_db())
 
 
 class TestUniqueValue(TestCase):

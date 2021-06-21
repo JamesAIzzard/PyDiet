@@ -1,7 +1,9 @@
 """Tests the RecipeBase class."""
 from unittest import TestCase
 
+import model
 from tests.model.recipes import fixtures as rfx
+from tests.persistence import fixtures as pfx
 
 
 class TestUniqueValue(TestCase):
@@ -14,6 +16,29 @@ class TestUniqueValue(TestCase):
 
         # Check the property returns the name;
         self.assertEqual("Porridge", rb.unique_value)
+
+
+class TestNutrientRatiosData(TestCase):
+    """Tests for the nutrient_ratios_data property."""
+
+    @pfx.use_test_database
+    def test_correct_data_is_returned(self):
+        """Checks we get the correct data back."""
+        # Create an instance with known ingredients;
+        rb = rfx.RecipeBaseTestable(recipe_data=rfx.get_recipe_data(for_unique_name="Bread and Butter"))
+
+        # Assert some of the nutrient ratios are what we would expect;
+        self.assertAlmostEqual(
+            8.12/100,
+            model.quantity.get_ratio_from_qty_ratio_data(rb.nutrient_ratios_data['protein']),
+            delta=0.001
+        )
+        self.assertAlmostEqual(
+            51.4/100,
+            model.quantity.get_ratio_from_qty_ratio_data(rb.nutrient_ratios_data['carbohydrate']),
+            delta=0.001
+        )
+
 
 
 class TestGetPathIntoDB(TestCase):

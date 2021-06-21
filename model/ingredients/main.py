@@ -12,6 +12,12 @@ def get_ingredient_name_from_df_name(datafile_name: str) -> str:
                                                            datafile_name=datafile_name)
 
 
+def get_df_name_from_ingredient_name(unique_name: str) -> str:
+    """Returns the datafile name for the ingredient name specified."""
+    return persistence.get_datafile_name_for_unique_value(cls=ingredients.ReadonlyIngredient,
+                                                          unique_value=unique_name)
+
+
 def get_ingredient_data_src(
         for_unique_name: Optional[str] = None,
         for_df_name: Optional[str] = None

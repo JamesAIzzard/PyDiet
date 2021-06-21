@@ -15,6 +15,7 @@ _df_cache = {}  # Place to cache datafiles in RAM to speed up testing.
 
 def reset_cache():
     """Resets the datafile cache, useful for testing."""
+    # noinspection PyShadowingNames
     _df_cache = {}
 
 

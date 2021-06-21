@@ -1,6 +1,12 @@
+"""Utility functions for the quantity module."""
 from typing import Optional
 
 import model.quantity
+
+
+def get_ratio_from_qty_ratio_data(qr_data: 'model.quantity.QuantityRatioData') -> float:
+    """Return the ratio from the quantity ratio data."""
+    return qr_data['subject_qty_data']['quantity_in_g'] / qr_data['host_qty_data']['quantity_in_g']
 
 
 def quantity_ratio_data_is_defined(qr_data: 'model.quantity.QuantityRatioData') -> bool:
@@ -9,14 +15,14 @@ def quantity_ratio_data_is_defined(qr_data: 'model.quantity.QuantityRatioData') 
         'quantity_in_g'] is not None
 
 
-def undefine_qty_ratio(quantity_ratio: 'model.quantity.IsQuantityRatioOf') -> None:
+def undefine_qty_ratio(quantity_ratio: 'model.quantity.IsQuantityRatioBase') -> None:
     """Undefines the quantity ratio provided."""
     for qi in [quantity_ratio.ratio_host_qty, quantity_ratio.ratio_subject_qty]:
         assert (isinstance(qi, model.quantity.IsSettableQuantityOf))
         qi.unset_quantity()
 
 
-def zero_qty_ratio(quantity_ratio: 'model.quantity.IsQuantityRatioOf') -> None:
+def zero_qty_ratio(quantity_ratio: 'model.quantity.IsQuantityRatioBase') -> None:
     """Zeroes the quantity ratio provided."""
     for qi in [quantity_ratio.ratio_host_qty, quantity_ratio.ratio_subject_qty]:
         assert (isinstance(qi, model.quantity.IsSettableQuantityOf))

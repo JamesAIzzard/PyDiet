@@ -6,6 +6,22 @@ from tests.model.nutrients import fixtures as fx
 from tests.model.quantity import fixtures as qfx
 
 
+class TestDefinedNutrientRatioNames(TestCase):
+    """Tests the defined_nutrient_ratio_names property."""
+
+    def test_correct_names_are_returned(self):
+        """Checks we get the right nutrient ratio names back."""
+        # Create a test instance with a couple of nutrient ratio names defined.
+        hnr = fx.HasReadableNutrientRatiosTestable(nutrient_ratios_data={
+            "foo": qfx.get_qty_ratio_data(subject_qty_g=20, host_qty_g=22, host_qty_unit='kg'),
+            "bar": qfx.get_qty_ratio_data(subject_qty_g=30, subject_qty_unit='lb', host_qty_g=140)
+        })
+
+        # Assert we get both of them as defined names;
+        self.assertEqual(2, len(hnr.defined_nutrient_ratio_names))
+        self.assertEqual({"foo", "bar"}, set(hnr.defined_nutrient_ratio_names))
+
+
 class TestNutrientRatios(TestCase):
     """Tests the nutrient_ratios property."""
 

@@ -23,75 +23,41 @@ class RecipeBase(
         return self._name
 
     @property
-    def defined_nutrient_ratio_names(self) -> List[str]:
-        """Returns a list of all of the nutrient names corresponding to nutrient ratios defined
-        on the instance."""
-        return list(self.nutrient_ratios_data.keys())
-
-    def get_nutrient_ratio(self, nutrient_name: str) -> 'model.nutrients.ReadonlyNutrientRatio':
-        """Returns a ReadableNutrientRatio by name."""
-        # Convert to the primary name, in case we were given an alias;
-        nutrient_name = model.nutrients.get_nutrient_primary_name(nutrient_name)
-
-        # If the nutrient is defined (i.e if it is in the dictionary);
-        if nutrient_name in self.nutrient_ratios_data.keys():
-
-            # Instantiate and return it;
-            return model.nutrients.ReadonlyNutrientRatio(
-                nutrient_name=nutrient_name,
-                ratio_host=self,
-                qty_ratio_data_src=lambda: self.nutrient_ratios_data[nutrient_name]
-            )
-
-        # Otherwise, return an error to indicate it isn't defined;
-        else:
-            raise model.nutrients.exceptions.UndefinedNutrientRatioError(
-                subject=self,
-                nutrient_name=nutrient_name
-            )
-
-    @property
     def nutrient_ratios_data(self) -> 'model.nutrients.NutrientRatiosData':
         """Returns the nutrient ratios data for the instance."""
-        # First, find the common set of nutrients that are defined across all ingredients.
-        defined_nutrient_sets = []
 
-        # Create a list to cache the ingredients;
-        ingredient_datafiles = []
+        # We're going to be cycling through ingredients, so to save recreating them,
+        # create a cache to store them;
+        ingredient_cache = {}
+
+        # First, we need to figure out which nutrients are defined on all ingredients used
+        # by the recipe.
+        defined_nutrient_sets = []
 
         # Cycle through each ingredient;
         for idf_name in self.ingredient_quantities_data.keys():
-            # Grab the datafile;
-            idf = persistence.load_datafile(cls=model.ingredients.IngredientBase, datafile_name=idf_name)
-
-            # Append it;
-            ingredient_datafiles.append(idf)
-
-            # Add its defined nutrients to the set list;
-            defined_nutrient_sets.append(set(idf['nutrient_ratios_data'].keys()))
+            # Load the ingredient;
+            i = model.ingredients.ReadonlyIngredient(ingredient_data_src=(model.ingredients.get_ingredient_data_src(
+                for_df_name=idf_name
+            )))
+            # Cache the ingredient;
+            ingredient_cache[idf_name] = i
+            # Collect its nutrient ratio names;
+            defined_nutrient_sets.append(set(i.defined_nutrient_ratio_names))
 
         # Grab the intersection of defined nutrient sets;
         common_nutrients = set.intersection(*defined_nutrient_sets)
 
-        # Create somewhere to put the nutrient ratios;
-        nutrient_ratios = {}
+        # OK, now we're going to work through each nutrient on the list of nutrients common to all
+        # ingredients on the recipe, and figure out what its ratio is in the overall recipe.
+        # First, create somewhere to put the nutrient ratios;
+        nutrient_ratios: Dict[str, float] = {}
 
-        # For each common nutrient, average across each ingredient;
-        for nutrient_name in common_nutrients:
-            nut_total = 0
-            for idf in ingredient_datafiles:
-                nut_total += idf['nutrient_ratios_data'][nutrient_name]['subject_qty_data']['quantity_in_g'] / \
-                             idf['nutrient_ratios_data'][nutrient_name]['host_qty_data']['quantity_in_g']
-            nutrient_ratios[nutrient_name] = model.quantity.QuantityRatioData(
-                subject_qty_data=model.quantity.QuantityData(
-                    quantity_in_g=nut_total / len(ingredient_datafiles),
-                    pref_unit='g'
-                ),
-                host_qty_data=model.quantity.QuantityData(
-                    quantity_in_g=1,
-                    pref_unit='g'
-                )
-            )
+        # Now cycle through each ingredient, and use it to contribute its nutrient ratio based on its ratio;
+        for idf_name, i in ingredient_cache.items():
+            i_ratio: 'model.ingredients.ReadonlyIngredientRatio' = self.ingredient_ratios[idf_name]
+            for nutrient_name in common_nutrients:
+                nutrient_ratios[nutrient_name] += i.nutrient_ratios_data[nutrient_name] * i_ratio.g_per_subject_g
 
         # Return
         return nutrient_ratios
@@ -107,7 +73,7 @@ class RecipeBase(
     @staticmethod
     def get_path_into_db() -> str:
         """Returns the directory name in the database."""
-        return f"{persistence.configs.path_into_db}/recipes"
+        return f"{persistence.configs.PATH_INTO_DB}/recipes"
 
     @property
     def persistable_data(self) -> Dict[str, Any]:

@@ -42,7 +42,7 @@ class IngredientBase(
     @staticmethod
     def get_path_into_db() -> str:
         """Returns the path into the ingredient database."""
-        return f"{persistence.configs.path_into_db}/ingredients"
+        return f"{persistence.configs.PATH_INTO_DB}/ingredients"
 
 
 class ReadonlyIngredient(IngredientBase):

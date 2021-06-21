@@ -4,6 +4,25 @@ from unittest import TestCase
 import model
 
 
+class TestGetRatioFromQuantityRatioData(TestCase):
+    def test_returns_correct_ratio(self):
+        """Checks that we get the correct ratio from a QuantityRatioData instance."""
+        # Create a QuantityRatioData instance;
+        qrd = model.quantity.QuantityRatioData(
+            subject_qty_data=model.quantity.QuantityData(
+                quantity_in_g=12,
+                pref_unit='g'
+            ),
+            host_qty_data=model.quantity.QuantityData(
+                quantity_in_g=100,
+                pref_unit='g'
+            )
+        )
+
+        # Assert we get the correct ratio back;
+        self.assertEqual(0.12, model.quantity.get_ratio_from_qty_ratio_data(qrd))
+
+
 class TestQuantityRatioDataIsDefined(TestCase):
     def test_returns_true_if_both_masses_defined(self):
         """Check that we get a True result if BOTH nutrient mass and subject mass are defined."""

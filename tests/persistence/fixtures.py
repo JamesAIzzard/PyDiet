@@ -8,7 +8,7 @@ import persistence
 def use_test_database(func):
     """Decorator to apply all patches required to use the test database."""
 
-    @mock.patch('persistence.configs.path_into_db', tests.persistence.configs.path_into_db)
+    @mock.patch('persistence.configs.PATH_INTO_DB', tests.persistence.configs.PATH_INTO_DB)
     def wrapper(*args, **kwargs):
         """Wrapper function to return"""
         persistence.main.reset_cache()

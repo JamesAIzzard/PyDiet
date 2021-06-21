@@ -81,7 +81,7 @@ class IngredientRatioBaseTestable(model.ingredients.IngredientRatioBase):
             host: Any,
             qty_ratio_data: 'model.quantity.QuantityRatioData'
     ):
-        super().__init__(ratio_subject=ingredient, ratio_host=host)
+        super().__init__(ingredient=ingredient, ratio_host=host)
         self._quantity_ratio_data = qty_ratio_data
 
     @property
@@ -103,6 +103,18 @@ class HasReadableIngredientQuantitiesTestable(model.ingredients.HasReadableIngre
     def ingredient_quantities_data(self) -> 'model.ingredients.IngredientQuantitiesData':
         """Returns the ingredient quantities data from the instance."""
         return self._ingredient_quantities_data
+
+
+class HasReadableIngredientRatiosTestable(model.ingredients.HasReadableIngredientRatios):
+    """Minimal implementation to allow testing of the HasReadableIngredientRatios class."""
+
+    def __init__(self, ingredient_ratios_data: 'model.ingredients.IngredientRatiosData'):
+        self._ingredient_ratios_data = ingredient_ratios_data
+
+    @property
+    def ingredient_ratios_data(self) -> model.ingredients.IngredientRatiosData:
+        """Returns the ingredient ratios data."""
+        return self._ingredient_ratios_data
 
 
 def get_ingredient_name_with(characteristic: str) -> str:
@@ -183,4 +195,3 @@ def get_ingredient_ratio_data(
             pref_unit=host_qty_unit
         )
     )
-

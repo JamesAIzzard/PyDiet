@@ -5,9 +5,9 @@ import json
 import model.quantity
 import persistence
 # from tests.persistence.configs import path_into_db as path_into_db
-from persistence.configs import path_into_db as path_into_db
+from persistence.configs import PATH_INTO_DB as path_into_db
 
-ingredient_db_filepath = f"{path_into_db}/ingredients"
+ingredient_db_filepath = f"{PATH_INTO_DB}/ingredients"
 index_filepath = f"{ingredient_db_filepath}/index.json"
 
 # Pull in the index file;

@@ -21,6 +21,15 @@ class SettableMeal(
             self.load_data(meal_data)
 
     @property
+    def cost_gbp_per_g(self) -> float:
+        """Returns the cost_per_g for the meal."""
+        return model.meals.get_cost_per_g(meal_data=self._meal_data)
+
+    def get_flag_value(self, flag_name:str) -> Optional[bool]:
+        """Returns True/False to indicate the value of the named flag."""
+        return model.meals.get_flag_value(flag_name=flag_name, meal_data=self._meal_data)
+
+    @property
     def nutrient_ratios_data(self) -> 'model.nutrients.NutrientRatiosData':
         """Returns the nutrient ratios data for the instance."""
 
@@ -31,11 +40,8 @@ class SettableMeal(
         # Cycle through each recipe;
         for rdf_name in self._meal_data.keys():
             # Load it;
-            r = model.recipes.SettableRecipe(
-                recipe_data=persistence.load_datafile(
-                    cls=model.recipes.RecipeBase,
-                    unique_value=model.recipes.get_unique_name_for_datafile_name(rdf_name)
-                )
+            r = model.recipes.ReadonlyRecipe(
+                recipe_data_src=model.recipes.get_recipe_data_src(for_df_name=rdf_name)
             )
             recipes.append(r)
             # Add its defined nutrients to the set list;
