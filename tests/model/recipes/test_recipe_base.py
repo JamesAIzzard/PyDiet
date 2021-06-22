@@ -18,27 +18,67 @@ class TestUniqueValue(TestCase):
         self.assertEqual("Porridge", rb.unique_value)
 
 
-class TestNutrientRatiosData(TestCase):
-    """Tests for the nutrient_ratios_data property."""
+class TestTypicalServingSizeG(TestCase):
+    """Tests the typical_serving_size_property."""
 
     @pfx.use_test_database
-    def test_correct_data_is_returned(self):
-        """Checks we get the correct data back."""
-        # Create an instance with known ingredients;
-        rb = rfx.RecipeBaseTestable(recipe_data=rfx.get_recipe_data(for_unique_name="Bread and Butter"))
+    def test_correct_value_is_returned(self):
+        """Checks the property returns the correct data."""
+        # Create a test instance;
+        rb = rfx.RecipeBaseTestable(recipe_data=rfx.get_recipe_data(for_unique_name="Banana Milkshake"))
 
-        # Assert some of the nutrient ratios are what we would expect;
-        self.assertAlmostEqual(
-            8.12/100,
-            model.quantity.get_ratio_from_qty_ratio_data(rb.nutrient_ratios_data['protein']),
-            delta=0.001
-        )
-        self.assertAlmostEqual(
-            51.4/100,
-            model.quantity.get_ratio_from_qty_ratio_data(rb.nutrient_ratios_data['carbohydrate']),
-            delta=0.001
-        )
+        # Check we get the correct value;
+        self.assertEqual(662.396, rb.typical_serving_size_g)
 
+
+class TestNutrientRatiosData(TestCase):
+    """Tests the nutrient_ratios property."""
+
+    @pfx.use_test_database
+    def test_correct_ratio_data_is_returned(self):
+        """Checks the correct ratios are returned."""
+        # Create a test instance of a known recipe;
+        rb = rfx.RecipeBaseTestable(recipe_data=rfx.get_recipe_data(for_unique_name="Banana Milkshake"))
+
+        # Test some of the ratios we get back;
+        # Cache the ratios;
+        nrs = rb.nutrient_ratios
+        self.assertAlmostEqual(0.027607024887141313, nrs['protein'].subject_g_per_host_g, delta=0.0001)
+        self.assertAlmostEqual(0.11695791813787698, nrs['carbohydrate'].subject_g_per_host_g, delta=0.0001)
+
+
+class TestIngredientQuantities(TestCase):
+    """Tests the IngredientQuantities method."""
+
+    @pfx.use_test_database
+    def test_correct_quanties_are_returned(self):
+        # Create a test instance of a known recipe;
+        rb = rfx.RecipeBaseTestable(recipe_data=rfx.get_recipe_data(for_unique_name="Banana Milkshake"))
+
+        # Cache the ingredient quantities;
+        iq = rb.ingredient_quantities
+
+        # Assert the quantities are correct;
+        self.assertEqual(25, iq["1198a703-ae23-4303-9b21-dd8ef9d16548"].quantity_in_g)
+        self.assertEqual(487.396, iq["7b5fd211-f8ec-42c0-9853-9cb2e65ec47e"].quantity_in_g)
+        self.assertEqual(150, iq["ef48e0c5-c5f0-45ac-9e3e-dcca5162a548"].quantity_in_g)
+
+
+class TestIngredientRatios(TestCase):
+    """Tests the IngredientQuantities method."""
+
+    @pfx.use_test_database
+    def test_correct_quanties_are_returned(self):
+        # Create a test instance of a known recipe;
+        rb = rfx.RecipeBaseTestable(recipe_data=rfx.get_recipe_data(for_unique_name="Banana Milkshake"))
+
+        # Cache the ingredient ratios;
+        ir = rb.ingredient_ratios
+
+        # Assert the quantities are correct;
+        self.assertEqual(25/662.396, ir["1198a703-ae23-4303-9b21-dd8ef9d16548"].subject_g_per_host_g)
+        self.assertEqual(487.396/662.396, ir["7b5fd211-f8ec-42c0-9853-9cb2e65ec47e"].subject_g_per_host_g)
+        self.assertEqual(150/662.396, ir["ef48e0c5-c5f0-45ac-9e3e-dcca5162a548"].subject_g_per_host_g)
 
 
 class TestGetPathIntoDB(TestCase):
@@ -56,6 +96,7 @@ class TestGetPathIntoDB(TestCase):
 class TestPersistableData(TestCase):
     """Tests the persistable data property."""
 
+    @pfx.use_test_database
     def test_correct_value_is_returned(self):
         """Checks the persistable data method returns the correct data."""
         # Grab some test data;

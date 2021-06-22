@@ -4,6 +4,7 @@ from typing import Dict, List, Optional, Any
 
 import model
 import persistence
+from .ingredient_ratios import HasReadableIngredientRatios
 
 
 class IngredientQuantityBase(
@@ -33,7 +34,11 @@ class SettableIngredientQuantity(IngredientQuantityBase, model.quantity.IsSettab
     """Models a settable quantity of an ingredient."""
 
 
-class HasReadableIngredientQuantities(persistence.YieldsPersistableData, abc.ABC):
+class HasReadableIngredientQuantities(
+    HasReadableIngredientRatios,
+    persistence.YieldsPersistableData,
+    abc.ABC
+):
     """Models an object which has readable ingredient quantities."""
 
     def __init__(self, **kwargs):
@@ -44,6 +49,25 @@ class HasReadableIngredientQuantities(persistence.YieldsPersistableData, abc.ABC
     def ingredient_quantities_data(self) -> 'model.ingredients.IngredientQuantitiesData':
         """Returns the ingredient quantities data for the instance."""
         raise NotImplementedError
+
+    @property
+    def ingredient_ratios_data(self) -> 'model.ingredients.IngredientRatiosData':
+        """Returns the ingredient ratios data associated with this instance."""
+        ird: 'model.ingredients.IngredientRatiosData' = {}
+        total_ingredient_quantity = self.total_ingredient_mass_g
+        for df_name, iq in self.ingredient_quantities.items():
+            ird[df_name] = model.quantity.QuantityRatioData(
+                subject_qty_data=model.quantity.QuantityData(
+                    quantity_in_g=iq.quantity_in_g,
+                    pref_unit='g'
+                ),
+                host_qty_data=model.quantity.QuantityData(
+                    quantity_in_g=total_ingredient_quantity,
+                    pref_unit='g'
+                )
+            )
+
+        return ird
 
     @property
     def ingredient_quantities(self) -> Dict[str, 'model.ingredients.ReadonlyIngredientQuantity']:
@@ -73,6 +97,14 @@ class HasReadableIngredientQuantities(persistence.YieldsPersistableData, abc.ABC
 
         # Return the dict;
         return iq
+
+    @property
+    def total_ingredient_mass_g(self) -> float:
+        """Returns the total mass (in g) of the ingredients associated with this instnace."""
+        tot = 0
+        for iq in self.ingredient_quantities.values():
+            tot += iq.quantity_in_g
+        return tot
 
     @property
     def ingredient_unique_names(self) -> List[str]:

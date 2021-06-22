@@ -11,12 +11,14 @@ import persistence
 T = TypeVar('T')
 
 _df_cache = {}  # Place to cache datafiles in RAM to speed up testing.
+_index_cache = {}  # Place to cache the index files.
 
 
+# noinspection PyShadowingNames
 def reset_cache():
     """Resets the datafile cache, useful for testing."""
-    # noinspection PyShadowingNames
     _df_cache = {}
+    _index_cache = {}
 
 
 def save_instance(subject: 'persistence.SupportsPersistence') -> None:
@@ -193,9 +195,12 @@ def _read_datafile(filepath: str) -> Dict[str, Any]:
 
 def read_index(cls: Type['persistence.SupportsPersistence']) -> Dict[str, str]:
     """Returns the index corresponding to the _subject."""
+    if cls in _index_cache:
+        return _index_cache[cls]
     with open(cls.get_index_filepath(), 'r') as fh:
         raw_data = fh.read()
-        return json.loads(raw_data)
+        _index_cache[cls] = json.loads(raw_data)
+        return _index_cache[cls]
 
 
 def _update_datafile(subject: 'persistence.SupportsPersistence') -> None:

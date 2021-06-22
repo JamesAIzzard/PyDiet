@@ -23,48 +23,9 @@ class RecipeBase(
         return self._name
 
     @property
-    def nutrient_ratios_data(self) -> 'model.nutrients.NutrientRatiosData':
-        """Returns the nutrient ratios data for the instance."""
-
-        # We're going to be cycling through ingredients, so to save recreating them,
-        # create a cache to store them;
-        ingredient_cache = {}
-
-        # First, we need to figure out which nutrients are defined on all ingredients used
-        # by the recipe.
-        defined_nutrient_sets = []
-
-        # Cycle through each ingredient;
-        for idf_name in self.ingredient_quantities_data.keys():
-            # Load the ingredient;
-            i = model.ingredients.ReadonlyIngredient(ingredient_data_src=(model.ingredients.get_ingredient_data_src(
-                for_df_name=idf_name
-            )))
-            # Cache the ingredient;
-            ingredient_cache[idf_name] = i
-            # Collect its nutrient ratio names;
-            defined_nutrient_sets.append(set(i.defined_nutrient_ratio_names))
-
-        # Grab the intersection of defined nutrient sets;
-        common_nutrients = set.intersection(*defined_nutrient_sets)
-
-        # OK, now we're going to work through each nutrient on the list of nutrients common to all
-        # ingredients on the recipe, and figure out what its ratio is in the overall recipe.
-        # First, create somewhere to put the nutrient ratios;
-        nutrient_ratios: Dict[str, float] = {}
-
-        # Now cycle through each ingredient, and use it to contribute its nutrient ratio based on its ratio;
-        for idf_name, i in ingredient_cache.items():
-            i_ratio: 'model.ingredients.ReadonlyIngredientRatio' = self.ingredient_ratios[idf_name]
-            for nutrient_name in common_nutrients:
-                nutrient_ratios[nutrient_name] += i.nutrient_ratios_data[nutrient_name] * i_ratio.g_per_subject_g
-
-        # Return
-        return nutrient_ratios
-
-    @property
     def typical_serving_size_g(self) -> float:
-        """Returns the typical serving size associated with this recipe."""
+        """Returns the typical serving size associated with this recipe. This is the total of the ingredient
+        quantities used to define the recipe."""
         total_mass = 0
         for ingredient_qty_data in self.ingredient_quantities_data.values():
             total_mass += ingredient_qty_data['quantity_in_g']
@@ -78,7 +39,9 @@ class RecipeBase(
     @property
     def persistable_data(self) -> Dict[str, Any]:
         """Returns the persistable data for the recipe instance."""
-        return super().persistable_data
+        data = super().persistable_data
+        del data['nutrient_ratios_data']
+        return data
 
 
 class ReadonlyRecipe(

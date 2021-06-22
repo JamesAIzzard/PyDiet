@@ -138,14 +138,17 @@ class HasReadableNutrientRatios(persistence.YieldsPersistableData, abc.ABC):
         # Convert to the primary name, in case we were given an alias;
         nutrient_name = model.nutrients.get_nutrient_primary_name(nutrient_name)
 
+        # Cache the nutrient ratios data;
+        nrd = self.nutrient_ratios_data
+
         # If the nutrient is defined (i.e if it is in the dictionary);
-        if nutrient_name in self.nutrient_ratios_data.keys():
+        if nutrient_name in nrd.keys():
 
             # Instantiate and return it;
             return ReadonlyNutrientRatio(
                 nutrient_name=nutrient_name,
                 ratio_host=self,
-                qty_ratio_data_src=lambda: self.nutrient_ratios_data[nutrient_name]
+                qty_ratio_data_src=lambda: nrd[nutrient_name]
             )
 
         # Otherwise, return an error to indicate it isn't defined;

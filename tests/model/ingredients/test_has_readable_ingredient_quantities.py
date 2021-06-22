@@ -7,6 +7,37 @@ from tests.model.quantity import fixtures as qfx
 from tests.persistence import fixtures as pfx
 
 
+class TestIngredientRatiosData(TestCase):
+    """Tests the ingredient_ratios_data property."""
+
+    def test_correct_data_is_returned(self):
+        """Checks the correct ingredient ratios data is returned."""
+        # Create a test instance, passing in some quantities;
+        hriq = ifx.HasReadableIngredientQuantitiesTestable(ingredient_quantities_data={
+            ifx.get_ingredient_df_name("Raspberry"): qfx.get_qty_data(qty_in_g=100),
+            ifx.get_ingredient_df_name("Aubergine"): qfx.get_qty_data(qty_in_g=110),
+            ifx.get_ingredient_df_name("Lemon Juice"): qfx.get_qty_data(qty_in_g=120),
+        })
+
+        # Cache the ratios data;
+        irs = hriq.ingredient_ratios
+
+        # Check we get the correct ingredients listed;
+        self.assertEqual(
+            {
+                ifx.get_ingredient_df_name("Raspberry"),
+                ifx.get_ingredient_df_name("Aubergine"),
+                ifx.get_ingredient_df_name("Lemon Juice")
+            },
+            set(irs.keys())
+        )
+
+        # Check that we get the correct ratios back;
+        self.assertEqual(100 / 330, irs[ifx.get_ingredient_df_name("Raspberry")].subject_g_per_host_g)
+        self.assertEqual(110 / 330, irs[ifx.get_ingredient_df_name("Aubergine")].subject_g_per_host_g)
+        self.assertEqual(120 / 330, irs[ifx.get_ingredient_df_name("Lemon Juice")].subject_g_per_host_g)
+
+
 class TestIngredientQuantities(TestCase):
     """Tests the ingredient_quantities property."""
 
@@ -53,6 +84,23 @@ class TestIngredientQuantities(TestCase):
         self.assertEqual(100, iqs[ifx.get_ingredient_df_name("Raspberry")].quantity_in_g)
         self.assertEqual(110, iqs[ifx.get_ingredient_df_name("Aubergine")].quantity_in_g)
         self.assertEqual(120, iqs[ifx.get_ingredient_df_name("Lemon Juice")].quantity_in_g)
+
+
+class TestTotalIngredientQuantity(TestCase):
+    """Tests the total_ingredient_quantity property."""
+
+    @pfx.use_test_database
+    def test_returns_correct_value(self):
+        """Checks the total ingredient quantity returned is correct."""
+        # Create a test instance, with some ingredients;
+        hriq = ifx.HasReadableIngredientQuantitiesTestable(ingredient_quantities_data={
+            ifx.get_ingredient_df_name("Raspberry"): qfx.get_qty_data(qty_in_g=100),
+            ifx.get_ingredient_df_name("Aubergine"): qfx.get_qty_data(qty_in_g=110),
+            ifx.get_ingredient_df_name("Lemon Juice"): qfx.get_qty_data(qty_in_g=120),
+        })
+
+        # Check that the quantity we get back is correct;
+        self.assertEqual(330, hriq.total_ingredient_mass_g)
 
 
 class TestIngredientUniqueNames(TestCase):

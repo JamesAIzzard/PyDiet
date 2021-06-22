@@ -4,6 +4,7 @@ from unittest import TestCase
 import model
 import persistence
 from tests.model.recipes import fixtures as rfx
+from tests.persistence import fixtures as pfx
 
 
 class TestConstructor(TestCase):
@@ -15,6 +16,7 @@ class TestConstructor(TestCase):
             isinstance(model.recipes.SettableRecipe(), model.recipes.SettableRecipe)
         )
 
+    @pfx.use_test_database
     def test_loads_data_when_provided(self):
         """Checks any data provided gets loaded into the instance."""
         # Grab some data;
@@ -26,6 +28,7 @@ class TestConstructor(TestCase):
         # Assert the data was loaded;
         self.assertEqual(data, sr.persistable_data)
 
+    @pfx.use_test_database
     def test_datafile_name_is_populated(self):
         """Checks the recipe datafile name gets populated."""
         # Grab the datafile name for a recipe;
@@ -64,6 +67,7 @@ class TestName(TestCase):
         self.assertTrue(sr.name_is_defined)
         self.assertEqual("Test Recipe", sr.name)
 
+    @pfx.use_test_database
     def test_existing_name_can_be_changed_if_available(self):
         """Checks that an existing name can be overwritten if the name is available."""
         # Create a test instance of a named recipe;
@@ -78,6 +82,7 @@ class TestName(TestCase):
         # Assert the name was changed;
         self.assertEqual("Test Recipe", sr.name)
 
+    @pfx.use_test_database
     def test_exception_if_name_already_taken(self):
         # Create an empty recipe instance;
         sr = model.recipes.SettableRecipe()
