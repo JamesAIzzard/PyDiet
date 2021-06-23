@@ -41,6 +41,7 @@ class RecipeBase(
         """Returns the persistable data for the recipe instance."""
         data = super().persistable_data
         del data['nutrient_ratios_data']
+        del data['cost_per_qty_data']
         return data
 
 

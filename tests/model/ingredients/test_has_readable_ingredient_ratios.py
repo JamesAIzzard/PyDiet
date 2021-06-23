@@ -7,6 +7,23 @@ from tests.model.quantity import fixtures as qfx
 from tests.persistence import fixtures as pfx
 
 
+class TestCostPerG(TestCase):
+    """Tests the cost_per_g property."""
+
+    def test_correct_value_is_returned(self):
+        """Checks we get the correct value back."""
+        # Create a test instance, passing in known data;
+        hrir = ifx.HasReadableIngredientRatiosTestable(ingredient_ratios_data={
+            model.ingredients.get_df_name_from_ingredient_name("Cucumber"):
+                qfx.get_qty_ratio_data(subject_qty_g=60, host_qty_g=100),
+            model.ingredients.get_df_name_from_ingredient_name("Honey"):
+                qfx.get_qty_ratio_data(subject_qty_g=40, host_qty_g=100)
+        })
+
+        # Assert the cost_per_g is correct;
+        self.assertEqual((0.002666666666666667 * 0.6) + (0.0049 * 0.4), hrir.cost_per_g)
+
+
 class TestIngredientRatios(TestCase):
     """Tests for the ingredient_ratios property"""
 

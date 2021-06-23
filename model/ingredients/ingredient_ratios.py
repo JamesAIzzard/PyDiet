@@ -30,6 +30,7 @@ class ReadonlyIngredientRatio(IngredientRatioBase, model.quantity.IsReadonlyQuan
 
 
 class HasReadableIngredientRatios(
+    model.cost.HasReadableCostPerQuantity,
     model.nutrients.HasReadableNutrientRatios,
     abc.ABC
 ):
@@ -40,6 +41,18 @@ class HasReadableIngredientRatios(
     def ingredient_ratios_data(self) -> 'model.ingredients.IngredientRatiosData':
         """Returns the ingredient ratios data associated with this instance."""
         raise NotImplementedError
+
+    @property
+    def cost_per_qty_data(self) -> 'model.cost.CostPerQtyData':
+        """Returns the cost_per_qty data for the instance."""
+        cpg = 0
+        for ir in self.ingredient_ratios.values():
+            cpg += ir.ingredient.cost_per_g * ir.subject_g_per_host_g
+        return model.cost.CostPerQtyData(
+            quantity_in_g=100,
+            pref_unit='g',
+            cost_per_g=cpg
+        )
 
     @property
     def ingredient_ratios(self) -> Dict[str, 'ReadonlyIngredientRatio']:

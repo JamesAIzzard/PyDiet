@@ -1,7 +1,6 @@
 """Tests the RecipeBase class."""
 from unittest import TestCase
 
-import model
 from tests.model.recipes import fixtures as rfx
 from tests.persistence import fixtures as pfx
 
