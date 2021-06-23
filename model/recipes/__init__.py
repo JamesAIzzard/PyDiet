@@ -8,5 +8,14 @@ from .main import (
     get_datafile_name_for_unique_value
 )
 from .recipe import RecipeBase, ReadonlyRecipe, SettableRecipe
-from .recipe_quantity import ReadonlyRecipeQuantity, SettableRecipeQuantity, HasSettableRecipeQuantities
-from .recipe_ratio import ReadonlyRecipeRatio, SettableRecipeRatio, HasReadableRecipeRatios
+from .recipe_quantity import (
+    ReadonlyRecipeQuantity,
+    SettableRecipeQuantity,
+    HasReadableRecipeQuantities,
+    HasSettableRecipeQuantities
+)
+from .recipe_ratio import (
+    ReadonlyRecipeRatio,
+    SettableRecipeRatio,
+    HasReadableRecipeRatios
+)

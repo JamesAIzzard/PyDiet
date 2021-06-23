@@ -74,3 +74,16 @@ def get_recipe_data(for_unique_name: Optional[str] = None) -> 'model.recipes.Rec
         instruction_src=None,
         tags=[]
     )
+
+
+class HasReadableRecipeQuantitiesTestable(model.recipes.HasReadableRecipeQuantities):
+    """Minimal implementation to allow testing of the HasReadableRecipeQuantities class."""
+
+    def __init__(self, recipe_quantities_data: 'model.recipes.RecipeQuantitiesData', **kwargs):
+        super().__init__(**kwargs)
+        self._recipe_quantities_data = recipe_quantities_data
+
+    @property
+    def recipe_quantities_data(self) -> 'model.recipes.RecipeQuantitiesData':
+        """Returns the recipe quantities data for the instance."""
+        return self._recipe_quantities_data
