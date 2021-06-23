@@ -1,8 +1,9 @@
 """Defines recipe quantity classes."""
 import abc
-from typing import Dict, Callable, Any
+from typing import Dict, Callable, Optional, Any
 
 import model
+import persistence
 from .recipe_ratio import HasReadableRecipeRatios
 
 
@@ -39,6 +40,7 @@ class SettableRecipeQuantity(RecipeQuantityBase, model.quantity.IsSettableQuanti
 class HasReadableRecipeQuantities(
     model.ingredients.HasReadableIngredientQuantities,
     HasReadableRecipeRatios,
+    persistence.YieldsPersistableData,
     abc.ABC
 ):
     """Mixin class to provide functionality associated with readable recipe quantities."""
@@ -107,30 +109,24 @@ class HasReadableRecipeQuantities(
             total += rq['quantity_in_g']
         return total
 
-
-class HasSettableRecipeQuantities(
-    HasReadableRecipeQuantities,
-    abc.ABC
-):
-    """Mixin to implement functionality associated with settable recipe quantities."""
-
-    @property
-    @abc.abstractmethod
-    def recipe_quantities_data(self) -> 'model.recipes.RecipeQuantitiesData':
-        """Returns the recipe quantities data for this instance."""
-        raise NotImplementedError
-
-    @property
-    def ingredient_quantities_data(self) -> 'model.ingredients.IngredientQuantitiesData':
-        """Returns the ingredient quantities data for this instance."""
-        raise NotImplementedError
-
-    @property
-    def recipe_quantities(self) -> Dict[str, 'model.recipes.ReadonlyRecipeQuantity']:
-        """Returns the recipe quantities associated with this instance."""
-        raise NotImplementedError
-
     @property
     def persistable_data(self) -> Dict[str, Any]:
-        """Returns the instance's persistable data."""
-        raise NotImplementedError
+        """Returns the persistable data for the instance."""
+        return self.recipe_quantities_data
+
+
+class HasSettableRecipeQuantities(HasReadableRecipeQuantities):
+    """Mixin to implement functionality associated with settable recipe quantities."""
+
+    def __init__(self, recipe_quantities_data: Optional['model.recipes.RecipeQuantitiesData'] = None, **kwargs):
+        super().__init__(**kwargs)
+
+        self._recipe_quantities_data: 'model.recipes.RecipeQuantitiesData' = {}
+
+        if recipe_quantities_data is not None:
+            self._recipe_quantities_data = recipe_quantities_data
+
+    @property
+    def recipe_quantities_data(self) -> 'model.recipes.RecipeQuantitiesData':
+        """Returns the recipe quantities data for this instance."""
+        return self._recipe_quantities_data
