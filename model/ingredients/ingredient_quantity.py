@@ -41,9 +41,6 @@ class HasReadableIngredientQuantities(
 ):
     """Models an object which has readable ingredient quantities."""
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-
     @property
     @abc.abstractmethod
     def ingredient_quantities_data(self) -> 'model.ingredients.IngredientQuantitiesData':
@@ -54,7 +51,7 @@ class HasReadableIngredientQuantities(
     def ingredient_ratios_data(self) -> 'model.ingredients.IngredientRatiosData':
         """Returns the ingredient ratios data associated with this instance."""
         ird: 'model.ingredients.IngredientRatiosData' = {}
-        total_ingredient_quantity = self.total_ingredient_mass_g
+        total_ingredient_quantity = self.total_ingredients_mass_g
         for df_name, iq in self.ingredient_quantities.items():
             ird[df_name] = model.quantity.QuantityRatioData(
                 subject_qty_data=model.quantity.QuantityData(
@@ -99,28 +96,12 @@ class HasReadableIngredientQuantities(
         return iq
 
     @property
-    def total_ingredient_mass_g(self) -> float:
+    def total_ingredients_mass_g(self) -> float:
         """Returns the total mass (in g) of the ingredients associated with this instnace."""
         tot = 0
         for iq in self.ingredient_quantities.values():
             tot += iq.quantity_in_g
         return tot
-
-    @property
-    def ingredient_unique_names(self) -> List[str]:
-        """Returns a list of all the ingredients names associated with the instance."""
-        # Create a list to compile the unique names;
-        unique_names = []
-
-        # Work through the quantities list, and populate the unique names using the df names;
-        for df_name in self.ingredient_quantities_data.keys():
-            unique_names.append(persistence.get_unique_value_from_datafile_name(
-                cls=model.ingredients.IngredientBase,
-                datafile_name=df_name
-            ))
-
-        # Convert list-set to eliminate dupiclates, and return;
-        return list(set(unique_names))
 
     @property
     def persistable_data(self) -> Dict[str, Any]:

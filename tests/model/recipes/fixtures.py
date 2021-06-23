@@ -43,6 +43,20 @@ class RecipeBaseTestable(model.recipes.RecipeBase):
         return self._name
 
 
+class HasReadableRecipeRatiosTestable(model.recipes.HasReadableRecipeRatios):
+    """Minimal implementation to allow testing of HasReadableRecipeRatios class."""
+
+    def __init__(self, recipe_ratios_data: 'model.recipes.RecipeRatiosData', **kwargs):
+        super().__init__(**kwargs)
+
+        self._recipe_ratios_data = recipe_ratios_data
+
+    @property
+    def recipe_ratios_data(self) -> 'model.recipes.RecipeRatiosData':
+        """Returns the recipe ratios data."""
+        return self._recipe_ratios_data
+
+
 def get_recipe_data(for_unique_name: Optional[str] = None) -> 'model.recipes.RecipeData':
     """Grabs the recipe data for the recipe specified."""
     # If the unique name was specified, load and return the data for it;

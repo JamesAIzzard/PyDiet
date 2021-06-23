@@ -11,3 +11,7 @@ class RecipeData(TypedDict):
     serve_intervals: List[str]
     instruction_src: Optional[str]
     tags: List[str]
+
+
+RecipeRatiosData = Dict[str, model.quantity.QuantityRatioData]
+RecipeQuantitiesData = Dict[str, model.quantity.QuantityData]

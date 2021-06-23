@@ -100,7 +100,7 @@ class TestTotalIngredientQuantity(TestCase):
         })
 
         # Check that the quantity we get back is correct;
-        self.assertEqual(330, hriq.total_ingredient_mass_g)
+        self.assertEqual(330, hriq.total_ingredients_mass_g)
 
 
 class TestIngredientUniqueNames(TestCase):

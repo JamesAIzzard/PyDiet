@@ -14,9 +14,10 @@ if use_test_db:
 sr = model.recipes.SettableRecipe()
 
 # Set the parameters;
-sr.name = "Bread and Butter"
+sr.name = "Peanut Butter Toast"
 sr.add_ingredient_quantity("Bread (Wholemeal)", 150, 'g')
 sr.add_ingredient_quantity("Butter", 20, 'g')
+sr.add_ingredient_quantity("Peanut Butter", 40, 'g')
 sr.add_serve_interval("12:00-13:00")
 sr.add_serve_interval("16:00-18:00")
 sr.add_tags(["main"])

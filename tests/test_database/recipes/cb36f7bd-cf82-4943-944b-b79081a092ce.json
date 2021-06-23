@@ -1,0 +1,21 @@
+{
+  "ingredient_quantities_data": {
+    "1760ce2d-1b63-4187-a1f7-f5b95e0b8be7": {
+      "pref_unit": "g",
+      "quantity_in_g": 150.0
+    },
+    "49ce9bbe-20fc-4006-9cce-0d90936d7192": {
+      "pref_unit": "g",
+      "quantity_in_g": 20.0
+    }
+  },
+  "instruction_src": null,
+  "name": "Bread and Butter",
+  "serve_intervals": [
+    "12:00-13:00",
+    "16:00-18:00"
+  ],
+  "tags": [
+    "main"
+  ]
+}

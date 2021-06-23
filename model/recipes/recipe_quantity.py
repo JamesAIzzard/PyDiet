@@ -1,7 +1,10 @@
 """Defines recipe quantity classes."""
 import abc
+from typing import Dict, Any
 
 import model
+import persistence
+from .recipe_ratio import HasReadableRecipeRatios
 
 
 class RecipeQuantityBase(model.quantity.IsQuantityOfBase, abc.ABC):
@@ -32,3 +35,33 @@ class SettableRecipeQuantity(RecipeQuantityBase, model.quantity.IsSettableQuanti
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+
+
+class HasSettableRecipeQuantities(
+    HasReadableRecipeRatios,
+    model.ingredients.HasReadableIngredientQuantities,
+    persistence.YieldsPersistableData,
+    abc.ABC
+):
+    """Mixin to implement functionality associated with settable recipe quantities."""
+
+    @property
+    @abc.abstractmethod
+    def recipe_quantities_data(self) -> 'model.recipes.RecipeQuantitiesData':
+        """Returns the recipe quantities data for this instance."""
+        raise NotImplementedError
+
+    @property
+    def ingredient_quantities_data(self) -> 'model.ingredients.IngredientQuantitiesData':
+        """Returns the ingredient quantities data for this instance."""
+        raise NotImplementedError
+
+    @property
+    def recipe_quantities(self) -> Dict[str, 'model.recipes.ReadonlyRecipeQuantity']:
+        """Returns the recipe quantities associated with this instance."""
+        raise NotImplementedError
+
+    @property
+    def persistable_data(self) -> Dict[str, Any]:
+        """Returns the instance's persistable data."""
+        raise NotImplementedError
