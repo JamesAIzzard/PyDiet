@@ -31,6 +31,7 @@ class ReadonlyIngredientRatio(IngredientRatioBase, model.quantity.IsReadonlyQuan
 
 class HasReadableIngredientRatios(
     model.cost.HasReadableCostPerQuantity,
+    model.flags.HasReadableFlags,
     model.nutrients.HasReadableNutrientRatios,
     abc.ABC
 ):
@@ -41,6 +42,21 @@ class HasReadableIngredientRatios(
     def ingredient_ratios_data(self) -> 'model.ingredients.IngredientRatiosData':
         """Returns the ingredient ratios data associated with this instance."""
         raise NotImplementedError
+
+    @property
+    def flag_dofs(self) -> 'model.flags.FlagDOFData':
+        """Returns a dictionary of each non-direct alias flag."""
+        _flag_dofs = {}
+        for flag in model.flags.ALL_FLAGS.values():
+            if not flag.direct_alias:
+                _flag_dofs[flag.name] = True
+        for ir in self.ingredient_ratios.values():
+            for fn in _flag_dofs.keys():
+                if ir.ingredient.flag_dofs[fn] is False:
+                    _flag_dofs[fn] = False
+                elif ir.ingredient.flag_dofs[fn] is None:
+                    _flag_dofs[fn] = None
+        return _flag_dofs
 
     @property
     def cost_per_qty_data(self) -> 'model.cost.CostPerQtyData':

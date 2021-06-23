@@ -7,6 +7,28 @@ from tests.model.quantity import fixtures as qfx
 from tests.persistence import fixtures as pfx
 
 
+class TestFlagDOFS(TestCase):
+    """Tests the flag_dofs property."""
+
+    def test_correct_values_are_returned(self):
+        # Create a test instance, passing in known data;
+        hrir = ifx.HasReadableIngredientRatiosTestable(ingredient_ratios_data={
+            model.ingredients.get_df_name_from_ingredient_name("Cucumber"):
+                qfx.get_qty_ratio_data(subject_qty_g=60, host_qty_g=100),
+            model.ingredients.get_df_name_from_ingredient_name("Honey"):
+                qfx.get_qty_ratio_data(subject_qty_g=40, host_qty_g=100)
+        })
+
+        self.assertEqual(
+            {
+                "nut_free": True,
+                "vegan": False,
+                "vegetarian": True
+            },
+            hrir.flag_dofs
+        )
+
+
 class TestCostPerG(TestCase):
     """Tests the cost_per_g property."""
 

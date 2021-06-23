@@ -42,6 +42,7 @@ class RecipeBase(
         data = super().persistable_data
         del data['nutrient_ratios_data']
         del data['cost_per_qty_data']
+        del data['flag_data']
         return data
 
 
