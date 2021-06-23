@@ -104,6 +104,11 @@ class HasReadableIngredientQuantities(
         return tot
 
     @property
+    def num_calories(self) -> float:
+        """Returns the number of calories associated with this instance."""
+        return self.calories_per_g * self.total_ingredients_mass_g
+
+    @property
     def persistable_data(self) -> Dict[str, Any]:
         """Returns the instance's persistable data."""
         # Collect the persistable data from the superclass.

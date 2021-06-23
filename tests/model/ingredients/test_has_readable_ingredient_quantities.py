@@ -86,7 +86,7 @@ class TestIngredientQuantities(TestCase):
         self.assertEqual(120, iqs[ifx.get_ingredient_df_name("Lemon Juice")].quantity_in_g)
 
 
-class TestTotalIngredientQuantity(TestCase):
+class TestTotalIngredientsMassG(TestCase):
     """Tests the total_ingredient_quantity property."""
 
     @pfx.use_test_database
@@ -101,6 +101,22 @@ class TestTotalIngredientQuantity(TestCase):
 
         # Check that the quantity we get back is correct;
         self.assertEqual(330, hriq.total_ingredients_mass_g)
+
+
+class TestNumCalories(TestCase):
+    """Checks the num_calories property."""
+
+    @pfx.use_test_database
+    def test_returns_correct_value(self):
+        """Checks the total number of calories returned is correct."""
+        # Create a test instance, with some ingredients;
+        hriq = ifx.HasReadableIngredientQuantitiesTestable(ingredient_quantities_data={
+            ifx.get_ingredient_df_name("Raspberry"): qfx.get_qty_data(qty_in_g=100),
+            ifx.get_ingredient_df_name("Aubergine"): qfx.get_qty_data(qty_in_g=200),
+        })
+
+        # Assert the number of calories is correct.
+        self.assertEqual(81.2, hriq.num_calories)
 
 
 class TestIngredientUniqueNames(TestCase):

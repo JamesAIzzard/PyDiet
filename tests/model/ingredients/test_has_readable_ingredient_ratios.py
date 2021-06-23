@@ -28,6 +28,17 @@ class TestFlagDOFS(TestCase):
             hrir.flag_dofs
         )
 
+    def test_correct_values_are_returned_for_direct_alias_flag(self):
+        # Create a test instance, passing in known data;
+        hrir = ifx.HasReadableIngredientRatiosTestable(ingredient_ratios_data={
+            model.ingredients.get_df_name_from_ingredient_name("Cucumber"):
+                qfx.get_qty_ratio_data(subject_qty_g=60, host_qty_g=100),
+            model.ingredients.get_df_name_from_ingredient_name("Honey"):
+                qfx.get_qty_ratio_data(subject_qty_g=40, host_qty_g=100)
+        })
+
+        self.assertTrue(hrir.get_flag_value("alcohol_free"))
+
 
 class TestCostPerG(TestCase):
     """Tests the cost_per_g property."""
