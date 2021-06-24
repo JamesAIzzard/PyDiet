@@ -48,6 +48,16 @@ class HasReadableRecipeRatios(
         raise NotImplementedError
 
     @property
+    def recipes(self) -> Dict[str, 'model.recipes.ReadonlyRecipe']:
+        """Returns dict of readonly recipes associated with the instnace."""
+        rps = {}
+        for rec_name in self.recipe_ratios_data.keys():
+            rps[rec_name] = model.recipes.ReadonlyRecipe(recipe_data_src=model.recipes.get_recipe_data_src(
+                for_df_name=rec_name
+            ))
+        return rps
+
+    @property
     def ingredient_ratios_data(self) -> 'model.ingredients.IngredientRatiosData':
         """Returns the ingredient ratios data associated with this instance."""
         # Create a scratch file to store the ratios as floats. We can convert these to ratio objects

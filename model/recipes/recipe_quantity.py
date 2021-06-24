@@ -101,12 +101,20 @@ class HasReadableRecipeQuantities(
 
         return rqs
 
+    def get_recipe_quantity(self, unique_name: str) -> 'model.recipes.ReadonlyRecipeQuantity':
+        """Returns recipe quantity by name."""
+        # Get the datafile name;
+        rdf_name = model.recipes.get_datafile_name_for_unique_value(unique_name)
+
+        return self.recipe_quantities[rdf_name]
+
     @property
     def total_recipes_mass_g(self) -> float:
         """Returns the total mass (in g) of the recipes associated with this instance."""
         total = 0
         for rq in self.recipe_quantities_data.values():
-            total += rq['quantity_in_g']
+            if rq['quantity_in_g'] is not None:
+                total += rq['quantity_in_g']
         return total
 
     @property
@@ -130,3 +138,34 @@ class HasSettableRecipeQuantities(HasReadableRecipeQuantities):
     def recipe_quantities_data(self) -> 'model.recipes.RecipeQuantitiesData':
         """Returns the recipe quantities data for this instance."""
         return self._recipe_quantities_data
+
+    def add_recipe(self, recipe_unique_name: str, recipe_qty_data: Optional['model.quantity.QuantityData'] = None):
+        """Adds a recipe to the instance."""
+        # Get the datafile name;
+        recipe_df_name = model.recipes.get_datafile_name_for_unique_value(recipe_unique_name)
+
+        # Raise an exception if its already there;
+        if recipe_df_name in self._recipe_quantities_data.keys():
+            raise model.recipes.exceptions.RecipeAlreadyAddedError(recipe_unique_name=recipe_unique_name)
+
+        # Put the qty data to default if not provided;
+        if recipe_qty_data is None:
+            recipe_qty_data = model.quantity.QuantityData(quantity_in_g=None, pref_unit='g')
+
+        # Add it;
+        self._recipe_quantities_data[recipe_df_name] = recipe_qty_data
+
+    def set_recipe_quantity(self, recipe_unique_name: str, quantity: float, unit: str) -> None:
+        """Sets the quantitiy of a recipe."""
+        # Get the datafile name for the recipe;
+        rdf_name = model.recipes.get_datafile_name_for_unique_value(recipe_unique_name)
+
+        self._recipe_quantities_data[rdf_name] = model.quantity.QuantityData(
+            quantity_in_g=model.quantity.convert_qty_unit(
+                qty=quantity,
+                start_unit=unit,
+                end_unit='g'
+            ),
+            pref_unit=unit
+        )
+
