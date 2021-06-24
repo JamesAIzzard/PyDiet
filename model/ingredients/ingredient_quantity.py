@@ -1,6 +1,6 @@
 """Defines functionality related to ingredient quantities."""
 import abc
-from typing import Dict, List, Optional, Any
+from typing import Dict, Optional, Any
 
 import model
 import persistence
@@ -102,6 +102,25 @@ class HasReadableIngredientQuantities(
         for iq in self.ingredient_quantities.values():
             tot += iq.quantity_in_g
         return tot
+
+    def get_nutrient_mass(self, nutrient_name:str) -> 'model.nutrients.NutrientMassData':
+        """Returns the nutrient mass for single nutrient."""
+        nutrient_name = model.nutrients.validation.validate_nutrient_name(nutrient_name)
+        return model.quantity.QuantityData(
+            quantity_in_g=self.get_nutrient_ratio(
+                nutrient_name).subject_g_per_host_g * self.total_ingredients_mass_g,
+            pref_unit='g'
+        )
+
+    @property
+    def nutrient_masses(self) -> Dict[str, 'model.nutrients.NutrientMassData']:
+        """Returns nutrient masses for all defined nutrients."""
+        nms = {nut_name: model.quantity.QuantityData(quantity_in_g=0, pref_unit='g') for nut_name in
+               self.defined_nutrient_ratio_names}
+        for nutr_name in nms.keys():
+            nms[nutr_name]['quantity_in_g'] = self.get_nutrient_ratio(
+                nutr_name).subject_g_per_host_g * self.total_ingredients_mass_g
+        return nms
 
     @property
     def num_calories(self) -> float:

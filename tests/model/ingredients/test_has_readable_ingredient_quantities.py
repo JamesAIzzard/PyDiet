@@ -103,6 +103,43 @@ class TestTotalIngredientsMassG(TestCase):
         self.assertEqual(330, hriq.total_ingredients_mass_g)
 
 
+class TestGetNutrientMass(TestCase):
+    """Tests for the get_nutrient_mass method."""
+
+    def test_correct_mass_is_returned(self):
+        """Checks that we get the correct mass back."""
+        # Create a test instance, with some ingredients;
+        hriq = ifx.HasReadableIngredientQuantitiesTestable(ingredient_quantities_data={
+            ifx.get_ingredient_df_name("Raspberry"): qfx.get_qty_data(qty_in_g=100),
+            ifx.get_ingredient_df_name("Aubergine"): qfx.get_qty_data(qty_in_g=200),
+        })
+
+        # Check a couple of the nutrient masses;
+        self.assertAlmostEqual(3.4, hriq.get_nutrient_mass("protein")['quantity_in_g'], delta=0.0001)
+        self.assertAlmostEqual(0.4, hriq.get_nutrient_mass("fat")['quantity_in_g'], delta=0.0001)
+        self.assertAlmostEqual(16, hriq.get_nutrient_mass("carbohydrate")['quantity_in_g'], delta=0.0001)
+
+
+class TestNutrientMasses(TestCase):
+    """Tests for the nutrient_masses_property."""
+
+    def test_correct_masses_are_returned(self):
+        """Checks the correct masses are returned."""
+        # Create a test instance, with some ingredients;
+        hriq = ifx.HasReadableIngredientQuantitiesTestable(ingredient_quantities_data={
+            ifx.get_ingredient_df_name("Raspberry"): qfx.get_qty_data(qty_in_g=100),
+            ifx.get_ingredient_df_name("Aubergine"): qfx.get_qty_data(qty_in_g=200),
+        })
+
+        # Cache the nutrient masses;
+        nms = hriq.nutrient_masses
+
+        # Check a couple of the nutrient masses;
+        self.assertAlmostEqual(3.4, nms['protein']['quantity_in_g'], delta=0.0001)
+        self.assertAlmostEqual(0.4, nms['fat']['quantity_in_g'], delta=0.0001)
+        self.assertAlmostEqual(16, nms['carbohydrate']['quantity_in_g'], delta=0.0001)
+
+
 class TestNumCalories(TestCase):
     """Checks the num_calories property."""
 
