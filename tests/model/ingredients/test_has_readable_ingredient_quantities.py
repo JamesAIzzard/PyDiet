@@ -156,6 +156,20 @@ class TestNumCalories(TestCase):
         self.assertEqual(81.2, hriq.num_calories)
 
 
+class TestPricetag(TestCase):
+    """Tests for the pricetag property."""
+    def test_returns_correct_value(self):
+        """Checks the property returns the correct value."""
+        # Create a test instance, with some ingredients;
+        hriq = ifx.HasReadableIngredientQuantitiesTestable(ingredient_quantities_data={
+            ifx.get_ingredient_df_name("Raspberry"): qfx.get_qty_data(qty_in_g=100),
+            ifx.get_ingredient_df_name("Aubergine"): qfx.get_qty_data(qty_in_g=200),
+        })
+
+        # Check the correct value is returned;
+        self.assertAlmostEqual(1.043, hriq.pricetag, delta=0.0001)
+
+
 class TestIngredientUniqueNames(TestCase):
     """Tests the ingredient names property."""
 

@@ -103,7 +103,7 @@ class HasReadableIngredientQuantities(
             tot += iq.quantity_in_g
         return tot
 
-    def get_nutrient_mass(self, nutrient_name:str) -> 'model.nutrients.NutrientMassData':
+    def get_nutrient_mass(self, nutrient_name: str) -> 'model.nutrients.NutrientMassData':
         """Returns the nutrient mass for single nutrient."""
         nutrient_name = model.nutrients.validation.validate_nutrient_name(nutrient_name)
         return model.quantity.QuantityData(
@@ -126,6 +126,14 @@ class HasReadableIngredientQuantities(
     def num_calories(self) -> float:
         """Returns the number of calories associated with this instance."""
         return self.calories_per_g * self.total_ingredients_mass_g
+
+    @property
+    def pricetag(self) -> float:
+        """Returns the price for this quanitity of ingredients."""
+        price = 0
+        for iq in self.ingredient_quantities.values():
+            price += iq.quantity_in_g * iq.ingredient.cost_per_g
+        return price
 
     @property
     def persistable_data(self) -> Dict[str, Any]:
