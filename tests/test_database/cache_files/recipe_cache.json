@@ -1,0 +1,742 @@
+{
+  "27a2325b-bf06-4bcc-a3c5-ff1d2c7cb098": {
+    "calories_per_g": 3.9614285714285713,
+    "cost_per_qty_data": {
+      "cost_per_g": 0.005197619047619048,
+      "pref_unit": "g",
+      "quantity_in_g": 100
+    },
+    "flag_data": {
+      "alcohol_free": true,
+      "caffeine_free": null,
+      "gluten_free": null,
+      "lactose_free": null,
+      "nut_free": false,
+      "vegan": false,
+      "vegetarian": true
+    },
+    "ingredient_quantities_data": {
+      "1760ce2d-1b63-4187-a1f7-f5b95e0b8be7": {
+        "pref_unit": "g",
+        "quantity_in_g": 150.0
+      },
+      "49ce9bbe-20fc-4006-9cce-0d90936d7192": {
+        "pref_unit": "g",
+        "quantity_in_g": 20.0
+      },
+      "f92e426b-5ce8-46b9-9213-e812ef39b350": {
+        "pref_unit": "g",
+        "quantity_in_g": 40.0
+      }
+    },
+    "ingredient_ratios_data": {
+      "1760ce2d-1b63-4187-a1f7-f5b95e0b8be7": {
+        "host_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 210.0
+        },
+        "subject_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 150.0
+        }
+      },
+      "49ce9bbe-20fc-4006-9cce-0d90936d7192": {
+        "host_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 210.0
+        },
+        "subject_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 20.0
+        }
+      },
+      "f92e426b-5ce8-46b9-9213-e812ef39b350": {
+        "host_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 210.0
+        },
+        "subject_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 40.0
+        }
+      }
+    },
+    "ingredient_unique_names": [
+      "Bread (Wholemeal)",
+      "Butter",
+      "Peanut Butter"
+    ],
+    "nutrient_ratios_data": {
+      "alcohol": {
+        "host_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 1
+        },
+        "subject_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 0.0
+        }
+      },
+      "carbohydrate": {
+        "host_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 1
+        },
+        "subject_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 0.41295238095238096
+        }
+      },
+      "fat": {
+        "host_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 1
+        },
+        "subject_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 0.21095238095238095
+        }
+      },
+      "monounsaturated_fat": {
+        "host_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 1
+        },
+        "subject_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 0.06857142857142856
+        }
+      },
+      "polyunsaturated_fat": {
+        "host_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 1
+        },
+        "subject_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 0.04452380952380952
+        }
+      },
+      "protein": {
+        "host_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 1
+        },
+        "subject_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 0.10276190476190476
+        }
+      },
+      "saturated_fat": {
+        "host_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 1
+        },
+        "subject_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 0.07238095238095238
+        }
+      },
+      "sodium": {
+        "host_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 1
+        },
+        "subject_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 0.003388571428571429
+        }
+      }
+    },
+    "typical_serving_size_g": 210.0
+  },
+  "67250cd0-61dc-488d-aa43-26c832d4ca06": {
+    "calories_per_g": 1.7633246350354055,
+    "cost_per_qty_data": {
+      "cost_per_g": 0.0013352587434720684,
+      "pref_unit": "g",
+      "quantity_in_g": 100
+    },
+    "flag_data": {
+      "alcohol_free": true,
+      "caffeine_free": null,
+      "gluten_free": null,
+      "lactose_free": null,
+      "nut_free": true,
+      "vegan": false,
+      "vegetarian": false
+    },
+    "ingredient_quantities_data": {
+      "324cd4a3-464a-4052-83b7-6071325384d1": {
+        "pref_unit": "g",
+        "quantity_in_g": 15.0
+      },
+      "384cd933-b0a2-4c9e-9c64-8faf2c1f9b7e": {
+        "pref_unit": "g",
+        "quantity_in_g": 60.0
+      },
+      "7b5fd211-f8ec-42c0-9853-9cb2e65ec47e": {
+        "pref_unit": "ml",
+        "quantity_in_g": 103.0
+      }
+    },
+    "ingredient_ratios_data": {
+      "324cd4a3-464a-4052-83b7-6071325384d1": {
+        "host_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 178.0
+        },
+        "subject_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 15.0
+        }
+      },
+      "384cd933-b0a2-4c9e-9c64-8faf2c1f9b7e": {
+        "host_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 178.0
+        },
+        "subject_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 60.0
+        }
+      },
+      "7b5fd211-f8ec-42c0-9853-9cb2e65ec47e": {
+        "host_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 178.0
+        },
+        "subject_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 103.0
+        }
+      }
+    },
+    "ingredient_unique_names": [
+      "Sultana",
+      "Oats (Whole)",
+      "Milk (Skimmed)"
+    ],
+    "nutrient_ratios_data": {
+      "alcohol": {
+        "host_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 1
+        },
+        "subject_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 0.0
+        }
+      },
+      "carbohydrate": {
+        "host_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 1
+        },
+        "subject_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 0.32337893080517754
+        }
+      },
+      "fat": {
+        "host_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 1
+        },
+        "subject_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 0.02285671587503657
+        }
+      },
+      "monounsaturated_fat": {
+        "host_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 1
+        },
+        "subject_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 0.006813328784514627
+        }
+      },
+      "polyunsaturated_fat": {
+        "host_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 1
+        },
+        "subject_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 0.007926593020288978
+        }
+      },
+      "protein": {
+        "host_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 1
+        },
+        "subject_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 0.06602461723484152
+        }
+      },
+      "saturated_fat": {
+        "host_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 1
+        },
+        "subject_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 0.004052062117217967
+        }
+      },
+      "sodium": {
+        "host_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 1
+        },
+        "subject_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 0.00027288121701085914
+        }
+      }
+    },
+    "typical_serving_size_g": 178.0
+  },
+  "6890c41b-a1d2-42fd-a156-2ab8ced12043": {
+    "calories_per_g": 0.5897798727217988,
+    "cost_per_qty_data": {
+      "cost_per_g": 0.0009651870855096412,
+      "pref_unit": "g",
+      "quantity_in_g": 100
+    },
+    "flag_data": {
+      "alcohol_free": true,
+      "caffeine_free": null,
+      "gluten_free": null,
+      "lactose_free": null,
+      "nut_free": true,
+      "vegan": false,
+      "vegetarian": false
+    },
+    "ingredient_quantities_data": {
+      "1198a703-ae23-4303-9b21-dd8ef9d16548": {
+        "pref_unit": "g",
+        "quantity_in_g": 25.0
+      },
+      "7b5fd211-f8ec-42c0-9853-9cb2e65ec47e": {
+        "pref_unit": "pint",
+        "quantity_in_g": 487.396
+      },
+      "ef48e0c5-c5f0-45ac-9e3e-dcca5162a548": {
+        "pref_unit": "g",
+        "quantity_in_g": 150.0
+      }
+    },
+    "ingredient_ratios_data": {
+      "1198a703-ae23-4303-9b21-dd8ef9d16548": {
+        "host_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 662.396
+        },
+        "subject_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 25.0
+        }
+      },
+      "7b5fd211-f8ec-42c0-9853-9cb2e65ec47e": {
+        "host_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 662.396
+        },
+        "subject_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 487.396
+        }
+      },
+      "ef48e0c5-c5f0-45ac-9e3e-dcca5162a548": {
+        "host_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 662.396
+        },
+        "subject_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 150.0
+        }
+      }
+    },
+    "ingredient_unique_names": [
+      "Honey",
+      "Milk (Skimmed)",
+      "Banana"
+    ],
+    "nutrient_ratios_data": {
+      "alcohol": {
+        "host_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 1
+        },
+        "subject_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 0.0
+        }
+      },
+      "carbohydrate": {
+        "host_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 1
+        },
+        "subject_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 0.11695791813787697
+        }
+      },
+      "fat": {
+        "host_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 1
+        },
+        "subject_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 0.0012800111801917371
+        }
+      },
+      "monounsaturated_fat": {
+        "host_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 1
+        },
+        "subject_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 0.00030032962586903136
+        }
+      },
+      "polyunsaturated_fat": {
+        "host_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 1
+        },
+        "subject_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 0.00022645064281789142
+        }
+      },
+      "protein": {
+        "host_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 1
+        },
+        "subject_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 0.02760702488714132
+        }
+      },
+      "saturated_fat": {
+        "host_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 1
+        },
+        "subject_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 0.0005267802686869228
+        }
+      },
+      "sodium": {
+        "host_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 1
+        },
+        "subject_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 0.0003229265532141758
+        }
+      }
+    },
+    "typical_serving_size_g": 662.396
+  },
+  "cb36f7bd-cf82-4943-944b-b79081a092ce": {
+    "calories_per_g": 3.4017647058823535,
+    "cost_per_qty_data": {
+      "cost_per_g": 0.0018558823529411764,
+      "pref_unit": "g",
+      "quantity_in_g": 100
+    },
+    "flag_data": {
+      "alcohol_free": true,
+      "caffeine_free": null,
+      "gluten_free": null,
+      "lactose_free": null,
+      "nut_free": true,
+      "vegan": false,
+      "vegetarian": true
+    },
+    "ingredient_quantities_data": {
+      "1760ce2d-1b63-4187-a1f7-f5b95e0b8be7": {
+        "pref_unit": "g",
+        "quantity_in_g": 150.0
+      },
+      "49ce9bbe-20fc-4006-9cce-0d90936d7192": {
+        "pref_unit": "g",
+        "quantity_in_g": 20.0
+      }
+    },
+    "ingredient_ratios_data": {
+      "1760ce2d-1b63-4187-a1f7-f5b95e0b8be7": {
+        "host_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 170.0
+        },
+        "subject_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 150.0
+        }
+      },
+      "49ce9bbe-20fc-4006-9cce-0d90936d7192": {
+        "host_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 170.0
+        },
+        "subject_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 20.0
+        }
+      }
+    },
+    "ingredient_unique_names": [
+      "Bread (Wholemeal)",
+      "Butter"
+    ],
+    "nutrient_ratios_data": {
+      "alcohol": {
+        "host_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 1
+        },
+        "subject_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 0.0
+        }
+      },
+      "carbohydrate": {
+        "host_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 1
+        },
+        "subject_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 0.45364705882352946
+        }
+      },
+      "fat": {
+        "host_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 1
+        },
+        "subject_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 0.14294117647058824
+        }
+      },
+      "monounsaturated_fat": {
+        "host_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 1
+        },
+        "subject_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 0.03529411764705882
+        }
+      },
+      "polyunsaturated_fat": {
+        "host_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 1
+        },
+        "subject_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 0.029117647058823526
+        }
+      },
+      "protein": {
+        "host_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 1
+        },
+        "subject_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 0.0751764705882353
+        }
+      },
+      "saturated_fat": {
+        "host_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 1
+        },
+        "subject_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 0.06705882352941177
+        }
+      },
+      "sodium": {
+        "host_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 1
+        },
+        "subject_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 0.003065882352941177
+        }
+      }
+    },
+    "typical_serving_size_g": 170.0
+  },
+  "fee2d6b2-a4f4-4a6c-9dbf-39470e9e08d5": {
+    "calories_per_g": 1.8152727272727271,
+    "cost_per_qty_data": {
+      "cost_per_g": 0.011530909090909092,
+      "pref_unit": "g",
+      "quantity_in_g": 100
+    },
+    "flag_data": {
+      "alcohol_free": true,
+      "caffeine_free": null,
+      "gluten_free": null,
+      "lactose_free": null,
+      "nut_free": true,
+      "vegan": false,
+      "vegetarian": true
+    },
+    "ingredient_quantities_data": {
+      "3fc67f98-d450-4b02-bc6e-b77ce681641e": {
+        "pref_unit": "g",
+        "quantity_in_g": 25.0
+      },
+      "5e9ce0c2-a33c-428d-a22e-aee4a29437a7": {
+        "pref_unit": "g",
+        "quantity_in_g": 100.0
+      },
+      "60c2d77b-4863-477e-be78-6d7642bc76a0": {
+        "pref_unit": "g",
+        "quantity_in_g": 150.0
+      }
+    },
+    "ingredient_ratios_data": {
+      "3fc67f98-d450-4b02-bc6e-b77ce681641e": {
+        "host_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 275.0
+        },
+        "subject_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 25.0
+        }
+      },
+      "5e9ce0c2-a33c-428d-a22e-aee4a29437a7": {
+        "host_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 275.0
+        },
+        "subject_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 100.0
+        }
+      },
+      "60c2d77b-4863-477e-be78-6d7642bc76a0": {
+        "host_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 275.0
+        },
+        "subject_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 150.0
+        }
+      }
+    },
+    "ingredient_unique_names": [
+      "Hollandaise Sauce",
+      "Prawns",
+      "Avocado"
+    ],
+    "nutrient_ratios_data": {
+      "alcohol": {
+        "host_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 1
+        },
+        "subject_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 0.0
+        }
+      },
+      "carbohydrate": {
+        "host_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 1
+        },
+        "subject_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 0.057727272727272724
+        }
+      },
+      "fat": {
+        "host_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 1
+        },
+        "subject_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 0.1338181818181818
+        }
+      },
+      "monounsaturated_fat": {
+        "host_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 1
+        },
+        "subject_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 0.06872727272727272
+        }
+      },
+      "polyunsaturated_fat": {
+        "host_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 1
+        },
+        "subject_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 0.014454545454545454
+        }
+      },
+      "protein": {
+        "host_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 1
+        },
+        "subject_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 0.095
+        }
+      },
+      "saturated_fat": {
+        "host_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 1
+        },
+        "subject_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 0.04090909090909091
+        }
+      },
+      "sodium": {
+        "host_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 1
+        },
+        "subject_qty_data": {
+          "pref_unit": "g",
+          "quantity_in_g": 0.004786363636363636
+        }
+      }
+    },
+    "typical_serving_size_g": 275.0
+  }
+}

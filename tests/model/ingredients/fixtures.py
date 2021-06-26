@@ -108,7 +108,8 @@ class HasReadableIngredientQuantitiesTestable(model.ingredients.HasReadableIngre
 class HasReadableIngredientRatiosTestable(model.ingredients.HasReadableIngredientRatios):
     """Minimal implementation to allow testing of the HasReadableIngredientRatios class."""
 
-    def __init__(self, ingredient_ratios_data: 'model.ingredients.IngredientRatiosData'):
+    def __init__(self, ingredient_ratios_data: 'model.ingredients.IngredientRatiosData', **kwargs):
+        super().__init__(**kwargs)
         self._ingredient_ratios_data = ingredient_ratios_data
 
     @property

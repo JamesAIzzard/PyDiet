@@ -37,6 +37,12 @@ class HasReadableIngredientRatios(
 ):
     """Mixin to implement functionality associated with having readable ingredient ratios."""
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+        # Cache the ingredient ratios;
+        self._ingredient_ratios = {}
+
     @property
     @abc.abstractmethod
     def ingredient_ratios_data(self) -> 'model.ingredients.IngredientRatiosData':
@@ -73,6 +79,7 @@ class HasReadableIngredientRatios(
     @property
     def ingredient_ratios(self) -> Dict[str, 'ReadonlyIngredientRatio']:
         """Returns the ingredient ratio instances associated with this instance."""
+
         # Create a dict to compile the ratios;
         irs: Dict[str, 'ReadonlyIngredientRatio'] = {}
 
@@ -90,7 +97,6 @@ class HasReadableIngredientRatios(
         if total_ratio_float > 1.0001:
             raise model.ingredients.exceptions.IngredientRatiosSumExceedsOneError()
 
-        # Return
         return irs
 
     def get_ingredient_ratio(
@@ -105,8 +111,11 @@ class HasReadableIngredientRatios(
         elif ingredient_df_name is None:
             ingredient_df_name = model.ingredients.get_df_name_from_ingredient_name(ingredient_unique_name)
 
+        if ingredient_df_name in self._ingredient_ratios.keys():
+            return self._ingredient_ratios[ingredient_df_name]
+
         # Create and return the instance;
-        return ReadonlyIngredientRatio(
+        self._ingredient_ratios[ingredient_df_name] = ReadonlyIngredientRatio(
             ingredient=model.ingredients.ReadonlyIngredient(
                 ingredient_data_src=model.ingredients.get_ingredient_data_src(
                     for_df_name=ingredient_df_name
@@ -115,6 +124,7 @@ class HasReadableIngredientRatios(
             ratio_host=self,
             qty_ratio_data_src=lambda: self.ingredient_ratios_data[ingredient_df_name]
         )
+        return self._ingredient_ratios[ingredient_df_name]
 
     @property
     def ingredient_unique_names(self) -> List[str]:
@@ -130,7 +140,7 @@ class HasReadableIngredientRatios(
     def nutrient_ratios_data(self) -> 'model.nutrients.NutrientRatiosData':
         """Returns the nutrient ratios data for the instance."""
 
-        # Create somewhere to cache the ingredient quantities;
+        # Create somewhere to cache the ingredient ratios;
         ingredient_ratio_cache = self.ingredient_ratios
 
         # Figure out which set of nutrients is defined on every ingredient;
@@ -148,6 +158,7 @@ class HasReadableIngredientRatios(
         # Now work out the nutrient ratios for the recipe;
         nutrient_ratios: 'model.nutrients.NutrientRatiosData' = {}
         nutrient_ratio_floats: Dict[str, float] = {nutr_name: 0 for nutr_name in common_nutrients}
+
         # Now cycle through each ingredient, and use it to contribute its nutrient ratio based on its ratio;
         for ir in ingredient_ratio_cache.values():
             for nutrient_name in common_nutrients:

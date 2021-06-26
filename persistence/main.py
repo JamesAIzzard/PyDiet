@@ -12,6 +12,14 @@ T = TypeVar('T')
 
 _df_cache = {}  # Place to cache datafiles in RAM to speed up testing.
 _index_cache = {}  # Place to cache the index files.
+_recipe_calc_data_cache = {}  # Cache for pre-calculated recipe data.
+
+
+def get_recipe_data_cache(df_name: str, _recipe_calc_data_cache=_recipe_calc_data_cache):
+    """Returns the recipe data from the cache."""
+    if _recipe_calc_data_cache == {}:
+        _recipe_calc_data_cache = _read_datafile(f"{persistence.configs.PATH_INTO_DB}/cache_files/recipe_cache.json")
+    return _recipe_calc_data_cache[df_name]
 
 
 # noinspection PyShadowingNames
@@ -19,6 +27,7 @@ def reset_cache():
     """Resets the datafile cache, useful for testing."""
     _df_cache = {}
     _index_cache = {}
+    _recipe_calc_data_cache = {}
 
 
 def save_instance(subject: 'persistence.SupportsPersistence') -> None:

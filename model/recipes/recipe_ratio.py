@@ -66,10 +66,12 @@ class HasReadableRecipeRatios(
 
         # Now cycle through, and calculate the ratios;
         for recipe_ratio in self.recipe_ratios.values():
-            for idf_name, ingredient_ratio in recipe_ratio.recipe.ingredient_ratios.items():
+            for idf_name, ir_data in recipe_ratio.recipe.ingredient_ratios_data.items():
                 if idf_name not in irs_scratch:
                     irs_scratch[idf_name] = 0
-                irs_scratch[idf_name] += recipe_ratio.subject_g_per_host_g * ingredient_ratio.subject_g_per_host_g
+                irs_scratch[
+                    idf_name] += recipe_ratio.subject_g_per_host_g * model.quantity.get_ratio_from_qty_ratio_data(
+                    ir_data)
 
         # Now convert the float ratios into proper ratio instances;
         irs: Dict[str, model.quantity.QuantityRatioData] = {}

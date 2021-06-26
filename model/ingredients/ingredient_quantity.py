@@ -52,10 +52,10 @@ class HasReadableIngredientQuantities(
         """Returns the ingredient ratios data associated with this instance."""
         ird: 'model.ingredients.IngredientRatiosData' = {}
         total_ingredient_quantity = self.total_ingredients_mass_g
-        for df_name, iq in self.ingredient_quantities.items():
+        for df_name, iq in self.ingredient_quantities_data.items():
             ird[df_name] = model.quantity.QuantityRatioData(
                 subject_qty_data=model.quantity.QuantityData(
-                    quantity_in_g=iq.quantity_in_g,
+                    quantity_in_g=iq['quantity_in_g'],
                     pref_unit='g'
                 ),
                 host_qty_data=model.quantity.QuantityData(
@@ -99,8 +99,8 @@ class HasReadableIngredientQuantities(
     def total_ingredients_mass_g(self) -> float:
         """Returns the total mass (in g) of the ingredients associated with this instnace."""
         tot = 0
-        for iq in self.ingredient_quantities.values():
-            tot += iq.quantity_in_g
+        for iq in self.ingredient_quantities_data.values():
+            tot += iq['quantity_in_g']
         return tot
 
     def get_nutrient_mass(self, nutrient_name: str) -> 'model.nutrients.NutrientMassData':

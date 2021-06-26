@@ -266,3 +266,69 @@ class TestIngredientUniqueNames(TestCase):
             {"Bread (Wholemeal)", "Butter", "Peanut Butter"},
             set(sm.ingredient_unique_names)
         )
+
+
+class TestDefinedNutrientRatioNames(TestCase):
+    """Tests the defined nutrient ratios property."""
+
+    @pfx.use_test_database
+    def test_correct_nutrient_names(self):
+        """Checks we get the correct nutrient names back."""
+        # Create a test instance with some known ingredients;
+        sm = model.meals.SettableMeal(meal_data={
+            model.recipes.get_datafile_name_for_unique_value("Bread and Butter"): qfx.get_qty_data(500),
+            model.recipes.get_datafile_name_for_unique_value("Peanut Butter Toast"): qfx.get_qty_data(300),
+        })
+
+        # Check the defined nutrients are what we expect;
+        self.assertEqual({
+            "alcohol",
+            "carbohydrate",
+            "fat",
+            "saturated_fat",
+            "monounsaturated_fat",
+            "polyunsaturated_fat",
+            "protein",
+            "sodium"
+        },
+            set(sm.defined_nutrient_ratio_names)
+        )
+
+
+class TestNutrientRatios(TestCase):
+    """Tests the nutrient ratios property."""
+
+    @pfx.use_test_database
+    def test_ratios_return_correct_value(self):
+        """Checks the nutrient ratios are returned correctly."""
+        # Create a test instance with some known ingredients;
+        sm = model.meals.SettableMeal(meal_data={
+            model.recipes.get_datafile_name_for_unique_value("Bread and Butter"): qfx.get_qty_data(500),
+            model.recipes.get_datafile_name_for_unique_value("Peanut Butter Toast"): qfx.get_qty_data(300),
+        })
+
+        ratios = sm.nutrient_ratios_data
+        answers = {
+            'polyunsaturated_fat': {'subject_qty_data': {'quantity_in_g': 0.034894957983193274, 'pref_unit': 'g'},
+                                    'host_qty_data': {'quantity_in_g': 1, 'pref_unit': 'g'}},
+            'alcohol': {'subject_qty_data': {'quantity_in_g': 0.0, 'pref_unit': 'g'},
+                        'host_qty_data': {'quantity_in_g': 1, 'pref_unit': 'g'}},
+            'sodium': {'subject_qty_data': {'quantity_in_g': 0.0031868907563025214, 'pref_unit': 'g'},
+                       'host_qty_data': {'quantity_in_g': 1, 'pref_unit': 'g'}},
+            'protein': {'subject_qty_data': {'quantity_in_g': 0.08552100840336135, 'pref_unit': 'g'},
+                        'host_qty_data': {'quantity_in_g': 1, 'pref_unit': 'g'}},
+            'monounsaturated_fat': {'subject_qty_data': {'quantity_in_g': 0.04777310924369748, 'pref_unit': 'g'},
+                                    'host_qty_data': {'quantity_in_g': 1, 'pref_unit': 'g'}},
+            'saturated_fat': {'subject_qty_data': {'quantity_in_g': 0.06905462184873949, 'pref_unit': 'g'},
+                              'host_qty_data': {'quantity_in_g': 1, 'pref_unit': 'g'}},
+            'carbohydrate': {'subject_qty_data': {'quantity_in_g': 0.4383865546218487, 'pref_unit': 'g'},
+                             'host_qty_data': {'quantity_in_g': 1, 'pref_unit': 'g'}},
+            'fat': {'subject_qty_data': {'quantity_in_g': 0.16844537815126054, 'pref_unit': 'g'},
+                    'host_qty_data': {'quantity_in_g': 1, 'pref_unit': 'g'}}}
+
+        for nutrient_name in ratios:
+            self.assertAlmostEqual(
+                answers[nutrient_name]['subject_qty_data']['quantity_in_g'],
+                ratios[nutrient_name]['subject_qty_data']['quantity_in_g'],
+                places=8
+            )
