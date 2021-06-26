@@ -31,6 +31,13 @@ class Cache:
 cache = Cache()
 
 
+def get_recipe_df_names_by_tag(tag:str) -> List[str]:
+    """Returns a list of recipe datafile names corresponding to the specified tag."""
+    if cache.recipes_by_tag == {}:
+        cache.recipes_by_tag = _read_datafile(f"{persistence.configs.PATH_INTO_DB}/precalc_data/recipes_by_tag.json")
+    return cache.recipes_by_tag[tag]
+
+
 def get_precalc_data_for_recipe(datafile_name: str) -> Dict[str, Any]:
     """Gets the precalc data for the named recipe."""
     if cache.recipe_precalc_data == {}:
