@@ -11,7 +11,7 @@ def use_test_database(func):
     @mock.patch('persistence.configs.PATH_INTO_DB', tests.persistence.configs.PATH_INTO_DB)
     def wrapper(*args, **kwargs):
         """Wrapper function to return"""
-        persistence.main.reset_cache()
+        persistence.cache.reset()
         return func(*args, **kwargs)
 
     return wrapper

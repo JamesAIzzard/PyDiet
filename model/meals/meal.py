@@ -20,7 +20,7 @@ class SettableMeal(
         try:
             nrd = {}
             for rec_dfn, rrd in self.recipe_ratios_data.items():
-                rec_precalc_data = persistence.get_recipe_data_cache(rec_dfn)['nutrient_ratios_data']
+                rec_precalc_data = persistence.get_precalc_data_for_recipe(rec_dfn)['nutrient_ratios_data']
                 for nut_name, nut_ratio_data in rec_precalc_data.items():
                     if nut_name not in nrd:
                         nrd[nut_name] = model.quantity.QuantityRatioData(

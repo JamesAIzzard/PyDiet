@@ -10,24 +10,32 @@ import persistence
 
 T = TypeVar('T')
 
-_df_cache = {}  # Place to cache datafiles in RAM to speed up testing.
-_index_cache = {}  # Place to cache the index files.
-_recipe_calc_data_cache = {}  # Cache for pre-calculated recipe data.
+
+class Cache:
+    """Data cache class."""
+
+    def __init__(self):
+        self.datafiles: Dict[str, Dict] = {}
+        self.indexes: Dict[str, Dict] = {}
+        self.recipe_precalc_data: Dict[str, Dict] = {}
+        self.recipes_by_tag: Dict[str, str] = {}
+
+    def reset(self):
+        """Reset all caches to empty."""
+        self.datafiles = {}
+        self.indexes = {}
+        self.recipe_precalc_data = {}
+        self.recipes_by_tag = {}
 
 
-def get_recipe_data_cache(df_name: str, _recipe_calc_data_cache=_recipe_calc_data_cache):
-    """Returns the recipe data from the cache."""
-    if _recipe_calc_data_cache == {}:
-        _recipe_calc_data_cache = _read_datafile(f"{persistence.configs.PATH_INTO_DB}/cache_files/recipe_cache.json")
-    return _recipe_calc_data_cache[df_name]
+cache = Cache()
 
 
-# noinspection PyShadowingNames
-def reset_cache():
-    """Resets the datafile cache, useful for testing."""
-    _df_cache = {}
-    _index_cache = {}
-    _recipe_calc_data_cache = {}
+def get_precalc_data_for_recipe(datafile_name: str) -> Dict[str, Any]:
+    """Gets the precalc data for the named recipe."""
+    if cache.recipe_precalc_data == {}:
+        cache.recipe_precalc_data = _read_datafile(f"{persistence.configs.PATH_INTO_DB}/precalc_data/recipes.json")
+    return cache.recipe_precalc_data[datafile_name]
 
 
 def save_instance(subject: 'persistence.SupportsPersistence') -> None:
@@ -70,11 +78,11 @@ def load_datafile(cls: Any, unique_value: Optional[str] = None, datafile_name: O
     if unique_value is not None:
         datafile_name = get_datafile_name_for_unique_value(cls, unique_value)
 
-    if datafile_name not in _df_cache.keys():
-        _df_cache[datafile_name] = _read_datafile(f"{cls.get_path_into_db()}/{datafile_name}.json")
+    if datafile_name not in cache.datafiles.keys():
+        cache.datafiles[datafile_name] = _read_datafile(f"{cls.get_path_into_db()}/{datafile_name}.json")
 
     # Load and return;
-    return _df_cache[datafile_name]
+    return cache.datafiles[datafile_name]
 
 
 def delete_instances(cls: Type['persistence.SupportsPersistence'], name: Optional[str] = None,
@@ -204,12 +212,12 @@ def _read_datafile(filepath: str) -> Dict[str, Any]:
 
 def read_index(cls: Type['persistence.SupportsPersistence']) -> Dict[str, str]:
     """Returns the index corresponding to the _subject."""
-    if cls in _index_cache:
-        return _index_cache[cls]
+    if cls.__name__ in cache.indexes:
+        return cache.indexes[cls.__name__]
     with open(cls.get_index_filepath(), 'r') as fh:
         raw_data = fh.read()
-        _index_cache[cls] = json.loads(raw_data)
-        return _index_cache[cls]
+        cache.indexes[cls.__name__] = json.loads(raw_data)
+        return cache.indexes[cls.__name__]
 
 
 def _update_datafile(subject: 'persistence.SupportsPersistence') -> None:

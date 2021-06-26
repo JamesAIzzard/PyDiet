@@ -41,7 +41,7 @@ for recipe_dfn in recipe_index:
     print(f'{round((i/num_recs)*100, 2)}% Completed...')
 
 if use_test_db:
-    cache_path = "tests/test_database/cache_files"
+    cache_path = "tests/test_database/precalc_data"
 else:
     cache_path = "cache_ciles"
 

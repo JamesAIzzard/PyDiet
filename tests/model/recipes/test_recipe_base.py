@@ -8,6 +8,7 @@ from tests.persistence import fixtures as pfx
 class TestUniqueValue(TestCase):
     """Tests the unique_value property."""
 
+    @pfx.use_test_database
     def test_name_is_returned(self):
         """Checks that we get the recipe name back from the unique value field."""
         # Create a test instance;

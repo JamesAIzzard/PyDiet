@@ -11,7 +11,8 @@ from .main import (
     get_saved_unique_values,
     get_unique_value_from_datafile_name,
     get_datafile_name_for_unique_value,
-    get_recipe_data_cache
+    get_precalc_data_for_recipe,
+    cache
 )
 from .supports_persistence import (
     YieldsPersistableData,

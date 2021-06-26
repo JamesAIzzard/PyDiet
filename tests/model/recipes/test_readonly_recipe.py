@@ -54,6 +54,7 @@ class TestConstructor(TestCase):
 class TestName(TestCase):
     """Tests for the name property."""
 
+    @pfx.use_test_database
     def test_name_is_correct(self):
         """Checks that the name property is returned correctly."""
         # Create a test instance with known name;
