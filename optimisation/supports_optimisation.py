@@ -1,10 +1,7 @@
+"""Implements functionality associated with supporting optimisation."""
 import abc
-from typing import Dict, Any
 
 
-class SupportsOptimisation:
-
-    @property
-    @abc.abstractmethod
-    def genes(self) -> Dict[str, Any]:
-        """Returns a Dict of genes specifying the DOF in individual."""
+class SupportsOptimisation(abc.ABC):
+    """Mixin class to implement functionality required for instance to be used in a GA population."""
+    pass

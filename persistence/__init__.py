@@ -12,6 +12,7 @@ from .main import (
     get_unique_value_from_datafile_name,
     get_datafile_name_for_unique_value,
     get_precalc_data_for_recipe,
+    get_recipe_df_names_by_tag,
     cache
 )
 from .supports_persistence import (
