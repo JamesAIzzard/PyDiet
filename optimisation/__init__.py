@@ -3,6 +3,7 @@ from .main import (
     init_population,
     create_random_member,
     fitness_function,
-    mutate_member
+    mutate_member,
+    splice_members
 )
 from .supports_optimisation import SupportsOptimisation

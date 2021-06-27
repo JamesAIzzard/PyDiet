@@ -1,6 +1,6 @@
 """Top level functionality for optimisation module."""
 import random
-from typing import List, Dict, Callable, Any
+from typing import List, Dict, Callable
 
 import numpy
 
@@ -59,6 +59,29 @@ def mutate_member(member: 'model.meals.SettableMeal') -> None:
 
     # Set the recipe to this new quantity;
     member.set_recipe_quantity(r.name, new_qty, 'g')
+
+
+def splice_members(member_1: 'model.meals.SettableMeal',
+                   member_2: 'model.meals.SettableMeal') -> 'model.meals.SettableMeal':
+    """Combines two members to form a hybrid, child member."""
+    # Pair off the recipes from each member by tag;
+    recipes_by_tag = {}
+    rqts = list(list(member_1.recipe_quantities.values()) + list(member_2.recipe_quantities.values()))
+    for rqty in rqts:
+        if rqty.recipe.tags[0] not in recipes_by_tag:
+            recipes_by_tag[rqty.recipe.tags[0]] = []
+        recipes_by_tag[rqty.recipe.tags[0]].append(rqty)
+
+    # Create a new meal;
+    m = model.meals.SettableMeal()
+
+    # Work through the recipes by tag, and add randomly from parents.
+    for tag, rqt_options in recipes_by_tag.items():
+        chosen_rqt: 'model.recipes.ReadonlyRecipeQuantity' = random.choice(rqt_options)
+        m.add_recipe(recipe_unique_name=chosen_rqt.recipe.name, recipe_qty_data=chosen_rqt.persistable_data)
+
+    # Return spliced child;
+    return m
 
 
 def create_random_member(tags: List[str], flags: Dict[str, bool]) -> 'model.meals.SettableMeal':

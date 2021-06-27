@@ -143,3 +143,31 @@ class TestMutateMember(TestCase):
             if not qts_before[rdf] == qts_after[rdf]:
                 changed = True
         self.assertTrue(changed)
+
+
+class TestSpliceMembers(TestCase):
+    """Tests the splice members function."""
+
+    def test_recipe_quantities_come_from_parents(self):
+        """Checks that the recipe quantities in the child have come from the parents."""
+        # Inputs to create test member;
+        tags = ["main", "side", "drink"]
+        flags={
+            "vegetarian": True,
+            "nut_free": True
+        }
+
+        # Create a couple of test members;
+        m1 = optimisation.create_random_member(tags=tags, flags=flags)
+        m2 = optimisation.create_random_member(tags=tags, flags=flags)
+
+        # Group their recipe qts by tag;
+        tags = {}
+        for rq in list(m1.recipe_quantities.values())+list(m2.recipe_quantities.values()):
+            if rq.recipe.tags[0] not in tags:
+                tags[rq.recipe.tags[0]] = []
+            tags[rq.recipe.tags[0]].append(rq.quantity_in_g)
+
+        m3 = optimisation.splice_members(m1, m2)
+        for rq in m3.recipe_quantities.values():
+            self.assertTrue(rq.quantity_in_g in tags[rq.recipe.tags[0]])
