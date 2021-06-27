@@ -6,7 +6,7 @@ ga_configs = {
     "max_generations": 100,
     "cull_percentage": 70,
     "mutation_probability_percentage": 50,
-    "random_solution_intro_percentage": 20
+    "random_solution_intro_percentage": 90
 }
 
 constraints = {

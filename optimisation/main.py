@@ -4,11 +4,16 @@ import random
 from typing import List, Dict, Callable, Optional
 
 import numpy
-from matplotlib import pyplot as plt
+from matplotlib import pylab
 
 import model
 import persistence
 from optimisation import configs
+
+
+class Plotter:
+    def __init__(self):
+        self.
 
 
 class Population:
@@ -17,6 +22,7 @@ class Population:
         self._population = []
         self.highest_fitness_score: Optional[float] = None
         self.highest_fitness_member: Optional['model.meals.SettableMeal'] = None
+        self.fitness_hist = []
 
     def __str__(self):
         return f"{self._population}"
@@ -39,6 +45,7 @@ class Population:
             self.highest_fitness_score = fitness
             self.highest_fitness_member = member
         elif fitness > self.highest_fitness_score:
+            self.fitness_hist.append(self.highest_fitness_score)
             self.highest_fitness_score = fitness
             self.highest_fitness_member = member
         self._population.append(member)
@@ -50,12 +57,9 @@ class Population:
 def run(ga_configs=configs.ga_configs, constraints=configs.constraints):
     """Runs the GA."""
 
-    plot = plt.figure(1)
-    plot.canvas.set_window_title("Solution Fitness History")
-    plt.show()
-
     logging.info("--- Optimisation Run Starting ---")
     logging.info("Beginning population growth.")
+    plot = Plotter()
     pop = init_population(
         num_members=ga_configs["max_population_size"],
         create_member=lambda: create_random_member(
@@ -67,6 +71,8 @@ def run(ga_configs=configs.ga_configs, constraints=configs.constraints):
 
     logging.info("Beginning optimisation loop.")
     gen: int = 0
+
+    # Run the main loop
     while gen < ga_configs['max_generations'] and pop.highest_fitness_score < ga_configs['acceptable_fitness']:
         logging.info(f"Generation #{gen}")
         cull_population(pop)
