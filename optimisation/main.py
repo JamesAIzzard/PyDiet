@@ -1,18 +1,39 @@
 """Top level functionality for optimisation module."""
+import logging
 import random
 from typing import List, Dict, Callable
 
 import numpy
 
 import model
+import optimisation
 import persistence
+
+
+def run(configs, constraints, goals):
+    """Runs the GA."""
+    logging.info("--- Optimisation Run Starting ---")
+    logging.info("Beginning population growth.")
+    pop = init_population(
+        num_members=configs["max_population_size"],
+        create_member=lambda: create_random_member(
+            tags=constraints['tags'],
+            flags=constraints['flags']
+        )
+    )
+    logging.info("Initial population created.")
 
 
 def init_population(num_members: int, create_member: Callable) -> List:
     """Returns a randomly generated population of specified size."""
     pop = []
+    perc = 0
     while len(pop) < num_members:
-        pop.append(create_member())
+        m = create_member()
+        pop.append(m)
+        if round(len(pop) / num_members, 1) > perc:
+            perc = round(len(pop) / num_members, 1)
+            logging.info(f"{perc * 100}% complete.")
     return pop
 
 
@@ -42,6 +63,13 @@ def fitness_function(
 
     # Return the result;
     return fitness
+
+
+def calculate_fitness(m: 'model.meals.SettableMeal', target_nutr_masses: Dict[str, float]):
+    return fitness_function(
+        get_nutrient_ratio=lambda nutr_name: m.get_nutrient_ratio(nutr_name).subject_g_per_host_g,
+        target_nutrient_masses=target_nutr_masses
+    )
 
 
 def mutate_member(member: 'model.meals.SettableMeal') -> None:
@@ -100,3 +128,17 @@ def create_random_member(tags: List[str], flags: Dict[str, bool]) -> 'model.meal
             pref_unit='g'
         ))
     return meal
+
+
+if __name__ == "__main__":
+    logging.basicConfig(
+        # filename="log.txt",
+        level=logging.INFO,
+        format='%(asctime)s: %(message)s',
+        filemode="w"
+    )
+    run(
+        configs=optimisation.configs.ga_configs,
+        constraints=optimisation.configs.constraints,
+        goals=optimisation.configs.goals
+    )

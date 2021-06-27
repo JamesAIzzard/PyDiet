@@ -6,4 +6,5 @@ from .main import (
     mutate_member,
     splice_members
 )
+from . import configs
 from .supports_optimisation import SupportsOptimisation
