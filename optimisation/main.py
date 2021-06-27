@@ -2,6 +2,8 @@
 import random
 from typing import List, Dict, Callable, Any
 
+import numpy
+
 import model
 import persistence
 
@@ -42,7 +44,24 @@ def fitness_function(
     return fitness
 
 
-def create_random_member(tags: List[str], flags: Dict[str, bool]) -> Any:
+def mutate_member(member: 'model.meals.SettableMeal') -> None:
+    """Mutates the SettableMeal instance provided."""
+    # Choose a recipe on the meal at random;
+    r = random.choice(list(member.recipes.values()))
+
+    # Define the max and min values for its qty;
+    typical_serving_size_g = r.typical_serving_size_g
+    max_qty = typical_serving_size_g * 1.5
+    min_qty = typical_serving_size_g / 2
+
+    # Choose a quantity within this range;
+    new_qty = random.choice(numpy.linspace(min_qty, max_qty, num=1000))
+
+    # Set the recipe to this new quantity;
+    member.set_recipe_quantity(r.name, new_qty, 'g')
+
+
+def create_random_member(tags: List[str], flags: Dict[str, bool]) -> 'model.meals.SettableMeal':
     """Creates a random member of the population, with specified tags and flags."""
     meal = model.meals.SettableMeal()
     for tag in tags:

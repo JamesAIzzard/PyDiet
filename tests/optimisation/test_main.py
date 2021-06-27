@@ -1,11 +1,10 @@
 """Tests for the optimisation.main module."""
-from unittest import TestCase
 from typing import Dict
+from unittest import TestCase
 
 import model
 import optimisation
 import persistence
-
 from tests.optimisation import fixtures as ofx
 
 
@@ -109,3 +108,38 @@ class TestFitnessFunction(TestCase):
 
         # Assert that the fitness function returns a float;
         self.assertLess(worse_fitness, better_fitness)
+
+
+class TestMutateMember(TestCase):
+    """Tests the mutate_member function."""
+
+    def test_changes_member_quantity(self):
+        """Makes sure the member quantity gets changed;"""
+        # Create a test member;
+        m = optimisation.create_random_member(
+            tags=["main", "side", "drink"],
+            flags={
+                "vegetarian": True,
+                "nut_free": True
+            }
+        )
+
+        # Log the quantities before;
+        qts_before = {}
+        for rdfn, rqty in m.recipe_quantities.items():
+            qts_before[rdfn] = rqty.quantity_in_g
+
+        # Mutate;
+        optimisation.mutate_member(m)
+
+        # Log quantities after;
+        qts_after = {}
+        for rdfn, rqty in m.recipe_quantities.items():
+            qts_after[rdfn] = rqty.quantity_in_g
+
+        # Assert the recipe qty dict has changed;
+        changed = False
+        for rdf in qts_after:
+            if not qts_before[rdf] == qts_after[rdf]:
+                changed = True
+        self.assertTrue(changed)
