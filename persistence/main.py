@@ -31,7 +31,16 @@ class Cache:
 cache = Cache()
 
 
-def get_recipe_df_names_by_tag(tag:str) -> List[str]:
+def get_recipe_df_names_by_flag(flag_name:str, flag_value:bool) -> List[str]:
+    """Returns a list of recipe datafile names corresponding to the flag name/values."""
+    names = []
+    for df_name, precalc_data in get_precalc_data_for_recipes().items():
+        if precalc_data['flag_data'][flag_name] == flag_value:
+            names.append(df_name)
+    return names
+
+
+def get_recipe_df_names_by_tag(tag: str) -> List[str]:
     """Returns a list of recipe datafile names corresponding to the specified tag."""
     if cache.recipes_by_tag == {}:
         cache.recipes_by_tag = _read_datafile(f"{persistence.configs.PATH_INTO_DB}/precalc_data/recipes_by_tag.json")
@@ -43,6 +52,13 @@ def get_precalc_data_for_recipe(datafile_name: str) -> Dict[str, Any]:
     if cache.recipe_precalc_data == {}:
         cache.recipe_precalc_data = _read_datafile(f"{persistence.configs.PATH_INTO_DB}/precalc_data/recipes.json")
     return cache.recipe_precalc_data[datafile_name]
+
+
+def get_precalc_data_for_recipes() -> Dict[str, Any]:
+    """Returns all precalc data for the recipes."""
+    if cache.recipe_precalc_data == {}:
+        cache.recipe_precalc_data = _read_datafile(f"{persistence.configs.PATH_INTO_DB}/precalc_data/recipes.json")
+    return cache.recipe_precalc_data
 
 
 def save_instance(subject: 'persistence.SupportsPersistence') -> None:

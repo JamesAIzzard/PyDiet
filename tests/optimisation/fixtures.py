@@ -6,7 +6,18 @@ test_ga_configs = {
 
 test_constraints = {
     "tags": ["main", "side", "drink"],
-    "flags": {}
+    "flags": {
+        "vegetarian": True,
+        "nut_free": True
+    }
 }
 
-test_goals = {}
+test_goals = {
+    'target_nutrient_masses': {
+        "protein": 30,
+        "carbohydrate": 40,
+        "fat": 30
+    },
+    'total_calories': 1000,
+    'max_cost': 3.00
+}
