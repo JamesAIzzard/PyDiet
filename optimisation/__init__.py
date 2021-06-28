@@ -10,3 +10,4 @@ from .main import (
 )
 from .population import Population
 from .plotter import Plotter
+from .history import History

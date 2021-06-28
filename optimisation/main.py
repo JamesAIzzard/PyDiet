@@ -5,7 +5,6 @@ from typing import List, Dict, Callable, Optional
 
 import numpy
 
-
 import model
 import persistence
 import optimisation
@@ -18,12 +17,14 @@ def run(ga_configs=configs.ga_configs, constraints=configs.constraints):
     logging.info("--- Optimisation Run Starting ---")
     logging.info("Beginning population growth.")
     plot = optimisation.Plotter()
+    hist = optimisation.History()
     pop = init_population(
         num_members=ga_configs["max_population_size"],
         create_member=lambda: create_random_member(
             tags=constraints['tags'],
             flags=constraints['flags']
-        )
+        ),
+        on_new_best=lambda gen, data: hist.record_solution(gen, data)
     )
     logging.info("Initial population created.")
 
@@ -35,8 +36,7 @@ def run(ga_configs=configs.ga_configs, constraints=configs.constraints):
         logging.info(f"Generation #{pop.generation}")
         cull_population(pop)
         regrow_population(pop)
-        plot.update()
-        pop.generation += 1
+        pop.next_generation()
     logging.info("Finished optimisation.")
 
 
@@ -103,9 +103,13 @@ def regrow_population(
     logging.info(f"Finished regrowing population.")
 
 
-def init_population(num_members: int, create_member: Callable) -> 'optimisation.Population':
+def init_population(
+        num_members: int,
+        create_member: Callable,
+        on_new_best: Optional[Callable[[int, 'model.meals.MealData'], None]] = None
+) -> 'optimisation.Population':
     """Returns a randomly generated population of specified size."""
-    pop = optimisation.Population()
+    pop = optimisation.Population(on_new_best=on_new_best)
     perc = 0
     while len(pop) < num_members:
         m = create_member()
