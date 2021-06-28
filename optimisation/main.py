@@ -4,54 +4,12 @@ import random
 from typing import List, Dict, Callable, Optional
 
 import numpy
-from matplotlib import pylab
+
 
 import model
 import persistence
+import optimisation
 from optimisation import configs
-
-
-class Plotter:
-    def __init__(self):
-        self.
-
-
-class Population:
-
-    def __init__(self):
-        self._population = []
-        self.highest_fitness_score: Optional[float] = None
-        self.highest_fitness_member: Optional['model.meals.SettableMeal'] = None
-        self.fitness_hist = []
-
-    def __str__(self):
-        return f"{self._population}"
-
-    def __len__(self):
-        return len(self._population)
-
-    def __getitem__(self, i):
-        return self._population.__getitem__(i)
-
-    def __iter__(self):
-        return self._population.__iter__()
-
-    def append(self, member: 'model.meals.SettableMeal'):
-        """Adds member to population."""
-        if member in self._population:
-            raise ValueError("Member cannot be added to population twice.")
-        fitness = calculate_fitness(member)
-        if self.highest_fitness_score is None:
-            self.highest_fitness_score = fitness
-            self.highest_fitness_member = member
-        elif fitness > self.highest_fitness_score:
-            self.fitness_hist.append(self.highest_fitness_score)
-            self.highest_fitness_score = fitness
-            self.highest_fitness_member = member
-        self._population.append(member)
-
-    def remove(self, member: 'model.meals.SettableMeal') -> None:
-        self._population.remove(member)
 
 
 def run(ga_configs=configs.ga_configs, constraints=configs.constraints):
@@ -59,7 +17,7 @@ def run(ga_configs=configs.ga_configs, constraints=configs.constraints):
 
     logging.info("--- Optimisation Run Starting ---")
     logging.info("Beginning population growth.")
-    plot = Plotter()
+    plot = optimisation.Plotter()
     pop = init_population(
         num_members=ga_configs["max_population_size"],
         create_member=lambda: create_random_member(
@@ -70,19 +28,28 @@ def run(ga_configs=configs.ga_configs, constraints=configs.constraints):
     logging.info("Initial population created.")
 
     logging.info("Beginning optimisation loop.")
-    gen: int = 0
 
     # Run the main loop
-    while gen < ga_configs['max_generations'] and pop.highest_fitness_score < ga_configs['acceptable_fitness']:
-        logging.info(f"Generation #{gen}")
+    while pop.generation < ga_configs['max_generations'] \
+            and pop.highest_fitness_score < ga_configs['acceptable_fitness']:
+        logging.info(f"Generation #{pop.generation}")
         cull_population(pop)
         regrow_population(pop)
-        gen += 1
+        plot.update()
+        pop.generation += 1
     logging.info("Finished optimisation.")
 
 
+def log_solution(
+        meal_data: 'model.meals.MealData',
+        gen_num: int
+) -> None:
+    """Writes the mealdata to a storage file."""
+    raise NotImplementedError
+
+
 def cull_population(
-        population: 'Population',
+        population: 'optimisation.Population',
         max_population_size: int = configs.ga_configs['max_population_size'],
         cull_percentage: float = configs.ga_configs['cull_percentage']) -> None:
     """Culls the population to the minimum level."""
@@ -136,9 +103,9 @@ def regrow_population(
     logging.info(f"Finished regrowing population.")
 
 
-def init_population(num_members: int, create_member: Callable) -> 'Population':
+def init_population(num_members: int, create_member: Callable) -> 'optimisation.Population':
     """Returns a randomly generated population of specified size."""
-    pop = Population()
+    pop = optimisation.Population()
     perc = 0
     while len(pop) < num_members:
         m = create_member()
