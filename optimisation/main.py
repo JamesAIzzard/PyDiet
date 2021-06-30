@@ -1,7 +1,7 @@
 """Top level functionality for optimisation module."""
 import logging
 import random
-from typing import List, Dict, Callable, Optional
+from typing import List, Dict, Callable
 
 import numpy
 
@@ -11,57 +11,84 @@ import optimisation
 from optimisation import configs
 
 
+class Counter:
+    """Counter class."""
+
+    def __init__(self):
+        self._count = 0
+
+    @property
+    def value(self) -> int:
+        return self._count
+
+    def inc(self):
+        self._count += 1
+
+    def reset(self):
+        self._count = 0
+
+
+_log_counter = Counter()
+
+
+def log_population_size_change(
+        pop_size: int,
+        log_counter: 'Counter' = _log_counter,
+        log_every_n_calls: int = configs.ga_configs['log_every_n_updates']
+):
+    if log_counter.value == log_every_n_calls:
+        perc = round(pop_size / configs.ga_configs['log_every_n_updates']) * 10
+        logging.info(f"Population size at {perc}%.")
+        log_counter.reset()
+    log_counter.inc()
+
+
 def run(ga_configs=configs.ga_configs, constraints=configs.constraints):
     """Runs the GA."""
 
-    logging.info("--- Optimisation Run Starting ---")
-    logging.info("Beginning population growth.")
-    plot = optimisation.Plotter()
+    # Initialise the various modules;
     hist = optimisation.History()
-    pop = init_population(
-        num_members=ga_configs["max_population_size"],
-        create_member=lambda: create_random_member(
+    plotter = optimisation.Plotter()
+
+    pop = optimisation.Population(
+        create_random_member=lambda: create_random_member(
             tags=constraints['tags'],
             flags=constraints['flags']
         ),
-        on_new_best=lambda gen, data: hist.record_solution(gen, data)
+        calculate_fitness=calculate_fitness,
+        on_population_size_change=log_population_size_change,
+        on_new_best=hist.record_solution
     )
+
+    # Begin the run;
+    logging.info("--- Optimisation Run Starting ---")
+    logging.info("Beginning population growth.")
+    # plotter.start()
+    pop.populate_with_random_members()
     logging.info("Initial population created.")
 
-    logging.info("Beginning optimisation loop.")
-
     # Run the main loop
+    logging.info("Beginning optimisation loop.")
     while pop.generation < ga_configs['max_generations'] \
             and pop.highest_fitness_score < ga_configs['acceptable_fitness']:
         logging.info(f"Generation #{pop.generation}")
-        cull_population(pop)
-        regrow_population(pop)
-        pop.next_generation()
+        cull_population(population=pop)
+        regrow_population(population=pop)
+        pop.inc_generation()
     logging.info("Finished optimisation.")
-
-
-def log_solution(
-        meal_data: 'model.meals.MealData',
-        gen_num: int
-) -> None:
-    """Writes the mealdata to a storage file."""
-    raise NotImplementedError
 
 
 def cull_population(
         population: 'optimisation.Population',
         max_population_size: int = configs.ga_configs['max_population_size'],
-        cull_percentage: float = configs.ga_configs['cull_percentage']) -> None:
+        cull_percentage: float = configs.ga_configs['cull_percentage']
+) -> None:
     """Culls the population to the minimum level."""
     culled_pop_size = round(max_population_size * (1 - (cull_percentage / 100)))
     logging.info(f"Culling population to {culled_pop_size} members.")
     while len(population) > culled_pop_size:
-        m1 = random.choice(population)
-        m2 = random.choice(population)
-        while m2 == m1:
-            m2 = random.choice(population)
-        m1f = calculate_fitness(m1)
-        m2f = calculate_fitness(m2)
+        m1, m2, = population.choose_two_random_members()
+        m1f, m2f = calculate_fitness(m1, m2)
         if m1f < m2f:
             population.remove(m2)
         else:
@@ -69,93 +96,49 @@ def cull_population(
     logging.info("Population culling complete.")
 
 
-def should_mutate(mutation_prob_perc: float = configs.ga_configs['mutation_probability_percentage']) -> bool:
+def roll_dice(true_probability: float = configs.ga_configs['mutation_probability_percentage']) -> bool:
     """Returns True/False to indicate if the population should mutate."""
     point = random.choice(numpy.linspace(0, 100, num=100))
-    if point < mutation_prob_perc:
+    if point < true_probability:
         return True
     else:
         return False
 
 
+def should_create_random_member(mutation_prob: float = configs.ga_configs['random_solution_intro_percentage']) -> bool:
+    """Returns True/False to indicate if a random member should be created."""
+    return roll_dice(mutation_prob)
+
+
+def should_mutate(mutation_prob: float = configs.ga_configs['mutation_probability_percentage']) -> bool:
+    """Returns True/False to indicate if a member should be mutated."""
+    return roll_dice(mutation_prob)
+
+
 def regrow_population(
-        population: 'Population',
+        population: 'optimisation.Population',
         max_population_size: int = configs.ga_configs['max_population_size'],
         mutation_prob: float = configs.ga_configs['mutation_probability_percentage'],
         random_solution_prob: float = configs.ga_configs['random_solution_intro_percentage']
 ) -> None:
     """Regrows the population back to correct level."""
     logging.info(f"Regrowing population to {max_population_size} members.")
-    perc = 0
     while len(population) < max_population_size:
-        if should_mutate(random_solution_prob):
+        # Roll the dice to figure if we should bring in a whole new member;
+        # Yes we should;
+        if should_create_random_member(mutation_prob):
             m = create_random_member()
             logging.debug("Mutation: Solution randomly created.")
+        # No, we should create the new one from two surviving parents in the population;
         else:
-            m = splice_members(random.choice(population), random.choice(population))
-            if should_mutate(mutation_prob_perc=mutation_prob):
+            m = splice_members(*population.choose_two_random_members())
+            # Should we mutate the child?
+            # Yes - go ahead;
+            if should_mutate(random_solution_prob):
                 mutate_member(m)
                 logging.debug("Mutation: Spliced solution mutated.")
         population.append(m)
-        if round(len(population) / max_population_size, 1) > perc:
-            perc = round(len(population) / max_population_size, 1)
-            logging.info(f"{perc * 100}% complete, max_fitness = {population.highest_fitness_score}")
     logging.info(f"Finished regrowing population.")
-
-
-def init_population(
-        num_members: int,
-        create_member: Callable,
-        on_new_best: Optional[Callable[[int, 'model.meals.MealData'], None]] = None
-) -> 'optimisation.Population':
-    """Returns a randomly generated population of specified size."""
-    pop = optimisation.Population(on_new_best=on_new_best)
-    perc = 0
-    while len(pop) < num_members:
-        m = create_member()
-        pop.append(m)
-        if round(len(pop) / num_members, 1) > perc:
-            perc = round(len(pop) / num_members, 1)
-            logging.info(f"{perc * 100}% complete, max_fitness = {pop.highest_fitness_score}")
-    return pop
-
-
-def fitness_function(
-        get_nutrient_ratio: Callable[[str], float],
-        target_nutrient_masses: Dict[str, float]
-) -> float:
-    """Returns the fitness of the member provided."""
-
-    # Calculate the total mass of the nutrient targets;
-    target_nutr_total_mass = sum(target_nutrient_masses.values())
-
-    # Calculate the ideal ratios between the target nutrient masses;
-    target_nutrient_ratios = {}
-    for nutr_name, target_mass in target_nutrient_masses.items():
-        target_nutrient_ratios[nutr_name] = target_mass / target_nutr_total_mass
-
-    # Calculate a fitness component for each target nutrient ratio;
-    components = []
-    for nutr_name, target_mass in target_nutrient_masses.items():
-        components.append(
-            abs(get_nutrient_ratio(nutr_name) - target_nutrient_ratios[
-                nutr_name]) / len(target_nutrient_ratios))
-
-    # Combine the fitness components;
-    fitness = 1 - sum(components)
-
-    # Return the result;
-    return fitness
-
-
-def calculate_fitness(
-        m: 'model.meals.SettableMeal',
-        target_nutr_masses: Dict[str, float] = configs.goals['target_nutrient_masses']
-):
-    return fitness_function(
-        get_nutrient_ratio=lambda nutr_name: m.get_nutrient_ratio(nutr_name).subject_g_per_host_g,
-        target_nutrient_masses=target_nutr_masses
-    )
 
 
 def mutate_member(member: 'model.meals.SettableMeal') -> None:
@@ -217,6 +200,47 @@ def create_random_member(
             pref_unit='g'
         ))
     return meal
+
+
+def fitness_function(
+        get_nutrient_ratio: Callable[[str], float],
+        target_nutrient_masses: Dict[str, float]
+) -> float:
+    """Returns the fitness of the member provided."""
+
+    # Calculate the total mass of the nutrient targets;
+    target_nutr_total_mass = sum(target_nutrient_masses.values())
+
+    # Calculate the ideal ratios between the target nutrient masses;
+    target_nutrient_ratios = {}
+    for nutr_name, target_mass in target_nutrient_masses.items():
+        target_nutrient_ratios[nutr_name] = target_mass / target_nutr_total_mass
+
+    # Calculate a fitness component for each target nutrient ratio;
+    components = []
+    for nutr_name, target_mass in target_nutrient_masses.items():
+        components.append(
+            abs(get_nutrient_ratio(nutr_name) - target_nutrient_ratios[
+                nutr_name]) / len(target_nutrient_ratios))
+
+    # Combine the fitness components;
+    fitness = 1 - sum(components)
+
+    # Return the result;
+    return fitness
+
+
+def calculate_fitness(
+        *members: 'model.meals.SettableMeal',
+        target_nutr_masses: Dict[str, float] = configs.goals['target_nutrient_masses']
+):
+    fs = []
+    for member in members:
+        fs.append(fitness_function(
+            get_nutrient_ratio=lambda nutr_name: member.get_nutrient_ratio(nutr_name).subject_g_per_host_g,
+            target_nutrient_masses=target_nutr_masses
+        ))
+    return fs
 
 
 if __name__ == "__main__":
