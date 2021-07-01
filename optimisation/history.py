@@ -16,4 +16,4 @@ class History:
         """Records the solution provided."""
         self._historical_solution_data.append((gen, solution_data))
         with open(configs.history_path, 'w') as fh:
-            json.dump(self._historical_solution_data, fh)
+            json.dump(self._historical_solution_data, fh, indent=2)

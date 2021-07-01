@@ -83,7 +83,6 @@ class Population:
         if len(self._population) == 0 or fitness > self.highest_fitness_score:
             logging.info(f"-> New best solution: {fitness} <-")
             self._update_fittest_member(fitness, member)
-            self._log_fittest_member(self.generation, member.persistable_data)
         # Add it to the population;
         self._population.append(member)
         # Trigger the on_size_change;

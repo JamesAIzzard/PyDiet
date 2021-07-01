@@ -92,9 +92,9 @@ def cull_population(
         m1, m2, = population.choose_two_random_members()
         m1f, m2f = calculate_fitness(m1, m2)
         if m1f < m2f:
-            population.remove(m2)
-        else:
             population.remove(m1)
+        else:
+            population.remove(m2)
     logging.info("Population culling complete.")
 
 
