@@ -1,11 +1,11 @@
 """Graphing functionality to display results from the optimiser."""
 import json
-import threading
 from matplotlib import pyplot as plt
 from matplotlib import animation
 
 import model
 import optimisation
+from optimisation import configs
 
 
 class Plotter:
@@ -18,22 +18,23 @@ class Plotter:
         self.fitness_hist_ax.set_xlabel('Generation #')
         self.fitness_hist_ax.set_ylabel('Fitness Score')
         self.fitness_hist_ax.grid()
-        self._ani = None
+        self.fitness_hist_line, = self.fitness_hist_ax.plot([0], [0])
+        self._ani = animation.FuncAnimation(self.fig, self.run, interval=500, repeat=True)
 
-    def _update(self):
+    def run(self, i):
         """Update function."""
-        gens = []
-        fitnesses = []
-        with open("history.json", 'r') as fh:
+        gens = [0]
+        fitnesses = [0]
+        with open(configs.history_path, 'r') as fh:
             raw_data = fh.read()
             data = json.loads(raw_data)
         for row in data:
             gens.append(row[0])
             m = model.meals.SettableMeal(meal_data=row[1])
-            fitnesses.append(optimisation.calculate_fitness(m))
-        self.fitness_hist_ax.plot(gens, fitnesses)
+            fitnesses.append(optimisation.calculate_fitness(m)[0])
+        self.fitness_hist_line.set_data(gens, fitnesses)
+        self.fitness_hist_ax.relim()
+        self.fitness_hist_ax.autoscale_view()
 
-    def start(self):
-        """Starts plotting results."""
-        self._ani = animation.FuncAnimation(self.fig, self._update, interval=500)
-        th = threading.Thread(target=lambda: plt.show())
+plotter = Plotter()
+plt.show()

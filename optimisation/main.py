@@ -1,6 +1,8 @@
 """Top level functionality for optimisation module."""
 import logging
+import os
 import random
+import subprocess
 from typing import List, Dict, Callable
 
 import numpy
@@ -48,7 +50,6 @@ def run(ga_configs=configs.ga_configs, constraints=configs.constraints):
 
     # Initialise the various modules;
     hist = optimisation.History()
-    plotter = optimisation.Plotter()
 
     pop = optimisation.Population(
         create_random_member=lambda: create_random_member(
@@ -57,13 +58,14 @@ def run(ga_configs=configs.ga_configs, constraints=configs.constraints):
         ),
         calculate_fitness=calculate_fitness,
         on_population_size_change=log_population_size_change,
-        on_new_best=hist.record_solution
+        log_fittest_member=hist.record_solution
     )
+
+    # subprocess.call(['python', 'optimisation/plotter.py'], cwd=os.getcwd())
 
     # Begin the run;
     logging.info("--- Optimisation Run Starting ---")
     logging.info("Beginning population growth.")
-    # plotter.start()
     pop.populate_with_random_members()
     logging.info("Initial population created.")
 

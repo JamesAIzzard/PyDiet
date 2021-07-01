@@ -1,5 +1,6 @@
 """Population class, used for collecting and managing solutions."""
 import random
+import logging
 from typing import Optional, List, Callable
 
 import model
@@ -16,9 +17,9 @@ class Population:
             calculate_fitness: Callable[['model.meals.SettableMeal'], List[float]],
             on_population_size_change: Callable[[int], None],
             max_size: int = configs.ga_configs["max_population_size"],
-            on_new_best: Optional[Callable[[int, 'model.meals.MealData'], None]] = None
+            log_fittest_member: Optional[Callable[[int, 'model.meals.MealData'], None]] = None
     ):
-        self._on_new_best = on_new_best
+        self._log_fittest_member = log_fittest_member
         self._calculate_fitness = calculate_fitness
         self._max_size = max_size
         self._create_random_member = create_random_member
@@ -69,7 +70,7 @@ class Population:
     def _update_fittest_member(self, fitness, member):
         """Updates the record of the fittest member in the population."""
         self._highest_fitness_score, self._fittest_member = fitness, member
-        self._on_new_best(self._generation, member.persistable_data)
+        self._log_fittest_member(self._generation, member.persistable_data)
 
     def append(self, member: 'model.meals.SettableMeal'):
         """Adds member to population."""
@@ -80,7 +81,9 @@ class Population:
         fitness = optimisation.calculate_fitness(member)[0]
         # If this is the first member, or beats the current best member, update the fittest member;
         if len(self._population) == 0 or fitness > self.highest_fitness_score:
+            logging.info(f"-> New best solution: {fitness} <-")
             self._update_fittest_member(fitness, member)
+            self._log_fittest_member(self.generation, member.persistable_data)
         # Add it to the population;
         self._population.append(member)
         # Trigger the on_size_change;

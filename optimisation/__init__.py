@@ -8,5 +8,4 @@ from .main import (
     splice_members
 )
 from .population import Population
-from .plotter import Plotter
 from .history import History
