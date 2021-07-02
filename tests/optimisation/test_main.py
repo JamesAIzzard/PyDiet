@@ -2,7 +2,6 @@
 from typing import Dict
 from unittest import TestCase
 
-import model
 import optimisation
 import persistence
 from tests.optimisation import fixtures as ofx
@@ -36,7 +35,7 @@ class TestFitnessFunction(TestCase):
         # Assert that the fitness function returns a float;
         self.assertEqual(1, optimisation.fitness_function(
             get_nutrient_ratio=get_ratio,
-            target_nutrient_masses=ofx.test_goals['target_nutrient_masses']
+            target_nutrient_ratios=ofx.test_goals['target_nutrient_ratios']
         ))
 
     def test_returns_less_than_one_for_imperfect_solution(self):
@@ -54,7 +53,7 @@ class TestFitnessFunction(TestCase):
         # Assert that the fitness function returns a float;
         self.assertLess(optimisation.fitness_function(
             get_nutrient_ratio=get_ratio,
-            target_nutrient_masses=ofx.test_goals['target_nutrient_masses']
+            target_nutrient_ratios=ofx.test_goals['target_nutrient_ratios']
         ), 1)
 
     def test_better_solution_scores_higher_than_worse_solution(self):
@@ -78,11 +77,11 @@ class TestFitnessFunction(TestCase):
         # Calc results for better and worse ratios;
         better_fitness = optimisation.fitness_function(
             get_nutrient_ratio=lambda nutr_name: get_ratio(nutr_name, better_member_ratios),
-            target_nutrient_masses=ofx.test_goals['target_nutrient_masses']
+            target_nutrient_ratios=ofx.test_goals['target_nutrient_ratios']
         )
         worse_fitness = optimisation.fitness_function(
             get_nutrient_ratio=lambda nutr_name: get_ratio(nutr_name, worse_member_ratios),
-            target_nutrient_masses=ofx.test_goals['target_nutrient_masses']
+            target_nutrient_ratios=ofx.test_goals['target_nutrient_ratios']
         )
 
         # Assert that the fitness function returns a float;
@@ -131,7 +130,7 @@ class TestSpliceMembers(TestCase):
         """Checks that the recipe quantities in the child have come from the parents."""
         # Inputs to create test member;
         tags = ["main", "side", "drink"]
-        flags={
+        flags = {
             "vegetarian": True,
             "nut_free": True
         }

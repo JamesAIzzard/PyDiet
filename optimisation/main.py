@@ -69,8 +69,9 @@ def run(ga_configs=configs.ga_configs, constraints=configs.constraints):
 
     # Run the main loop
     logging.info("Beginning optimisation loop.")
-    while pop.generation < ga_configs['max_generations'] \
-            and pop.highest_fitness_score < ga_configs['acceptable_fitness']:
+    # while pop.generation < ga_configs['max_generations'] \
+    #         and pop.highest_fitness_score < ga_configs['acceptable_fitness']:
+    while pop.generation < ga_configs['max_generations']:
         logging.info(f"Generation #{pop.generation}")
         cull_population(population=pop)
         regrow_population(population=pop)
@@ -204,27 +205,19 @@ def create_random_member(
 
 def fitness_function(
         get_nutrient_ratio: Callable[[str], float],
-        target_nutrient_masses: Dict[str, float]
+        target_nutrient_ratios: Dict[str, float]
 ) -> float:
     """Returns the fitness of the member provided."""
 
-    # Calculate the total mass of the nutrient targets;
-    target_nutr_total_mass = sum(target_nutrient_masses.values())
-
-    # Calculate the ideal ratios between the target nutrient masses;
-    target_nutrient_ratios = {}
-    for nutr_name, target_mass in target_nutrient_masses.items():
-        target_nutrient_ratios[nutr_name] = target_mass / target_nutr_total_mass
-
     # Calculate a fitness component for each target nutrient ratio;
     components = []
-    for nutr_name, target_mass in target_nutrient_masses.items():
+    for nutr_name, target_mass in target_nutrient_ratios.items():
         components.append(
-            abs(get_nutrient_ratio(nutr_name) - target_nutrient_ratios[
-                nutr_name]) / len(target_nutrient_ratios))
+            abs(get_nutrient_ratio(nutr_name) - target_nutrient_ratios[nutr_name])
+        )
 
     # Combine the fitness components;
-    fitness = 1 - sum(components)
+    fitness = 1/sum(components)
 
     # Return the result;
     return fitness
@@ -232,13 +225,13 @@ def fitness_function(
 
 def calculate_fitness(
         *members: 'model.meals.SettableMeal',
-        target_nutr_masses: Dict[str, float] = configs.goals['target_nutrient_masses']
+        target_nutr_ratios: Dict[str, float] = configs.goals['target_nutrient_ratios']
 ):
     fs = []
     for member in members:
         fs.append(fitness_function(
             get_nutrient_ratio=lambda nutr_name: member.get_nutrient_ratio(nutr_name).subject_g_per_host_g,
-            target_nutrient_masses=target_nutr_masses
+            target_nutrient_ratios=target_nutr_ratios
         ))
     return fs
 

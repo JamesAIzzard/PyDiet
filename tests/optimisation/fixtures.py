@@ -13,10 +13,10 @@ test_constraints = {
 }
 
 test_goals = {
-    'target_nutrient_masses': {
-        "protein": 30,
-        "carbohydrate": 40,
-        "fat": 30
+    'target_nutrient_ratios': {
+        "protein": 0.3,
+        "carbohydrate": 0.4,
+        "fat": 0.3
     },
     'total_calories': 1000,
     'max_cost': 3.00
