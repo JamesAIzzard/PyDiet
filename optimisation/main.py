@@ -61,8 +61,6 @@ def run(ga_configs=configs.ga_configs, constraints=configs.constraints):
         log_fittest_member=hist.record_solution
     )
 
-    # subprocess.call(['python', 'optimisation/plotter.py'], cwd=os.getcwd())
-
     # Begin the run;
     logging.info("--- Optimisation Run Starting ---")
     logging.info("Beginning population growth.")

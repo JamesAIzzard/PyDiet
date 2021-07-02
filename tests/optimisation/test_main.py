@@ -14,27 +14,6 @@ class TestInitPopulation(TestCase):
     def setUp(self) -> None:
         persistence.cache.reset()
 
-    def test_can_init_population(self):
-        """Checks we can initialise a population."""
-        # Create the population;
-        pop = optimisation.init_population(
-            num_members=10,
-            create_member=lambda: optimisation.create_random_member(
-                tags=['main', 'side', 'drink'],
-                flags={
-                    'vegetarian': True,
-                    'nut_free': True
-                }
-            )
-        )
-
-        # Check the population members are the right type;
-        for member in pop:
-            self.assertTrue(isinstance(member, model.meals.SettableMeal))
-
-        # Check there are the right number of objects in the population;
-        self.assertEqual(10, len(pop))
-
 
 class TestFitnessFunction(TestCase):
     """Tests for the fitness_function mehtod."""

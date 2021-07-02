@@ -1,6 +1,6 @@
 """Population class, used for collecting and managing solutions."""
-import random
 import logging
+import random
 from typing import Optional, List, Callable
 
 import model
@@ -15,7 +15,7 @@ class Population:
             self,
             create_random_member: Callable[[], 'model.meals.SettableMeal'],
             calculate_fitness: Callable[['model.meals.SettableMeal'], List[float]],
-            on_population_size_change: Callable[[int], None],
+            on_population_size_change: Optional[Callable[[int], None]] = None,
             max_size: int = configs.ga_configs["max_population_size"],
             log_fittest_member: Optional[Callable[[int, 'model.meals.MealData'], None]] = None
     ):
@@ -70,7 +70,8 @@ class Population:
     def _update_fittest_member(self, fitness, member):
         """Updates the record of the fittest member in the population."""
         self._highest_fitness_score, self._fittest_member = fitness, member
-        self._log_fittest_member(self._generation, member.persistable_data)
+        if self._log_fittest_member is not None:
+            self._log_fittest_member(self._generation, member.persistable_data)
 
     def append(self, member: 'model.meals.SettableMeal'):
         """Adds member to population."""
@@ -86,9 +87,11 @@ class Population:
         # Add it to the population;
         self._population.append(member)
         # Trigger the on_size_change;
-        self._on_population_size_change(len(self._population))
+        if self._on_population_size_change is not None:
+            self._on_population_size_change(len(self._population))
 
     def remove(self, member: 'model.meals.SettableMeal') -> None:
         self._population.remove(member)
         # Trigger the on_size_change;
-        self._on_population_size_change(len(self._population))
+        if self._on_population_size_change is not None:
+            self._on_population_size_change(len(self._population))
