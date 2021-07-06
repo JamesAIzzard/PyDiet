@@ -63,6 +63,8 @@ class Plotter:
             data = json.loads(raw_data)
         for row in data:
             gens.append(row[0])
+            # Strip the nutrient ratios out;
+            del row[1]['nutrient_ratios']
             m = model.meals.SettableMeal(meal_data=row[1])
             fitnesses.append(optimisation.calculate_fitness(m)[0])
             for nut_name in self.target_nutr_lines.keys():

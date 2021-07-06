@@ -203,24 +203,37 @@ def create_random_member(
     return meal
 
 
+# def fitness_function(
+#         get_nutrient_ratio: Callable[[str], float],
+#         target_nutrient_ratios: Dict[str, float]
+# ) -> float:
+#     """Returns the fitness of the member provided."""
+#
+#     # Calculate a fitness component for each target nutrient ratio;
+#     components = []
+#     for nutr_name, target_mass in target_nutrient_ratios.items():
+#         components.append(
+#             abs(get_nutrient_ratio(nutr_name) - target_nutrient_ratios[nutr_name])
+#         )
+#
+#     # Combine the fitness components;
+#     fitness = 1 / sum(components)
+#
+#     # Return the result;
+#     return fitness
+
+
 def fitness_function(
         get_nutrient_ratio: Callable[[str], float],
         target_nutrient_ratios: Dict[str, float]
 ) -> float:
     """Returns the fitness of the member provided."""
-
-    # Calculate a fitness component for each target nutrient ratio;
-    components = []
+    worst_fitness = None
     for nutr_name, target_mass in target_nutrient_ratios.items():
-        components.append(
-            abs(get_nutrient_ratio(nutr_name) - target_nutrient_ratios[nutr_name])
-        )
-
-    # Combine the fitness components;
-    fitness = 1/sum(components)
-
-    # Return the result;
-    return fitness
+        delta = 1 - abs(get_nutrient_ratio(nutr_name) - target_nutrient_ratios[nutr_name])
+        if worst_fitness is None or delta < worst_fitness:
+            worst_fitness = delta
+    return worst_fitness
 
 
 def calculate_fitness(

@@ -71,7 +71,13 @@ class Population:
         """Updates the record of the fittest member in the population."""
         self._highest_fitness_score, self._fittest_member = fitness, member
         if self._log_fittest_member is not None:
-            self._log_fittest_member(self._generation, member.persistable_data)
+            data = {
+                'nutrient_ratios': {}
+            }
+            for nutr_name, nutr_ratio_data in member.nutrient_ratios_data.items():
+                data['nutrient_ratios'][nutr_name] = model.quantity.get_ratio_from_qty_ratio_data(nutr_ratio_data)
+            data.update(member.persistable_data)
+            self._log_fittest_member(self._generation, data)
 
     def append(self, member: 'model.meals.SettableMeal'):
         """Adds member to population."""
