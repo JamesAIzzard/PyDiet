@@ -1,7 +1,7 @@
 """Graphing functionality to display results from the optimiser."""
 import json
-import random
-from typing import Dict, List
+import copy
+from typing import Dict
 
 from matplotlib import animation
 from matplotlib import pyplot as plt
@@ -55,20 +55,32 @@ class Plotter:
 
     def run(self, _):
         """Update function."""
+        # Create lists for the data;
         gens = []
         fitnesses = []
         target_nutrs = {nut_name: [] for nut_name in self.target_nutr_lines.keys()}
+
+        # Open the logfile and read the data;
         with open(configs.history_path, 'r') as fh:
             raw_data = fh.read()
             data = json.loads(raw_data)
+        # Work through each entry in the data;
         for row in data:
+            # Grab the generation number;
             gens.append(row[0])
-            # Strip the nutrient ratios out;
-            del row[1]['nutrient_ratios']
-            m = model.meals.SettableMeal(meal_data=row[1])
+
+            # Create a meal instance from the data;
+            # First grab the meal data;
+            md = copy.copy(row[1])
+            del md['nutrient_ratios']
+            m = model.meals.SettableMeal(meal_data=md)
+
+            # Calculate the fitness of the instance;
             fitnesses.append(optimisation.calculate_fitness(m)[0])
+
             for nut_name in self.target_nutr_lines.keys():
                 target_nutrs[nut_name].append(m.get_nutrient_ratio(nut_name).subject_g_per_host_g)
+
         self.fitness_hist_line.set_data(gens, fitnesses)
         for nut_name, line in self.target_nutr_lines.items():
             line[0].set_data(gens, target_nutrs[nut_name])

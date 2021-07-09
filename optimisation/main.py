@@ -205,7 +205,8 @@ def create_random_member(
 
 # def fitness_function(
 #         get_nutrient_ratio: Callable[[str], float],
-#         target_nutrient_ratios: Dict[str, float]
+#         target_nutrient_ratios: Dict[str, float],
+#         **kwargs
 # ) -> float:
 #     """Returns the fitness of the member provided."""
 #
@@ -225,15 +226,27 @@ def create_random_member(
 
 def fitness_function(
         get_nutrient_ratio: Callable[[str], float],
-        target_nutrient_ratios: Dict[str, float]
+        get_total_calories: Callable[[], float],
+        get_total_cost: Callable[[], float],
+        target_nutrient_ratios: Dict[str, float],
+        target_total_calories: float = configs.goals['total_calories']
 ) -> float:
     """Returns the fitness of the member provided."""
-    worst_fitness = None
+    # Calculate the fitness based on the nutrients;
+    nutr_worst_fitness = None
     for nutr_name, target_mass in target_nutrient_ratios.items():
         delta = 1 - abs(get_nutrient_ratio(nutr_name) - target_nutrient_ratios[nutr_name])
-        if worst_fitness is None or delta < worst_fitness:
-            worst_fitness = delta
-    return worst_fitness
+        if nutr_worst_fitness is None or delta < nutr_worst_fitness:
+            nutr_worst_fitness = delta
+
+    # SLOW!
+    # # Calculate the scale factor required to meet the target nutrients;
+    # k = target_total_calories/get_total_calories()
+    #
+    # # Calculate the cost of the scaled recipe quantities;
+    # meal_cost = get_total_cost() * k
+
+    return nutr_worst_fitness
 
 
 def calculate_fitness(
@@ -244,7 +257,9 @@ def calculate_fitness(
     for member in members:
         fs.append(fitness_function(
             get_nutrient_ratio=lambda nutr_name: member.get_nutrient_ratio(nutr_name).subject_g_per_host_g,
-            target_nutrient_ratios=target_nutr_ratios
+            target_nutrient_ratios=target_nutr_ratios,
+            get_total_calories=lambda: member.num_calories,
+            get_total_cost=lambda: member.pricetag
         ))
     return fs
 
