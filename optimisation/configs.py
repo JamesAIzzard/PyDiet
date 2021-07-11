@@ -27,5 +27,5 @@ goals = {
         "saturated_fat": 0.3,
     },
     'total_calories': 1000,
-    'max_cost': 3.00
+    'max_cost': 4.00
 }

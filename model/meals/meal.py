@@ -15,6 +15,24 @@ class SettableMeal(
         super().__init__(recipe_quantities_data=meal_data, **kwargs)
 
     @property
+    def pricetag(self) -> float:
+        """Use the fast pre-cache data to determine the price of each meal."""
+        total_cost = 0
+        for rec_dfn, rec_df in self.recipe_quantities_data.items():
+            cost_per_g = persistence.get_precalc_data_for_recipe(rec_dfn)['cost_per_qty_data']['cost_per_g']
+            total_cost += cost_per_g * rec_df['quantity_in_g']
+        return total_cost
+
+    @property
+    def num_calories(self) -> float:
+        """Use the fast pre-cache data to get the number of calories."""
+        total_cals = 0
+        for rec_dfn, rec_df in self.recipe_quantities_data.items():
+            cals_per_g = persistence.get_precalc_data_for_recipe(rec_dfn)['calories_per_g']
+            total_cals += cals_per_g * rec_df['quantity_in_g']
+        return total_cals
+
+    @property
     def nutrient_ratios_data(self) -> 'model.nutrients.NutrientRatiosData':
         """Shortcut the inheritence tree to deliver these faster if the cache is available."""
         try:

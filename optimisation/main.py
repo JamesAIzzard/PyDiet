@@ -1,15 +1,13 @@
 """Top level functionality for optimisation module."""
 import logging
-import os
 import random
-import subprocess
 from typing import List, Dict, Callable
 
 import numpy
 
 import model
-import persistence
 import optimisation
+import persistence
 from optimisation import configs
 
 
@@ -229,7 +227,8 @@ def fitness_function(
         get_total_calories: Callable[[], float],
         get_total_cost: Callable[[], float],
         target_nutrient_ratios: Dict[str, float],
-        target_total_calories: float = configs.goals['total_calories']
+        target_total_calories: float = configs.goals['total_calories'],
+        target_max_cost: float = configs.goals['max_cost']
 ) -> float:
     """Returns the fitness of the member provided."""
     # Calculate the fitness based on the nutrients;
@@ -239,12 +238,15 @@ def fitness_function(
         if nutr_worst_fitness is None or delta < nutr_worst_fitness:
             nutr_worst_fitness = delta
 
-    # SLOW!
-    # # Calculate the scale factor required to meet the target nutrients;
-    # k = target_total_calories/get_total_calories()
-    #
-    # # Calculate the cost of the scaled recipe quantities;
-    # meal_cost = get_total_cost() * k
+    # Calculate the scale factor required to meet the target nutrients;
+    k = target_total_calories / get_total_calories()
+
+    # Calculate the cost of the scaled recipe quantities;
+    meal_cost = get_total_cost() * k
+
+    # Write off any solutions which are too expensive;
+    if meal_cost > target_max_cost:
+        nutr_worst_fitness = 0
 
     return nutr_worst_fitness
 
