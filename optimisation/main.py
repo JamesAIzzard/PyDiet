@@ -10,6 +10,7 @@ import optimisation
 import persistence
 from optimisation import configs
 
+# Todo - Talk about prefiltering, and how algorithm doesnt generate infeasible solutions.
 
 class Counter:
     """Counter class."""
@@ -43,11 +44,15 @@ def log_population_size_change(
     log_counter.inc()
 
 
-def run(ga_configs=configs.ga_configs, constraints=configs.constraints):
+def run(
+        ga_configs=configs.ga_configs,
+        constraints=configs.constraints,
+        history_filepath=configs.history_path
+):
     """Runs the GA."""
 
     # Initialise the various modules;
-    hist = optimisation.History()
+    hist = optimisation.History(history_filepath=history_filepath)
 
     pop = optimisation.Population(
         create_random_member=lambda: create_random_member(
