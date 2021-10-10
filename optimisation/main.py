@@ -1,6 +1,7 @@
 """Top level functionality for optimisation module."""
 import logging
 import random
+import json
 from typing import List, Dict, Callable
 
 import numpy
@@ -8,9 +9,7 @@ import numpy
 import model
 import optimisation
 import persistence
-from optimisation import configs
-
-# Todo - Talk about prefiltering, and how algorithm doesnt generate infeasible solutions.
+from optimisation import configs, configs1, configs2, configs3, configs4, configs5, configs6, configs7, configs8, configs9, configs10
 
 class Counter:
     """Counter class."""
@@ -47,6 +46,7 @@ def log_population_size_change(
 def run(
         ga_configs=configs.ga_configs,
         constraints=configs.constraints,
+        goals=configs.goals,
         history_filepath=configs.history_path
 ):
     """Runs the GA."""
@@ -79,6 +79,7 @@ def run(
         cull_population(population=pop)
         regrow_population(population=pop)
         pop.inc_generation()
+        pop.log_fittest_member()
     logging.info("Finished optimisation.")
 
 
@@ -269,6 +270,44 @@ def calculate_fitness(
             get_total_cost=lambda: member.pricetag
         ))
     return fs
+
+
+def run_fitness_reps(
+        output_file:str,
+        num_reps=20,
+        ga_configs=configs.ga_configs,
+        set_ga_configs: Dict = None,
+        set_goals: Dict = None,
+        constraints=configs.constraints,
+        history_filepath=configs.history_path
+):
+    rep = 1
+    fitness_scores: Dict[int, dict] = {}
+
+    # Apply any config changes;
+    if set_ga_configs is not None:
+        for config, value in set_ga_configs.items():
+            ga_configs[config] = value
+    if set_goals is not None:
+        configs.goals = set_goals
+
+    while rep <= num_reps:
+        # Run the rep;
+        run(ga_configs=ga_configs, constraints=constraints, history_filepath=configs.history_path)
+        # Open the logfile and read the data;
+        with open(history_filepath, 'r') as fh:
+            raw_data = fh.read()
+            data = json.loads(raw_data)
+        # Collect the fitness hist for this repetition;
+        fitness_scores[rep] = {}
+        # Work through each entry in the data;
+        for gen in data:
+            fitness_scores[rep][gen[0]] = gen[1]['fitness']
+        # Increment the repetition counter
+        rep += 1
+    # Save the data;
+    with open(output_file, 'w') as fh:
+        json.dump(fitness_scores, fh, indent=2)
 
 
 if __name__ == "__main__":

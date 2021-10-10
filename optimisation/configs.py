@@ -4,10 +4,10 @@ history_path = "optimisation/history.json"
 ga_configs = {
     "max_population_size": 100,
     "acceptable_fitness": 0.95,
-    "max_generations": 100,
-    "cull_percentage": 70,
+    "max_generations": 200,
+    "cull_percentage": 50,
     "mutation_probability_percentage": 50,
-    "random_solution_intro_percentage": 10,
+    "random_solution_intro_percentage": 50,
     "log_every_n_updates": 10,
 }
 
@@ -16,7 +16,8 @@ constraints = {
     "flags": {
         "vegetarian": True,
         "nut_free": True
-    }
+    },
+    "time": "12:00"
 }
 
 goals = {

@@ -67,25 +67,42 @@ class Population:
         """Returns the fittest member in the population."""
         return self._fittest_member
 
+    def log_fittest_member(self) -> None:
+        fitness, member = self.highest_fitness_score, self.fittest_member
+        # Calculate the cals scale factor;
+        k = configs.goals['total_calories'] / member.num_calories
+        data = {
+            'nutrient_ratios': {},
+            'fitness': fitness,
+            'cost': member.pricetag * k,
+            'ingredient_quantities': {}
+        }
+        for nutr_name, nutr_ratio_data in member.nutrient_ratios_data.items():
+            data['nutrient_ratios'][nutr_name] = model.quantity.get_ratio_from_qty_ratio_data(nutr_ratio_data)
+        for idf_name, iq in member.ingredient_quantities_data.items():
+            data['ingredient_quantities'][model.ingredients.get_ingredient_name_from_df_name(idf_name)] = iq['quantity_in_g'] * k
+        data.update(member.persistable_data)
+        self._log_fittest_member(self._generation, data)
+
     def _update_fittest_member(self, fitness, member):
         """Updates the record of the fittest member in the population."""
         self._highest_fitness_score, self._fittest_member = fitness, member
-        if self._log_fittest_member is not None:
-            # Calculate the cals scale factor;
-            k = configs.goals['total_calories'] / member.num_calories
-            data = {
-                'nutrient_ratios': {},
-                'fitness': fitness,
-                'cost': member.pricetag*k,
-                'ingredient_quantities': {}
-            }
-            for nutr_name, nutr_ratio_data in member.nutrient_ratios_data.items():
-                data['nutrient_ratios'][nutr_name] = model.quantity.get_ratio_from_qty_ratio_data(nutr_ratio_data)
-            for idf_name, iq in member.ingredient_quantities_data.items():
-                data['ingredient_quantities'][model.ingredients.get_ingredient_name_from_df_name(idf_name)] = iq[
-                    'quantity_in_g']*k
-            data.update(member.persistable_data)
-            self._log_fittest_member(self._generation, data)
+        # if self._log_fittest_member is not None:
+        #     # Calculate the cals scale factor;
+        #     k = configs.goals['total_calories'] / member.num_calories
+        #     data = {
+        #         'nutrient_ratios': {},
+        #         'fitness': fitness,
+        #         'cost': member.pricetag*k,
+        #         'ingredient_quantities': {}
+        #     }
+        #     for nutr_name, nutr_ratio_data in member.nutrient_ratios_data.items():
+        #         data['nutrient_ratios'][nutr_name] = model.quantity.get_ratio_from_qty_ratio_data(nutr_ratio_data)
+        #     for idf_name, iq in member.ingredient_quantities_data.items():
+        #         data['ingredient_quantities'][model.ingredients.get_ingredient_name_from_df_name(idf_name)] = iq[
+        #             'quantity_in_g']*k
+        #     data.update(member.persistable_data)
+        #     self._log_fittest_member(self._generation, data)
 
     def append(self, member: 'model.meals.SettableMeal'):
         """Adds member to population."""
